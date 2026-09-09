@@ -50,6 +50,11 @@
         "Render Target Keys": ";",
         "Constraint Set Keys": ";"
       },
+      "distinct_token_columns": {
+        "Keywords": ",",
+        "Render Target Keys": ";",
+        "Constraint Set Keys": ";"
+      },
       "searchable_columns": [
         "Display Name",
         "Keywords"
@@ -84,6 +89,9 @@
         "Typeface Key": "typefaces.typeface_key"
       },
       "list_columns": {
+        "Anti-Pattern Tokens": ";"
+      },
+      "distinct_token_columns": {
         "Anti-Pattern Tokens": ";"
       },
       "searchable_columns": [
@@ -139,6 +147,9 @@
       "list_columns": {
         "Checklist": ";"
       },
+      "distinct_token_columns": {
+        "Checklist": ";"
+      },
       "searchable_columns": [
         "Display Name",
         "Keywords",
@@ -175,6 +186,11 @@
       "enums": {},
       "foreign_keys": {},
       "list_columns": {
+        "Text-Safe Roles": ";",
+        "Fill-Only Roles": ";",
+        "Category Marker Roles": ";"
+      },
+      "distinct_token_columns": {
         "Text-Safe Roles": ";",
         "Fill-Only Roles": ";",
         "Category Marker Roles": ";"
@@ -519,6 +535,9 @@
       "list_columns": {
         "Section Order": ";"
       },
+      "distinct_token_columns": {
+        "Section Order": ";"
+      },
       "searchable_columns": [
         "Display Name"
       ],
@@ -572,6 +591,9 @@
       },
       "foreign_keys": {},
       "list_columns": {
+        "Print Palette Roles": ";"
+      },
+      "distinct_token_columns": {
         "Print Palette Roles": ";"
       },
       "searchable_columns": [
@@ -667,6 +689,9 @@
       "list_columns": {
         "Section Order": ";"
       },
+      "distinct_token_columns": {
+        "Section Order": ";"
+      },
       "searchable_columns": [],
       "typed_json_columns": [],
       "derived": []
@@ -730,6 +755,9 @@
       },
       "foreign_keys": {},
       "list_columns": {
+        "Weights Covered": ";"
+      },
+      "distinct_token_columns": {
         "Weights Covered": ";"
       },
       "searchable_columns": [],

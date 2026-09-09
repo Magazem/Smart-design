@@ -46,6 +46,15 @@ tables["doctypes"] = {
     # The four are LISTED, not derived, so adding a list FK stays an author decision;
     # the guard at the foot of this file makes forgetting one an error.
     "list_columns": {"Render Target Keys": ";", "Constraint Set Keys": ";"},
+    # A cell in these columns must not repeat a token. `Keywords` is here and NOT in
+    # `list_columns` on purpose: it is a `, `-separated search-token cell, not a `;`-list,
+    # and the well-formedness loop's "no empty item" reading does not apply to it. What IS
+    # true of it is that a repeated token silently doubles that term's BM25 frequency and
+    # biases retrieval toward this row -- which is what `brochure-flyer-a4` (`flyer a4`
+    # twice) did until v0.2. Declaring is per-column and opt-in because repetition is
+    # legitimate in at least one list column (see `page-formats.Panels mm`).
+    "distinct_token_columns": {"Keywords": ",", "Render Target Keys": ";",
+                               "Constraint Set Keys": ";"},
     "searchable_columns": ["Display Name", "Keywords"],
     "typed_json_columns": [],
     "derived": [],
@@ -64,6 +73,7 @@ tables["doc-reasoning"] = {
         "Typeface Key": "typefaces.typeface_key",
     },
     "list_columns": {"Anti-Pattern Tokens": ";"},
+    "distinct_token_columns": {"Anti-Pattern Tokens": ";"},
     "searchable_columns": ["doc_category", "Style Bias Terms"],
     "typed_json_columns": [],
     "derived": [],
@@ -84,6 +94,7 @@ tables["doc-styles"] = {
     },
     "foreign_keys": {},
     "list_columns": {"Checklist": ";"},
+    "distinct_token_columns": {"Checklist": ";"},
     "searchable_columns": ["Display Name", "Keywords", "Best For"],
     "typed_json_columns": [],
     "derived": [],
@@ -101,6 +112,8 @@ tables["palettes"] = {
     "foreign_keys": {},
     "list_columns": {"Text-Safe Roles": ";", "Fill-Only Roles": ";",
                      "Category Marker Roles": ";"},
+    "distinct_token_columns": {"Text-Safe Roles": ";", "Fill-Only Roles": ";",
+                               "Category Marker Roles": ";"},
     "searchable_columns": ["Display Name", "Keywords"],
     "typed_json_columns": [],
     "derived": [
@@ -167,6 +180,11 @@ tables["page-formats"] = {
     },
     "foreign_keys": {},
     "list_columns": {"Panels mm": ";"},
+    # NO `distinct_token_columns` entry for `Panels mm`, deliberately. It is a positional
+    # sequence of panel widths, and equal panels are the normal case, not a defect:
+    # `a4-trifold` is `99.5;99.5;98.0` and `letter-gatefold` is
+    # `53.175;54.775;54.775;53.175`. A blanket "no repeated token in any list column"
+    # rule would fail four correct rows here, which is why the check is opt-in.
     "searchable_columns": ["Display Name", "Keywords"],
     "typed_json_columns": [],
     "derived": [],
@@ -234,6 +252,7 @@ tables["structures"] = {
     },
     "foreign_keys": {"Section Order": group("headings", "canonical_section", is_list=True)},
     "list_columns": {"Section Order": ";"},
+    "distinct_token_columns": {"Section Order": ";"},
     "searchable_columns": ["Display Name"],
     "typed_json_columns": [],
     "derived": [],
@@ -272,6 +291,7 @@ tables["figures"] = {
     # 09 S9, precisely because an undeclared column acquiring a shape by accident is the
     # failure the erratum's own justification describes.
     "list_columns": {"Print Palette Roles": ";"},
+    "distinct_token_columns": {"Print Palette Roles": ";"},
     "searchable_columns": ["Data Type", "Keywords", "Best Chart Type"],
     "typed_json_columns": [],
     "derived": [],
@@ -297,6 +317,7 @@ tables["cv-regions"] = {
     },
     "foreign_keys": {"Section Order": group("headings", "canonical_section", is_list=True)},
     "list_columns": {"Section Order": ";"},
+    "distinct_token_columns": {"Section Order": ";"},
     # DO NOT declare `Language Expectation` as a list column. 8 of 14 rows contain ";"
     # but they are clauses, not tokens ("English standard for multinational/private-sector
     # roles; Arabic for government/local-market roles"). Typed `text`/`P` by the schema
@@ -329,6 +350,7 @@ tables["font-substitutes"] = {
     },
     "foreign_keys": {},
     "list_columns": {"Weights Covered": ";"},
+    "distinct_token_columns": {"Weights Covered": ";"},
     "searchable_columns": [],
     "typed_json_columns": [],
     "derived": [],
@@ -356,6 +378,14 @@ for name, t in tables.items():
     for col, delim in t.get("list_columns", {}).items():
         assert col in t["columns"], ("list_columns names no such column", name, col)
         assert delim == ";", (name, col, delim)
+    # `distinct_token_columns` is INDEPENDENT of `list_columns`: it may name a column that
+    # is not a `;`-list (doctypes.Keywords, delimiter `,`), and it may omit one that is
+    # (page-formats.Panels mm, where repeats are correct). So the only guard it gets is
+    # that the column exists and the delimiter is a single non-empty character.
+    for col, delim in t.get("distinct_token_columns", {}).items():
+        assert col in t["columns"], (
+            "distinct_token_columns names no such column", name, col)
+        assert isinstance(delim, str) and len(delim) == 1, (name, col, delim)
     # Every `list: true` FK must ALSO be declared in `list_columns`. This assertion
     # replaces its own inverse -- the old guard forbade the overlap, on the reading that
     # the FK checker "already splits" the column. It splits it and then skips the empty
@@ -383,7 +413,8 @@ n_group = sum(1 for t in tables.values() for r in t["foreign_keys"].values()
               if isinstance(r, dict) and r.get("group"))
 n_list = sum(len(t.get("list_columns", {})) for t in tables.values())
 n_ref = sum(len(t.get("reference_columns", {})) for t in tables.values())
+n_distinct = sum(len(t.get("distinct_token_columns", {})) for t in tables.values())
 print("wrote %s -- %d tables, %d columns, %d foreign keys (%d group), "
-      "%d list columns, %d reference columns"
+      "%d list columns, %d reference columns, %d distinct-token columns"
       % (out, len(tables), sum(len(t["columns"]) for t in tables.values()), n_fk, n_group,
-         n_list, n_ref))
+         n_list, n_ref, n_distinct))

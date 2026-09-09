@@ -587,7 +587,14 @@ def derive_doctype_rows(spec: dict) -> list[dict]:
         rows.append({
             "doc_key": f"{slug}-{doctype}",
             "Display Name": f"{_title_words(slug)} -- {cat['display']}",
-            "Keywords": f"{doctype}, {doctype.replace('-', ' ')}, {slug}",
+            # dict.fromkeys de-duplicates while keeping first-seen order: a
+            # single-word doctype ("social", "slides", "formulaire") makes
+            # `doctype.replace("-", " ")` identical to `doctype`, and a repeated
+            # keyword doubles that term's frequency in the search index.
+            # doctypes."Keywords" is a declared distinct_token_columns entry, so
+            # the emitted row would otherwise fail the gate it is checked against.
+            "Keywords": ", ".join(dict.fromkeys(
+                [doctype, doctype.replace("-", " "), slug])),
             "Artifact Class": cat["artifact_class"],
             "Brand Scope": slug,
             "Reasoning Key": REASONING_KEY_HINT.get(doctype, ""),

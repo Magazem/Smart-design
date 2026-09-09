@@ -184,6 +184,47 @@ class TestListColumns(unittest.TestCase):
         self.assertIn("malformed ';'-delimited list", "\n".join(problems))
 
 
+class TestDistinctTokenColumns(unittest.TestCase):
+    def test_no_repeated_token_passes(self):
+        ok, problems, _ = validate_data.validate(_data_dir("manifest_group_ok"))
+        self.assertTrue(ok, problems)
+        self.assertNotIn("duplicate token", "\n".join(problems))
+
+    def test_repeated_token_in_comma_column_fails(self):
+        # items.csv row "apple" has Keywords "apple, fruit, red, fruit" -- the
+        # doctypes.Keywords shape: a `, `-separated search-token cell that is not
+        # a `;`-list at all. A repeat doubles that term's frequency and biases
+        # retrieval toward the row carrying the accidental duplicate.
+        ok, problems, _ = validate_data.validate(_data_dir("manifest_bad_distinct_token"))
+        self.assertFalse(ok)
+        joined = "\n".join(problems)
+        self.assertIn("duplicate token 'fruit' in ','-delimited list", joined)
+        self.assertIn("Keywords", joined)
+
+    def test_repeat_is_reported_once_per_token(self):
+        _ok, problems, _ = validate_data.validate(_data_dir("manifest_bad_distinct_token"))
+        self.assertEqual(1, sum("duplicate token" in line for line in problems))
+
+    def test_repeat_in_undeclared_list_column_passes(self):
+        # "Panels" is a declared list column with NO distinct_token_columns entry.
+        # It stands in for page-formats."Panels mm", a positional sequence of panel
+        # widths where "99.5;99.5;98.0" is a correct A4 trifold, not a defect. A
+        # blanket rule over every list column would fail four real rows there,
+        # which is why this check is opt-in per column.
+        ok, problems, _ = validate_data.validate(
+            _data_dir("manifest_repeat_in_undeclared_list_ok"))
+        self.assertTrue(ok, problems)
+
+    def test_duplicate_is_tier_2_tagged_with_its_own_key(self):
+        tier1_ok, tier1, tier2, _ = validate_data.validate_tiered(
+            _data_dir("manifest_bad_distinct_token"))
+        self.assertTrue(tier1_ok, tier1)
+        hits = [e for e in tier2 if "duplicate token" in e["line"]]
+        self.assertEqual(1, len(hits))
+        self.assertEqual("items", hits[0]["table"])
+        self.assertEqual("apple", hits[0]["key"])
+
+
 class TestReferenceColumns(unittest.TestCase):
     def test_literal_value_not_matching_pattern_is_not_checked(self):
         # checks.csv row c1's Threshold is "5" -- a literal, not a

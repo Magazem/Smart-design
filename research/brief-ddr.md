@@ -1,62 +1,56 @@
-# BRIEF — DDR — v0.2 phase A2: the long-form-class section model
+# BRIEF — DDR — Retrofit research/39 and research/40 into the loader's shape
 
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
-DO NOT touch git. DO NOT write under skill/document-design-intelligence/data/ — research/
-drafts only.
+DO NOT touch git. DO NOT write under skill/document-design-intelligence/. research/ only.
 
-## Same shape as A1, which you just did
-`Section Order` is a LIST FOREIGN KEY into `headings.canonical_section`. Every token in a
-Section Order must exist as a canonical_section, so the headings rows and the orders are drafted
-together and validate together.
+## Why
+Your A1 and A2 content is verified and correct — this is not a rework of the sections. Both
+heading CSVs were authored against data/base/headings.csv, which is the loader's OUTPUT shape.
+research/load-base.py reads a different, lowercase INPUT shape, generates heading_key itself,
+and needs a `source` column that neither draft has. Without it every new row lands under
+"(none given)" in data/rationale/headings.md, which the loader writes.
 
-## Scope — these four structure keys, verbatim, no others
-report-short, report-long-toc, whitepaper-standard, one-pager-standard
+## The target shape — from research/18-ats-headings.csv, verbatim
+canonical_section,heading_text,language,is_primary,source
 
-Bound from data/base/structures.csv. The transactional five are done; the marketing six come
-later. Do not touch either.
+## Deliverable (ONE — both files converted)
+Rewrite these two in place:
+- research/39-headings-transactional-draft.csv
+- research/40-headings-longform-draft.csv
 
-## Deliverable (ONE — the long-form section model, two files)
-1. research/40-headings-longform-draft.csv — same columns as data/base/headings.csv:
-   heading_key, canonical_section, Heading Text, Language, Is Primary.
-2. research/40-t10-section-orders-longform.csv — structure_key, Section Order. Four rows.
-3. research/40-notes.md — sources, and which orders are SOURCED versus your own CONVENTION.
-   Label them separately; do not present an invented order as a cited one.
+For each row:
+1. DROP the heading_key column entirely. The loader generates the key as
+   `<canonical_section>-<language>-<n>`. Yours would be ignored.
+2. Rename the columns to the five lowercase names above, in that order.
+3. ADD a `source` value on EVERY row. This is the real work of this brief, not a formality.
+   - Where you cited something in 39-notes.md or 40-notes.md, put that citation here. The DIN
+     5008 letter terms, the francophone report vocabulary, the German invoicing wording.
+   - Where the wording is your own convention, say so in the existing house style, which you can
+     read in data/rationale/headings.md — for example `convention (not in report 03)`, or a
+     short parenthetical naming what kind of convention it is.
+   - Do not write a vague source to fill the cell. A row whose wording you invented must say so.
+     The whole point of this column is that a reader can tell sourced from conventional.
 
-## Rules carried over from A1, all still binding
-- Languages en, fr, de on every section. One row per section per language is sufficient; the
-  lead has ruled that wording variants are out of scope for v0.2.
-- Exactly one Is Primary = yes per (canonical_section, Language).
-- heading_key unique against your file, against the 81 rows in data/base/headings.csv, AND
-  against research/39-headings-transactional-draft.csv, which is now committed.
-- canonical_section names lowercase ASCII hyphenated. Heading Text may carry accents.
+The two section-order CSVs are already correct. Do not touch them, and do not touch the notes
+files except to keep them honest if a source string differs from what the notes claim.
 
-## Reuse rule, now a standing rule — read it before you reuse anything
-You were right to refuse the existing CV `summary` for a proposal's executive summary, because
-its French and German primaries are "Profil", a CV word. That is now the rule:
-NEVER reuse a section across document classes when its FR or DE primary reads as a word from
-the other class. Check the actual Heading Text in both languages, not just the English name.
-You SHOULD reuse a section when it genuinely is the same thing in all three languages — the
-transactional draft correctly shares `date`, `body` and `closing` across letter, memo, form and
-proposal. Reuse from research/39 where it fits; a report and a whitepaper plainly share several.
-
-## What these documents actually have
-A long report has front matter, a table of contents, an executive summary, an introduction,
-a method or approach, findings, a conclusion, recommendations, appendices and references.
-report-short is the same family with less of it — the two orders should differ, and the
-difference should be defensible, not decorative. A one-pager is a single sheet and its order
-should reflect that. Say in the notes why report-short and report-long-toc differ.
+## Do not renumber or re-author
+No section may be added, removed or renamed. No heading text may change. If converting reveals a
+content problem, report it, do not fix it here.
 
 ## Verify before you report
-1. Every token in every Section Order resolves against data/base/headings.csv PLUS
-   research/39-headings-transactional-draft.csv PLUS your new file. Write the check in Python
-   and paste its output.
-2. No duplicate heading_key across all three sources.
-3. Exactly one primary per (canonical_section, Language); all three languages present.
-4. Both CSVs parse with csv.DictReader and carry the exact column names.
+1. Both files' headers equal research/18-ats-headings.csv's header exactly, in the same order.
+2. Row counts unchanged: 84 in 39, 36 in 40.
+3. The multiset of (canonical_section, heading_text, language, is_primary) is IDENTICAL before
+   and after the conversion. Read the committed versions with `git show HEAD:<path>` and diff
+   the tuples in Python. Paste the output. This is the check that proves you converted rather
+   than rewrote.
+4. Zero rows with a blank `source`.
+5. Simulate the loader's key generation across data/base plus both files with a SINGLE shared
+   counter per (canonical_section, language), and confirm no generated key collides.
 
 Python: C:\Users\ysuliman\AppData\Local\Microsoft\WindowsApps\python3.exe
 
 ## Report
-Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 10 lines: the four Section
-Order strings, how many new sections and rows you added, which sections you REUSED from
-research/39, the output of check 1, and sourced versus conventional.
+Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 8 lines: the output of
+checks 3, 4 and 5, and how many distinct source strings you ended up with in each file.

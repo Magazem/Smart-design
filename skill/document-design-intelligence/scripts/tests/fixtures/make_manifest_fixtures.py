@@ -204,7 +204,8 @@ GROUP_MANIFEST = {
         },
         "items": {
             "filename": "items.csv",
-            "columns": ["item_key", "Display Name", "Tag Group", "Multi Tag Groups", "Panels"],
+            "columns": ["item_key", "Display Name", "Tag Group", "Multi Tag Groups",
+                        "Panels", "Keywords"],
             "key_column": "item_key",
             "role": "entry",
             "enums": {},
@@ -215,9 +216,14 @@ GROUP_MANIFEST = {
                 "Tag Group": {"table": "tags", "column": "Group", "group": True},
                 "Multi Tag Groups": {"table": "tags", "column": "Group", "group": True, "list": True},
             },
-            "searchable_columns": ["Display Name"],
+            "searchable_columns": ["Display Name", "Keywords"],
             "typed_json_columns": [],
             "list_columns": {"Panels": ";"},
+            # Mirrors the real schema on both sides of the opt-in. "Keywords" is
+            # comma-delimited and NOT a list column, yet must not repeat a token;
+            # "Panels" IS a list column and MAY repeat one (it stands in for
+            # page-formats."Panels mm", where "99.5;99.5;98.0" is a correct trifold).
+            "distinct_token_columns": {"Keywords": ",", "Multi Tag Groups": ";"},
             "derived": [],
         },
         "checks": {
@@ -244,10 +250,11 @@ TAGS_ROWS = [
     ["square", "shapes"],
 ]
 
-ITEMS_HEADER = ["item_key", "Display Name", "Tag Group", "Multi Tag Groups", "Panels"]
+ITEMS_HEADER = ["item_key", "Display Name", "Tag Group", "Multi Tag Groups",
+                "Panels", "Keywords"]
 ITEMS_ROWS = [
-    ["apple", "Apple", "colors", "colors;shapes", "a;b;c"],
-    ["ball", "Ball", "shapes", "shapes", "x;y"],
+    ["apple", "Apple", "colors", "colors;shapes", "a;b;c", "apple, fruit, red"],
+    ["ball", "Ball", "shapes", "shapes", "x;y", "ball, round, toy"],
 ]
 
 CHECKS_HEADER = ["check_key", "Threshold"]
@@ -283,6 +290,26 @@ def build_bad_list_column(root):
     _write_csv(root / "base" / "tags.csv", TAGS_HEADER, TAGS_ROWS)
     rows = [list(r) for r in ITEMS_ROWS]
     rows[0][4] = "a;;b"  # "Panels" -- empty item between delimiters
+    _write_csv(root / "base" / "items.csv", ITEMS_HEADER, rows)
+    _write_csv(root / "base" / "checks.csv", CHECKS_HEADER, CHECKS_ROWS)
+
+
+def build_bad_distinct_token(root):
+    _write_group_manifest(root)
+    _write_csv(root / "base" / "tags.csv", TAGS_HEADER, TAGS_ROWS)
+    rows = [list(r) for r in ITEMS_ROWS]
+    rows[0][5] = "apple, fruit, red, fruit"  # "Keywords" -- "fruit" twice
+    _write_csv(root / "base" / "items.csv", ITEMS_HEADER, rows)
+    _write_csv(root / "base" / "checks.csv", CHECKS_HEADER, CHECKS_ROWS)
+
+
+def build_repeat_in_undeclared_list_ok(root):
+    # "Panels" is a declared list column with NO distinct_token_columns entry, so a
+    # repeated panel width must pass -- the page-formats."Panels mm" case.
+    _write_group_manifest(root)
+    _write_csv(root / "base" / "tags.csv", TAGS_HEADER, TAGS_ROWS)
+    rows = [list(r) for r in ITEMS_ROWS]
+    rows[0][4] = "99.5;99.5;98.0"
     _write_csv(root / "base" / "items.csv", ITEMS_HEADER, rows)
     _write_csv(root / "base" / "checks.csv", CHECKS_HEADER, CHECKS_ROWS)
 
@@ -501,6 +528,8 @@ BUILDERS = {
     "manifest_group_ok": build_group_ok,
     "manifest_bad_group_fk": build_bad_group_fk,
     "manifest_bad_list_column": build_bad_list_column,
+    "manifest_bad_distinct_token": build_bad_distinct_token,
+    "manifest_repeat_in_undeclared_list_ok": build_repeat_in_undeclared_list_ok,
     "manifest_bad_reference_column": build_bad_reference_column,
     "manifest_docvocab_ok": build_docvocab_ok,
 }

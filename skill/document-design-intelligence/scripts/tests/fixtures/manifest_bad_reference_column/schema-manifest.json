@@ -21,7 +21,8 @@
         "Display Name",
         "Tag Group",
         "Multi Tag Groups",
-        "Panels"
+        "Panels",
+        "Keywords"
       ],
       "key_column": "item_key",
       "role": "entry",
@@ -40,11 +41,16 @@
         }
       },
       "searchable_columns": [
-        "Display Name"
+        "Display Name",
+        "Keywords"
       ],
       "typed_json_columns": [],
       "list_columns": {
         "Panels": ";"
+      },
+      "distinct_token_columns": {
+        "Keywords": ",",
+        "Multi Tag Groups": ";"
       },
       "derived": []
     },

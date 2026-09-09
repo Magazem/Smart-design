@@ -44,6 +44,12 @@ MANIFEST FORMAT (data/schema-manifest.json):
             "col4": {"table": "other_table", "column": "other_key_column", "list": true},
             "col5": {"table": "other_table", "column": "grouping_column", "group": true}
           },
+          "distinct_token_columns": {"col6": ";",             # optional -- a delimited cell in
+                                     "col2": ","},             # one of these columns may not
+                                                               # repeat a token. INDEPENDENT of
+                                                               # `list_columns`: opt-in per
+                                                               # column, any single-character
+                                                               # delimiter
           "list_columns": {"col6": ";"},                    # optional -- `;`-list columns to
                                                              # check for well-formedness (no
                                                              # empty items). Declare a `list`
@@ -122,6 +128,18 @@ found means a nonzero exit, this file never silently drops a check):
     trailing, or doubled delimiter. This is a shape check only; it does not
     know what a "correct" item looks like, only that a `;`-list isn't
     missing pieces.
+  - distinct_token_columns: a non-empty value in a declared column, split
+    on that column's delimiter and stripped, must not contain the same
+    token twice. Deliberately NOT derived from `list_columns`, in both
+    directions. It covers `doctypes.Keywords`, which is a `, `-separated
+    search-token cell and no kind of `;`-list, because a repeated keyword
+    doubles that term's frequency and quietly biases retrieval toward the
+    row carrying the accidental repeat. It does NOT cover
+    `page-formats.Panels mm`, which IS a declared list column but is a
+    positional sequence of panel widths where equal panels are correct
+    (`a4-trifold` is `99.5;99.5;98.0`). Repetition is a defect in a set and
+    normal in a sequence, and only the schema author knows which a column
+    is, so this is declared per column rather than inferred.
   - reference_columns: see the format note above -- a value matching the
     declared `pattern` must name a real table and one of its declared
     columns.
@@ -213,6 +231,7 @@ def _validate_rows(table_name, spec, rows, all_keys, all_rows, tables, problems)
     foreign_keys = spec.get("foreign_keys", {})
     typed_json_columns = set(spec.get("typed_json_columns", []))
     list_columns = spec.get("list_columns", {})
+    distinct_token_columns = spec.get("distinct_token_columns", {})
     reference_columns = spec.get("reference_columns", {})
     derived = spec.get("derived", [])
 
@@ -252,6 +271,20 @@ def _validate_rows(table_name, spec, rows, all_keys, all_rows, tables, problems)
             parts = value.split(delimiter)
             if any(part == "" for part in parts):
                 _add(f"malformed {delimiter!r}-delimited list (empty item): {value!r}", column=column)
+
+        for column, delimiter in distinct_token_columns.items():
+            value = record.get(column, "")
+            if not value:
+                continue
+            seen, repeated = set(), []
+            for token in (part.strip() for part in value.split(delimiter)):
+                if not token:
+                    continue  # empty items are the list_columns loop's problem, not this one
+                if token in seen and token not in repeated:
+                    repeated.append(token)
+                seen.add(token)
+            for token in repeated:
+                _add(f"duplicate token {token!r} in {delimiter!r}-delimited list", column=column)
 
         for column, ref_spec in reference_columns.items():
             value = record.get(column, "")
