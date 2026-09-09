@@ -105,6 +105,7 @@ import ast
 import json
 import re
 import sys
+import unicodedata
 from math import log
 from pathlib import Path
 
@@ -188,6 +189,22 @@ _STOPWORDS = frozenset({
     "fais", "faites",
 })
 
+# U+00DF LATIN SMALL LETTER SHARP S, built at runtime (not a source string
+# literal) so this file stays ASCII-clean per tests/test_ascii_clean.py.
+# NFKD does not decompose eszett (unlike umlauts, it has no canonical
+# decomposition), so it needs its own fold step before the generic
+# combining-mark strip below handles every other accented letter.
+_ESZETT = chr(0xDF)
+
+# German ASCII transliteration digraphs (used when a keyboard/source can't
+# produce umlauts) fold to the same letter NFKD decomposition leaves behind
+# once its combining diaeresis is stripped -- ae/oe/ue -> a/o/u -- so
+# "praesentation" and the accented "prasentation" (post-fold) converge on
+# one token. Applied after the generic fold, not before: it must only ever
+# touch plain ASCII "ae"/"oe"/"ue" sequences, never interact with the
+# combining-mark strip itself.
+_GERMAN_DIGRAPHS = (("ae", "a"), ("oe", "o"), ("ue", "u"))
+
 
 # ============ BM25 (from-scratch; see module docstring for the citation) ============
 
@@ -201,12 +218,25 @@ class BM25:
         self.N = 0
 
     @staticmethod
+    def _fold_diacritics(text):
+        """NFKD-normalise, fold eszett, strip combining marks, then collapse
+        the German ASCII digraphs -- so an accented spelling and its plain
+        ASCII/transliterated spelling reduce to the identical token."""
+        text = text.replace(_ESZETT, "ss")
+        text = unicodedata.normalize("NFKD", text)
+        text = "".join(ch for ch in text if not unicodedata.combining(ch))
+        for digraph, letter in _GERMAN_DIGRAPHS:
+            text = text.replace(digraph, letter)
+        return text
+
+    @staticmethod
     def tokenize(text):
         """Applied identically to document text (in fit()) and query text
-        (in scores()), so stopword removal is symmetric by construction --
-        the brief's explicit requirement, not something each caller must
-        remember to do."""
-        return [t for t in re.split(r"[^a-z0-9]+", str(text).lower())
+        (in scores()), so stopword removal and diacritic folding are
+        symmetric by construction -- the brief's explicit requirement, not
+        something each caller must remember to do."""
+        folded = BM25._fold_diacritics(str(text).lower())
+        return [t for t in re.split(r"[^a-z0-9]+", folded)
                 if t and t not in _STOPWORDS]
 
     def fit(self, documents):

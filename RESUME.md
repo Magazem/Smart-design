@@ -165,6 +165,14 @@ Full history: research/05-SYNTHESIS.md (long). This file is the short version.
 - NOTE: the `sticky-board` skill is disabled for model invocation; findings go to
   research/handover-*.md instead.
 
+## PRECEDENT, 2026-09-09: refusing the green tick
+The Coverage analyst had a one-constant change in hand that would have turned all four
+resolver acceptance bullets green (any margin ratio in (0.1862, 0.2492]). It refused, on the
+grounds that a 0.063-wide window fitted to two queries is tuning to the test and leaves every
+accented term in the library unsearchable either way. The real cause -- BM25.tokenize
+splitting on [^a-z0-9]+ -- was fixed instead. When a passing number and a working product
+disagree, this project fixes the product. Cite this the next time a threshold is tempting.
+
 ## STEP 9 BACKLOG (all AFTER v0.1.0)
 - `brochure-flyer-a4` has a duplicate Keywords token ("flyer a4" listed twice). Found while
   fixing the deck rows; left alone deliberately so the D3 brief stayed one deliverable.

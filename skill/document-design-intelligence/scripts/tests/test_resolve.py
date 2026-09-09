@@ -61,6 +61,46 @@ class TestIdentityShortCircuit(unittest.TestCase):
         self.assertEqual(payload["resolved"]["widgets"][0]["key"], "dice")
 
 
+class TestDiacriticFolding(unittest.TestCase):
+    """research/brief-mechanism.md: accented and ASCII/transliterated
+    spellings of a word must tokenize identically, symmetric between query
+    and document text. Accented characters are built via chr() here, not
+    written as literal source characters, per test_ascii_clean.py's rule
+    (which scans this repo's non-test scripts, but there is no reason to
+    add a fresh non-ASCII literal to a project that keeps its source
+    ASCII-clean everywhere else)."""
+
+    def test_umlaut_and_german_ae_digraph_converge(self):
+        a_umlaut = chr(0xE4)  # LATIN SMALL LETTER A WITH DIAERESIS
+        self.assertEqual(
+            resolve.BM25.tokenize("pr" + a_umlaut + "sentation"),
+            resolve.BM25.tokenize("praesentation"),
+        )
+
+    def test_eszett_and_ss_converge(self):
+        eszett = chr(0xDF)  # LATIN SMALL LETTER SHARP S
+        self.assertEqual(
+            resolve.BM25.tokenize("stra" + eszett + "e"),
+            resolve.BM25.tokenize("strasse"),
+        )
+
+    def test_french_accent_folds_to_ascii_cognate(self):
+        e_acute = chr(0xE9)  # LATIN SMALL LETTER E WITH ACUTE
+        self.assertEqual(
+            resolve.BM25.tokenize("pr" + e_acute + "sentation"),
+            resolve.BM25.tokenize("presentation"),
+        )
+
+    def test_folding_is_symmetric_between_document_and_query(self):
+        # A document indexed under the accented spelling must be findable
+        # by an ASCII-transliterated query -- not just that tokenize()
+        # agrees with itself in isolation.
+        a_umlaut = chr(0xE4)
+        bm = resolve.BM25()
+        bm.fit(["pr" + a_umlaut + "sentation deck"])
+        self.assertGreater(bm.scores("praesentation")[0], 0.0)
+
+
 class TestBm25Hit(unittest.TestCase):
     def test_extra_word_falls_through_to_bm25_and_still_resolves(self):
         proc = _run_cli(["--query", "hammer tool", "--json"])
