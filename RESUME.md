@@ -215,6 +215,16 @@ D. Rebuild the ZIP only after A lands. The user then re-runs 2-5, then 6-13.
 NOTE: skill/dist/ is gitignored (.gitignore line 12). Edits to
 skill/dist/POST-UPLOAD-TESTS.md live on disk only and are NOT under version control.
 
+## DESCRIPTION LENGTH -- the one measured number
+The SKILL.md frontmatter description measures **823 characters**. Verified with Python len()
+on the quoted value, twice, independently. The cap is 1023 (the claude.ai UI enforces "under
+1024"). Headroom: 200 characters.
+
+The repo previously quoted 667 (references/activation.md) and 825 (skill/dist/POST-UPLOAD-TESTS.md).
+Both are stale and are being corrected to 823. The 825 figure differs by exactly the 2-character
+"validated" -> "sourced" edit, which the activation.md quoted block had not picked up.
+If you change the description, re-measure and update this line. Do not quote it anywhere else.
+
 ## PRECEDENT, 2026-09-09: refusing the green tick
 The Coverage analyst had a one-constant change in hand that would have turned all four
 resolver acceptance bullets green (any margin ratio in (0.1862, 0.2492]). It refused, on the

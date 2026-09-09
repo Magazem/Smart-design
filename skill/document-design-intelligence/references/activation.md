@@ -12,7 +12,7 @@ upload.
 "Description must be under 1024 characters" — note "under," so the practical
 maximum is 1,023, not 1,024 itself. The 200-character figure came from a
 support-article summary (`research/04-packaging.md` §5) and does not hold on
-this surface. The 667-character primary description below ships as-is, with
+this surface. The 823-character primary description below ships as-is, with
 no truncation risk. The three alternates further down were built against the
 truncation contingency and are **retained for reference only — not needed**
 now that the cap is confirmed at 1,024.
@@ -27,14 +27,14 @@ dépliant, présentation, formulaire, Lebenslauf, Angebot, Bericht. Triggers:
 make me a CV, write a note interne, turn this into a brochure, I need slides
 for Monday, format this report, fais-moi une fiche, erstelle ein Angebot;
 quality fixes: looks like AI, looks generic, make it professional, fix the
-layout. Applies validated layout, typography, color, print, and ATS rules.
+layout. Applies sourced layout, typography, color, print, and ATS rules.
 When a specific file format (Word, PowerPoint, .docx, .pptx) is named for a
 plain conversion or edit with no design ask, use that format's own skill
 instead. Not for web or app UI/UX design (use UI/UX Pro Max for screens).
 ```
 
-**Length: 825 characters** (well under the confirmed 1,024-character ceiling —
-resolved above; no truncation risk in practice). Grew from 667 to 825 with
+**Length: 823 characters** (well under the confirmed 1,024-character ceiling —
+resolved above; no truncation risk in practice). Grew from 667 to 823 with
 the addition of the built-in-skill deferral sentence — see
 `research/24-builtin-alignment.md` item 1 for why: Anthropic's own `docx` and
 `pptx` skills each carry a clause deferring to "a dedicated document/slide
