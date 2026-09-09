@@ -165,6 +165,22 @@ Full history: research/05-SYNTHESIS.md (long). This file is the short version.
 - NOTE: the `sticky-board` skill is disabled for model invocation; findings go to
   research/handover-*.md instead.
 
+## TWO MANIFEST HASHES -- both correct, do not "fix" either
+`data/schema-manifest.json` has TWO valid md5s and they differ only by line endings:
+  731d874ff6052d8c3809a3d44a9d4196 = the WORKING COPY on Windows (CRLF, 740 pairs)
+  57e886aa8a68665c763904c391ac3836 = the LF form: what git stores (i/lf per .gitattributes)
+                                     and what the built ZIP now contains
+Since the release blocker fix, build_zip normalises every text member to LF, so the in-ZIP
+manifest hashes as 57e886aa. A Linux checkout will show 57e886aa on disk too. Quote the
+right one for the context you are checking; a mismatch between them is not a defect.
+
+## VERIFICATION RULE, added 2026-09-09 after a release blocker
+"Opened and checked the ZIP" MUST include the FIRST BYTES of SKILL.md and a CR-byte scan of
+every text member. The 7b/step-8 archive checks passed on member list, manifest md5, brand
+exclusion and description text -- and the ZIP was still rejected by claude.ai, because
+SKILL.md began with the build stamp instead of `---` and 9 members carried CRLF. Checking
+that a file is PRESENT is not checking that it is VALID.
+
 ## PRECEDENT, 2026-09-09: refusing the green tick
 The Coverage analyst had a one-constant change in hand that would have turned all four
 resolver acceptance bullets green (any margin ratio in (0.1862, 0.2492]). It refused, on the

@@ -20,7 +20,9 @@ STEPS, IN ORDER:
      entirely under --allow-empty-data.
   2. Read VERSION (a single line in <skill-dir>/VERSION).
   3. Stamp `<!-- version: X (generated at build - do not edit) -->` as the
-     first line of SKILL.md, idempotently - a second build run replaces the
+     first line of SKILL.md's body, immediately after the closing `---` of
+     the YAML frontmatter (never before it - claude.ai requires SKILL.md to
+     start with `---`), idempotently - a second build run replaces the
      previous stamp rather than stacking another one on top.
   4. Zip <skill-dir>/ with the skill folder itself as the ZIP root (the
      claude.ai upload rule - see research/04-packaging.md §1.3: the archive's
@@ -29,7 +31,9 @@ STEPS, IN ORDER:
      `.as_posix()`, never the OS path separator, so a Windows build never
      emits a backslash into the archive - zipfile doesn't do this
      automatically if you pass a bare Path/str, which is why this is
-     explicit rather than assumed.
+     explicit rather than assumed. Every text member's line endings are
+     normalised to LF on the way into the archive, regardless of the
+     working copy's own line endings (this repo's checkout is CRLF).
   5. Exclude: any path component named `__pycache__` or `tests`, any file
      named `.gitkeep`, any installed-brand state under `data/brand/`
      (a brand overlay dir `data/brand/<slug>/...`, or `active.json` -
@@ -69,7 +73,8 @@ REPO_ROOT = SKILL_DIR.parent
 EXCLUDED_DIR_NAMES = {"__pycache__", "tests", ".pytest_cache"}
 EXCLUDED_FILE_NAMES = {".gitkeep"}
 
-_VERSION_STAMP_RE = re.compile(r"^<!--\s*version:.*-->\s*\n?", re.IGNORECASE)
+_VERSION_STAMP_RE = re.compile(r"^<!--\s*version:.*-->\s*\n?", re.IGNORECASE | re.MULTILINE)
+_FRONTMATTER_RE = re.compile(r"\A---\n.*?\n---\n", re.DOTALL)
 
 
 def load_gitignore_patterns(repo_root: Path) -> list[str]:
@@ -127,12 +132,29 @@ def check_no_symlinks(skill_dir: Path) -> list[Path]:
     return [p for p in skill_dir.rglob("*") if p.is_symlink()]
 
 
+def normalize_newlines(data: bytes) -> bytes:
+    """Rewrite CRLF/CR to LF for text members. Binary (non-UTF-8) content is
+    passed through untouched - a Windows checkout of this repo is CRLF, but
+    the archive claude.ai receives must be LF regardless of that checkout.
+    """
+    try:
+        text = data.decode("utf-8")
+    except UnicodeDecodeError:
+        return data
+    return text.replace("\r\n", "\n").replace("\r", "\n").encode("utf-8")
+
+
 def stamp_version(skill_dir: Path, version: str) -> None:
     skill_md = skill_dir / "SKILL.md"
     content = skill_md.read_text(encoding="utf-8")
     content = _VERSION_STAMP_RE.sub("", content, count=1)
+    match = _FRONTMATTER_RE.match(content)
+    if not match:
+        raise SystemExit("SKILL.md must start with YAML frontmatter (---) - stamp aborted")
     stamp = f"<!-- version: {version} (generated at build - do not edit) -->\n"
-    skill_md.write_text(stamp + content, encoding="utf-8")
+    insert_at = match.end()
+    content = content[:insert_at] + stamp + content[insert_at:]
+    skill_md.write_text(content, encoding="utf-8", newline="\n")
 
 
 def read_description_length(skill_dir: Path) -> tuple[str | None, int]:
@@ -193,7 +215,9 @@ def build(skill_dir: Path, dist_dir: Path, allow_empty_data: bool) -> Path:
     with zipfile.ZipFile(out_path, "w", zipfile.ZIP_DEFLATED) as zf:
         for path in members:
             arcname = f"{root_name}/{path.relative_to(skill_dir).as_posix()}"
-            zf.write(path, arcname)
+            info = zipfile.ZipInfo.from_file(path, arcname)
+            info.compress_type = zipfile.ZIP_DEFLATED
+            zf.writestr(info, normalize_newlines(path.read_bytes()))
 
     return out_path
 

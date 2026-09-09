@@ -80,5 +80,50 @@ class TestBrandOverlayExcluded(unittest.TestCase):
         self.assertTrue(any(n.endswith("SKILL.md") for n in names))
 
 
+class TestBuiltZipIsClaudeAiCompatible(unittest.TestCase):
+    """Regression test for research/brief-packaging.md: claude.ai rejected the
+    ZIP because SKILL.md didn't start with `---` (the version stamp was
+    prepended before the frontmatter) and CRLF line endings leaked into the
+    archive from a Windows checkout. Must open the BUILT zip, not the source
+    tree - a test that only checked the working copy would have passed while
+    this shipped.
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        self.skill_dir = _make_fake_skill_dir(self.root)
+        self.dist_dir = self.root / "dist"
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_skill_md_starts_with_frontmatter_and_no_member_has_cr(self):
+        out_path = build_zip.build(self.skill_dir, self.dist_dir, allow_empty_data=True)
+        with zipfile.ZipFile(out_path) as zf:
+            skill_md_name = next(n for n in zf.namelist() if n.endswith("SKILL.md"))
+            skill_md_bytes = zf.read(skill_md_name)
+
+            self.assertTrue(
+                skill_md_bytes.startswith(b"---\n"),
+                f"SKILL.md must start with YAML frontmatter (---), got: {skill_md_bytes[:40]!r}",
+            )
+
+            members_with_cr = []
+            for info in zf.infolist():
+                data = zf.read(info.filename)
+                try:
+                    data.decode("utf-8")
+                except UnicodeDecodeError:
+                    continue  # binary member, CR is not a line-ending concern
+                if b"\r" in data:
+                    members_with_cr.append(info.filename)
+
+            self.assertEqual(
+                members_with_cr, [],
+                f"text members must be LF-only in the built ZIP, found CR in: {members_with_cr}",
+            )
+
+
 if __name__ == "__main__":
     unittest.main()
