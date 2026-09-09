@@ -461,7 +461,12 @@ the built-in `docx`/`pptx` skills in both directions.
 
 Prompts 2-5 carry their own input inline (a French fiche brief, a German
 Angebot brief, a pasted report paragraph, and a pasted text block) — paste
-each one as-is, no file or extra text needed.
+each one as-is, no file or extra text needed. Prompts 6, 8, 10 and 11 also
+carry their own input inline (a sidebar UX complaint with named nav items,
+a pasted Python function, a pasted PDF-abstract paragraph, and pasted rough
+notes) — paste each as-is. Prompt 13 is the exception: it needs a real
+file, so attach any short .docx you have (one page is enough) before
+sending it.
 
 **Pass** (for prompts 2-5): a clarifying question counts as a pass only if
 it's framed around format, layout, page count, ATS, branding, or print.

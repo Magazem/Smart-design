@@ -337,32 +337,66 @@ behavior versus answering as a generalist.
 
 ### Should not fire
 
-6. "Redesign this dashboard's sidebar navigation for better UX."
+6. "My dashboard sidebar has Home, Reports, Settings, and Billing as nav
+   items, but users keep missing Billing because it's buried below a
+   scroll. Redesign this dashboard's sidebar navigation for better UX."
    **Pass** (correct boundary): UI/UX Pro Max activates instead, or neither
-   activates generically. **Fail**: this skill activates on a screen-UI
-   request — the boundary statement didn't hold.
+   activates generically. Asking for the file with no skill named also
+   counts as a pass, but it's weak evidence — that's why the complaint is
+   now inline; a test with content is the stronger signal. **Fail**: this
+   skill activates on a screen-UI request — the boundary statement didn't
+   hold.
 7. "What color palette should I use for my SaaS landing page hero section?"
    **Pass**: same boundary check as #6, web UI territory.
    **Fail**: this skill answers instead of UI/UX Pro Max.
-8. "Can you refactor this Python function to run faster?"
-   **Pass**: neither skill activates — unrelated to either domain.
-   **Fail**: this skill activates on an unrelated coding task.
+8. "Can you refactor this Python function to run faster?
+   ```python
+   def find_duplicates(items):
+       duplicates = []
+       for i in range(len(items)):
+           for j in range(len(items)):
+               if i != j and items[i] == items[j] and items[i] not in duplicates:
+                   duplicates.append(items[i])
+       return duplicates
+   ```"
+   **Pass**: neither skill activates — unrelated to either domain. Asking
+   for the file with no skill named also counts as a pass, but it's weak
+   evidence — that's why the function is now inline; a test with content is
+   the stronger signal. **Fail**: this skill activates on an unrelated
+   coding task.
 9. "What's a good marketing strategy for launching my app next quarter?"
    **Pass**: neither skill activates — strategy, not document or UI design.
    **Fail**: either skill claims this request.
-10. "Summarize this PDF research paper for me in three bullet points."
+10. "Summarize this PDF research paper for me in three bullet points:
+    'Prior work on sidebar navigation has focused on discoverability
+    metrics in isolation, without accounting for task frequency. We
+    present a longitudinal study of 40 enterprise dashboards showing that
+    reordering nav items by usage frequency reduces mis-clicks by 23%
+    on average, with the largest gains in sidebars exceeding six items.'"
     **Pass**: neither skill activates — this is summarization, not document
-    creation or a quality complaint, despite mentioning "PDF". **Fail**: this
-    skill activates on the file-format mention alone, with no create/fix
-    verb attached — the sharpest test of over-triggering on a bare noun.
+    creation or a quality complaint, despite mentioning "PDF". Asking for
+    the file with no skill named also counts as a pass, but it's weak
+    evidence — that's why the abstract is now inline; a test with content
+    is the stronger signal. **Fail**: this skill activates on the
+    file-format mention alone, with no create/fix verb attached — the
+    sharpest test of over-triggering on a bare noun.
 
 ### Handoff tests (built-in docx/pptx boundary, both directions)
 
-11. "Turn my rough notes into a Word document."
+11. "Here are my rough notes:
+    - Q3 revenue up 12% vs Q2
+    - New enterprise client signed: Bramwell Logistics
+    - Support ticket backlog down from 340 to 190
+    - Need to hire 2 more support reps by Q4
+    - Churn rate flat at 4.1%
+    Turn my rough notes into a Word document."
     **Pass**: the `docx` skill activates (file format named explicitly,
-    matches its own trigger list) — this skill stays silent. **Fail**: this
-    skill activates instead of, or alongside, `docx` — the boundary sentence
-    didn't hold in the direction that protects the built-ins from us.
+    matches its own trigger list) — this skill stays silent. Asking for
+    the file with no skill named also counts as a pass, but it's weak
+    evidence — that's why the notes are now inline; a test with content is
+    the stronger signal. **Fail**: this skill activates instead of, or
+    alongside, `docx` — the boundary sentence didn't hold in the direction
+    that protects the built-ins from us.
 12. "I need a two-page CV, make it look professional."
     **Pass**: this skill activates (no file format named, explicit design/
     quality intent) and, per the Render Handoff workflow step, produces its
@@ -370,8 +404,11 @@ behavior versus answering as a generalist.
     not activate on its own as the top-level responder. **Fail**: `docx`
     activates directly and this skill never engages, or this skill engages
     but reimplements OOXML generation itself instead of handing off.
-13. "Just convert this .docx file to a PDF, don't change anything."
+13. Attach any short .docx you have (one page is enough) before sending.
+    "Just convert this .docx file to a PDF, don't change anything."
     **Pass**: `docx`/`pdf` handle this directly (file format named, purely
-    mechanical conversion, no design ask) — this skill stays silent. **Fail**:
-    this skill activates on a plain format-conversion request it has no
-    reason to touch.
+    mechanical conversion, no design ask) — this skill stays silent. Asking
+    for the file with no skill named also counts as a pass, but it's weak
+    evidence — that's why this test now needs a real attachment; a test
+    with content is the stronger signal. **Fail**: this skill activates on
+    a plain format-conversion request it has no reason to touch.

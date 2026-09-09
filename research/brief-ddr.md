@@ -1,38 +1,57 @@
-# BRIEF — DDR — Correct the three stale description-length quotes
+# BRIEF — DDR — Ruling E: give prompts 6, 8, 10, 11, 13 their input inline
 
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
-DO NOT touch git. The orchestrator commits. Do not edit SKILL.md.
+DO NOT touch git. The orchestrator commits. Do not edit SKILL.md. Do not rebuild the ZIP.
 
 ## Why
-The description in SKILL.md measures 823 characters. I verified this myself with Python
-`len()` on the quoted value. The repo states three different numbers in three places, and two
-of them are wrong. It also quotes an out-of-date copy of the description text itself.
+You already fixed prompts 2-5 this way. The user spotted the same defect in the should-not-fire
+and handoff sets: prompts 6, 8, 10, 11 and 13 say "this dashboard", "this Python function",
+"this PDF", "my rough notes", "this .docx file" with nothing attached. A generalist replying
+"please upload it" proves nothing about routing. Prompts 7, 9 and 12 are already
+self-contained — LEAVE THEM EXACTLY AS THEY ARE.
+
+## Where
+skill/document-design-intelligence/references/activation.md
+- "### Should not fire" starts at line 338; prompts 6-10 follow.
+- "### Handoff tests" starts at line 359; prompts 11-13 follow.
 
 ## Deliverable (ONE)
-Correct the stale numbers and the stale quoted text, nothing else.
+Rewrite prompts 6, 8, 10, 11 and 13 so each carries its own input, then mirror the pass rule.
 
-1. skill/document-design-intelligence/references/activation.md
-   - The block under "## The description as shipped" quotes the description with
-     "Applies **validated** layout" — SKILL.md ships "Applies **sourced** layout". Fix that one
-     word so the quoted block matches what actually ships.
-   - The prose around lines 10-25 calls it "the 667-character primary description". 667 is
-     stale. Say 823.
-   - Sweep the whole file for any other character-count claim about the description and make it
-     823. Do not touch the 1,024 / 1,023 cap discussion — that is correct and separately tested.
-2. skill/dist/POST-UPLOAD-TESTS.md, Test (c), around line 128: it says "the 825 character
-   description we shipped". Make it 823. (This file is gitignored, so the edit lives on disk
-   only. Do it anyway.)
+6. Keep the sidebar-UX ask. Add a short inline description of the dashboard sidebar: a few
+   named nav items and a concrete UX complaint. No attachment needed.
+8. Paste a real Python function inline, 5-10 lines, obviously slow — nested loops over a list,
+   for example. Then the "refactor to run faster" ask.
+10. Paste a short abstract-like paragraph inline. KEEP the "PDF research paper" wording and
+    keep it a pure summarize ask with no create/fix verb. That wording is the whole point of
+    the test: it checks we do not over-trigger on a bare format noun.
+11. Paste 5-8 lines of rough bullet notes inline, then keep "Turn my rough notes into a Word
+    document." verbatim as the ask.
+13. Cannot be pasted — it needs a real file. Keep the prompt text unchanged and add one
+    instruction line above it: "Attach any short .docx you have (one page is enough) before
+    sending."
+
+Pass/Fail lines: keep each one's INTENT exactly as it is. Add to the should-not-fire prompts
+(6, 8, 10) and to 11 and 13 a short note that "asked for the file and named no skill" also
+counts as a PASS but is weak evidence, which is why the content is now inline — a test with
+content is the stronger signal.
+
+## Mirror
+- TESTS-FOR-USER.md, "## Test 11 — 13-prompt activation list" (you added it; it is around
+  line 453). Extend the inline-input sentence so it covers 6, 8, 10, 11 and 13 too, and note
+  that prompt 13 needs a short .docx attached.
+- skill/dist/POST-UPLOAD-TESTS.md, Test (c) around line 114. Same note. This file is gitignored
+  so the edit is disk-only; do it anyway.
 
 ## Verify before you report
-Re-measure rather than trusting me:
-`python3 -c "import io,re;s=io.open('skill/document-design-intelligence/SKILL.md',encoding='utf-8').read();print(len(re.search(r'^description:\s*\"(.*)\"\s*$',s,re.M).group(1)))"`
-If your python3 shim is broken, use the uv cpython interpreter, as you did on the last task.
-Then confirm the quoted block in activation.md is character-for-character the SKILL.md value.
-
-## Constraints
-Do not change any prompt, any Pass/Fail line, or the 13-prompt section. That work is done and
-committed. Do not rebuild the ZIP.
+1. All 13 prompts still present, numbered 1-13, in order.
+2. Prompts 1-5, 7, 9 and 12 are byte-identical to what is committed. Check with
+   `git diff skill/document-design-intelligence/references/activation.md` and read the hunks —
+   only 6, 8, 10, 11, 13 and the mirror text should appear.
+3. Prompt 10 still contains the words "PDF research paper" and still has no create/fix verb.
+4. The file still parses as UTF-8.
 
 ## Report
-Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 6 lines: each number you
-changed with its old and new value, and whether the quoted block now matches SKILL.md exactly.
+Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 8 lines: what you put
+inline for each of the five, confirmation that 7, 9 and 12 are untouched, and anything you
+ruled on yourself.
