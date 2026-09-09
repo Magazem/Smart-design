@@ -1,0 +1,5 @@
+structure_key,Section Order
+report-long-toc,cover;table-of-contents;executive-summary;introduction;methodology;findings;conclusion;recommendations;appendices;bibliography
+report-short,executive-summary;introduction;findings;conclusion;recommendations;bibliography
+whitepaper-standard,cover;executive-summary;introduction;problem-statement;solution-approach;findings;conclusion;bibliography
+one-pager-standard,headline;key-points;call-to-action;contact

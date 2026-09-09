@@ -1,0 +1,37 @@
+heading_key,canonical_section,Heading Text,Language,Is Primary
+table-of-contents-en-1,table-of-contents,Table of Contents,en,yes
+table-of-contents-fr-1,table-of-contents,Table des matières,fr,yes
+table-of-contents-de-1,table-of-contents,Inhaltsverzeichnis,de,yes
+introduction-en-1,introduction,Introduction,en,yes
+introduction-fr-1,introduction,Introduction,fr,yes
+introduction-de-1,introduction,Einleitung,de,yes
+methodology-en-1,methodology,Methodology,en,yes
+methodology-fr-1,methodology,Méthodologie,fr,yes
+methodology-de-1,methodology,Methodik,de,yes
+findings-en-1,findings,Findings,en,yes
+findings-fr-1,findings,Résultats,fr,yes
+findings-de-1,findings,Ergebnisse,de,yes
+conclusion-en-1,conclusion,Conclusion,en,yes
+conclusion-fr-1,conclusion,Conclusion,fr,yes
+conclusion-de-1,conclusion,Schlussfolgerung,de,yes
+recommendations-en-1,recommendations,Recommendations,en,yes
+recommendations-fr-1,recommendations,Recommandations,fr,yes
+recommendations-de-1,recommendations,Empfehlungen,de,yes
+appendices-en-1,appendices,Appendices,en,yes
+appendices-fr-1,appendices,Annexes,fr,yes
+appendices-de-1,appendices,Anhänge,de,yes
+bibliography-en-1,bibliography,References,en,yes
+bibliography-fr-1,bibliography,Bibliographie,fr,yes
+bibliography-de-1,bibliography,Literaturverzeichnis,de,yes
+solution-approach-en-1,solution-approach,Solution Approach,en,yes
+solution-approach-fr-1,solution-approach,Approche proposée,fr,yes
+solution-approach-de-1,solution-approach,Lösungsansatz,de,yes
+headline-en-1,headline,Headline,en,yes
+headline-fr-1,headline,Accroche,fr,yes
+headline-de-1,headline,Kernbotschaft,de,yes
+key-points-en-1,key-points,Key Points,en,yes
+key-points-fr-1,key-points,Points clés,fr,yes
+key-points-de-1,key-points,Kernpunkte,de,yes
+call-to-action-en-1,call-to-action,Call to Action,en,yes
+call-to-action-fr-1,call-to-action,Appel à l'action,fr,yes
+call-to-action-de-1,call-to-action,Handlungsaufruf,de,yes
