@@ -1,57 +1,59 @@
-# BRIEF — DDR — Ruling E: give prompts 6, 8, 10, 11, 13 their input inline
+# BRIEF — DDR — Ruling F: prompt 4 tests appearance, plus a scope note
 
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
-DO NOT touch git. The orchestrator commits. Do not edit SKILL.md. Do not rebuild the ZIP.
+DO NOT touch git. Do not edit SKILL.md. Do not rebuild the ZIP.
 
 ## Why
-You already fixed prompts 2-5 this way. The user spotted the same defect in the should-not-fire
-and handoff sets: prompts 6, 8, 10, 11 and 13 say "this dashboard", "this Python function",
-"this PDF", "my rough notes", "this .docx file" with nothing attached. A generalist replying
-"please upload it" proves nothing about routing. Prompts 7, 9 and 12 are already
-self-contained — LEAVE THEM EXACTLY AS THEY ARE.
-
-## Where
-skill/document-design-intelligence/references/activation.md
-- "### Should not fire" starts at line 338; prompts 6-10 follow.
-- "### Handoff tests" starts at line 359; prompts 11-13 follow.
+The rerun passed prompts 2, 3 and 5. Prompt 4 failed for a real reason: Claude said the pasted
+paragraph "is not a document, just text", then looked in the skill for rules about correcting
+AI-sounding writing and found none. That is correct behaviour. I checked data/base myself —
+every table is layout, typography, colour, print or ATS. Nothing covers prose quality. The
+"looks like AI" trigger is about how a document LOOKS, not how it reads. Prompt 4 as written
+tests a promise the skill never made.
 
 ## Deliverable (ONE)
-Rewrite prompts 6, 8, 10, 11 and 13 so each carries its own input, then mirror the pass rule.
+Make prompt 4 test appearance, and state the scope boundary in two places.
 
-6. Keep the sidebar-UX ask. Add a short inline description of the dashboard sidebar: a few
-   named nav items and a concrete UX complaint. No attachment needed.
-8. Paste a real Python function inline, 5-10 lines, obviously slow — nested loops over a list,
-   for example. Then the "refactor to run faster" ask.
-10. Paste a short abstract-like paragraph inline. KEEP the "PDF research paper" wording and
-    keep it a pure summarize ask with no create/fix verb. That wording is the whole point of
-    the test: it checks we do not over-trigger on a bare format noun.
-11. Paste 5-8 lines of rough bullet notes inline, then keep "Turn my rough notes into a Word
-    document." verbatim as the ask.
-13. Cannot be pasted — it needs a real file. Keep the prompt text unchanged and add one
-    instruction line above it: "Attach any short .docx you have (one page is enough) before
-    sending."
+### 1. Rewrite prompt 4 in skill/document-design-intelligence/references/activation.md
+It currently pastes an AI-sounding paragraph. Replace that with an inline description of how
+the document LOOKS. The lead's example, which you may improve on but not weaken:
 
-Pass/Fail lines: keep each one's INTENT exactly as it is. Add to the should-not-fire prompts
-(6, 8, 10) and to 11 and 13 a short note that "asked for the file and named no skill" also
-counts as a PASS but is weak evidence, which is why the content is now inline — a test with
-content is the stronger signal.
+  "My quarterly report is 6 pages, every heading is centred and bold in a different font, body
+  is 10pt Calibri with 1cm margins, there are three colours of bullet points and a clip-art
+  chart. It looks like it was thrown together by AI, can you fix it?"
 
-## Mirror
-- TESTS-FOR-USER.md, "## Test 11 — 13-prompt activation list" (you added it; it is around
-  line 453). Extend the inline-input sentence so it covers 6, 8, 10, 11 and 13 too, and note
-  that prompt 13 needs a short .docx attached.
-- skill/dist/POST-UPLOAD-TESTS.md, Test (c) around line 114. Same note. This file is gitignored
-  so the edit is disk-only; do it anyway.
+Keep the spirit of the original: no document-type noun beyond "report", no attachment needed.
+Rewrite its Pass/Fail lines:
+- PASS: the skill fires and reasons about hierarchy, typography, margins or colour, OR asks a
+  question framed around those.
+- FAIL: generic advice, or it asks for the file.
+
+Change NOTHING else in the 13-prompt section. Prompts 1-3 and 5-13 stay byte-identical.
+
+### 2. Scope note, one line, in two files
+- activation.md: put it immediately AFTER the "**Length: 823 characters**" paragraph that
+  follows the "## The description as shipped" block, around line 36-40.
+  CRITICAL: do NOT edit the fenced description block itself. It is byte-identical to SKILL.md
+  and a test depends on that. Also do not touch "Alternate A" or "Alternate B" further down —
+  those are retained-for-reference historical text.
+- RELEASE-NOTES.md: under the "## Known limitation" heading at line 18, alongside the existing
+  German deck note.
+Wording, one line, same sense in both: the skill fixes how a document LOOKS, not how its prose
+reads; AI-sounding wording is out of scope for v0.1.0.
+
+### 3. Mirror
+- TESTS-FOR-USER.md "## Test 11 — 13-prompt activation list": note that prompt 4 now describes
+  the document's appearance rather than pasting prose.
+- skill/dist/POST-UPLOAD-TESTS.md Test (c): same note. Gitignored, disk-only; do it anyway.
 
 ## Verify before you report
-1. All 13 prompts still present, numbered 1-13, in order.
-2. Prompts 1-5, 7, 9 and 12 are byte-identical to what is committed. Check with
-   `git diff skill/document-design-intelligence/references/activation.md` and read the hunks —
-   only 6, 8, 10, 11, 13 and the mirror text should appear.
-3. Prompt 10 still contains the words "PDF research paper" and still has no create/fix verb.
-4. The file still parses as UTF-8.
+1. `git diff skill/document-design-intelligence/references/activation.md` — the only hunks are
+   prompt 4, the scope note, and nothing else.
+2. The fenced description block still matches SKILL.md exactly. Check it:
+   python3 -c "import io,re;s=io.open('skill/document-design-intelligence/SKILL.md',encoding='utf-8').read();d=re.search(r'^description:\s*\"(.*)\"\s*$',s,re.M).group(1);a=io.open('skill/document-design-intelligence/references/activation.md',encoding='utf-8').read();i=a.index('## The description as shipped');q=a[a.index('```',i)+4:a.index('```',a.index('```',i)+4)];print(' '.join(q.split())==d)"
+   It must print True.
+3. All 13 prompts present and numbered 1-13.
 
 ## Report
-Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 8 lines: what you put
-inline for each of the five, confirmation that 7, 9 and 12 are untouched, and anything you
-ruled on yourself.
+Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 8 lines: the new prompt 4
+verbatim, the scope-note wording, the files touched, and the True/False from check 2.

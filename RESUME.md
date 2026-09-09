@@ -215,6 +215,37 @@ D. Rebuild the ZIP only after A lands. The user then re-runs 2-5, then 6-13.
 NOTE: skill/dist/ is gitignored (.gitignore line 12). Edits to
 skill/dist/POST-UPLOAD-TESTS.md live on disk only and are NOT under version control.
 
+## ACTIVATION RERUN, 2026-09-09, on the ZIP rebuilt after ruling E
+Prompts 2, 3 and 5 PASS. Prompt 4 FAIL. The inline-content fix worked, so candidate B (the
+"activate before asking for missing content" sentence) stays UNAPPLIED.
+
+Prompt 4 failed for a real reason, and it is a SCOPE finding, not a bug. Claude said the pasted
+paragraph "is not a document, just text", then searched the skill for rules about correcting
+AI-sounding writing and found none. That is correct. data/base was checked by the lead and again
+by me: every table is layout, typography, colour, print or ATS. The word "prose" appears only as
+a use-case descriptor in doc-styles.csv and typefaces.csv, never as prose-quality guidance.
+
+**THE SKILL FIXES HOW A DOCUMENT LOOKS, NOT HOW ITS PROSE READS.** AI-sounding wording is out of
+scope for v0.1.0. The description's "looks like AI / looks generic" trigger is a promise about
+APPEARANCE. Prompt 4 as originally written tested a promise the skill never made.
+
+RULING F (lead):
+1. Prompt 4 is rewritten so the complaint describes the document's APPEARANCE inline -- centred
+   bold headings in mixed fonts, 10pt body, 1cm margins, three bullet colours, clip-art chart.
+   Pass = fires and reasons about hierarchy/typography/margins/colour, or asks a design-framed
+   question. Fail = generic advice, or asks for the file.
+2. A one-line scope note goes in activation.md after the "Length: 823 characters" paragraph and
+   in RELEASE-NOTES.md under "## Known limitation".
+3. A second description candidate ("Candidate F") is DRAFTED in research/38-description-candidate.md
+   making the quality-fix trigger honest about layout. NOT applied. The user vetoes description
+   changes.
+4. The change mirrors to TESTS-FOR-USER.md Test 11 and the dist test doc.
+
+BINDING NOTE for whoever edits activation.md: the fenced block under "## The description as
+shipped" is byte-identical to SKILL.md's description and must stay that way. The "Alternate A"
+and "Alternate B" blocks further down are retained-for-reference history -- do not update them
+to match current wording.
+
 ## DESCRIPTION LENGTH -- the one measured number
 The SKILL.md frontmatter description measures **823 characters**. Verified with Python len()
 on the quoted value, twice, independently. The cap is 1023 (the claude.ai UI enforces "under

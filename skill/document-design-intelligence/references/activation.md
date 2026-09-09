@@ -44,6 +44,9 @@ supposed to be us, and the boundary needs to hold in both directions. Neither
 those filename mentions belong to the built-ins, not to us; naming them here
 would blur the exact boundary this sentence exists to draw.
 
+**Scope note**: the skill fixes how a document looks, not how its prose
+reads; AI-sounding wording is out of scope for v0.1.0.
+
 **First 200 characters** (kept below for reference — this analysis drove the
 alternates while the cap was still disputed, but no longer gates a real risk
 now that 1,024 is confirmed):
@@ -308,21 +311,13 @@ behavior versus answering as a generalist.
    layout, page count, or branding. **Fail**: generic response with no
    document-structure reasoning, or a clarifying question that isn't framed
    around document design.
-4. "In today's fast-paced business landscape, it is important to note that
-   customer satisfaction remains a key driver of long-term success.
-   Moreover, our recent survey data indicates a notable increase in
-   engagement across multiple channels. It is also worth mentioning that
-   these findings align with broader industry trends. In conclusion,
-   leveraging these insights will be essential for sustained growth going
-   forward. This report looks like it was thrown together by AI, can you
-   fix it?"
-   **Pass**: activates on the quality complaint and addresses the report's
-   structure and layout (headings, formatting, filler-phrase removal)
-   rather than just rewording sentences, or asks a clarifying question
-   framed around format, layout, page count, or branding. **Fail**: Claude
-   offers generic prose-editing suggestions with no layout/library
-   reasoning, or asks a clarifying question with no document-design
-   framing.
+4. "My quarterly report is 6 pages, every heading is centred and bold in a
+   different font, body is 10pt Calibri with 1cm margins, there are three
+   colours of bullet points and a clip-art chart. It looks like it was
+   thrown together by AI, can you fix it?"
+   **Pass**: the skill fires and reasons about hierarchy, typography,
+   margins or colour, or asks a question framed around those. **Fail**:
+   generic advice, or it asks for the file.
 5. "Sunrise Yoga Studio offers classes for all levels, from beginner to
    advanced. We have five instructors with over ten years of combined
    experience. Classes run Monday through Saturday, morning and evening

@@ -21,6 +21,9 @@ One ambiguous German deck phrase resolves to the projection variant instead
 of asking which was meant. The three deck rows tie on score and the tie is
 broken by row length.
 
+The skill fixes how a document looks, not how its prose reads; AI-sounding
+wording is out of scope for v0.1.0.
+
 What the resolver does do: it resolves when confident, asks which of the
 real candidates you meant when a request is ambiguous, and says plainly when
 nothing matches.

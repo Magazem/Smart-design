@@ -460,8 +460,9 @@ UI/UX Pro Max specifically), and three test the handoff boundary against
 the built-in `docx`/`pptx` skills in both directions.
 
 Prompts 2-5 carry their own input inline (a French fiche brief, a German
-Angebot brief, a pasted report paragraph, and a pasted text block) — paste
-each one as-is, no file or extra text needed. Prompts 6, 8, 10 and 11 also
+Angebot brief, a report appearance description, and a pasted text block) —
+paste each one as-is, no file or extra text needed. Prompt 4 now describes
+the document's appearance rather than pasting prose. Prompts 6, 8, 10 and 11 also
 carry their own input inline (a sidebar UX complaint with named nav items,
 a pasted Python function, a pasted PDF-abstract paragraph, and pasted rough
 notes) — paste each as-is. Prompt 13 is the exception: it needs a real
