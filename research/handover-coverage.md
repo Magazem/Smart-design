@@ -1,3 +1,95 @@
+# STATUS — T1 reloaded, gate 0, but D3 STILL RESOLVES. Cause identified: the tokenizer.
+
+Written 2026-09-09, queries run 09:44:12–09:44:13 local. Supersedes nothing below; prepended.
+`scripts/resolve.py` md5 `9d4ed6fd0aece8c0fa4d41dae11d54a8` was IDENTICAL immediately before
+and immediately after the query batch, so all four results came from one resolver. Mechanism's
+in-flight work did not move under me.
+
+**Load.** `research/load-base.py` run twice. Run 1 changed exactly ONE file,
+`data/base/doctypes.csv`; the other 13 hashes were byte-identical. Run 2 changed nothing
+(md5 list of all 14 files identical to run 1) — idempotent. `assert_no_brand_rows()` clean;
+the six brand skips are the usual ones (typefaces 1, doctypes 4, doc-reasoning 4, doc-styles 2,
+type-scales 7, palettes 1).
+
+**Gate: 0.** `OK: validated 14 table(s), 291 row(s)` — exact line unchanged, exit 0.
+Keyword-only change, so the row count was expected to hold and it did.
+
+**Tests: 128 passed + 8 subtests, 0 failed.** Baseline in the block below was 124 + 8. The +4
+are Mechanism's zero-score tests, confirmed by name in `scripts/tests/test_resolve.py`
+(`test_zero_overlap_is_no_match_not_ambiguous`, `test_zero_overlap_json_has_no_match_status_and_no_candidates`,
+`test_zero_top_score_is_no_match_with_no_candidates`). Mechanism's zero-score work has
+LANDED, not in flight: resolve.py mtime 09:41:51 predates my first fingerprint, the branch at
+resolve.py:303 is present, and my ASCII probe exercised it. Nothing I touched has a test.
+
+## Acceptance test — 3 of 4 pass, D3 FAILS
+
+Floor `_SCORE_FLOOR = 0.0`, margin `_MIN_MARGIN_RATIO = 0.15` (abstain when the top-two gap,
+as a fraction of the top score, falls below it).
+
+| Query | Result | Top-2 keys and scores | Margin ratio |
+|---|---|---|---|
+| D3 `erstelle eine präsentation` | **RESOLVED** (fail) | slide-deck-projection 6.8202 / slide-deck-document 5.5504 | 0.1862 |
+| D3-ascii `erstelle eine praesentation` | no_match, 0 candidates | — (all rows 0.0) | — |
+| D1 `erstelle einen tabellarischen lebenslauf` | resolved `cv-dach` (pass) | cv-dach 2.2680 / cv-eu-europass 1.7029 | 0.2492 |
+| E3 `make me a flyer` | abstained (pass) | brochure-flyer-letter 4.5297 / brochure-flyer-a4 4.3518 | 0.0393 |
+
+D3's abstention candidate list was never produced because it did not abstain. Its top three
+ARE the deck family — projection 6.8202, document 5.5504, handout 5.5504 — so the deck-family
+requirement holds; it is the confidence that is wrong, not the neighbourhood.
+E3's three candidates are the two flyer rows plus `brochure-trifold-letter` 2.0895, as before.
+
+## The DDR's data fix was correct and is not the remaining cause
+
+The keyword edit landed and I verified the stems on disk: projection 3, document 3, handout 2,
+no duplicate tokens. The asymmetry the DDR removed is gone. D3 still resolves for a different
+reason, and the numbers say exactly which.
+
+`BM25.tokenize` (resolve.py:204) splits on `[^a-z0-9]+`. Every non-ASCII letter is a DELIMITER,
+not a character. So:
+
+    "erstelle eine präsentation"  ->  ['pr', 'sentation']
+
+`erstelle` and `eine` are stopwords and drop — CONFIRMED against `_STOPWORDS` (65 entries;
+`erstelle`, `eine`, `einen`, `fais`, `moi`, `une`, `make`, `me`, `a` are all members).
+`präsentation` SHATTERS at the `ä`. The resolver
+never sees the German word at all — it sees two fragments. The same shattering applies to the
+French `présentation`, so the German and French keyword phrases collapse onto the SAME two
+fragments, and the plain-English `presentation` token is a different token that does not match.
+
+Fragment counts across the three deck rows are now IDENTICAL:
+
+    slide-deck-projection   18 tokens   pr=2  sentation=2
+    slide-deck-document     34 tokens   pr=2  sentation=2
+    slide-deck-handout      34 tokens   pr=2  sentation=2   (avgdl = 24.60)
+
+Term frequency is tied three ways. Projection wins solely on BM25's b=0.75 LENGTH
+NORMALIZATION: its Keywords cell is 18 tokens against its siblings' 34. The DDR balanced the
+stem COUNTS, which is the right invariant for a normal tokenizer; it could not have balanced
+what this tokenizer actually consumes, because the accented stems are not tokens here.
+
+**This is the post-release tokenizer item the brief anticipated, and the evidence now names it
+precisely.** Nothing was tuned to force a pass.
+
+## The brief's binding premise is now FALSE, and that changes the options
+
+The brief states D1's margin ratio "was the thing that made D3 unfixable by thresholds." The
+measured ratios say otherwise: E3 0.0393 < D3 0.1862 < D1 0.2492. They are no longer inverted.
+Any `_MIN_MARGIN_RATIO` in the open interval (0.1862, 0.2492] makes all four acceptance
+criteria pass with a ONE-CONSTANT change. The Orchestrator should know that option exists.
+
+I still recommend AGAINST taking it, and the window is itself the argument. It is 0.063 wide.
+A constant that has to land inside a 6-point band to satisfy two queries is fitted to those two
+queries, not calibrated. The underlying defect — every accented term in the library is
+unsearchable, in German and in French alike — would remain, and the effect on queries beyond
+these four is UNTESTED. Fix the tokenizer, not the constant.
+
+**Second, separate defect exposed by the ASCII probe.** `erstelle eine praesentation` scores
+0.0 on all 30 rows and returns no candidates. A user typing the standard ASCII transliteration
+of `ä` gets nothing. Same root cause, opposite symptom: the library holds `präsentation`, which
+tokenizes to `pr`/`sentation`, and `praesentation` is a third distinct token that matches
+neither. Worth folding into the tokenizer item.
+
+---
 # STATUS — load pass 4 is DONE and the gate is 0
 
 Written 2026-09-09. Supersedes the step-3 status block below. Nothing is half-applied;

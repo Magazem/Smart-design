@@ -1,52 +1,66 @@
-# BRIEF — Packaging Analyst: step 7b, rebuild the distribution ZIP (~10 min)
+# BRIEF — Packaging Analyst: step 8, prepare the v0.1.0 release (~10 min)
 
-Context reset by policy; nothing lost. Your 7a pass is verified and closed: SKILL.md's body
-is 53 lines, zero hits for render_pdf/render_docx/scaffolding/placeholder/validated, tier
-wording verbatim. Act from THIS FILE and from disk — not from chat.
+Context reset by policy; nothing lost. Your 7b pass is verified and closed — I opened the
+rebuilt ZIP myself: 39 members, 14 base CSVs, rationale present, manifest md5 731d874f, no
+brand overlay, no active.json, description 823 chars saying "sourced".
+Act from THIS FILE and from disk.
 
-Repo root: C:\Users\ysuliman\Documents\Ai plugin
+Repo root: C:\Users\ysuliman\Documents\Ai plugin  (this IS now a git repo — see below)
 Skill dir: skill\document-design-intelligence
 Python:    C:\Users\ysuliman\AppData\Local\Microsoft\WindowsApps\python3.exe
 
-## State you are building on
-The gate is ZERO: "OK: validated 14 table(s), 291 row(s)" — all 14 tables loaded, 291 rows.
-The shipped `skill/dist/document-design-intelligence-0.0.1-dev.zip` is STALE: it carries the
-Rev 2 manifest (173 cols, 8 FKs) and a stray `ens-manrope-inter` typeface row that is long
-gone from live data. That staleness is what this brief ends.
+## What changed: the project is under version control as of today
+Repo at the PROJECT ROOT, initial commit 0bdb838, remote
+https://github.com/Magazem/Smart-design.git. `release.yml` now lives at
+`./.github/workflows/release.yml` and derives the version FROM THE TAG: it writes
+`skill/document-design-intelligence/VERSION` from `GITHUB_REF_NAME`, then runs
+`build_zip.py`, then attaches the dist asset. So VERSION is CI's to write, not yours.
 
-## ONE deliverable: a fresh, correct distribution ZIP.
-1. **One-word description change, RULED.** In `SKILL.md`'s YAML frontmatter, change
-   "Applies **validated** layout, typography, color, print, and ATS rules" to
-   "Applies **sourced** layout, typography, color, print, and ATS rules". Nothing else in
-   the description. Much of the library is sourced convention rather than validated rule,
-   and this is the first sentence a user sees. Keep the description under 1024 characters
-   and report its new length.
-2. **Fix the stale justification in make_brand_kit.py (gap (a) from load pass 4).** It still
-   emits a blank `Structure Key` and justifies it in a comment with "structures.csv does not
-   exist yet". That is now FALSE — structures.csv exists with 17 rows. A regenerated ENS kit
-   currently ships doctypes with NO structure. Emit a real `structure_key` that exists in
-   `data/base/structures.csv`, or if a brand's doctype genuinely has no match, leave it blank
-   with a printed NOTE naming the table and key, per the pattern you already established.
-   `schema-manifest-NOTES.md` repeats the same stale claim — fix it there too.
-3. **Regenerate the ENS kit** with the corrected script so the artefact matches the code.
-4. **Rebuild the ZIP** with `build_zip.py`. Then verify the built archive, by listing its
-   members, contains: the current manifest (14 tables — check the md5 is 731d874f, not the
-   Rev 2 one), all 14 base CSVs, `data/rationale/`, and NO `data/brand/<slug>/` path and no
-   `active.json`. Your own build_zip test covers the last part; confirm it on the real
-   artefact too, not only in the test.
+## ONE deliverable: the tree is release-ready and the tag command is handed over.
+1. **Do NOT bump VERSION by hand** — it still reads `0.0.1-dev` and that is correct; the
+   workflow overwrites it from the tag. If you think that is wrong, say so rather than
+   editing it.
+2. **Final artefact check.** Rebuild the ZIP locally and OPEN it. Confirm, by listing
+   members: all 14 base CSVs, `data/rationale/`, the manifest with md5 731d874f, SKILL.md
+   whose description says "sourced" and not "validated", NO `data/brand/<slug>/` path and no
+   `active.json`. Report the member count and byte size. Note `skill/dist/` is gitignored,
+   so the local artefact is a check, not a commit.
+3. **Do NOT touch git.** The Orchestrator commits, path-scoped, after verifying your work. Just report what you changed and where.
+   worker may have edits in flight in the same tree. Commit locally. DO NOT PUSH and DO NOT
+   TAG: pushing and tagging are the lead's, after the user confirms.
+4. **Write `research/37-release-checklist.md`**: the exact command sequence for the user to
+   cut v0.1.0 — the tag command, the push that triggers the workflow, and what they should
+   see afterwards (workflow run, asset name, where it lands). Include how to verify the
+   published asset is the right one, and how to roll back a bad tag. Be precise; this is the
+   file someone follows at the moment they are least able to improvise.
+5. State plainly in the checklist what this release DOES and DOES NOT contain: full section
+   guidance for CVs only, layout/typography/colour/print guidance for everything else,
+   headings for the other document families deferred to step 9, and the PDF/X-4 wording
+   exactly as it stands. A release note that overstates is the same defect as a data cell
+   that overstates.
+
+6. **The scope statement must reach the USER, not just research/.** `release.yml`'s publish
+   step sets `generate_release_notes: true`, which builds the GitHub release body from
+   commit titles — so everything you write in item 5 would never be seen by anyone
+   downloading the skill. Fix that: write `RELEASE-NOTES.md` at the repo root (committed,
+   not gitignored) carrying the scope statement, and add `body_path: RELEASE-NOTES.md` to
+   the `softprops/action-gh-release@v2` step in `.github/workflows/release.yml`. Keep
+   `generate_release_notes: true` if you want the commit list appended underneath; the
+   action supports both. This is the ONE workflow edit you are authorised to make in this
+   brief — do not change the build or version steps.
 
 ## Do not
-Touch `data/base`, `research/load-base.py`, the manifest generator, or any `research/*.csv`.
-Do not touch `scripts/resolve.py` — Mechanism may still be in it.
+Touch `data/base`, `research/load-base.py`, the manifest, or any `research/*.csv` draft.
+Do not run ANY git command. Do not push, tag, commit, or stage. Do not edit VERSION.
 
 ## VERIFY
-`pytest -q` from the skill dir: >= 124 passed. Note that
-`scripts/tests/test_ascii_clean.py` may fail on `resolve.py` from Mechanism's in-flight
-stopword work — that is NOT yours; report it and carry on.
-State the new ZIP's filename, size, member count, and the manifest md5 inside it.
+`pytest -q` from the skill dir — report the count (128 passed + 8 subtests at last check).
+`python3 scripts/validate_data.py data/base` must print OK for 14 tables.
+Do not run git. Just list the paths you created or changed, so the Orchestrator can stage
+exactly those.
 
 ## REPORT
 Max 8 lines to the Workflow Orchestrator, slot 01a080c5-2001-78b3-bbbe-afaae15edafa:
-the description's new length, what you did for the Structure Key, the ZIP's identity and
-the four archive checks, and the test count. If you approach ~10 minutes, checkpoint to
-research/handover-packaging.md and stop.
+gate result, test count, the ZIP's identity and the six archive checks, the exact paths you
+created or changed, and confirmation the checklist is written. If you approach ~10 minutes,
+checkpoint to research/handover-packaging.md and stop.

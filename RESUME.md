@@ -174,11 +174,19 @@ Full history: research/05-SYNTHESIS.md (long). This file is the short version.
 - The schema's Section Order example `contact;summary?;...` must be FIXED (no `?` marker).
 - BM25 tokenizer splits on any non-[a-z0-9] char, so accented words fragment; that is why
   the German and French forms of "presentation" collapse together.
-- NO GIT REPOSITORY EXISTS anywhere in this tree (checked 2026-09-09: `git rev-parse` fails
-  at the project root; no .git in the root, in skill/, or in the skill dir). A release
-  workflow exists at skill/.github/workflows/release.yml but is inert without a repo.
-  Nothing in this project is under version control. Step 8 is therefore "prepare the tree,
-  check the final ZIP, hand the user the git init / commit / remote / tag commands".
+- (RESOLVED 2026-09-09) Version control is LIVE. Repo at the PROJECT ROOT, initial commit
+  0bdb838 (204 files), pushed to https://github.com/Magazem/Smart-design.git.
+  release.yml MOVED to ./.github/workflows/ with paths prefixed `skill/` (VERSION write,
+  build_zip.py call, dist/ asset). .gitignore excludes upstream-latest/, skill/dist/, caches,
+  data/brand/*/ except README and .gitkeep, active.json, .claude/. .gitattributes pins LF so
+  the manifest md5 survives a Windows checkout.
+  WORKING RULE (ruled 2026-09-09): THE ORCHESTRATOR COMMITS, NOT THE WORKERS. Workers do
+  not touch git at all. The orchestrator already verifies every milestone on disk, so the
+  commit is the last step of that verification, and a single committer removes the risk of
+  one worker's `git add` sweeping up another's half-finished edits. Path-scoped
+  `git add <paths>` only, NEVER -A; the commit message names the task.
+  Nobody pushes. Tag and push are the lead's, after the user confirms.
+  Step 8 = final ZIP check, commit the remainder, hand the tag command over.
 
 ## STEP 9, ruled 2026-09-09 (AFTER v0.1.0): headings for the other 14 doc classes
 `structures.Section Order` is a list FK into `headings.canonical_section`. `headings.csv`
