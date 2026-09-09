@@ -358,6 +358,13 @@ Keywords as `f"{doctype}, {doctype.replace('-',' ')}, {slug}"`, so EVERY single-
 emitted a duplicate into EVERY brand kit ever generated. Fixed with order-preserving
 dict.fromkeys. That fix is load-bearing for the suite, which is why it is in the same commit.
 
+## PHASE C PACKAGING MUST CARRY THIS LINE
+Ruled by the lead: do NOT amend the published v0.1.0 release notes. When Packaging next touches
+RELEASE-NOTES.md, add ONE line under a "Fixed" heading in the v0.2 section, to this effect:
+  brochure-flyer-a4 listed one keyword twice in v0.1.0, slightly over-weighting that row;
+  now gated.
+Bind it into the phase C Packaging brief. It does not get a brief of its own.
+
 ## BACKLOG, added 2026-09-09
 - make_brand_kit.py lines 498 and 560: the same single-word duplication, live today but ungated
   because Keywords is declared only on doctypes.
