@@ -328,6 +328,57 @@ fixture reference.
 
 The release is DONE. Anything further is step 9 work against a new version.
 
+## v0.2 IS OPEN -- scope and the one structural fact that shapes it, 2026-09-09
+
+### CANDIDATE B IS PERMANENTLY ON HOLD. DO NOT REVIVE IT.
+The "invoke first, ask later" sentence drafted in research/38-description-candidate.md stays
+unapplied until REAL USERS report the skill staying silent when it should have fired. It is not
+a pending task, it is a parked option. Its own risk analysis says it endangers the docx deferral
+(activation prompt 11). Every failure it was meant to fix turned out to be a test defect. If you
+find yourself about to apply it because activation testing looks weak, stop: fix the test.
+
+### THE FACT THAT SHAPES ALL HEADINGS WORK
+`Section Order` in T10 structures is a LIST FOREIGN KEY into `headings.canonical_section`
+(schema-manifest: "group": true, "list": true). validate_data.py splits the cell on ";" and
+validates EVERY token. I read the code path at scripts/validate_data.py around line 236 to
+confirm it splits rather than validating the joined string.
+
+headings.csv has 81 rows covering exactly 11 canonical sections, and ALL ELEVEN ARE CV-ONLY:
+certifications, contact, education, experience, languages, projects, publications, references,
+skills, summary, volunteering.
+
+CONSEQUENCE: every non-CV family needs brand-new canonical sections, so **headings rows must be
+authored and loaded BEFORE or WITH their Section Orders, never after.** Load a Section Order
+first and every section name without a headings row is a dangling FK and the gate goes non-zero.
+This is how gate 82 happened last time. The drafts are therefore authored in pairs.
+
+### THE FAMILY COUNT IS 15 KEYS, NOT 14
+data/base/structures.csv has 17 structure keys. cv-experienced and cv-academic carry a Section
+Order; the other FIFTEEN are empty:
+brochure-3panel, brochure-gatefold, cover-letter-standard, deck-standard, flyer-single-sheet,
+form-standard, invoice-standard, letter-standard, memo-standard, one-pager-standard,
+poster-single-canvas, proposal-standard, report-long-toc, report-short, whitepaper-standard.
+
+Two mappings that are easy to get wrong, both bound from data/base/doctypes.csv:
+- T1 `quote-devis` points at `invoice-standard`, NOT proposal-standard. invoice-standard must
+  serve invoices AND quotes/devis/offers.
+- T1 `infographic` has an EMPTY Structure Key. It is not in the 15 and gets no section order.
+
+### PHASE PLAN
+A. In parallel: DDR drafts section models class by class (transactional first: invoice, letter,
+   memo, form, proposal), each draft being a headings CSV plus a section-orders CSV that
+   validate together. Coverage takes three sequential cleanup briefs: duplicate-keyword sweep
+   plus a permanent validator rule, contrast error line anchoring, and the schema's Section
+   Order example that wrongly carries a "?" marker.
+B. Coverage loads the headings rows FIRST, then the section orders, to gate zero. Mechanism
+   updates resolve.py so "no section-order guidance for <doctype>" fires only for families still
+   empty, with the 133-test baseline holding.
+C. DDR fills the remaining families. Packaging updates the SKILL.md and README list of doctypes
+   that carry structure guidance, and rebuilds.
+
+DEFERRED, waiting on real query data, not on us: BM25 length normalisation and the tokenizer
+split behaviour.
+
 ## DESCRIPTION LENGTH -- the one measured number
 The SKILL.md frontmatter description measures **831 characters**, as of the candidate F edit
 applied 2026-09-09. Verified with Python len() on the quoted value. The cap is 1023 (the
