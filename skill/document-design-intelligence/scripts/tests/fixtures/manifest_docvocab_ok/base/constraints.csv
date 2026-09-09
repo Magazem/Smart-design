@@ -1,0 +1,4 @@
+constraint_key,Set Key,Check
+c-dpi,print-basics,min-dpi
+c-margin,print-basics,min-margin
+c-contrast,brand-contrast,contrast-ratio

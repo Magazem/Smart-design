@@ -1,0 +1,15 @@
+# Same gate, AFTER `merge_brand_kit.py research/ens-brand-kit.zip -b
+# skill/dist/document-design-intelligence-0.0.1-dev.zip` (temp-dir merge,
+# `merge=OK: merged (brand=ens files=5)`). Same base-staleness refusal as the
+# "before" capture, PLUS a new one: the merged typefaces.csv now shows a
+# duplicate 'ens-manrope-inter' key between data/brand/ens/ and data/base/.
+# That base row is baked into the 0.0.1-dev.zip snapshot only - confirmed
+# by reading the CURRENT LIVE data/base/typefaces.csv: the stray row is gone
+# there (already cleaned up since research/handover-packaging.md was
+# written). So this collision is stale-base-snapshot noise, not a defect in
+# merge_brand_kit.py, make_brand_kit.py, or the ENS kit itself; it will not
+# reproduce once step 7 rebuilds the dist zip from current data/base.
+C:\Users\ysuliman\AppData\Local\Temp\tmp.lpq2hcOVs5\after_extract\document-design-intelligence\data\base\doctypes.csv: declared in manifest but file does not exist
+C:\Users\ysuliman\AppData\Local\Temp\tmp.lpq2hcOVs5\after_extract\document-design-intelligence\data\brand\ens\typefaces.csv:2:typeface_key: duplicate key 'ens-manrope-inter' (already defined at C:\Users\ysuliman\AppData\Local\Temp\tmp.lpq2hcOVs5\after_extract\document-design-intelligence\data\base\typefaces.csv:2)
+
+2 structural problem(s) found -- refusing

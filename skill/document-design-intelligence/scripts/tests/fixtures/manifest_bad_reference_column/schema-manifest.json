@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "tables": {
+    "tags": {
+      "filename": "tags.csv",
+      "columns": [
+        "tag_key",
+        "Group"
+      ],
+      "key_column": "tag_key",
+      "enums": {},
+      "foreign_keys": {},
+      "searchable_columns": [],
+      "typed_json_columns": [],
+      "derived": []
+    },
+    "items": {
+      "filename": "items.csv",
+      "columns": [
+        "item_key",
+        "Display Name",
+        "Tag Group",
+        "Multi Tag Groups",
+        "Panels"
+      ],
+      "key_column": "item_key",
+      "role": "entry",
+      "enums": {},
+      "foreign_keys": {
+        "Tag Group": {
+          "table": "tags",
+          "column": "Group",
+          "group": true
+        },
+        "Multi Tag Groups": {
+          "table": "tags",
+          "column": "Group",
+          "group": true,
+          "list": true
+        }
+      },
+      "searchable_columns": [
+        "Display Name"
+      ],
+      "typed_json_columns": [],
+      "list_columns": {
+        "Panels": ";"
+      },
+      "derived": []
+    },
+    "checks": {
+      "filename": "checks.csv",
+      "columns": [
+        "check_key",
+        "Threshold"
+      ],
+      "key_column": "check_key",
+      "enums": {},
+      "foreign_keys": {},
+      "searchable_columns": [],
+      "typed_json_columns": [],
+      "reference_columns": {
+        "Threshold": {
+          "pattern": "^[a-z-]+:[A-Za-z ]+$",
+          "must_resolve": true
+        }
+      },
+      "derived": []
+    }
+  }
+}

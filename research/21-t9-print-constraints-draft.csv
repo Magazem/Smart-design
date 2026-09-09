@@ -1,0 +1,12 @@
+constraint_key,Set Key,Applies To,Check,Parameter,Threshold,Severity
+pro-bleed-geometry,professional-print,format:pdf,validate-bleed,bleed_mm,T7:Bleed mm,fail
+pro-trim-safe-margin,professional-print,format:pdf,validate-safe-margin,safe_margin_mm,T7:Safe Margin mm,warn
+pro-fold-geometry,professional-print,format:pdf,validate-fold-geometry,fold_geometry,present,fail
+pro-output-intent-present,professional-print,format:pdf,validate-output-intent,output_intent_present,present,fail
+pro-color-space-cmyk,professional-print,format:pdf,validate-color-space,rgb_operator_count;condition=print_tier=cmyk-press,0,fail
+pro-fonts-embedded,professional-print,format:pdf,validate-font-embedded,embedded_font_ratio,1.0,fail
+pro-min-dpi-raster,professional-print,format:pdf,validate-dpi,dpi_raster,T7:Min DPI Raster,warn
+pro-min-dpi-line-art,professional-print,format:pdf,validate-dpi,dpi_line_art,T7:Min DPI Line Art,warn
+pro-spot-color-declared,professional-print,format:pdf,validate-spot-color,separation_name_match,present,warn
+print-contrast-ratio,print-legibility,format:pdf,validate-contrast-print,scope=body,4.5,warn
+print-contrast-ratio-large,print-legibility,format:pdf,validate-contrast-print,scope=large-text,3.0,warn

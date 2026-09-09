@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "tables": {
+    "categories": {
+      "filename": "categories.csv",
+      "columns": [
+        "category_key",
+        "Display Name",
+        "Status",
+        "Primary",
+        "On Primary"
+      ],
+      "key_column": "category_key",
+      "enums": {
+        "Status": [
+          "active",
+          "deprecated"
+        ]
+      },
+      "foreign_keys": {},
+      "searchable_columns": [
+        "Display Name"
+      ],
+      "typed_json_columns": [],
+      "derived": [
+        {
+          "check": "contrast_at_least",
+          "column": "On Primary",
+          "against_column": "Primary",
+          "min_ratio": 4.5
+        }
+      ]
+    },
+    "widgets": {
+      "filename": "widgets.csv",
+      "columns": [
+        "widget_key",
+        "Display Name",
+        "Category Key",
+        "Related Category Keys",
+        "Brand Scope"
+      ],
+      "key_column": "widget_key",
+      "role": "entry",
+      "enums": {},
+      "foreign_keys": {
+        "Category Key": "categories.category_key",
+        "Related Category Keys": {
+          "table": "categories",
+          "column": "category_key",
+          "list": true
+        }
+      },
+      "searchable_columns": [
+        "Display Name"
+      ],
+      "typed_json_columns": [],
+      "derived": []
+    }
+  }
+}

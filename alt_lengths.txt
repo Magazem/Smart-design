@@ -1,0 +1,12 @@
+=== A_english_first ===
+TOTAL: 412
+FIRST 200: Creates and fixes print/office documents: CVs, resumes, cover letters, brochures, flyers, posters, reports, whitepapers, slide decks, presentations, forms, letters, quotes, offers. Also: note interne,
+
+=== B_multilingual_first ===
+TOTAL: 387
+FIRST 200: Handles CVs, note interne, fiche, courrier, affiche, formulaire, Lebenslauf, Angebot, Bericht, and other print/office documents: resumes, cover letters, brochures, flyers, posters, reports, whitepaper
+
+=== C_complaints_and_boundary_first ===
+TOTAL: 362
+FIRST 200: Fixes documents that look AI-generated, generic, or unprofessional (bad layout, type, color, print-readiness) and creates new ones: CVs, note interne, fiche, brochures, reports, slide decks, letters, 
+

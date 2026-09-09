@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 1,
+  "tables": {
+    "page-formats": {
+      "filename": "page-formats.csv",
+      "columns": [
+        "page_format_key",
+        "Display Name",
+        "Trim W mm",
+        "Trim H mm",
+        "Margin Top mm",
+        "Margin Bottom mm",
+        "Margin Inside mm",
+        "Margin Outside mm",
+        "Bleed mm"
+      ],
+      "key_column": "page_format_key",
+      "enums": {},
+      "foreign_keys": {},
+      "searchable_columns": [
+        "Display Name"
+      ],
+      "typed_json_columns": [],
+      "display_columns": [
+        "Trim W mm",
+        "Trim H mm",
+        "Margin Top mm",
+        "Margin Bottom mm",
+        "Margin Inside mm",
+        "Margin Outside mm",
+        "Bleed mm"
+      ],
+      "derived": []
+    },
+    "typefaces": {
+      "filename": "typefaces.csv",
+      "columns": [
+        "typeface_key",
+        "Display Name",
+        "Heading Family",
+        "Body Family",
+        "Safe Stack Fallback",
+        "Scale Key"
+      ],
+      "key_column": "typeface_key",
+      "enums": {},
+      "foreign_keys": {
+        "Scale Key": {
+          "table": "type-scales",
+          "column": "scale_key",
+          "group": true
+        }
+      },
+      "searchable_columns": [
+        "Display Name"
+      ],
+      "typed_json_columns": [],
+      "display_columns": [
+        "Heading Family",
+        "Body Family",
+        "Safe Stack Fallback",
+        "Scale Key"
+      ],
+      "derived": []
+    },
+    "type-scales": {
+      "filename": "type-scales.csv",
+      "columns": [
+        "scale_row_key",
+        "scale_key",
+        "Medium",
+        "Role",
+        "Size pt"
+      ],
+      "key_column": "scale_row_key",
+      "enums": {},
+      "foreign_keys": {},
+      "searchable_columns": [],
+      "typed_json_columns": [],
+      "display_columns": [
+        "Medium",
+        "Role",
+        "Size pt"
+      ],
+      "derived": []
+    },
+    "palettes": {
+      "filename": "palettes.csv",
+      "columns": [
+        "palette_key",
+        "Display Name",
+        "Primary",
+        "Secondary",
+        "Accent",
+        "Background",
+        "Foreground"
+      ],
+      "key_column": "palette_key",
+      "enums": {},
+      "foreign_keys": {},
+      "searchable_columns": [
+        "Display Name"
+      ],
+      "typed_json_columns": [],
+      "display_columns": [
+        "Primary",
+        "Secondary",
+        "Accent",
+        "Background",
+        "Foreground"
+      ],
+      "derived": []
+    },
+    "render-targets": {
+      "filename": "render-targets.csv",
+      "columns": [
+        "render_key",
+        "Format",
+        "Engine",
+        "Engine Path",
+        "Engine Invocation",
+        "Font Rule",
+        "Print Tier Max"
+      ],
+      "key_column": "render_key",
+      "enums": {},
+      "foreign_keys": {},
+      "searchable_columns": [],
+      "typed_json_columns": [],
+      "display_columns": [
+        "Format",
+        "Engine",
+        "Engine Path",
+        "Engine Invocation",
+        "Font Rule",
+        "Print Tier Max"
+      ],
+      "derived": []
+    },
+    "constraints": {
+      "filename": "constraints.csv",
+      "columns": [
+        "constraint_key",
+        "Set Key",
+        "Check"
+      ],
+      "key_column": "constraint_key",
+      "enums": {},
+      "foreign_keys": {},
+      "searchable_columns": [],
+      "typed_json_columns": [],
+      "display_columns": [
+        "Set Key"
+      ],
+      "derived": []
+    },
+    "docs": {
+      "filename": "docs.csv",
+      "columns": [
+        "doc_key",
+        "Display Name",
+        "Page Format Key",
+        "Typeface Key",
+        "Palette Key",
+        "Render Target Keys",
+        "Constraint Set Keys"
+      ],
+      "key_column": "doc_key",
+      "role": "entry",
+      "enums": {},
+      "foreign_keys": {
+        "Page Format Key": "page-formats.page_format_key",
+        "Typeface Key": "typefaces.typeface_key",
+        "Palette Key": "palettes.palette_key",
+        "Render Target Keys": {
+          "table": "render-targets",
+          "column": "render_key",
+          "list": true
+        },
+        "Constraint Set Keys": {
+          "table": "constraints",
+          "column": "Set Key",
+          "group": true
+        }
+      },
+      "searchable_columns": [
+        "Display Name"
+      ],
+      "typed_json_columns": [],
+      "derived": []
+    }
+  }
+}

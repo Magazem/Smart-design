@@ -1,0 +1,2 @@
+widget_key,Display Name,Category Key,Related Category Keys,Brand Scope
+acme-wrench,Acme Wrench,tools,,should-be-overwritten-by-harness

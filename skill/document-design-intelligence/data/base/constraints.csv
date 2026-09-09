@@ -1,0 +1,43 @@
+constraint_key,Set Key,Applies To,Check,Element Scope,Parameter,Threshold,Severity
+ats-no-multi-column,ats-strict,doctype:cv-*,validate-ats-structure,,columns,0,fail
+ats-no-content-tables,ats-strict,doctype:cv-*,validate-ats-structure,,tables_in_body,0,fail
+ats-no-textbox,ats-strict,doctype:cv-*,validate-ats-structure,,text_boxes,0,fail
+ats-contact-in-body,ats-strict,doctype:cv-*,validate-ats-structure,,header_footer_contact,0,fail
+ats-no-symbol-glyphs,ats-strict,doctype:cv-*,validate-ats-structure,,pua_bullet_glyphs,0,fail
+ats-text-layer,ats-strict,doctype:cv-*,validate-text-layer,,selectable_ratio,1.0,fail
+ats-image-only-info,ats-strict,doctype:cv-*,validate-image-text-parity,,unlabeled_images,0,warn
+cv-page-count,cv-region,doctype:cv-*,validate-page-count,,max_pages,cv-regions:Max Pages,warn
+cv-field-norms,cv-region,doctype:cv-*,validate-text-safe-fields,,fields=photo|date_of_birth|marital_status|nationality|visa_status,,warn
+proj-body-floor,projection,artifact-class:canvas,validate-type-floor,,medium=projection;role=body,24,warn
+proj-body-dense-floor,projection,artifact-class:canvas,validate-type-floor,,medium=projection;role=body-dense,18,warn
+proj-title-floor,projection,artifact-class:canvas,validate-type-floor,,medium=projection;role=h1,36,warn
+screen-body-floor,screen,artifact-class:canvas,validate-type-floor,,medium=screen;role=body,18,warn
+deck-density-bullets,projection,artifact-class:canvas,validate-density,,bullets_per_slide,6,warn
+deck-density-words,projection,artifact-class:canvas,validate-density,,words_per_bullet,6,warn
+deck-text-density,projection,artifact-class:canvas,validate-text-density,,words_per_slide_body,40,warn
+deck-chart-series-max,projection,artifact-class:canvas,validate-chart-series,,max_series,7,warn
+proj-contrast-margin,projection,artifact-class:canvas,validate-contrast-screen,,wcag_ratio_min,7.0,warn
+deck-aspect-ratio-default,projection,artifact-class:canvas,validate-aspect-ratio,,ratio,16:9,warn
+pptx-font-embedded,projection,format:pptx,validate-font-embedded,,target=ppt/fonts;flag=p:embeddedFont,present,fail
+report-measure-cpl,report-typography,artifact-class:flow,validate-measure,body-paragraph,cpl_min=45;cpl_max=75,45-75,warn
+report-leading-ratio,report-typography,artifact-class:flow,validate-leading-ratio,,ratio_min=1.20;ratio_max=1.45,1.20-1.45,warn
+report-running-heads,report-typography,artifact-class:flow,validate-running-heads,,distinct_odd_even_headers,present,warn
+report-pagination-frontmatter,report-typography,artifact-class:flow,validate-pagination-format,,frontmatter=roman;body=arabic-restart,present,warn
+report-table-rules,report-typography,artifact-class:flow,validate-table-rules,,vertical_borders=0;row_rules=header+total-only,present,warn
+report-table-numeric-align,report-typography,artifact-class:flow,validate-table-alignment,,numeric=right;text=left,present,warn
+photocopy-safe-color,photocopy-safe,doctype:*,validate-text-safe-color,,roles=label|legal;metric=text_l_star,15,warn
+legal-text-min-size,legal-text,doctype:*,validate-type-floor,,medium=print;role=legal,8,warn
+legal-text-no-sustained-uppercase,legal-text,doctype:*,validate-text-case,,role=legal;max_uppercase_run_words,3,warn
+pro-bleed-geometry,professional-print,format:pdf,validate-bleed,,bleed_mm,page-formats:Bleed mm,fail
+pro-trim-safe-margin,professional-print,format:pdf,validate-safe-margin,,safe_margin_mm,page-formats:Safe Margin mm,warn
+pro-fold-geometry,professional-print,format:pdf,validate-fold-geometry,,fold_geometry,present,fail
+pro-output-intent-present,professional-print,format:pdf,validate-output-intent,,output_intent_present,present,fail
+pro-color-space-cmyk,professional-print,format:pdf,validate-color-space,,rgb_operator_count;condition=print_tier=cmyk-press,0,fail
+pro-fonts-embedded,professional-print,format:pdf,validate-font-embedded,,embedded_font_ratio,1.0,fail
+pro-min-dpi-raster,professional-print,format:pdf,validate-dpi,,dpi_raster,page-formats:Min DPI Raster,warn
+pro-min-dpi-line-art,professional-print,format:pdf,validate-dpi,,dpi_line_art,page-formats:Min DPI Line Art,warn
+pro-spot-color-declared,professional-print,format:pdf,validate-spot-color,,separation_name_match,present,warn
+print-contrast-ratio,print-legibility,format:pdf,validate-contrast-print,,scope=body,4.5,warn
+print-contrast-ratio-large,print-legibility,format:pdf,validate-contrast-print,,scope=large-text,3.0,warn
+font-substitute-available,font-safety,format:docx,validate-substitute-available,,weights_required_from=T5,present,warn
+redesign-text-frozen,redesign,doctype:*-redesign,validate-content-preservation,,normalise=whitespace,0,fail

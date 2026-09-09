@@ -1,0 +1,82 @@
+heading_key,canonical_section,Heading Text,Language,Is Primary
+experience-en-1,experience,Experience,en,yes
+experience-en-2,experience,Work Experience,en,no
+experience-en-3,experience,Employment History,en,no
+experience-en-4,experience,Professional Experience,en,no
+experience-en-5,experience,Career History,en,no
+education-en-1,education,Education,en,yes
+education-en-2,education,Education and Training,en,no
+education-en-3,education,Academic Background,en,no
+skills-en-1,skills,Skills,en,yes
+skills-en-2,skills,Core Competencies,en,no
+skills-en-3,skills,Technical Skills,en,no
+skills-en-4,skills,Key Skills,en,no
+summary-en-1,summary,Summary,en,yes
+summary-en-2,summary,Professional Summary,en,no
+summary-en-3,summary,Profile,en,no
+summary-en-4,summary,Career Objective,en,no
+summary-en-5,summary,Personal Statement,en,no
+certifications-en-1,certifications,Certifications,en,yes
+certifications-en-2,certifications,Licenses and Certifications,en,no
+certifications-en-3,certifications,Certifications and Licenses,en,no
+projects-en-1,projects,Projects,en,yes
+projects-en-2,projects,Key Projects,en,no
+projects-en-3,projects,Selected Projects,en,no
+publications-en-1,publications,Publications,en,yes
+publications-en-2,publications,Selected Publications,en,no
+languages-en-1,languages,Languages,en,yes
+languages-en-2,languages,Language Skills,en,no
+contact-en-1,contact,Contact,en,yes
+contact-en-2,contact,Contact Information,en,no
+contact-en-3,contact,Personal Details,en,no
+contact-en-4,contact,Personal Information,en,no
+references-en-1,references,References,en,yes
+references-en-2,references,Professional References,en,no
+volunteering-en-1,volunteering,Volunteer Experience,en,yes
+volunteering-en-2,volunteering,Volunteering,en,no
+volunteering-en-3,volunteering,Community Involvement,en,no
+volunteering-en-4,volunteering,Volunteer Work,en,no
+experience-fr-1,experience,Expérience professionnelle,fr,yes
+experience-fr-2,experience,Expérience,fr,no
+education-fr-1,education,Formation,fr,yes
+education-fr-2,education,Formation et diplômes,fr,no
+education-fr-3,education,Études,fr,no
+skills-fr-1,skills,Compétences,fr,yes
+skills-fr-2,skills,Compétences techniques,fr,no
+summary-fr-1,summary,Profil,fr,yes
+summary-fr-2,summary,Accroche,fr,no
+summary-fr-3,summary,Objectif,fr,no
+certifications-fr-1,certifications,Certifications,fr,yes
+certifications-fr-2,certifications,Certifications professionnelles,fr,no
+projects-fr-1,projects,Projets,fr,yes
+publications-fr-1,publications,Publications,fr,yes
+languages-fr-1,languages,Langues,fr,yes
+contact-fr-1,contact,Coordonnées,fr,yes
+contact-fr-2,contact,Contact,fr,no
+contact-fr-3,contact,État civil,fr,no
+references-fr-1,references,Références,fr,yes
+volunteering-fr-1,volunteering,Bénévolat,fr,yes
+volunteering-fr-2,volunteering,Engagement associatif,fr,no
+volunteering-fr-3,volunteering,Expérience associative,fr,no
+experience-de-1,experience,Berufserfahrung,de,yes
+experience-de-2,experience,Beruflicher Werdegang,de,no
+education-de-1,education,Ausbildung,de,yes
+education-de-2,education,Bildungsweg,de,no
+skills-de-1,skills,Kenntnisse,de,yes
+skills-de-2,skills,Fähigkeiten,de,no
+skills-de-3,skills,Kompetenzen,de,no
+summary-de-1,summary,Profil,de,yes
+summary-de-2,summary,Kurzprofil,de,no
+summary-de-3,summary,Persönliches Profil,de,no
+certifications-de-1,certifications,Zertifikate,de,yes
+certifications-de-2,certifications,Zertifizierungen,de,no
+projects-de-1,projects,Projekte,de,yes
+publications-de-1,publications,Publikationen,de,yes
+languages-de-1,languages,Sprachkenntnisse,de,yes
+languages-de-2,languages,Sprachen,de,no
+contact-de-1,contact,Kontakt,de,yes
+contact-de-2,contact,Persönliche Daten,de,no
+contact-de-3,contact,Kontaktdaten,de,no
+references-de-1,references,Referenzen,de,yes
+volunteering-de-1,volunteering,Ehrenamtliches Engagement,de,yes
+volunteering-de-2,volunteering,Ehrenamt,de,no

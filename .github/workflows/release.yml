@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      # Version is derived from the tag, in this same job, with no second
+      # workflow and no PR to forget — see research/11-upstream-releases.md §5
+      # for the upstream failure mode this is designed to avoid. build_zip.py
+      # reads this file; it does not know about git tags itself, so deriving
+      # the version from GITHUB_REF_NAME stays a CI-only concern here.
+      - name: Set version from tag
+        id: version
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "$VERSION" > skill/document-design-intelligence/VERSION
+
+      # Single build entry point for both CI and local dev — see the script's
+      # own docstring. Validates data (research/09-library-schema.md §4,
+      # items 1-4), stamps the version into SKILL.md, and zips with the
+      # correct ZIP root. No --allow-empty-data here: a tag with no valid
+      # schema-manifest.json must fail closed, producing no artifact, not a
+      # broken release (the upstream failure mode in research/11-upstream-releases.md §5).
+      - name: Build the skill ZIP
+        run: python3 skill/document-design-intelligence/scripts/build_zip.py
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: skill/dist/document-design-intelligence-${{ steps.version.outputs.version }}.zip
+          generate_release_notes: true

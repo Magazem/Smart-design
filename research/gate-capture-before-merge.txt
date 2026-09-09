@@ -1,0 +1,9 @@
+# `ddi.py check --data-dir <extracted>/document-design-intelligence/data` run
+# against skill/dist/document-design-intelligence-0.0.1-dev.zip's own base data,
+# BEFORE the ENS brand kit is merged in. This is the merge TARGET (step 5's
+# brief), known-stale (Rev 2 manifest, 173 cols/8 FKs) - the "doctypes.csv does
+# not exist" refusal below is that staleness, not anything this task touched.
+# Rebuilding this zip against a current base is step 7, not this task.
+C:\Users\ysuliman\AppData\Local\Temp\tmp.lpq2hcOVs5\before_extract\document-design-intelligence\data\base\doctypes.csv: declared in manifest but file does not exist
+
+1 structural problem(s) found -- refusing

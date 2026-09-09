@@ -1,0 +1,4 @@
+render_key,Format,Engine,Engine Path,Engine Invocation,Font Rule,Print Tier Max
+pdf-chromium,pdf,headless-chromium,/opt/google/chrome/chrome,--headless --no-sandbox --disable-gpu --print-to-pdf=%o --no-pdf-header-footer %i,embed,submittable-rgb
+pdf-weasyprint-pdfx4,pdf,weasyprint,weasyprint (module),--pdf-variant=pdf/x-4 --output-intent=srgb,embed,pdfx4-rgb
+pptxgenjs-deck,pptx,pptxgenjs,pptxgenjs (module),,embed,none

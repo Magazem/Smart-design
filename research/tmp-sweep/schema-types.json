@@ -1,0 +1,1234 @@
+{
+ "doctypes": {
+  "T": 1,
+  "columns": {
+   "doc_key": {
+    "type": "slug",
+    "svr": "R",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Display Name": {
+    "type": "text",
+    "svr": "S",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Keywords": {
+    "type": "text",
+    "svr": "S",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Artifact Class": {
+    "type": "enum `canvas`\\|`flow`\\|`hybrid`",
+    "svr": "R V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Brand Scope": {
+    "type": "slug",
+    "svr": "R V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Reasoning Key": {
+    "type": "slug FK → T2",
+    "svr": "R",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Page Format Key": {
+    "type": "slug FK → T7",
+    "svr": "R",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Render Target Keys": {
+    "type": "slug list FK → T8",
+    "svr": "R",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Constraint Set Keys": {
+    "type": "slug list FK → T9",
+    "svr": "R",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Structure Key": {
+    "type": "slug FK → T10",
+    "svr": "R",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Region Key": {
+    "type": "slug FK → T12, nullable",
+    "svr": "R",
+    "nullable": true,
+    "shared_row": null
+   }
+  },
+  "order": [
+   "doc_key",
+   "Display Name",
+   "Keywords",
+   "Artifact Class",
+   "Brand Scope",
+   "Reasoning Key",
+   "Page Format Key",
+   "Render Target Keys",
+   "Constraint Set Keys",
+   "Structure Key",
+   "Region Key"
+  ]
+ },
+ "doc-reasoning": {
+  "T": 2,
+  "columns": {
+   "doc_category": {
+    "type": "slug",
+    "svr": "R",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Style Key": {
+    "type": "slug FK → T3, nullable",
+    "svr": "R",
+    "nullable": true,
+    "shared_row": null
+   },
+   "Palette Key": {
+    "type": "slug FK → T4, nullable",
+    "svr": "R",
+    "nullable": true,
+    "shared_row": null
+   },
+   "Typeface Key": {
+    "type": "slug FK → T5, nullable",
+    "svr": "R",
+    "nullable": true,
+    "shared_row": null
+   },
+   "Style Bias Terms": {
+    "type": "text",
+    "svr": "S",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Palette Bias Terms": {
+    "type": "text",
+    "svr": "S",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Typeface Bias Terms": {
+    "type": "text",
+    "svr": "S",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Doc Conditions": {
+    "type": "closed grammar, nullable",
+    "svr": "V",
+    "nullable": true,
+    "shared_row": null
+   },
+   "Anti-Pattern Tokens": {
+    "type": "text list",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Severity": {
+    "type": "enum `fail`\\|`warn`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   }
+  },
+  "order": [
+   "doc_category",
+   "Style Key",
+   "Palette Key",
+   "Typeface Key",
+   "Style Bias Terms",
+   "Palette Bias Terms",
+   "Typeface Bias Terms",
+   "Doc Conditions",
+   "Anti-Pattern Tokens",
+   "Severity"
+  ]
+ },
+ "doc-styles": {
+  "T": 3,
+  "columns": {
+   "style_key": {
+    "type": "slug",
+    "svr": "R",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Display Name": {
+    "type": "text",
+    "svr": "S",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Keywords": {
+    "type": "text",
+    "svr": "S",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Best For": {
+    "type": "text",
+    "svr": "S",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Not For": {
+    "type": "text",
+    "svr": "S",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Brand Scope": {
+    "type": "slug",
+    "svr": "R",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Rule Hair pt": {
+    "type": "text list",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": "`Rule Weights`"
+   },
+   "Rule Strong pt": {
+    "type": "text list",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": "`Rule Weights`"
+   },
+   "Rule Brand pt": {
+    "type": "text list",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": "`Rule Weights`"
+   },
+   "Corner Radius mm": {
+    "type": "number",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Table Rules": {
+    "type": "enum `hairline`\\|`header-and-total`\\|`none`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Table Fills": {
+    "type": "enum `none`\\|`zebra`\\|`header-only`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Emphasis Mechanism": {
+    "type": "enum `weight`\\|`colour-text`\\|`fill`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Field Style": {
+    "type": "enum `underline`\\|`box`\\|`none`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Checklist": {
+    "type": "text list",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   }
+  },
+  "order": [
+   "style_key",
+   "Display Name",
+   "Keywords",
+   "Best For",
+   "Not For",
+   "Brand Scope",
+   "Rule Hair pt",
+   "Rule Strong pt",
+   "Rule Brand pt",
+   "Corner Radius mm",
+   "Table Rules",
+   "Table Fills",
+   "Emphasis Mechanism",
+   "Field Style",
+   "Checklist"
+  ]
+ },
+ "palettes": {
+  "T": 4,
+  "columns": {
+   "palette_key": {
+    "type": "slug",
+    "svr": "R",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Display Name": {
+    "type": "text",
+    "svr": "S",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Keywords": {
+    "type": "text",
+    "svr": "S",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Brand Scope": {
+    "type": "slug",
+    "svr": "R",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Primary": {
+    "type": "hex",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": "`Primary` / `On Primary`"
+   },
+   "On Primary": {
+    "type": "hex",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": "`Primary` / `On Primary`"
+   },
+   "Secondary": {
+    "type": "hex",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": "`Secondary` / `On Secondary`"
+   },
+   "On Secondary": {
+    "type": "hex",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": "`Secondary` / `On Secondary`"
+   },
+   "Accent": {
+    "type": "hex",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": "`Accent` / `On Accent`"
+   },
+   "On Accent": {
+    "type": "hex",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": "`Accent` / `On Accent`"
+   },
+   "Background": {
+    "type": "hex",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": "`Background` / `Foreground`"
+   },
+   "Foreground": {
+    "type": "hex",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": "`Background` / `Foreground`"
+   },
+   "Muted": {
+    "type": "hex",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": "`Muted` / `On Muted`"
+   },
+   "On Muted": {
+    "type": "hex",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": "`Muted` / `On Muted`"
+   },
+   "Rule Hair": {
+    "type": "hex",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": "`Rule Hair` / `Rule Strong` / `Rule Brand`"
+   },
+   "Rule Strong": {
+    "type": "hex",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": "`Rule Hair` / `Rule Strong` / `Rule Brand`"
+   },
+   "Rule Brand": {
+    "type": "hex",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": "`Rule Hair` / `Rule Strong` / `Rule Brand`"
+   },
+   "Text-Safe Roles": {
+    "type": "slug list",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Fill-Only Roles": {
+    "type": "slug list",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Category Marker Roles": {
+    "type": "slug list",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   }
+  },
+  "order": [
+   "palette_key",
+   "Display Name",
+   "Keywords",
+   "Brand Scope",
+   "Primary",
+   "On Primary",
+   "Secondary",
+   "On Secondary",
+   "Accent",
+   "On Accent",
+   "Background",
+   "Foreground",
+   "Muted",
+   "On Muted",
+   "Rule Hair",
+   "Rule Strong",
+   "Rule Brand",
+   "Text-Safe Roles",
+   "Fill-Only Roles",
+   "Category Marker Roles"
+  ]
+ },
+ "typefaces": {
+  "T": 5,
+  "columns": {
+   "typeface_key": {
+    "type": "slug",
+    "svr": "R",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Display Name": {
+    "type": "text",
+    "svr": "S",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Keywords": {
+    "type": "text",
+    "svr": "S",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Best For": {
+    "type": "text",
+    "svr": "S",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Brand Scope": {
+    "type": "slug",
+    "svr": "R",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Heading Family": {
+    "type": "text",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Body Family": {
+    "type": "text",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Mono Family": {
+    "type": "text, nullable",
+    "svr": "V",
+    "nullable": true,
+    "shared_row": null
+   },
+   "Category Contrast": {
+    "type": "enum `serif-sans`\\|`sans-sans`\\|`serif-serif`\\|`superfamily`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Family Count": {
+    "type": "int",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Safe Stack Fallback": {
+    "type": "text",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Safe Stack Availability": {
+    "type": "enum `os-bundled`\\|`office-bundled`\\|`none`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Embedding Licence": {
+    "type": "enum `installable`\\|`editable`\\|`preview-print`\\|`restricted`\\|`unknown`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Has Tabular Figures": {
+    "type": "enum `yes`\\|`unknown`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Scale Key": {
+    "type": "slug FK → T6",
+    "svr": "R",
+    "nullable": false,
+    "shared_row": null
+   }
+  },
+  "order": [
+   "typeface_key",
+   "Display Name",
+   "Keywords",
+   "Best For",
+   "Brand Scope",
+   "Heading Family",
+   "Body Family",
+   "Mono Family",
+   "Category Contrast",
+   "Family Count",
+   "Safe Stack Fallback",
+   "Safe Stack Availability",
+   "Embedding Licence",
+   "Has Tabular Figures",
+   "Scale Key"
+  ]
+ },
+ "type-scales": {
+  "T": 6,
+  "columns": {
+   "scale_key": {
+    "type": "slug",
+    "svr": "`deck-projection`",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Medium": {
+    "type": "enum `print`\\|`projection`\\|`screen`",
+    "svr": "`projection`",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Role": {
+    "type": "enum `legal`\\|`label`\\|`caption`\\|`body`\\|`body-dense`\\|`lead`\\|`h3`\\|`h2`\\|`h1`",
+    "svr": "`body`",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Size pt": {
+    "type": "number",
+    "svr": "`24`",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Leading Ratio": {
+    "type": "number",
+    "svr": "`1.20`",
+    "nullable": false,
+    "shared_row": null
+   }
+  },
+  "order": [
+   "scale_key",
+   "Medium",
+   "Role",
+   "Size pt",
+   "Leading Ratio"
+  ]
+ },
+ "page-formats": {
+  "T": 7,
+  "columns": {
+   "page_format_key": {
+    "type": "slug",
+    "svr": "R",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Display Name": {
+    "type": "text",
+    "svr": "S",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Keywords": {
+    "type": "text",
+    "svr": "S",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Trim W mm": {
+    "type": "number",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": "`Trim W mm` / `Trim H mm`"
+   },
+   "Trim H mm": {
+    "type": "number",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": "`Trim W mm` / `Trim H mm`"
+   },
+   "Bleed mm": {
+    "type": "number",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Safe Margin mm": {
+    "type": "number",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Margin Top mm": {
+    "type": "number ×4",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": "`Margin Top/Bottom/Inside/Outside mm`"
+   },
+   "Margin Bottom mm": {
+    "type": "number ×4",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": "`Margin Top/Bottom/Inside/Outside mm`"
+   },
+   "Margin Inside mm": {
+    "type": "number ×4",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": "`Margin Top/Bottom/Inside/Outside mm`"
+   },
+   "Margin Outside mm": {
+    "type": "number ×4",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": "`Margin Top/Bottom/Inside/Outside mm`"
+   },
+   "Measure mm": {
+    "type": "number",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Columns": {
+    "type": "int",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Running Head": {
+    "type": "enum `none`\\|`verso-recto`\\|`centered`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Folio Style": {
+    "type": "enum `none`\\|`arabic`\\|`roman-front-arabic-body`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Fold Type": {
+    "type": "enum `none`\\|`tri-fold`\\|`z-fold`\\|`gate-fold`\\|`roll-fold`",
+    "svr": "R V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Panels mm": {
+    "type": "number list, nullable",
+    "svr": "V",
+    "nullable": true,
+    "shared_row": null
+   },
+   "Stock gsm": {
+    "type": "int, nullable",
+    "svr": "V",
+    "nullable": true,
+    "shared_row": null
+   },
+   "Print Mode": {
+    "type": "enum `office`\\|`photocopy`\\|`professional`",
+    "svr": "R V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Min DPI Raster": {
+    "type": "int",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Min DPI Line Art": {
+    "type": "int",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   }
+  },
+  "order": [
+   "page_format_key",
+   "Display Name",
+   "Keywords",
+   "Trim W mm",
+   "Trim H mm",
+   "Bleed mm",
+   "Safe Margin mm",
+   "Margin Top mm",
+   "Margin Bottom mm",
+   "Margin Inside mm",
+   "Margin Outside mm",
+   "Measure mm",
+   "Columns",
+   "Running Head",
+   "Folio Style",
+   "Fold Type",
+   "Panels mm",
+   "Stock gsm",
+   "Print Mode",
+   "Min DPI Raster",
+   "Min DPI Line Art"
+  ]
+ },
+ "render-targets": {
+  "T": 8,
+  "columns": {
+   "render_key": {
+    "type": "slug",
+    "svr": "R",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Format": {
+    "type": "enum `pdf`\\|`docx`\\|`pptx`\\|`png`\\|`html`",
+    "svr": "R",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Engine": {
+    "type": "text",
+    "svr": "R",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Engine Path": {
+    "type": "text",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Engine Min Version": {
+    "type": "text, nullable",
+    "svr": "V",
+    "nullable": true,
+    "shared_row": null
+   },
+   "Engine Invocation": {
+    "type": "text",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Font Rule": {
+    "type": "enum `embed`\\|`safe-stack`\\|`inline-webfont`",
+    "svr": "R V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Supports Paged Media": {
+    "type": "bool",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Supports Bleed": {
+    "type": "bool",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Supports CMYK": {
+    "type": "bool",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Print Tier Max": {
+    "type": "enum `none`\\|`submittable-rgb`\\|`pdfx4-rgb`\\|`cmyk-press`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Editable By Recipient": {
+    "type": "bool",
+    "svr": "R",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Availability": {
+    "type": "enum `preinstalled`\\|`pip`\\|`unverified`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Fallback Render Key": {
+    "type": "slug FK, nullable",
+    "svr": "R",
+    "nullable": true,
+    "shared_row": null
+   }
+  },
+  "order": [
+   "render_key",
+   "Format",
+   "Engine",
+   "Engine Path",
+   "Engine Min Version",
+   "Engine Invocation",
+   "Font Rule",
+   "Supports Paged Media",
+   "Supports Bleed",
+   "Supports CMYK",
+   "Print Tier Max",
+   "Editable By Recipient",
+   "Availability",
+   "Fallback Render Key"
+  ]
+ },
+ "constraints": {
+  "T": 9,
+  "columns": {
+   "constraint_key": {
+    "type": "slug",
+    "svr": "R",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Set Key": {
+    "type": "slug",
+    "svr": "R",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Applies To": {
+    "type": "enum `artifact-class:*`\\|`format:*`\\|`doctype:*`",
+    "svr": "R",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Check": {
+    "type": "validator fn name",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Element Scope": {
+    "type": "enum `body-paragraph`\\|`table-cell`\\|`caption-block`\\|`sidebar-column`\\|`header-footer`; empty = whole document",
+    "svr": "R V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Parameter": {
+    "type": "closed grammar, per `Check`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Threshold": {
+    "type": "literal, or `<table>:<Column Name>` reference",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Severity": {
+    "type": "enum `fail`\\|`warn`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   }
+  },
+  "order": [
+   "constraint_key",
+   "Set Key",
+   "Applies To",
+   "Check",
+   "Element Scope",
+   "Parameter",
+   "Threshold",
+   "Severity"
+  ]
+ },
+ "structures": {
+  "T": 10,
+  "columns": {
+   "structure_key": {
+    "type": "slug",
+    "svr": "R",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Display Name": {
+    "type": "text",
+    "svr": "S",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Section Order": {
+    "type": "slug list, FK → T13 `canonical_section`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Heading Language": {
+    "type": "enum `en`\\|`fr`\\|`de`",
+    "svr": "R V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Heading Depth Max": {
+    "type": "int",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "TOC Depth": {
+    "type": "int",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Front Matter Numbering": {
+    "type": "enum `none`\\|`roman`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Caption Position": {
+    "type": "text",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Cross-Ref Style": {
+    "type": "enum `numbered`\\|`positional`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   }
+  },
+  "order": [
+   "structure_key",
+   "Display Name",
+   "Section Order",
+   "Heading Language",
+   "Heading Depth Max",
+   "TOC Depth",
+   "Front Matter Numbering",
+   "Caption Position",
+   "Cross-Ref Style"
+  ]
+ },
+ "figures": {
+  "T": 11,
+  "columns": {
+   "Label Strategy": {
+    "type": "enum `direct`\\|`legend`\\|`either`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Static Fallback": {
+    "type": "text",
+    "svr": "P",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Print Series Max": {
+    "type": "int",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Greyscale Safe": {
+    "type": "enum `yes`\\|`needs-pattern`\\|`no`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Print Palette Roles": {
+    "type": "slug list",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Caption Required": {
+    "type": "bool",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Caption Must State": {
+    "type": "text, nullable",
+    "svr": "P",
+    "nullable": true,
+    "shared_row": null
+   },
+   "Anti-Patterns": {
+    "type": "text",
+    "svr": "P",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Secondary Options": {
+    "type": "text",
+    "svr": "P",
+    "nullable": false,
+    "shared_row": null
+   },
+   "When NOT to Use": {
+    "type": "text",
+    "svr": "P",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Data Volume Threshold": {
+    "type": "text",
+    "svr": "P",
+    "nullable": false,
+    "shared_row": null
+   }
+  },
+  "order": [
+   "Label Strategy",
+   "Static Fallback",
+   "Print Series Max",
+   "Greyscale Safe",
+   "Print Palette Roles",
+   "Caption Required",
+   "Caption Must State",
+   "Anti-Patterns",
+   "Secondary Options",
+   "When NOT to Use",
+   "Data Volume Threshold"
+  ]
+ },
+ "cv-regions": {
+  "T": 12,
+  "columns": {
+   "region_key": {
+    "type": "slug",
+    "svr": "R",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Seniority Band": {
+    "type": "enum `early`\\|`experienced`",
+    "svr": "R",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Max Pages": {
+    "type": "int",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Photo": {
+    "type": "enum `expected`\\|`customary`\\|`neutral`\\|`negative-signal`\\|`contested`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": "`Photo` / `Date of Birth` / `Nationality` / `Marital Status` / `Visa Status`"
+   },
+   "Date of Birth": {
+    "type": "enum `expected`\\|`customary`\\|`neutral`\\|`negative-signal`\\|`contested`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": "`Photo` / `Date of Birth` / `Nationality` / `Marital Status` / `Visa Status`"
+   },
+   "Nationality": {
+    "type": "enum `expected`\\|`customary`\\|`neutral`\\|`negative-signal`\\|`contested`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": "`Photo` / `Date of Birth` / `Nationality` / `Marital Status` / `Visa Status`"
+   },
+   "Marital Status": {
+    "type": "enum `expected`\\|`customary`\\|`neutral`\\|`negative-signal`\\|`contested`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": "`Photo` / `Date of Birth` / `Nationality` / `Marital Status` / `Visa Status`"
+   },
+   "Visa Status": {
+    "type": "enum `expected`\\|`customary`\\|`neutral`\\|`negative-signal`\\|`contested`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": "`Photo` / `Date of Birth` / `Nationality` / `Marital Status` / `Visa Status`"
+   },
+   "Section Order": {
+    "type": "slug list, FK → T13 `canonical_section`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Education Before Experience": {
+    "type": "bool",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Format": {
+    "type": "enum `reverse-chronological`\\|`functional`\\|`hybrid`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Language Expectation": {
+    "type": "text",
+    "svr": "P",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Evidence Class": {
+    "type": "enum `FACT`\\|`CONVENTION`\\|`CONTESTED`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   }
+  },
+  "order": [
+   "region_key",
+   "Seniority Band",
+   "Max Pages",
+   "Photo",
+   "Date of Birth",
+   "Nationality",
+   "Marital Status",
+   "Visa Status",
+   "Section Order",
+   "Education Before Experience",
+   "Format",
+   "Language Expectation",
+   "Evidence Class"
+  ]
+ },
+ "headings": {
+  "T": 13,
+  "columns": {
+   "canonical_section": {
+    "type": "slug",
+    "svr": "R",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Heading Text": {
+    "type": "text",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Language": {
+    "type": "enum `en`\\|`fr`\\|`de`",
+    "svr": "R",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Is Primary": {
+    "type": "bool",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   }
+  },
+  "order": [
+   "canonical_section",
+   "Heading Text",
+   "Language",
+   "Is Primary"
+  ]
+ },
+ "font-substitutes": {
+  "T": 14,
+  "columns": {
+   "proprietary_family": {
+    "type": "text",
+    "svr": "R",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Substitute Family": {
+    "type": "text, nullable",
+    "svr": "V",
+    "nullable": true,
+    "shared_row": null
+   },
+   "Lineage": {
+    "type": "enum `liberation`\\|`croscore`\\|`crosextra`\\|`independent`\\|`none`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Licence": {
+    "type": "enum `OFL-1.1`\\|`Apache-2.0`\\|`none`",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Metric Identical": {
+    "type": "enum `yes`\\|`no`; empty = not applicable",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   },
+   "Weights Covered": {
+    "type": "text list",
+    "svr": "V",
+    "nullable": false,
+    "shared_row": null
+   }
+  },
+  "order": [
+   "proprietary_family",
+   "Substitute Family",
+   "Lineage",
+   "Licence",
+   "Metric Identical",
+   "Weights Covered"
+  ]
+ }
+}

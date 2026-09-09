@@ -1,0 +1,21 @@
+# Upstream reference clone (has its own .git); never part of this repo
+upstream-latest/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# Build output (release.yml builds the asset from the tag)
+skill/dist/
+
+# User-local brand state: kits and the active-brand pointer never ship
+skill/document-design-intelligence/data/brand/*/
+!skill/document-design-intelligence/data/brand/README.md
+!skill/document-design-intelligence/data/brand/.gitkeep
+skill/document-design-intelligence/data/brand/active.json
+
+# Local tool settings
+.claude/

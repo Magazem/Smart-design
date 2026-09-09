@@ -1,0 +1,16 @@
+substitute_key,proprietary_family,Substitute Family,Lineage,Licence,Metric Identical,Weights Covered
+arial-liberation,Arial,Liberation Sans,liberation,OFL-1.1,yes,Regular;Bold;Italic;Bold Italic
+arial-croscore,Arial,Arimo,croscore,Apache-2.0,yes,Regular;Bold;Italic;Bold Italic
+times-new-roman-liberation,Times New Roman,Liberation Serif,liberation,OFL-1.1,yes,Regular;Bold;Italic;Bold Italic
+times-new-roman-croscore,Times New Roman,Tinos,croscore,Apache-2.0,yes,Regular;Bold;Italic;Bold Italic
+courier-new-liberation,Courier New,Liberation Mono,liberation,OFL-1.1,yes,Regular;Bold;Italic;Bold Italic
+courier-new-croscore,Courier New,Cousine,croscore,Apache-2.0,yes,Regular;Bold;Italic;Bold Italic
+calibri-crosextra,Calibri,Carlito,crosextra,OFL-1.1,yes,Regular;Bold;Italic;Bold Italic
+cambria-crosextra,Cambria,Caladea,crosextra,OFL-1.1,yes,Regular;Bold;Italic;Bold Italic
+candara-none,Candara,,none,none,,
+corbel-none,Corbel,,none,none,,
+constantia-none,Constantia,,none,none,,
+consolas-none,Consolas,,none,none,,
+georgia-independent,Georgia,Gelasio,independent,OFL-1.1,yes,Regular;Bold;Italic;Bold Italic
+verdana-none,Verdana,,none,none,,
+trebuchet-ms-none,Trebuchet MS,,none,none,,

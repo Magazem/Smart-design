@@ -1,0 +1,17 @@
+heading_text,language,intended_section_guess,reason_rejected
+My Journey,en,summary,"No canonical-dictionary match; report 03 §A names this exact pattern as the failure mode — creative framing prevents ATS field mapping"
+What I Bring to the Table,en,summary,No canonical-dictionary match; idiom, not a recognized section string
+Where I've Been,en,experience,No canonical-dictionary match; creative substitute for a section that has well-established plain forms
+The Nitty-Gritty,en,skills,No canonical-dictionary match; informal/idiomatic
+A Little About Me,en,summary,No canonical-dictionary match; conversational framing
+Superpowers,en,skills,No canonical-dictionary match; metaphor substituted for the plain heading
+Let's Connect,en,contact,No canonical-dictionary match; casual phrasing, imperative mood not used by any dictionary form
+My Toolbox,en,skills,No canonical-dictionary match; metaphor
+Wins & Highlights,en,experience,"Ambiguous even to a human reader — could map to experience or a non-canonical 'achievements' section this dictionary does not define"
+Fun Facts,en,none,"Not just non-canonical wording — 'interests/hobbies' has no canonical_section bucket in this dictionary at all; a gap, not a mapping failure, worth flagging separately from the others in this list"
+The TL;DR,en,summary,No canonical-dictionary match; internet-register abbreviation
+Qualifications,en,ambiguous,"Not creative, but genuinely ambiguous even to real ATS parsers — used inconsistently to mean education, certifications, or a skills/requirements-match section depending on vendor; kept as a deliberately hard case for validator test data rather than added to the primary dictionary as a synonym of any one section"
+Mon Parcours,fr,summary-or-experience,"No canonical-dictionary match; ambiguous between 'my professional journey' (experience) and a personal narrative (summary) — same failure class as 'My Journey' in English"
+Ce que je sais faire,fr,skills,No canonical-dictionary match; conversational phrasing ('what I know how to do')
+Meine Reise,de,summary-or-experience,No canonical-dictionary match; direct German equivalent of the 'My Journey' failure pattern
+Das bin ich,de,summary,"No canonical-dictionary match; colloquial ('this is me'), common in informal/creative CV templates"

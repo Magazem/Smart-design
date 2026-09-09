@@ -1,0 +1,23 @@
+scale_row_key,scale_key,Medium,Role,Size pt,Leading Ratio
+ens-print-print-label,ens-print,print,label,8.5,1.20
+ens-print-print-caption,ens-print,print,caption,9,1.20
+ens-print-print-body,ens-print,print,body,11,1.35
+ens-print-print-lead,ens-print,print,lead,12,1.30
+ens-print-print-h3,ens-print,print,h3,16,1.15
+ens-print-print-h1,ens-print,print,h1,24,1.10
+ens-print-print-legal,ens-print,print,legal,8.5,1.20
+deck-projection-projection-body,deck-projection,projection,body,24,1.25
+deck-projection-projection-body-dense,deck-projection,projection,body-dense,18,1.25
+deck-projection-projection-h1,deck-projection,projection,h1,36,1.10
+print-office-generic-print-label,print-office-generic,print,label,8.5,1.20
+print-office-generic-print-caption,print-office-generic,print,caption,8.5,1.20
+print-office-generic-print-body,print-office-generic,print,body,11,1.35
+print-office-generic-print-h3,print-office-generic,print,h3,12,1.20
+print-office-generic-print-h2,print-office-generic,print,h2,16,1.20
+print-office-generic-print-h1,print-office-generic,print,h1,24,1.20
+cv-print-print-body,cv-print,print,body,11,1.35
+report-print-print-body,report-print,print,body,11,1.35
+report-technical-print-body,report-technical,print,body,11,1.35
+report-screen-screen-body,report-screen,screen,body,11,1.35
+form-print-print-body,form-print,print,body,11,1.35
+form-print-print-legal,form-print,print,legal,8.5,1.20
