@@ -1,27 +1,55 @@
-# BRIEF — Packaging — Rebuild the ZIP after ruling G (fifth rebuild)
+# BRIEF — Packaging — Ruling H: build a badly formatted sample report fixture
 
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
-DO NOT touch git. Do not tag. Do not push.
+DO NOT touch git. Do not rebuild the ZIP in this task — that is a separate brief afterwards.
 
 ## Why
-Prompt 12 gained inline CV content (commit below). activation.md ships in the ZIP.
+Activation prompt 4 keeps failing. Describing an ugly document in words is not the same as
+handing Claude one. Prompt 4 will become "attach this file", so we need a real, deliberately
+badly formatted .docx that lives in the repo but never ships.
+
+## Bound path — use exactly this
+research/fixtures/badly-formatted-report.docx
+
+Create research/fixtures/ if it does not exist. This is already safe from the build:
+build_zip.py's collect_members() walks only SKILL_DIR (skill/document-design-intelligence), so
+anything under research/ is structurally impossible to include. Confirm that yourself rather
+than taking my word, and say how you confirmed it.
 
 ## Deliverable (ONE)
-Run scripts/build_zip.py, then verify:
-1. SKILL.md member first bytes are exactly `---\n`.
-2. Zero members carry a CR byte.
-3. Member count, and schema-manifest.json md5 == 57e886aa8a68665c763904c391ac3836.
-4. Exactly ONE `<!-- version: ... -->` line, after the frontmatter's closing `---`.
-5. No data/brand/<slug>/ members and no active.json; data/brand/README.md expected.
-6. NEW: the activation.md member contains "Sara Lindqvist" and "Nordica Freight".
-7. Still true: it contains "clip-art chart", "not how its prose", "Bramwell Logistics",
-   "find_duplicates", "fiche produit", "Applies sourced layout", "823-character"; and NOT
-   "fast-paced business landscape", "Applies validated layout" or "825 characters".
-8. The SKILL.md member's description still measures 823 characters and the string
-   "appearance fixes" is ABSENT. Candidate F is still on hold and must not be in the archive.
-9. `python3 -m pytest scripts -q` from skill/document-design-intelligence.
-10. Report whether the build modified the source SKILL.md. It should not.
+The .docx file, plus the generator script that made it at research/fixtures/make_bad_report.py
+so it is reproducible.
+
+Content: 2-3 pages of harmless placeholder business text. A quarterly-report shape is fine —
+invented company, invented numbers, nothing real, nothing that reads as anyone's data.
+
+The formatting defects, all of them deliberate:
+- Headings centred and bold, in three DIFFERENT fonts across the document.
+- Body text 10pt Calibri.
+- Page margins 1cm on all four sides.
+- Bulleted lists in three different colours.
+- One garish default-styled chart or a clip-art-style image.
+
+It must look genuinely bad, not subtly bad. This is the input to a "fix this" test.
+
+## Tooling
+python-docx is NOT installed in the system python3 shim. Options, your choice:
+- Install python-docx into a throwaway venv or with uv, as you have done before, or
+- Use the officecli skill available in this environment.
+Say which you used. Do not add python-docx to any project requirements file — this fixture is
+test scaffolding, not a runtime dependency.
+
+## Verify before you report
+1. The file opens: reload it with the same library and print the paragraph count and the
+   section margins, proving the 1cm margins actually took.
+2. Report the page count as rendered, or say honestly that you could not render it and are
+   reporting an estimate from content length.
+3. Confirm no file was written anywhere under skill/document-design-intelligence/.
+4. Run `python3 scripts/build_zip.py` from the skill dir ONLY if you also then confirm no .docx
+   member exists in the archive — otherwise skip the build entirely and just show the
+   collect_members root.
 
 ## Report
-Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 8 lines: archive path and
-size, each check with its actual value, and the test tally.
+Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 8 lines: the file path and
+size, which tool you used, the defects you actually applied, the margin check output, and how
+you confirmed the build cannot pick it up.

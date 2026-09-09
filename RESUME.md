@@ -264,6 +264,39 @@ TESTS-FOR-USER.md Test 11 and the dist test doc.
 
 Candidate F remains ON HOLD pending the user's veto decision. Do not apply it.
 
+## ACTIVATION RUN, prompt 12 and prompt 4, on the ruling G ZIP
+Prompt 12 PASS -- the skill fired on the inline CV, so ruling G worked and the handoff test is
+now readable. Prompt 4 FAIL again, on the appearance-described text.
+
+RULING H (lead): describing an ugly document in words is not the same as handing Claude one.
+Prompt 4 becomes an ATTACHMENT test, the same shape as prompt 13.
+- A deliberately badly formatted sample report is built as a TRACKED fixture at
+  research/fixtures/badly-formatted-report.docx, with its generator at
+  research/fixtures/make_bad_report.py. It is NOT shipped.
+- Why that path is safe: build_zip.py's collect_members() walks only SKILL_DIR
+  (skill/document-design-intelligence), so anything under research/ is structurally impossible
+  to include. This is a stronger guarantee than an exclusion rule and should not be traded for
+  one.
+- Prompt 4 becomes an attach instruction plus the unchanged quote "This report looks like it
+  was thrown together by AI, can you fix it?" Asking for the file is now an explicit FAIL,
+  because the file is attached.
+- The rebuild asserts no .docx member exists in the archive.
+
+CANDIDATE F: **APPROVED BY THE USER** (2026-09-09). Apply after ruling H lands, in its OWN
+commit. The 8-character edit exactly as drafted in research/38-description-candidate.md:
+  "quality fixes: looks like AI, looks generic, make it professional, fix the layout"
+  -> "appearance fixes: looks like AI, looks generic, make it look professional, fix the layout"
+Four things move together or the build breaks:
+1. SKILL.md description -> must measure 831.
+2. The fenced "as shipped" block in references/activation.md -> must stay byte-identical to it.
+3. The "823-character" prose in activation.md -> 831.
+4. The DESCRIPTION LENGTH section below -> 831, headroom 192.
+Because F NARROWS the trigger, no should-not-fire prompts need re-running. The user re-uploads
+and runs prompt 4 only. If 4 passes, the tag is next and is the user's call.
+
+Prompt 4 detail confirming ruling H: Claude asked for the file. The appearance description in
+words was not enough; it wanted the document.
+
 ## DESCRIPTION LENGTH -- the one measured number
 The SKILL.md frontmatter description measures **823 characters**. Verified with Python len()
 on the quoted value, twice, independently. The cap is 1023 (the claude.ai UI enforces "under

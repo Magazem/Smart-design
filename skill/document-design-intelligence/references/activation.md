@@ -311,13 +311,12 @@ behavior versus answering as a generalist.
    layout, page count, or branding. **Fail**: generic response with no
    document-structure reasoning, or a clarifying question that isn't framed
    around document design.
-4. "My quarterly report is 6 pages, every heading is centred and bold in a
-   different font, body is 10pt Calibri with 1cm margins, there are three
-   colours of bullet points and a clip-art chart. It looks like it was
-   thrown together by AI, can you fix it?"
+4. Attach research/fixtures/badly-formatted-report.docx before sending.
+   "This report looks like it was thrown together by AI, can you fix it?"
    **Pass**: the skill fires and reasons about hierarchy, typography,
-   margins or colour, or asks a question framed around those. **Fail**:
-   generic advice, or it asks for the file.
+   margins or colour. **Fail**: generic advice. **Fail** also if it asks
+   for the file — the file is attached, so asking for it is exactly the
+   failure this revision tests for.
 5. "Sunrise Yoga Studio offers classes for all levels, from beginner to
    advanced. We have five instructors with over ten years of combined
    experience. Classes run Monday through Saturday, morning and evening
