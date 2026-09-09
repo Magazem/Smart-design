@@ -365,6 +365,27 @@ RELEASE-NOTES.md, add ONE line under a "Fixed" heading in the v0.2 section, to t
   now gated.
 Bind it into the phase C Packaging brief. It does not get a brief of its own.
 
+## PHASE A IS COMPLETE, and these two decisions are INTENTIONAL -- do not "fix" them
+All 17 structure keys are covered: 2 CV rows already had orders, the other 15 are drafted across
+research/39 (transactional), research/40 (long-form) and research/41 (marketing). 204 heading
+rows across four loader inputs, zero dangling FKs, zero generated-key collisions under a shared
+counter, one primary per section per language, and no section order repeats a token.
+
+1. brochure-3panel and brochure-gatefold have IDENTICAL Section Orders, RULED INTENTIONAL. Panel
+   count is not content. What separates a tri-fold from a gate-fold lives in page-formats --
+   panel count and widths -- not in structures. Do not "differentiate" them.
+2. The marketing class added only ONE new canonical section, `agenda`. Five of its six families
+   are served entirely by sections authored for the earlier classes. That is the reuse rule
+   working, not a shortcut.
+3. `proposed-solution` was REFUSED for whitepaper-standard in A2 (its German primary carries a
+   commercial-bid flavour) and REUSED for deck-standard in A3 (a pitch deck's sales register is
+   exactly where that flavour belongs). Both calls stand. The rule cuts both ways.
+
+## BACKLOG: physical layout order for folded and paged formats
+The content arc fits a Section Order fine. Panel COUNT, slide COUNT, and the non-linear panel
+adjacency of a tri-fold or gate-fold fit NOWHERE in the current model. Flagged as a real gap by
+DDR rather than forced into a section list. Not v0.2.
+
 ## BACKLOG, added 2026-09-09
 - make_brand_kit.py lines 498 and 560: the same single-word duplication, live today but ungated
   because Keywords is declared only on doctypes.
