@@ -292,19 +292,48 @@ behavior versus answering as a generalist.
    **Pass**: the skill activates and asks about content/format instead of
    just writing generic CV prose. **Fail**: a plain-prose CV comes back with
    no layout/library reasoning visible.
-2. "J'ai besoin d'une fiche pour lundi, tu peux me la faire ?"
-   **Pass**: activates on the French noun alone, no English document word
-   present. **Fail**: Claude treats this as a generic writing request.
-3. "Erstelle mir ein Angebot für diesen Kunden."
-   **Pass**: activates on the German noun alone. **Fail**: generic response,
-   no document-structure reasoning.
-4. "This report looks like it was thrown together by AI, can you fix it?"
-   **Pass**: activates on the quality complaint with no document-type noun
-   stated explicitly beyond "report". **Fail**: Claude offers generic
-   editing suggestions without invoking the skill.
-5. "Turn this text into a two-page brochure."
-   **Pass**: activates, asks about brand/layout. **Fail**: produces a plain
-   reformatted text block with no design reasoning.
+2. "J'ai besoin d'une fiche produit pour lundi : nouveau vélo électrique
+   "Modèle X500", autonomie 80 km, moteur 250W, prix 1490 euros, disponible
+   en trois coloris. Tu peux me la faire ?"
+   **Pass**: activates on the French content alone, no English document word
+   present, and either produces a designed fiche or asks a clarifying
+   question framed around format, layout, page count, or branding. **Fail**:
+   Claude treats this as a generic writing request, or asks a clarifying
+   question with no document-design framing.
+3. "Erstelle mir ein Angebot für diesen Kunden: Kunde ist die Müller GmbH,
+   Ansprechpartner Herr Weber. Es geht um 50 Bürostühle und 10
+   Schreibtische, Lieferung bis Ende Oktober, Gesamtpreis 12500 Euro netto."
+   **Pass**: activates on the German content alone and either produces a
+   structured Angebot or asks a clarifying question framed around format,
+   layout, page count, or branding. **Fail**: generic response with no
+   document-structure reasoning, or a clarifying question that isn't framed
+   around document design.
+4. "In today's fast-paced business landscape, it is important to note that
+   customer satisfaction remains a key driver of long-term success.
+   Moreover, our recent survey data indicates a notable increase in
+   engagement across multiple channels. It is also worth mentioning that
+   these findings align with broader industry trends. In conclusion,
+   leveraging these insights will be essential for sustained growth going
+   forward. This report looks like it was thrown together by AI, can you
+   fix it?"
+   **Pass**: activates on the quality complaint and addresses the report's
+   structure and layout (headings, formatting, filler-phrase removal)
+   rather than just rewording sentences, or asks a clarifying question
+   framed around format, layout, page count, or branding. **Fail**: Claude
+   offers generic prose-editing suggestions with no layout/library
+   reasoning, or asks a clarifying question with no document-design
+   framing.
+5. "Sunrise Yoga Studio offers classes for all levels, from beginner to
+   advanced. We have five instructors with over ten years of combined
+   experience. Classes run Monday through Saturday, morning and evening
+   sessions. We also offer private sessions and a monthly membership plan.
+   New members get their first class free. Our studio is located downtown,
+   two blocks from the train station. Turn this text into a two-page
+   brochure."
+   **Pass**: activates and asks about brand, layout, page count, or print,
+   or produces a two-page design with visible layout reasoning. **Fail**:
+   produces a plain reformatted text block with no design reasoning, or
+   asks a clarifying question with no document-design framing.
 
 ### Should not fire
 

@@ -450,6 +450,31 @@ this test:
 
 ---
 
+## Test 11 — 13-prompt activation list
+
+Run all 13 prompts from
+`document-design-intelligence/references/activation.md` ("13-prompt
+activation test" section), one fresh chat per prompt. Five should fire
+document-design-intelligence, five should not (two of those belong to
+UI/UX Pro Max specifically), and three test the handoff boundary against
+the built-in `docx`/`pptx` skills in both directions.
+
+Prompts 2-5 carry their own input inline (a French fiche brief, a German
+Angebot brief, a pasted report paragraph, and a pasted text block) — paste
+each one as-is, no file or extra text needed.
+
+**Pass** (for prompts 2-5): a clarifying question counts as a pass only if
+it's framed around format, layout, page count, ATS, branding, or print.
+**Fail**: a generic "what would you like?" with no document-design framing,
+or plain prose produced with no layout/library reasoning.
+
+Report a simple tally: how many of the 5 "should fire" prompts actually
+fired, how many of the 5 "should not fire" prompts correctly stayed silent
+(or handed off to UI/UX Pro Max where relevant), and how many of the 3
+handoff prompts routed to the correct skill.
+
+---
+
 ## Results
 
 | # | Test | Pass/Fail | Notes |
@@ -464,3 +489,4 @@ this test:
 | 8 | PDF/X-4 + sRGB output intent | | |
 | 9 | ZIP upload ceiling | | |
 | 10 | Stale brand kit detection | | |
+| 11 | 13-prompt activation list | | |

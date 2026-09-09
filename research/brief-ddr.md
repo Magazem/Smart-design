@@ -1,61 +1,69 @@
-# BRIEF — Document Design Researcher: the D3 keyword asymmetry (small, ~8 min)
-
-Context reset by policy; nothing lost. Your T10 structures pass is verified, loaded, and the
-gate is now ZERO (14 tables, 291 rows). Act from THIS FILE and from disk — not from chat.
+# BRIEF — DDR — Revise activation prompts 2-5 so each carries its input inline
 
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
-Python:    C:\Users\ysuliman\AppData\Local\Microsoft\WindowsApps\python3.exe
+Python: C:\Users\ysuliman\AppData\Local\Microsoft\WindowsApps\python3.exe (the repo venv is broken)
+DO NOT touch git. The orchestrator commits. Do not run build_zip.py.
 
-## HARD CONSTRAINT
-Edit ONLY `research/26-t1-doctypes-draft.csv` and `research/26-notes.md`. Nothing under
-`data/`, no loader. The Coverage analyst reloads afterwards; the Packaging analyst is
-rebuilding the ZIP right now.
+## Why
+The user ran activation prompts 1-5 against the uploaded ZIP: 1 pass, 4 fail.
+Prompts 4 and 5 say "This report..." and "Turn this text..." with NOTHING attached, so
+Claude correctly asked for the file/text. Prompt 3 asked for client details, then said it
+would "likely use document-design-intelligence" once given them. Those three are a TEST
+defect, not a description defect. Prompt 2 ("une fiche") is genuinely too ambiguous in French.
+The prompts must supply their own input so the test measures activation, not attachment.
 
-## The problem, measured
-The resolver can now ABSTAIN on ambiguous queries. Two of the three ambiguous test queries
-work: "make me a flyer" and "fais-moi un cv" both abstain and offer candidates. The German
-one, D3 "erstelle eine praesentation", still resolves CONFIDENTLY to
-`slide-deck-projection`, which is wrong — it is ambiguous between projection, document and
-handout.
-It is NOT fixable by tuning: D3's margin ratio (0.315) is LARGER than D1's (0.249), and D1
-"erstelle einen tabellarischen lebenslauf" must keep resolving. The cause is in YOUR file.
-`slide-deck-projection`'s Keywords cell contains the word presentation FOUR times
-(term frequency 4) where its siblings have 2 and 1:
-  - `presentation` (English)
-  - `praesentation` (accented form) — appears TWICE, an exact duplicate
-  - `fais-moi une praesentation` (French phrase)
-  - `erstelle eine praesentation` (German phrase)
-Its siblings: `slide-deck-document` has 2 occurrences, `slide-deck-handout` has 1.
+## Read first
+- skill/document-design-intelligence/references/activation.md, section
+  "## 13-prompt activation test (run after uploading the skill)", starts at line 278.
+  Prompts 2-5 are under "### Should fire".
+- skill/dist/POST-UPLOAD-TESTS.md, "## Test (c) — the 13-prompt activation list", line 114.
+- TESTS-FOR-USER.md (tracked by git; see the mirror instruction below).
 
-## ONE deliverable: the asymmetry removed without losing language coverage.
-1. Remove the EXACT DUPLICATE bare accented token — it appears twice in the same cell and
-   one copy is pure term-frequency inflation with no retrieval value.
-2. Then judge the remaining imbalance. THE GUARD, ruled by the lead: the German and French
-   forms must STAY, or the German and French queries lose their match. Fix this by removing
-   duplicate repeats, or by EQUALISING the siblings' multilingual coverage (giving
-   `slide-deck-document` and `slide-deck-handout` the German and French forms they lack is
-   as legitimate as trimming projection, and is probably the better answer — those rows are
-   thin in French and German, which is a real coverage gap in its own right).
-3. While you are in there: `erstelle eine praesentation` currently uses the FRENCH accented
-   form inside a German phrase. German is "Praesentation" with the German umlaut. Check the
-   actual bytes and fix it if it is wrong — a German user's phrase should match the German
-   spelling. Note it in 26-notes.md either way.
+## Deliverable (ONE)
+Rewrite prompts 2, 3, 4 and 5 in activation.md so each is self-contained, and mirror the
+pass/fail rule into the two test docs. Specifically:
 
-## You cannot verify the acceptance test yourself
-The change only takes effect after Coverage reloads `data/base`, which happens after you.
-So: verify the FILE (below), state clearly in your report what you changed and why, and the
-acceptance test — D3 abstains AND the German deck query still surfaces the deck family as
-candidates — is run by Coverage after the reload. Do not run the loader to test it.
+2. French only, no English document word anywhere in the prompt. Replace the bare "fiche"
+   with a concrete type, e.g. "fiche produit", and add enough French content that Claude has
+   something to work with.
+3. German. Add 2-3 lines of concrete client and offer facts so no clarification is needed.
+4. Paste a short (4-6 line) report paragraph that visibly reads as AI-written, then the
+   quality complaint.
+5. Paste a short block of plain text, then the brochure ask.
 
-## VERIFY by script
-- `research/26-t1-doctypes-draft.csv` parses clean at 11 columns x 34 rows.
-- Count occurrences of the presentation stem per deck row and report the before/after
-  numbers for all three rows.
-- No Keywords cell has an exact duplicate token any more (check all 34 rows, not just decks
-  — if others have duplicates, report them but do not fix them in this brief).
+Keep prompts 1 and 6-13 EXACTLY as they are.
 
-## REPORT
-Max 8 lines to the Workflow Orchestrator, slot 01a080c5-2001-78b3-bbbe-afaae15edafa:
-the before/after term counts per deck row, what you removed versus what you added, the
-German-spelling finding, and any other duplicate-token rows you spotted.
-If you approach ~10 minutes, checkpoint to research/handover-ddr.md and stop.
+Rewrite the **Pass**/**Fail** lines for 2-5 to this rule, in your own wording:
+- A clarifying question is a PASS only if it shows document-design framing — it asks about
+  format, layout, page count, ATS, branding, or print.
+- A generic "what would you like?" with no design framing is a FAIL.
+- Producing plain prose with no layout/library reasoning is a FAIL.
+
+Then mirror the change:
+- skill/dist/POST-UPLOAD-TESTS.md Test (c): it points at activation.md rather than repeating
+  the prompts, so add the same clarifying-question pass rule there and note that prompts 2-5
+  now carry their input inline and need no attachment.
+- TESTS-FOR-USER.md is TRACKED by git, and it currently has NO 13-prompt activation section
+  (its "Test 3 — ENS activation" at line 84 is a different skill's test — leave it alone).
+  Add a new short section "## Test 11 — 13-prompt activation list" just before the "## Results"
+  heading (line 452), pointing at activation.md, stating the clarifying-question pass rule, and
+  saying prompts 2-5 now carry their input inline. Add a matching row `| 11 | 13-prompt
+  activation list | | |` to the Results table (the table ends at line 465).
+  This matters because skill/dist/ is gitignored: the POST-UPLOAD-TESTS.md edit is NOT under
+  version control, so TESTS-FOR-USER.md is the tracked home for the rule.
+
+## Constraints
+- ASCII-only except where the language genuinely needs accents (French/German prompts do).
+  Check your accented bytes: `python3 -c "print(open('...','rb').read()[a:b])"`.
+- Do not edit SKILL.md, the description field, or anything under data/.
+- Do not renumber. Prompt 2 stays prompt 2.
+
+## Verify before you report
+1. `python3 -c "import io;s=io.open('skill/document-design-intelligence/references/activation.md',encoding='utf-8').read();print(len(s))"` runs clean.
+2. Prompt 2 contains no English document noun (grep it yourself).
+3. Prompts 4 and 5 contain the pasted content, so a reader needs no attachment.
+4. All 13 prompts still present and numbered 1-13.
+
+## Report
+Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 8 lines: the four new
+prompts verbatim, the files you touched, and anything you had to rule on yourself.
