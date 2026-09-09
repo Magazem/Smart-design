@@ -298,9 +298,10 @@ Prompt 4 detail confirming ruling H: Claude asked for the file. The appearance d
 words was not enough; it wanted the document.
 
 ## DESCRIPTION LENGTH -- the one measured number
-The SKILL.md frontmatter description measures **823 characters**. Verified with Python len()
-on the quoted value, twice, independently. The cap is 1023 (the claude.ai UI enforces "under
-1024"). Headroom: 200 characters.
+The SKILL.md frontmatter description measures **831 characters**, as of the candidate F edit
+applied 2026-09-09. Verified with Python len() on the quoted value. The cap is 1023 (the
+claude.ai UI enforces "under 1024"). Headroom: 192 characters.
+It measured 823 before candidate F. Candidate B, if it is ever applied, would take it to 993.
 
 The repo previously quoted 667 (references/activation.md) and 825 (skill/dist/POST-UPLOAD-TESTS.md).
 Both are stale and are being corrected to 823. The 825 figure differs by exactly the 2-character
