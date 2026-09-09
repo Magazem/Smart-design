@@ -1,5 +1,16 @@
 # Notes — 40: long-form-class section model (v0.2 phase A2)
 
+## Column shape correction
+research/40-headings-longform-draft.csv uses research/18-ats-headings.csv's five lowercase
+columns (canonical_section, heading_text, language, is_primary, source), NOT the
+data/base/headings.csv five. research/load-base.py generates `heading_key` itself as
+`<section>-<lang>-<n>` and writes the `source` column out to
+data/rationale/headings.md — it is not dropped, it feeds the rationale file. Every row
+here carries a `source` citation (all `convention (...)`, matching the style in
+research/18 — no row from this file traces to "report 03", which is CV/ATS-specific).
+research/40-t10-section-orders-longform.csv is unchanged (structure_key, Section Order —
+already the manifest shape, per the brief).
+
 ## Scope
 report-short, report-long-toc, whitepaper-standard, one-pager-standard — bound from
 skill/document-design-intelligence/data/base/structures.csv. No doctype mapping needed;
@@ -66,6 +77,10 @@ language per rule carried from A1).
   four-section skeleton they sit in is my own construction.
 
 ## Verification (research/40-verify.py, run via the given python3.exe)
-All four checks pass — see full stdout in the orchestrator report. Union check (base +
-research/39 + this file) also passes for the one-primary-per-(section,language) rule, so no
-pre-existing irregularity in data/base/headings.csv needed to be worked around.
+All five checks pass — see full stdout in the orchestrator report. Check 2/3 generate
+t40's heading_key exactly the way load-base.py will (`<section>-<lang>-<n>`) before
+comparing, since the draft file itself no longer carries that column. Union check (base +
+research/39 + generated t40 keys) also passes for the one-primary-per-(section,language)
+rule, so no pre-existing irregularity in data/base/headings.csv needed to be worked around.
+Check 5 confirms no row was left with a blank `source` (which the loader would otherwise
+file under "(none given)" in data/rationale/headings.md).
