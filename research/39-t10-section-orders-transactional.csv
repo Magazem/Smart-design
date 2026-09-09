@@ -1,0 +1,6 @@
+structure_key,Section Order
+invoice-standard,issuer;bill-to;invoice-details;line-items;totals;tax;payment-terms
+letter-standard,sender;recipient;date;salutation;body;closing
+memo-standard,to;from;date;subject;body
+form-standard,header;instructions;fields;signature;date
+proposal-standard,cover;executive-summary;problem-statement;proposed-solution;scope-of-work;timeline;pricing;terms;closing
