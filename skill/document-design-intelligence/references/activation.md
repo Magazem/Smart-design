@@ -392,13 +392,19 @@ behavior versus answering as a generalist.
     the stronger signal. **Fail**: this skill activates instead of, or
     alongside, `docx` — the boundary sentence didn't hold in the direction
     that protects the built-ins from us.
-12. "I need a two-page CV, make it look professional."
+12. "I need a two-page CV, make it look professional. I'm Sara Lindqvist, 8 years as a
+    supply-chain analyst at Nordica Freight, before that 3 years as a logistics coordinator at
+    Baltic Rail; MSc Logistics, Gothenburg; fluent Swedish, English, German; Excel, SAP,
+    Power BI."
     **Pass**: this skill activates (no file format named, explicit design/
     quality intent) and, per the Render Handoff workflow step, produces its
     output *by calling* the `docx` skill's approach internally — `docx` does
-    not activate on its own as the top-level responder. **Fail**: `docx`
-    activates directly and this skill never engages, or this skill engages
-    but reimplements OOXML generation itself instead of handing off.
+    not activate on its own as the top-level responder. Asking for the CV
+    with no skill named also counts as a pass, but it's weak evidence —
+    that's why the content is now inline; a test with content is the
+    stronger signal. **Fail**: `docx` activates directly and this skill
+    never engages, or this skill engages but reimplements OOXML generation
+    itself instead of handing off.
 13. Attach any short .docx you have (one page is enough) before sending.
     "Just convert this .docx file to a PDF, don't change anything."
     **Pass**: `docx`/`pdf` handle this directly (file format named, purely

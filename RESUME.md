@@ -246,6 +246,24 @@ shipped" is byte-identical to SKILL.md's description and must stay that way. The
 and "Alternate B" blocks further down are retained-for-reference history -- do not update them
 to match current wording.
 
+## ACTIVATION RUN, prompts 6-13, on the ruling F ZIP
+6 PASS, 7 PASS, 8 PASS, 9 PASS, 10 PASS, 11 PASS, 13 PASS. Prompt 4 not yet re-reported.
+Prompt 12 INCONCLUSIVE, and that is a test defect of the same family as the others.
+
+Prompt 12 observation: given "I need a two-page CV, make it look professional", Claude asked for
+CV details with no skill triggered. The user said to use placeholders, and a CV was then
+produced. Whether the skill fired at creation time is unknown, so the prompt measured nothing.
+Same ask-before-invoke pattern that made old prompts 3-5 unreadable.
+
+RULING G (lead): prompt 12 gets inline CV content -- a named person, two employers with years,
+a degree, languages and tools -- while KEEPING the design intent ("two-page", "make it look
+professional") and naming NO file format. Naming a format would turn it into prompt 11 and
+destroy what prompt 12 tests, which is that this skill fires and renders through the docx
+handoff without docx becoming the top-level responder. Pass/Fail intent unchanged. Mirrors to
+TESTS-FOR-USER.md Test 11 and the dist test doc.
+
+Candidate F remains ON HOLD pending the user's veto decision. Do not apply it.
+
 ## DESCRIPTION LENGTH -- the one measured number
 The SKILL.md frontmatter description measures **823 characters**. Verified with Python len()
 on the quoted value, twice, independently. The cap is 1023 (the claude.ai UI enforces "under

@@ -462,12 +462,12 @@ the built-in `docx`/`pptx` skills in both directions.
 Prompts 2-5 carry their own input inline (a French fiche brief, a German
 Angebot brief, a report appearance description, and a pasted text block) —
 paste each one as-is, no file or extra text needed. Prompt 4 now describes
-the document's appearance rather than pasting prose. Prompts 6, 8, 10 and 11 also
-carry their own input inline (a sidebar UX complaint with named nav items,
-a pasted Python function, a pasted PDF-abstract paragraph, and pasted rough
-notes) — paste each as-is. Prompt 13 is the exception: it needs a real
-file, so attach any short .docx you have (one page is enough) before
-sending it.
+the document's appearance rather than pasting prose. Prompts 6, 8, 10, 11
+and 12 also carry their own input inline (a sidebar UX complaint with named
+nav items, a pasted Python function, a pasted PDF-abstract paragraph,
+pasted rough notes, and a named candidate's CV details) — paste each as-is.
+Prompt 13 is the exception: it needs a real file, so attach any short
+.docx you have (one page is enough) before sending it.
 
 **Pass** (for prompts 2-5): a clarifying question counts as a pass only if
 it's framed around format, layout, page count, ATS, branding, or print.

@@ -1,59 +1,55 @@
-# BRIEF — DDR — Ruling F: prompt 4 tests appearance, plus a scope note
+# BRIEF — DDR — Ruling G: give prompt 12 inline content
 
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
 DO NOT touch git. Do not edit SKILL.md. Do not rebuild the ZIP.
 
 ## Why
-The rerun passed prompts 2, 3 and 5. Prompt 4 failed for a real reason: Claude said the pasted
-paragraph "is not a document, just text", then looked in the skill for rules about correcting
-AI-sounding writing and found none. That is correct behaviour. I checked data/base myself —
-every table is layout, typography, colour, print or ATS. Nothing covers prose quality. The
-"looks like AI" trigger is about how a document LOOKS, not how it reads. Prompt 4 as written
-tests a promise the skill never made.
+Prompts 6-11 and 13 all PASS. Prompt 12 is the last one still bare: "I need a two-page CV, make
+it look professional." Claude asked for CV details before any skill fired, the user said to use
+placeholders, and only then was a CV produced — so whether the skill fired at creation time is
+unknown. That is the same ask-before-invoke pattern that made old prompts 3-5 unreadable, and
+the same fix applies: put the content inline.
+
+## Where
+skill/document-design-intelligence/references/activation.md, "### Handoff tests" section.
+Prompt 12 sits between prompt 11 (the Bramwell Logistics notes) and prompt 13 (the .docx
+conversion with its attach instruction).
 
 ## Deliverable (ONE)
-Make prompt 4 test appearance, and state the scope boundary in two places.
+Rewrite prompt 12 so it carries its own CV content. The lead's example, which you may improve
+on but not weaken:
 
-### 1. Rewrite prompt 4 in skill/document-design-intelligence/references/activation.md
-It currently pastes an AI-sounding paragraph. Replace that with an inline description of how
-the document LOOKS. The lead's example, which you may improve on but not weaken:
+  "I need a two-page CV, make it look professional. I'm Sara Lindqvist, 8 years as a
+  supply-chain analyst at Nordica Freight, before that 3 years as a logistics coordinator at
+  Baltic Rail; MSc Logistics, Gothenburg; fluent Swedish, English, German; Excel, SAP,
+  Power BI."
 
-  "My quarterly report is 6 pages, every heading is centred and bold in a different font, body
-  is 10pt Calibri with 1cm margins, there are three colours of bullet points and a clip-art
-  chart. It looks like it was thrown together by AI, can you fix it?"
+Two hard constraints on the wording:
+- Keep the design intent ("two-page", "make it look professional"). That is what the test
+  measures.
+- Name NO file format. No Word, no .docx, no PowerPoint. Prompt 12 tests that we fire and hand
+  off internally; naming a format would turn it into prompt 11.
 
-Keep the spirit of the original: no document-type noun beyond "report", no attachment needed.
-Rewrite its Pass/Fail lines:
-- PASS: the skill fires and reasons about hierarchy, typography, margins or colour, OR asks a
-  question framed around those.
-- FAIL: generic advice, or it asks for the file.
+Its Pass/Fail lines keep their intent exactly: PASS is this skill firing and rendering via the
+docx handoff with docx not acting as the top-level responder; FAIL is docx responding directly,
+or this skill reimplementing OOXML itself. You may add the same weak-evidence note the other
+prompts carry, if it reads naturally.
 
-Change NOTHING else in the 13-prompt section. Prompts 1-3 and 5-13 stay byte-identical.
+Change NOTHING else. Prompts 1-11 and 13 stay byte-identical.
 
-### 2. Scope note, one line, in two files
-- activation.md: put it immediately AFTER the "**Length: 823 characters**" paragraph that
-  follows the "## The description as shipped" block, around line 36-40.
-  CRITICAL: do NOT edit the fenced description block itself. It is byte-identical to SKILL.md
-  and a test depends on that. Also do not touch "Alternate A" or "Alternate B" further down —
-  those are retained-for-reference historical text.
-- RELEASE-NOTES.md: under the "## Known limitation" heading at line 18, alongside the existing
-  German deck note.
-Wording, one line, same sense in both: the skill fixes how a document LOOKS, not how its prose
-reads; AI-sounding wording is out of scope for v0.1.0.
-
-### 3. Mirror
-- TESTS-FOR-USER.md "## Test 11 — 13-prompt activation list": note that prompt 4 now describes
-  the document's appearance rather than pasting prose.
-- skill/dist/POST-UPLOAD-TESTS.md Test (c): same note. Gitignored, disk-only; do it anyway.
+## Mirror
+- TESTS-FOR-USER.md, "## Test 11 — 13-prompt activation list": extend the inline-input sentence
+  to cover prompt 12.
+- skill/dist/POST-UPLOAD-TESTS.md Test (c): same. Gitignored, disk-only; do it anyway.
 
 ## Verify before you report
-1. `git diff skill/document-design-intelligence/references/activation.md` — the only hunks are
-   prompt 4, the scope note, and nothing else.
-2. The fenced description block still matches SKILL.md exactly. Check it:
-   python3 -c "import io,re;s=io.open('skill/document-design-intelligence/SKILL.md',encoding='utf-8').read();d=re.search(r'^description:\s*\"(.*)\"\s*$',s,re.M).group(1);a=io.open('skill/document-design-intelligence/references/activation.md',encoding='utf-8').read();i=a.index('## The description as shipped');q=a[a.index('```',i)+4:a.index('```',a.index('```',i)+4)];print(' '.join(q.split())==d)"
-   It must print True.
+1. `git diff skill/document-design-intelligence/references/activation.md` — only prompt 12 and
+   the mirror text appear.
+2. Prompt 12 contains no file-format word. Grep it for Word, docx, pptx, PowerPoint, PDF.
 3. All 13 prompts present and numbered 1-13.
+4. The fenced block under "## The description as shipped" is untouched — it is byte-identical
+   to SKILL.md and a check depends on that. Do not touch Alternate A or Alternate B either.
 
 ## Report
-Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 8 lines: the new prompt 4
-verbatim, the scope-note wording, the files touched, and the True/False from check 2.
+Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 6 lines: the new prompt 12
+verbatim, the files touched, and the result of check 2.
