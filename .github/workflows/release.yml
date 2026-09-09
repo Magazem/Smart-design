@@ -43,4 +43,5 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: skill/dist/document-design-intelligence-${{ steps.version.outputs.version }}.zip
+          body_path: RELEASE-NOTES.md
           generate_release_notes: true

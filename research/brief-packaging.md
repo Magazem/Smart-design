@@ -37,7 +37,11 @@ https://github.com/Magazem/Smart-design.git. `release.yml` now lives at
    guidance for CVs only, layout/typography/colour/print guidance for everything else,
    headings for the other document families deferred to step 9, and the PDF/X-4 wording
    exactly as it stands. A release note that overstates is the same defect as a data cell
-   that overstates.
+   that overstates. Include this known limitation VERBATIM in substance:
+   "One ambiguous German deck phrase resolves to the projection variant instead of asking
+   which was meant. The three deck rows tie on score and the tie is broken by row length."
+   Also state what the resolver DOES do: it resolves when confident, asks which of the real
+   candidates you meant when a request is ambiguous, and says plainly when nothing matches.
 
 6. **The scope statement must reach the USER, not just research/.** `release.yml`'s publish
    step sets `generate_release_notes: true`, which builds the GitHub release body from

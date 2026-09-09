@@ -174,6 +174,10 @@ splitting on [^a-z0-9]+ -- was fixed instead. When a passing number and a workin
 disagree, this project fixes the product. Cite this the next time a threshold is tempting.
 
 ## STEP 9 BACKLOG (all AFTER v0.1.0)
+- BM25 LENGTH NORMALISATION: after diacritic folding, D3's three deck rows TIE on score and
+  projection wins only because its row is 18 tokens against its siblings' 34 (b=0.75).
+  Do NOT just lower b -- that is the same tuning-to-the-test trap in a different variable
+  (see "refusing the green tick" above). Shipped as a stated limitation in RELEASE-NOTES.md.
 - `brochure-flyer-a4` has a duplicate Keywords token ("flyer a4" listed twice). Found while
   fixing the deck rows; left alone deliberately so the D3 brief stayed one deliverable.
   Worth a sweep for duplicate tokens across all 34 T1 rows, not just this one.
