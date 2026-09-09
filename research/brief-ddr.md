@@ -1,4 +1,4 @@
-# BRIEF — DDR — Retrofit research/39 and research/40 into the loader's shape
+# BRIEF — DDR — Retrofit research/39 into the loader's shape (40 is already done)
 
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
 DO NOT touch git. DO NOT write under skill/document-design-intelligence/. research/ only.
@@ -13,10 +13,12 @@ and needs a `source` column that neither draft has. Without it every new row lan
 ## The target shape — from research/18-ats-headings.csv, verbatim
 canonical_section,heading_text,language,is_primary,source
 
-## Deliverable (ONE — both files converted)
-Rewrite these two in place:
+## Deliverable (ONE — one file converted)
+You already converted research/40 and I verified it is lossless. Only this one is left:
 - research/39-headings-transactional-draft.csv
-- research/40-headings-longform-draft.csv
+
+Use your own converted research/40-headings-longform-draft.csv as the worked example of the
+target shape and of how to write the `source` column.
 
 For each row:
 1. DROP the heading_key column entirely. The loader generates the key as
@@ -40,11 +42,12 @@ content problem, report it, do not fix it here.
 
 ## Verify before you report
 1. Both files' headers equal research/18-ats-headings.csv's header exactly, in the same order.
-2. Row counts unchanged: 84 in 39, 36 in 40.
+2. Row count unchanged: 84.
 3. The multiset of (canonical_section, heading_text, language, is_primary) is IDENTICAL before
-   and after the conversion. Read the committed versions with `git show HEAD:<path>` and diff
-   the tuples in Python. Paste the output. This is the check that proves you converted rather
-   than rewrote.
+   and after. Read the committed version with
+   `git show HEAD:research/39-headings-transactional-draft.csv` and diff the tuples in Python.
+   Paste the output. This is the check that proves you converted rather than rewrote. Note the
+   committed file's columns are the OLD names -- Heading Text, Language, Is Primary.
 4. Zero rows with a blank `source`.
 5. Simulate the loader's key generation across data/base plus both files with a SINGLE shared
    counter per (canonical_section, language), and confirm no generated key collides.
@@ -53,4 +56,4 @@ Python: C:\Users\ysuliman\AppData\Local\Microsoft\WindowsApps\python3.exe
 
 ## Report
 Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 8 lines: the output of
-checks 3, 4 and 5, and how many distinct source strings you ended up with in each file.
+checks 3, 4 and 5, and how many distinct source strings you ended up with.

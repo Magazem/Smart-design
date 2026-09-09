@@ -328,6 +328,44 @@ fixture reference.
 
 The release is DONE. Anything further is step 9 work against a new version.
 
+## THE GATE IS RED ON MAIN RIGHT NOW -- DO NOT PUSH UNTIL THE RELOAD LANDS
+State as of commit 9060c77: `validate_data.py data/base` exits 1 with ONE line,
+`doctypes.csv:19:Keywords: duplicate token 'flyer a4'`, and `resolve.py --doctype
+brochure-flyer-a4` prints [REFUSED PATH]. Every other key resolves; tier 1 is clean.
+
+THE DATA DID NOT CHANGE. The RULE changed, and it is telling the truth about data that shipped
+in v0.1.0. The fix exists in research/26-t1-doctypes-draft.csv but has not reached data/base,
+because only research/load-base.py may write there and the sweep brief forbade a reload.
+The reload brief is dispatched. Local red is acceptable; PUSHING is not, until it lands.
+
+Note for honesty: the PUBLISHED v0.1.0 archive contains the duplicate token. It is not a
+correctness bug for users -- a repeated keyword slightly skews BM25 term frequency for one
+flyer row -- but the lead has been asked whether to disclose it.
+
+## HOW THE DUPLICATE RULE WAS BUILT, and why not the way I specified
+My brief said to iterate `list_columns`. Coverage REFUSED, correctly, and this is the third such
+refusal in the project. Two reasons, both verified by me:
+- doctypes.Keywords is COMMA-separated. `list_columns` is semicolon-only and the generator
+  asserts `delim == ";"`. A rule over list_columns could never have seen the motivating bug.
+- page-formats.`Panels mm` IS a semicolon list where repeats are CORRECT: a4-trifold is
+  `99.5;99.5;98.0`. A blanket rule would have raised four false positives on right data.
+So the check is OPT-IN per column via a new manifest key `distinct_token_columns:
+{column: delimiter}`, declared on 12 columns across 8 tables, with Panels mm deliberately exempt.
+Scoping a rule to where it is true is not silencing it.
+
+The rule immediately found a SECOND bug no file sweep could see: make_brand_kit.py:590 built
+Keywords as `f"{doctype}, {doctype.replace('-',' ')}, {slug}"`, so EVERY single-word doctype
+emitted a duplicate into EVERY brand kit ever generated. Fixed with order-preserving
+dict.fromkeys. That fix is load-bearing for the suite, which is why it is in the same commit.
+
+## BACKLOG, added 2026-09-09
+- make_brand_kit.py lines 498 and 560: the same single-word duplication, live today but ungated
+  because Keywords is declared only on doctypes.
+- Doc drift: data/schema-manifest-NOTES.md section 1.4 documents every manifest key and does not
+  mention `distinct_token_columns`; build-manifest.py's docstring claims the manifest derives
+  from research/09-library-schema.md Revision 4, which does not describe it either.
+- Heading variants for non-CV families.
+
 ## STANDING RULE, ruled 2026-09-09: draft in the loader's shape, verified against the loader
 ANY new data draft MUST be authored in the EXACT shape research/load-base.py reads, and the
 sub-manager MUST check load-base.py BEFORE writing the brief. Do not infer the shape from
