@@ -181,6 +181,40 @@ exclusion and description text -- and the ZIP was still rejected by claude.ai, b
 SKILL.md began with the build stamp instead of `---` and 9 members carried CRLF. Checking
 that a file is PRESENT is not checking that it is VALID.
 
+## ACTIVATION TEST, run 2026-09-09 by the user on the rebuilt ZIP -- prompts 1-5 only
+Result 1 pass, 4 fail. The tag is BLOCKED until the revised prompts are re-run.
+
+| # | Prompt intent | Outcome | Reading |
+|---|---|---|---|
+| 1 | CV, marketing coordinator | PASS | asked about format, produced an ATS-friendly French CV |
+| 2 | "une fiche" (FR) | FAIL | Claude asked what the user wanted first; "fiche" alone is genuinely ambiguous in French |
+| 3 | "Angebot" (DE) | FAIL (test defect) | Claude asked for client details, then said it would "likely use document-design-intelligence" once given them -- the description DID match |
+| 4 | "this report" | FAIL (test defect) | asked the user to upload the file; nothing was attached |
+| 5 | "this text" | FAIL (test defect) | asked for the text; nothing was attached |
+
+The lead's reading, adopted: 3-5 are a TEST defect, not a description defect. The prompts say
+"this report" / "this text" / "diesen Kunden" with nothing attached, so a generalist
+clarification is the correct behaviour and proves nothing either way. #3 is positive evidence
+the description matches. #2 is partly genuine.
+
+RULINGS 2026-09-09 (lead):
+A. Revise activation.md prompts 2-5 so each carries its input INLINE. #2 -> French-only with a
+   concrete fiche type (e.g. "fiche produit"), still no English document word. #3 -> 2-3 lines of
+   client/offer facts in German. #4 -> a short pasted "AI-looking" report paragraph. #5 -> a short
+   pasted text. Pass/fail lines stay honest: "asks a clarifying question" is a PASS only if the
+   question shows document-design framing (format, layout, ATS, brand); a generic "what do you
+   want" is a FAIL. Mirror in skill/dist/POST-UPLOAD-TESTS.md Test (c) and TESTS-FOR-USER.md.
+B. DO NOT change the description yet. Draft ONE candidate sentence in research/ (not in
+   SKILL.md) telling Claude to invoke the skill before asking for missing content. Applied only
+   if the re-run of the revised prompts still fails. The user vetoes description changes.
+C. Commit the uncommitted SKILL.md diff. NEW RULE: the build stamp must never precede `---` in
+   the SOURCE file either, not just in the built ZIP. The committed source carried the same
+   defect that was fixed in build_zip.py; the source is now stamp-after-frontmatter.
+D. Rebuild the ZIP only after A lands. The user then re-runs 2-5, then 6-13.
+
+NOTE: skill/dist/ is gitignored (.gitignore line 12). Edits to
+skill/dist/POST-UPLOAD-TESTS.md live on disk only and are NOT under version control.
+
 ## PRECEDENT, 2026-09-09: refusing the green tick
 The Coverage analyst had a one-constant change in hand that would have turned all four
 resolver acceptance bullets green (any margin ratio in (0.1862, 0.2492]). It refused, on the
