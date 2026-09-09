@@ -297,6 +297,21 @@ and runs prompt 4 only. If 4 passes, the tag is next and is the user's call.
 Prompt 4 detail confirming ruling H: Claude asked for the file. The appearance description in
 words was not enough; it wanted the document.
 
+## ACTIVATION TEST COMPLETE, 2026-09-09 -- ALL 13 PROMPTS PASS
+Prompt 4 PASS on the attached fixture: the skill fired and produced a corrected document. That
+was the last outstanding prompt. The full 13-prompt activation list now passes on the release
+candidate with candidate F applied.
+
+What made it pass, in order: giving prompts 2-5 their input inline (ruling A), giving 6, 8, 10,
+11, 13 theirs (ruling E), stating that the skill fixes appearance and not prose (ruling F),
+giving prompt 12 inline CV content (ruling G), and finally attaching a real badly formatted
+.docx instead of describing one in words (ruling H). Four of the five original failures were
+test defects, not skill defects.
+
+RELEASE STATE: v0.1.0 is ready. Gate 0, 14 tables, 291 rows. 133 tests + 8 subtests. ZIP
+verified from its bytes. Nothing pushed, nothing tagged -- the remote still has only the
+initial import 0bdb838. Push then tag per research/37-release-checklist.md.
+
 ## DESCRIPTION LENGTH -- the one measured number
 The SKILL.md frontmatter description measures **831 characters**, as of the candidate F edit
 applied 2026-09-09. Verified with Python len() on the quoted value. The cap is 1023 (the
