@@ -328,6 +328,41 @@ fixture reference.
 
 The release is DONE. Anything further is step 9 work against a new version.
 
+## STANDING RULE, ruled 2026-09-09: draft in the loader's shape, verified against the loader
+ANY new data draft MUST be authored in the EXACT shape research/load-base.py reads, and the
+sub-manager MUST check load-base.py BEFORE writing the brief. Do not infer the shape from
+data/base -- the loader renames columns, generates surrogate keys and drops columns on the way
+in, so data/base is the OUTPUT shape, not the input shape.
+
+Origin: the A1 and A2 heading drafts were authored against data/base/headings.csv
+(heading_key, canonical_section, Heading Text, Language, Is Primary). The loader actually reads
+research/18-ats-headings.csv:
+    canonical_section,heading_text,language,is_primary,source
+It GENERATES heading_key itself as <section>-<lang>-<n>, so the drafts' painstakingly unique
+keys are ignored, and it needs a `source` column the drafts did not have. Without it every new
+row lands under "(none given)" in data/rationale/headings.md, stripping provenance from 28-plus
+sections in a project whose entire discipline is separating sourced from conventional.
+Caught before phase B; A2 corrected mid-flight, research/39 retrofitted after.
+
+The same single-source shape applies elsewhere: T10 structures loads only from
+research/36-t10-structures-draft.csv.
+
+## GENERATED FILES -- do not hand-edit, change the generator
+data/rationale/headings.md, cv-regions.md and doc-reasoning.md are WRITTEN BY load-base.py.
+headings.md says so on its own second line. A paragraph typed into any of them is destroyed by
+the next load. To change their content, change the write_text block in load-base.py -- for
+headings.md that is around line 448.
+
+## PHASE B MUST ALSO DO THESE
+1. Put the cross-class reuse rule into the load-base.py generator for rationale/headings.md.
+2. Merge the section orders into research/36-t10-structures-draft.csv, the loader's only
+   structures source.
+3. Rewrite the comment block above the T10 loader (around line 595) which asserts the fifteen
+   blanks are correct BY RULING and points at research/36-notes.md.
+4. Fix the T13 CHANGES string, which hardcodes "81 rows", and the T10 CHANGES string, which
+   says "headings.csv covers CV sections only".
+5. Fix the scripts/resolve.py _field_value docstring around line 528, same stale claim.
+
 ## STANDING RULE, ruled 2026-09-09: cross-class section reuse
 NEVER reuse a canonical_section across document classes when its FR or DE primary Heading Text
 reads as a word from the OTHER class. Check the actual Heading Text in all three languages, not
