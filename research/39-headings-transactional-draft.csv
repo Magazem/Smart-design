@@ -1,85 +1,85 @@
-heading_key,canonical_section,Heading Text,Language,Is Primary
-issuer-en-1,issuer,From,en,yes
-issuer-fr-1,issuer,Émetteur,fr,yes
-issuer-de-1,issuer,Rechnungssteller,de,yes
-bill-to-en-1,bill-to,Bill To,en,yes
-bill-to-fr-1,bill-to,Facturé à,fr,yes
-bill-to-de-1,bill-to,Rechnungsempfänger,de,yes
-invoice-details-en-1,invoice-details,Invoice Details,en,yes
-invoice-details-fr-1,invoice-details,Détails de la facture,fr,yes
-invoice-details-de-1,invoice-details,Rechnungsdetails,de,yes
-line-items-en-1,line-items,Line Items,en,yes
-line-items-fr-1,line-items,Détail des prestations,fr,yes
-line-items-de-1,line-items,Positionen,de,yes
-totals-en-1,totals,Total,en,yes
-totals-fr-1,totals,Total,fr,yes
-totals-de-1,totals,Gesamtbetrag,de,yes
-tax-en-1,tax,Tax,en,yes
-tax-fr-1,tax,Taxes,fr,yes
-tax-de-1,tax,Steuern,de,yes
-payment-terms-en-1,payment-terms,Payment Terms,en,yes
-payment-terms-fr-1,payment-terms,Conditions de paiement,fr,yes
-payment-terms-de-1,payment-terms,Zahlungsbedingungen,de,yes
-sender-en-1,sender,Sender,en,yes
-sender-fr-1,sender,Expéditeur,fr,yes
-sender-de-1,sender,Absender,de,yes
-recipient-en-1,recipient,Recipient,en,yes
-recipient-fr-1,recipient,Destinataire,fr,yes
-recipient-de-1,recipient,Empfänger,de,yes
-date-en-1,date,Date,en,yes
-date-fr-1,date,Date,fr,yes
-date-de-1,date,Datum,de,yes
-salutation-en-1,salutation,Salutation,en,yes
-salutation-fr-1,salutation,Formule d'appel,fr,yes
-salutation-de-1,salutation,Anrede,de,yes
-body-en-1,body,Body,en,yes
-body-fr-1,body,Corps du texte,fr,yes
-body-de-1,body,Brieftext,de,yes
-closing-en-1,closing,Closing,en,yes
-closing-fr-1,closing,Formule de politesse,fr,yes
-closing-de-1,closing,Grußformel,de,yes
-to-en-1,to,To,en,yes
-to-fr-1,to,À,fr,yes
-to-de-1,to,An,de,yes
-from-en-1,from,From,en,yes
-from-fr-1,from,De,fr,yes
-from-de-1,from,Von,de,yes
-subject-en-1,subject,Subject,en,yes
-subject-fr-1,subject,Objet,fr,yes
-subject-de-1,subject,Betreff,de,yes
-header-en-1,header,Form Header,en,yes
-header-fr-1,header,En-tête du formulaire,fr,yes
-header-de-1,header,Formularkopf,de,yes
-instructions-en-1,instructions,Instructions,en,yes
-instructions-fr-1,instructions,Instructions,fr,yes
-instructions-de-1,instructions,Anweisungen,de,yes
-fields-en-1,fields,Form Fields,en,yes
-fields-fr-1,fields,Champs du formulaire,fr,yes
-fields-de-1,fields,Formularfelder,de,yes
-signature-en-1,signature,Signature,en,yes
-signature-fr-1,signature,Signature,fr,yes
-signature-de-1,signature,Unterschrift,de,yes
-cover-en-1,cover,Cover Page,en,yes
-cover-fr-1,cover,Page de couverture,fr,yes
-cover-de-1,cover,Deckblatt,de,yes
-executive-summary-en-1,executive-summary,Executive Summary,en,yes
-executive-summary-fr-1,executive-summary,Résumé exécutif,fr,yes
-executive-summary-de-1,executive-summary,Zusammenfassung,de,yes
-problem-statement-en-1,problem-statement,Problem Statement,en,yes
-problem-statement-fr-1,problem-statement,Énoncé du problème,fr,yes
-problem-statement-de-1,problem-statement,Problemstellung,de,yes
-proposed-solution-en-1,proposed-solution,Proposed Solution,en,yes
-proposed-solution-fr-1,proposed-solution,Solution proposée,fr,yes
-proposed-solution-de-1,proposed-solution,Lösungsvorschlag,de,yes
-scope-of-work-en-1,scope-of-work,Scope of Work,en,yes
-scope-of-work-fr-1,scope-of-work,Périmètre des travaux,fr,yes
-scope-of-work-de-1,scope-of-work,Leistungsumfang,de,yes
-timeline-en-1,timeline,Timeline,en,yes
-timeline-fr-1,timeline,Calendrier,fr,yes
-timeline-de-1,timeline,Zeitplan,de,yes
-pricing-en-1,pricing,Pricing,en,yes
-pricing-fr-1,pricing,Tarification,fr,yes
-pricing-de-1,pricing,Preisgestaltung,de,yes
-terms-en-1,terms,Terms and Conditions,en,yes
-terms-fr-1,terms,Conditions générales,fr,yes
-terms-de-1,terms,Allgemeine Geschäftsbedingungen,de,yes
+canonical_section,heading_text,language,is_primary,source
+issuer,From,en,yes,sourced (standard invoicing field; see 39-notes.md)
+issuer,Émetteur,fr,yes,sourced (standard invoicing field; see 39-notes.md)
+issuer,Rechnungssteller,de,yes,sourced (standard invoicing field; see 39-notes.md)
+bill-to,Bill To,en,yes,sourced (standard invoicing field; see 39-notes.md)
+bill-to,Facturé à,fr,yes,"sourced (French invoice convention: ""Facturé à""; see 39-notes.md)"
+bill-to,Rechnungsempfänger,de,yes,sourced (standard invoicing field; see 39-notes.md)
+invoice-details,Invoice Details,en,yes,sourced (standard invoicing field; see 39-notes.md)
+invoice-details,Détails de la facture,fr,yes,sourced (standard invoicing field; see 39-notes.md)
+invoice-details,Rechnungsdetails,de,yes,sourced (standard invoicing field; see 39-notes.md)
+line-items,Line Items,en,yes,sourced (standard invoicing field; see 39-notes.md)
+line-items,Détail des prestations,fr,yes,sourced (standard invoicing field; see 39-notes.md)
+line-items,Positionen,de,yes,sourced (standard invoicing field; see 39-notes.md)
+totals,Total,en,yes,sourced (standard invoicing field; see 39-notes.md)
+totals,Total,fr,yes,sourced (standard invoicing field; see 39-notes.md)
+totals,Gesamtbetrag,de,yes,sourced (standard invoicing field; see 39-notes.md)
+tax,Tax,en,yes,sourced (standard invoicing field; see 39-notes.md)
+tax,Taxes,fr,yes,"convention (generic ""Taxes"" chosen over VAT-specific ""TVA"" for cross-jurisdiction genericity; see 39-notes.md)"
+tax,Steuern,de,yes,"convention (generic ""Steuern"" chosen over VAT-specific ""Mehrwertsteuer"" for cross-jurisdiction genericity; see 39-notes.md)"
+payment-terms,Payment Terms,en,yes,sourced (standard invoicing field; see 39-notes.md)
+payment-terms,Conditions de paiement,fr,yes,sourced (standard invoicing field; see 39-notes.md)
+payment-terms,Zahlungsbedingungen,de,yes,sourced (standard invoicing field; see 39-notes.md)
+sender,Sender,en,yes,convention (standard business-letter convention; see 39-notes.md)
+sender,Expéditeur,fr,yes,convention (standard business-letter convention; see 39-notes.md)
+sender,Absender,de,yes,convention (standard business-letter convention; see 39-notes.md)
+recipient,Recipient,en,yes,convention (standard business-letter convention; see 39-notes.md)
+recipient,Destinataire,fr,yes,convention (standard business-letter convention; see 39-notes.md)
+recipient,Empfänger,de,yes,convention (standard business-letter convention; see 39-notes.md)
+date,Date,en,yes,convention (standard business-letter convention; shared across letter/memo/form; see 39-notes.md)
+date,Date,fr,yes,convention (standard business-letter convention; shared across letter/memo/form; see 39-notes.md)
+date,Datum,de,yes,convention (standard business-letter convention; shared across letter/memo/form; see 39-notes.md)
+salutation,Salutation,en,yes,convention (standard English business-letter convention; see 39-notes.md)
+salutation,Formule d'appel,fr,yes,"sourced (French letter convention: ""Formule d'appel""; see 39-notes.md)"
+salutation,Anrede,de,yes,sourced (DIN 5008 German business-letter term; see 39-notes.md)
+body,Body,en,yes,convention (standard business-letter convention; shared across letter/memo; see 39-notes.md)
+body,Corps du texte,fr,yes,convention (standard business-letter convention; shared across letter/memo; see 39-notes.md)
+body,Brieftext,de,yes,convention (standard business-letter convention; shared across letter/memo; see 39-notes.md)
+closing,Closing,en,yes,convention (standard English business-letter convention; see 39-notes.md)
+closing,Formule de politesse,fr,yes,"sourced (French letter convention: ""Formule de politesse""; see 39-notes.md)"
+closing,Grußformel,de,yes,sourced (DIN 5008 German business-letter term; see 39-notes.md)
+to,To,en,yes,"convention (memo skeleton; single-word heading chosen over email-style ""To:""; see 39-notes.md)"
+to,À,fr,yes,"convention (memo skeleton; single-word heading chosen over email-style ""To:""; see 39-notes.md)"
+to,An,de,yes,"convention (memo skeleton; single-word heading chosen over email-style ""To:""; see 39-notes.md)"
+from,From,en,yes,"convention (memo skeleton; single-word heading chosen over email-style ""From:""; see 39-notes.md)"
+from,De,fr,yes,"convention (memo skeleton; single-word heading chosen over email-style ""From:""; see 39-notes.md)"
+from,Von,de,yes,"convention (memo skeleton; single-word heading chosen over email-style ""From:""; see 39-notes.md)"
+subject,Subject,en,yes,"convention (memo skeleton; single-word heading chosen over email-style ""Subject:""; see 39-notes.md)"
+subject,Objet,fr,yes,"convention (memo skeleton; single-word heading chosen over email-style ""Subject:""; see 39-notes.md)"
+subject,Betreff,de,yes,sourced (DIN 5008 German business-letter term; see 39-notes.md)
+header,Form Header,en,yes,"convention (generic hand-filled-form model, not a cited standard; see 39-notes.md)"
+header,En-tête du formulaire,fr,yes,"convention (generic hand-filled-form model, not a cited standard; see 39-notes.md)"
+header,Formularkopf,de,yes,"convention (generic hand-filled-form model, not a cited standard; see 39-notes.md)"
+instructions,Instructions,en,yes,"convention (generic hand-filled-form model, not a cited standard; see 39-notes.md)"
+instructions,Instructions,fr,yes,"convention (generic hand-filled-form model, not a cited standard; see 39-notes.md)"
+instructions,Anweisungen,de,yes,"convention (generic hand-filled-form model, not a cited standard; see 39-notes.md)"
+fields,Form Fields,en,yes,"convention (generic hand-filled-form model, not a cited standard; see 39-notes.md)"
+fields,Champs du formulaire,fr,yes,"convention (generic hand-filled-form model, not a cited standard; see 39-notes.md)"
+fields,Formularfelder,de,yes,"convention (generic hand-filled-form model, not a cited standard; see 39-notes.md)"
+signature,Signature,en,yes,"convention (generic hand-filled-form model, not a cited standard; see 39-notes.md)"
+signature,Signature,fr,yes,"convention (generic hand-filled-form model, not a cited standard; see 39-notes.md)"
+signature,Unterschrift,de,yes,"convention (generic hand-filled-form model, not a cited standard; see 39-notes.md)"
+cover,Cover Page,en,yes,"convention (proposal nine-section narrative shape, one of several valid outlines; see 39-notes.md)"
+cover,Page de couverture,fr,yes,"convention (proposal nine-section narrative shape, one of several valid outlines; see 39-notes.md)"
+cover,Deckblatt,de,yes,"convention (proposal nine-section narrative shape, one of several valid outlines; see 39-notes.md)"
+executive-summary,Executive Summary,en,yes,"convention (proposal nine-section narrative shape, one of several valid outlines; see 39-notes.md)"
+executive-summary,Résumé exécutif,fr,yes,"convention (proposal nine-section narrative shape, one of several valid outlines; see 39-notes.md)"
+executive-summary,Zusammenfassung,de,yes,"convention (proposal nine-section narrative shape, one of several valid outlines; see 39-notes.md)"
+problem-statement,Problem Statement,en,yes,"convention (proposal nine-section narrative shape, one of several valid outlines; see 39-notes.md)"
+problem-statement,Énoncé du problème,fr,yes,"convention (proposal nine-section narrative shape, one of several valid outlines; see 39-notes.md)"
+problem-statement,Problemstellung,de,yes,"convention (proposal nine-section narrative shape, one of several valid outlines; see 39-notes.md)"
+proposed-solution,Proposed Solution,en,yes,"convention (proposal nine-section narrative shape, one of several valid outlines; see 39-notes.md)"
+proposed-solution,Solution proposée,fr,yes,"convention (proposal nine-section narrative shape, one of several valid outlines; see 39-notes.md)"
+proposed-solution,Lösungsvorschlag,de,yes,"convention (proposal nine-section narrative shape, one of several valid outlines; see 39-notes.md)"
+scope-of-work,Scope of Work,en,yes,"convention (proposal nine-section narrative shape, one of several valid outlines; see 39-notes.md)"
+scope-of-work,Périmètre des travaux,fr,yes,"convention (proposal nine-section narrative shape, one of several valid outlines; see 39-notes.md)"
+scope-of-work,Leistungsumfang,de,yes,"convention (proposal nine-section narrative shape, one of several valid outlines; see 39-notes.md)"
+timeline,Timeline,en,yes,"convention (proposal nine-section narrative shape, one of several valid outlines; see 39-notes.md)"
+timeline,Calendrier,fr,yes,"convention (proposal nine-section narrative shape, one of several valid outlines; see 39-notes.md)"
+timeline,Zeitplan,de,yes,"convention (proposal nine-section narrative shape, one of several valid outlines; see 39-notes.md)"
+pricing,Pricing,en,yes,"convention (proposal nine-section narrative shape, one of several valid outlines; see 39-notes.md)"
+pricing,Tarification,fr,yes,"convention (proposal nine-section narrative shape, one of several valid outlines; see 39-notes.md)"
+pricing,Preisgestaltung,de,yes,"convention (proposal nine-section narrative shape, one of several valid outlines; see 39-notes.md)"
+terms,Terms and Conditions,en,yes,"convention (proposal nine-section narrative shape, one of several valid outlines; see 39-notes.md)"
+terms,Conditions générales,fr,yes,"convention (proposal nine-section narrative shape, one of several valid outlines; see 39-notes.md)"
+terms,Allgemeine Geschäftsbedingungen,de,yes,"sourced (German ""Allgemeine Geschäftsbedingungen"" (AGB) -- standard term for terms and conditions; see 39-notes.md)"
