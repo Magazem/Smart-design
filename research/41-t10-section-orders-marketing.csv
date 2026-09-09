@@ -1,0 +1,7 @@
+structure_key,Section Order
+brochure-3panel,headline;introduction;key-points;call-to-action;contact
+brochure-gatefold,headline;introduction;key-points;call-to-action;contact
+flyer-single-sheet,headline;key-points;call-to-action;contact
+poster-single-canvas,headline;call-to-action
+deck-standard,cover;agenda;problem-statement;proposed-solution;findings;call-to-action;contact
+cover-letter-standard,sender;recipient;date;salutation;body;closing

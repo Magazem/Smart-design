@@ -1,59 +1,73 @@
-# BRIEF — DDR — Retrofit research/39 into the loader's shape (40 is already done)
+# BRIEF — DDR — v0.2 phase A3: the marketing-class section model (the last six)
 
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
 DO NOT touch git. DO NOT write under skill/document-design-intelligence/. research/ only.
 
-## Why
-Your A1 and A2 content is verified and correct — this is not a rework of the sections. Both
-heading CSVs were authored against data/base/headings.csv, which is the loader's OUTPUT shape.
-research/load-base.py reads a different, lowercase INPUT shape, generates heading_key itself,
-and needs a `source` column that neither draft has. Without it every new row lands under
-"(none given)" in data/rationale/headings.md, which the loader writes.
+## Scope — these six structure keys, verbatim, and this finishes the fifteen
+brochure-3panel, brochure-gatefold, flyer-single-sheet, poster-single-canvas, deck-standard,
+cover-letter-standard
 
-## The target shape — from research/18-ats-headings.csv, verbatim
-canonical_section,heading_text,language,is_primary,source
+Five transactional plus four long-form plus these six is fifteen, which is every structure key
+in data/base/structures.csv that has no Section Order. After this, authoring is done and phase B
+can load.
 
-## Deliverable (ONE — one file converted)
-You already converted research/40 and I verified it is lossless. Only this one is left:
-- research/39-headings-transactional-draft.csv
+## Shape — the loader's input shape, which you now know
+research/41-headings-marketing-draft.csv with EXACTLY these columns, from
+research/18-ats-headings.csv:
+  canonical_section,heading_text,language,is_primary,source
+No heading_key — the loader generates it. Every row needs a real `source`.
 
-Use your own converted research/40-headings-longform-draft.csv as the worked example of the
-target shape and of how to write the `source` column.
+research/41-t10-section-orders-marketing.csv: structure_key, Section Order. Six rows.
+research/41-notes.md: sources, and which orders are SOURCED versus your own CONVENTION.
 
-For each row:
-1. DROP the heading_key column entirely. The loader generates the key as
-   `<canonical_section>-<language>-<n>`. Yours would be ignored.
-2. Rename the columns to the five lowercase names above, in that order.
-3. ADD a `source` value on EVERY row. This is the real work of this brief, not a formality.
-   - Where you cited something in 39-notes.md or 40-notes.md, put that citation here. The DIN
-     5008 letter terms, the francophone report vocabulary, the German invoicing wording.
-   - Where the wording is your own convention, say so in the existing house style, which you can
-     read in data/rationale/headings.md — for example `convention (not in report 03)`, or a
-     short parenthetical naming what kind of convention it is.
-   - Do not write a vague source to fill the cell. A row whose wording you invented must say so.
-     The whole point of this column is that a reader can tell sourced from conventional.
+## Rules, all still binding
+- en, fr, de on every section; one row per section per language.
+- Exactly one is_primary = yes per (canonical_section, language).
+- canonical_section lowercase ASCII hyphenated; heading_text may carry accents.
+- THE CROSS-CLASS REUSE RULE, which you have now applied correctly four times: never reuse a
+  section across classes when its FR or DE primary reads as a word from the other class. Check
+  the actual heading_text in both languages. Your refusals of summary/Profil,
+  references/Referenzen and proposed-solution/Losungsvorschlag are the worked examples.
+- DO reuse where a section genuinely is the same thing in all three languages. `headline`,
+  `key-points`, `call-to-action` and `contact` already exist from research/40 and data/base, and
+  several of these six plainly want them.
 
-The two section-order CSVs are already correct. Do not touch them, and do not touch the notes
-files except to keep them honest if a source string differs from what the notes claim.
+## PRE-RULING from the lead — read this INSTEAD of guessing
+A Section Order lists CONTENT sections in reading order. It does NOT encode physical panels or
+slide counts.
+- BROCHURES: list the content sections in the order a reader meets them while unfolding —
+  cover, hook, body sections, call-to-action, contact. Note in the `source` column that panel
+  mapping belongs to page-formats, not structures.
+- DECKS: list the content ARC — title, agenda, problem, solution, evidence, ask, close — not
+  slides.
+- If you still find a family where even that is a stretch, LEAVE THE CELL EMPTY and say why in
+  the notes. An honest blank beats a forced list. You will not be asked to justify a blank you
+  can explain.
 
-## Do not renumber or re-author
-No section may be added, removed or renamed. No heading text may change. If converting reveals a
-content problem, report it, do not fix it here.
+## The hard one, think before you author
+These six are not all the same kind of document and the orders should show it.
+- A three-panel brochure and a gate-fold have PANELS, read in a physical order, not a linear
+  section list. Say in the notes how you are representing that, and whether panel structure is
+  really a Section Order at all or is being approximated by one. If you think the model does not
+  fit, say so plainly rather than forcing it — that is a finding worth more than a filled cell.
+- A poster is a single canvas. If a poster's honest answer is two or three sections, author two
+  or three. Do not pad.
+- A deck is slides. Decide whether the sections are slide roles (title, agenda, and so on) and
+  say why.
+- cover-letter-standard is the odd one here: it is transactional in tone and may reuse heavily
+  from research/39's letter set. Check before inventing.
 
 ## Verify before you report
-1. Both files' headers equal research/18-ats-headings.csv's header exactly, in the same order.
-2. Row count unchanged: 84.
-3. The multiset of (canonical_section, heading_text, language, is_primary) is IDENTICAL before
-   and after. Read the committed version with
-   `git show HEAD:research/39-headings-transactional-draft.csv` and diff the tuples in Python.
-   Paste the output. This is the check that proves you converted rather than rewrote. Note the
-   committed file's columns are the OLD names -- Heading Text, Language, Is Primary.
-4. Zero rows with a blank `source`.
-5. Simulate the loader's key generation across data/base plus both files with a SINGLE shared
-   counter per (canonical_section, language), and confirm no generated key collides.
+1. Every token in all six Section Orders resolves against data/base/headings.csv plus
+   research/39 plus research/40 plus your new file. Paste the output.
+2. Simulate the loader's key generation with a SINGLE shared counter per
+   (canonical_section, language) across all four sources; confirm zero collisions.
+3. Exactly one primary per (canonical_section, language), in your file and in the union.
+4. Zero blank `source` values. Header matches research/18-ats-headings.csv exactly.
 
 Python: C:\Users\ysuliman\AppData\Local\Microsoft\WindowsApps\python3.exe
 
 ## Report
-Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 8 lines: the output of
-checks 3, 4 and 5, and how many distinct source strings you ended up with.
+Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 10 lines: the six Section
+Order strings, new sections and rows added, what you reused, the output of checks 1 and 2, and
+your answer on whether panels and slides genuinely fit a Section Order.
