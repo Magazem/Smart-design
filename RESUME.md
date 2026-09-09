@@ -328,6 +328,40 @@ fixture reference.
 
 The release is DONE. Anything further is step 9 work against a new version.
 
+## STANDING RULE, ruled 2026-09-09: cross-class section reuse
+NEVER reuse a canonical_section across document classes when its FR or DE primary Heading Text
+reads as a word from the OTHER class. Check the actual Heading Text in all three languages, not
+just the English name.
+
+Origin: DDR refused to reuse the CV section `summary` for a proposal's executive summary,
+because its French and German primaries are "Profil" -- a CV word that would render a proposal
+wrongly. It authored `executive-summary` instead. The lead endorsed this.
+
+The converse also holds: DO reuse when a section genuinely is the same thing in all three
+languages. The transactional draft correctly shares `date`, `body` and `closing` across letter,
+memo, form and proposal.
+
+## HEADING VARIANTS -- backlog, not a task
+The 81 existing CV heading rows carry WORDING VARIANTS, roughly two or three phrasings per
+section per language with one marked primary. The new non-CV sections have exactly one row per
+section per language.
+
+Lead's ruling after grepping scripts/: NOTHING reads `Is Primary` or the non-primary rows. The
+only reference is a resolve.py comment. So variants are model-facing alternatives, not
+code-consumed, and one row per section per language is sufficient for v0.2 loading.
+Backlog line: "heading variants for non-CV families". No brief now.
+
+## PHASE B MUST FIX THIS COMMENT
+scripts/resolve.py, _field_value docstring around line 528, states "headings.csv only holds CV
+sections; the rest is deferred". That stops being true the moment the transactional and
+long-form rows load. Update it in the same brief that changes the degradation behaviour.
+
+## A FILE THE LEAD NAMED THAT DOES NOT EXIST
+The ruling said to write the reuse rule into `rationale/headings.md`. There is no such file, and
+references/ contains only activation.md. The rule is recorded above instead. If it should ship
+to users rather than live here, the natural home is a new references file written in phase C,
+when Packaging documents which doctypes carry structure guidance.
+
 ## v0.2 IS OPEN -- scope and the one structural fact that shapes it, 2026-09-09
 
 ### CANDIDATE B IS PERMANENTLY ON HOLD. DO NOT REVIVE IT.
