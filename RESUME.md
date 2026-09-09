@@ -312,6 +312,22 @@ RELEASE STATE: v0.1.0 is ready. Gate 0, 14 tables, 291 rows. 133 tests + 8 subte
 verified from its bytes. Nothing pushed, nothing tagged -- the remote still has only the
 initial import 0bdb838. Push then tag per research/37-release-checklist.md.
 
+## v0.1.0 IS PUBLISHED -- 2026-09-09
+Tag v0.1.0 points at d2885b9. The Release workflow run succeeded in 13s. The asset
+document-design-intelligence-0.1.0.zip (135566 bytes) is live at
+https://github.com/Magazem/Smart-design/releases/tag/v0.1.0
+
+I downloaded the PUBLISHED asset and verified it, not the local build:
+39 members; SKILL.md starts b'---
+'; exactly one stamp reading
+"<!-- version: 0.1.0 (generated at build - do not edit) -->"; VERSION member reads 0.1.0, so CI
+overwrote the 0.0.1-dev tree value from the tag as designed; zero CR bytes; manifest md5
+57e886aa8a68665c763904c391ac3836; description 831 chars with "appearance fixes"; zero .docx
+members; no brand leak beyond data/brand/README.md; activation.md carries all 13 prompts and the
+fixture reference.
+
+The release is DONE. Anything further is step 9 work against a new version.
+
 ## DESCRIPTION LENGTH -- the one measured number
 The SKILL.md frontmatter description measures **831 characters**, as of the candidate F edit
 applied 2026-09-09. Verified with Python len() on the quoted value. The cap is 1023 (the
