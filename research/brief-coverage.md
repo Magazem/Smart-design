@@ -1,54 +1,42 @@
-# BRIEF — Coverage and Gap Analyst: reload T1 + run the D3 acceptance test (~8 min)
-
-Context reset by policy; nothing lost. Load pass 4 is verified and closed — the gate is ZERO
-("OK: validated 14 table(s), 291 row(s)"). Act from THIS FILE and from disk.
+# BRIEF — Coverage — Draft ONE description sentence (draft only, do not apply)
 
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
-Skill dir: skill\document-design-intelligence
-Python:    C:\Users\ysuliman\AppData\Local\Microsoft\WindowsApps\python3.exe
+DO NOT touch git. DO NOT edit SKILL.md. The user personally vetoes description changes;
+this is a proposal that goes in front of the lead, nothing more.
 
-## What changed and why you are reloading
-The resolver can now abstain on ambiguous queries, but the German one, D3
-"erstelle eine <praesentation>", still resolved CONFIDENTLY to `slide-deck-projection`.
-That was a DATA asymmetry, not an algorithm fault: projection's Keywords cell carried the
-presentation stem five times against its siblings' three and one, including two bare
-duplicate tokens with no retrieval value.
-The DDR has fixed `research/26-t1-doctypes-draft.csv` (verified by me): projection 5 -> 3,
-handout 1 -> 2 (its missing German form added), document unchanged at 3. Projection and
-document now have identical structure — one English term, one French phrase, one German
-phrase each. No duplicate tokens remain on any deck row.
+## Why
+Activation prompts 3, 4 and 5 failed because Claude asked for the missing file/text before
+invoking anything. In prompt 3 it then said it would "likely use document-design-intelligence"
+once given the details — so the description matched, it just clarified first. We are fixing the
+test (another worker, in parallel). This brief prepares a fallback in case the revised prompts
+still fail: a sentence that tells Claude to invoke the skill BEFORE asking for missing content.
 
-## ONE deliverable: T1 reloaded and the acceptance test answered.
-1. Reload T1 from `research/26-t1-doctypes-draft.csv` via `research/load-base.py`.
-2. Run the gate. It MUST still be ZERO — this is a keyword-text change only, so any new line
-   means something else moved and that is the story, not the count.
-3. Run the acceptance test and report the real output:
-   - D3 "erstelle eine <praesentation>" (the German accented form) must now ABSTAIN.
-   - The German deck query must still surface the DECK FAMILY as its candidates — if it
-     abstains but offers CVs, that is a failure, not a pass.
-   - D1 "erstelle einen tabellarischen lebenslauf" must STILL RESOLVE to `cv-dach`. This is
-     the binding constraint: D1's margin ratio was the thing that made D3 unfixable by
-     thresholds, so it is the row most likely to break.
-   - E3 "make me a flyer" must still abstain with its two flyer rows.
-   Note the Mechanism Analyst is editing `resolve.py` right now for the zero-score case; if
-   its work is mid-flight your query output may shift under you. Report what you see and say
-   when you ran it. Do NOT edit resolve.py.
+## Read first
+- skill/document-design-intelligence/SKILL.md — the frontmatter `description:` field, one long
+  line. MEASURE its current length yourself from SKILL.md -- the repo quotes 667, 823 and 825
+  in three different places and at most one is current. The hard cap is 1023 (tested against the claude.ai
+  upload UI; see references/activation.md lines 10-25).
+- skill/document-design-intelligence/references/activation.md, "## The description as shipped".
 
-## If D3 still does not abstain
-Say so plainly with the numbers. That is a legitimate outcome — it would mean the data fix
-was insufficient and the remaining cause is the tokenizer collapsing the accented forms,
-which is a post-release item. Do not chase it, and do not tune anything to force a pass.
+## Deliverable (ONE)
+Write research/38-description-candidate.md containing:
+1. ONE candidate sentence, verbatim and quoted, to be inserted into the description. The
+   lead's example of the intent: "Use this skill first even when the content or file is not
+   yet provided; it decides what to ask for." Improve on it if you can; keep it one sentence.
+2. Exactly where in the current description it would go, and why there.
+3. The full resulting description as a single line, with its exact character count, proving
+   it stays under 1023.
+4. Rationale: why this addresses the observed failure, in 3-4 lines.
+5. Risk: what this sentence could over-trigger. Prompts 6-13 are the "should not fire" and
+   handoff cases in activation.md — name which of them this sentence puts at risk and why.
+   Be blunt. If you think the sentence is a bad idea, say so and say what you would do instead.
 
-## Do not
-Touch `scripts/`, the manifest generator, or any `research/*.csv` draft.
+## Constraints
+- ASCII-only in your prose. The description itself may keep its existing accented words.
+- Count characters with Python, not by eye:
+  `python3 -c "print(len(open('f','r',encoding='utf-8').read().strip()))"`.
+- Do not modify SKILL.md, the ZIP, or the test docs.
 
-## VERIFY
-Gate output pasted. Loader idempotent over two runs. `assert_no_brand_rows()` clean.
-`pytest -q` from the skill dir; note the count and whether any failure is Mechanism's
-in-flight work rather than yours.
-
-## REPORT
-Max 8 lines to the Workflow Orchestrator, slot 01a080c5-2001-78b3-bbbe-afaae15edafa:
-the gate number, the four acceptance results with their candidate lists, idempotency, and
-the test count. If you approach ~10 minutes, checkpoint to research/handover-coverage.md
-and stop.
+## Report
+Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 8 lines: the sentence,
+the new character count, and your risk verdict.
