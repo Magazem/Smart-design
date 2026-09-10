@@ -25,7 +25,8 @@ failure this skill exists to prevent.
 
 `handoff` reads a `resolve` result and prints a render-handoff block — resolved
 fonts, colors, spacing, page format, and the constraints to check — for `.docx`
-and `.pptx` output. It does not render Office formats itself: hand that block to
+and `.pptx` output; a plain-text answer in chat is a valid output too, with no
+handoff block and no file. It does not render Office formats itself: hand that block to
 the built-in `docx` or `pptx` skill to build the file. PDF is the exception —
 this skill renders PDF itself. After rendering, run `ddi.py preflight` on the
 artifact; on refuse, fix the specific problem it names and rerun before returning
@@ -41,6 +42,10 @@ skill covers, with one exception: `infographic`, which has no Structure Key
 and so gets no section order — the resolver says so explicitly rather than
 returning an empty list. Every document type, infographic included, still
 gets layout, typography, colour, and print guidance.
+
+The output format never changes this order or these headings: a plain-text
+reply in chat gets the same resolved sections and headings as a rendered
+file. Only the rendering changes.
 
 ## Give it your brand
 
