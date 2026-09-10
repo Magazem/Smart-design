@@ -1,52 +1,52 @@
-# BRIEF — Coverage — RULING K step 2: load the page-flow constraints (HOLD)
+# BRIEF — Coverage — apply candidate L (HOLD until the lead says "user approved")
 
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
-DO NOT touch git. DISPATCHED. DDR step 1 is committed as 21de2b3 and verified. Proceed.
+DO NOT touch git. DO NOT START without the go-ahead. If you are reading this without it, stop
+and say so.
 
-## Why
-DDR has authored page-flow rows into research/16-t9-constraints-draft.csv. Only
-research/load-base.py may write data/base.
+## What is being applied
+Candidate L, from research/38-description-candidate.md. It is a PURE REORDER: the priority
+claim moves from seventh position to FIRST. I rebuilt it from the live description and diffed at
+token level — the only change across all 972 characters is `above` becoming `below`.
 
-## A loader change you will almost certainly need — I checked this before writing the brief
-T9's `Element Scope` is NOT in either draft. The loader derives it, and the derivation is
-hardcoded to a SINGLE key (load-base.py around line 236):
-    r["Element Scope"] = ""
-    if k == "report-measure-cpl":
-        r["Element Scope"] = "body-paragraph"
-So every new row lands with an EMPTY Element Scope unless you extend that logic. Page-flow rules
-need real scopes — `body-paragraph` for widows and orphans, `table-cell` for table splitting,
-`caption-block` for figure-and-caption. All three are already in the enum.
+New first sentence:
+  Creating any document type below is still this skill's job even as Word or PowerPoint; defer
+  to that format's own skill only when the user names it for a plain conversion or edit with no
+  design ask.
 
-DDR HAS ALREADY TOLD YOU WHICH ROWS NEED WHAT, so do not re-derive it:
-- `report-widow-orphan-control` needs `body-paragraph`.
-- `report-table-row-no-split` and `report-table-header-repeat` need `table-cell`.
-- `report-heading-keep-with-next` and `report-figure-caption-keep-together` stay scope-EMPTY
-  BY DESIGN. Their block type is carried in Parameter via `applies_to_block` and `binds_to`,
-  following the photocopy-safe precedent of putting roles in Parameter. That is NOT a gap and
-  must not be "fixed".
-Its full reasoning is in research/45-notes.md; read it before changing anything.
+Length stays 972. If you measure anything else, STOP and report.
 
-Extend the derivation to carry the scopes those rows need. Prefer a data-driven mapping over
-another hardcoded key comparison; a chain of `if k ==` lines is how this became a special case
-in the first place. If DDR's notes say the rows cannot get their scope, say so and stop.
+## THE TEST CHANGE IS PART OF THIS, NOT A FOLLOW-UP
+Mechanism proved this by running the real test, and it is the reason L cannot ship alone:
+- Moving that sentence to the front puts NEGATIVE_SCOPE_MARKER at INDEX 0. The positive region
+  collapses to an empty string and ALL THIRTY doctypes read as unreachable.
+- Renaming the marker alone does NOT fix it. It leaks "PowerPoint" into the positive region and
+  falsely credits slide-deck-projection — the exact bug that test exists to catch.
+The fix is a genuine two-marker change to scripts/tests/test_description_coverage.py:
+NEGATIVE_HEAD_MARKER plus NEGATIVE_SCOPE_MARKER. Mechanism wrote and verified it; its working
+version is in research/38-description-candidate.md under Candidate L, section L.2, and
+research/38-verify-candidate-l.py reproduces all four scenarios.
 
-## Deliverable (ONE)
-Load, to gate zero.
-1. Extend the Element Scope derivation as above.
-2. Run research/load-base.py.
-3. Update the T9 CHANGES string if it states a row count that your load changes.
+Take that fix, do not reinvent it. Keep the hard AssertionError guard on BOTH markers — a marker
+that silently fails to match is how this test nearly went quiet twice.
+
+## Also coupled
+references/activation.md's fenced "as shipped" block: copy the new description in verbatim, one
+line. test_description_mirror.py enforces it, so a miss fails the suite rather than drifting.
+The "972" prose figures do NOT change — the length is identical.
 
 ## Verify — paste actual output
-1. `python3 scripts/validate_data.py data/base` — exit 0. Report the table and ROW COUNT; it was
-   414, and constraints grows by however many rows DDR added.
-2. `git diff --stat skill/document-design-intelligence/data/` — expect constraints.csv only. If
-   any OTHER table moved, that is a finding: report it, do not tidy it.
-3. Every new row has the Element Scope DDR intended. Print the new rows with their scopes.
-4. `python3 -m pytest scripts -q` — baseline 148 passed plus 8 subtests.
-5. The loader is idempotent: run it twice and confirm the second run changes nothing.
+1. Description measures exactly 972 and STARTS with "Creating any document type below".
+2. Token-level diff against the previous description: the ONLY difference is above/below.
+3. `python3 -m pytest scripts/tests/test_description_coverage.py -q` — 6 passed, run on its own.
+4. `python3 -m pytest scripts/tests/test_description_mirror.py -q` — 2 passed, on its own.
+5. NEGATIVE CONTROL, and I will repeat it: with L applied and your two-marker fix in place,
+   confirm the coverage test still FAILS when a noun is removed from the description. A test
+   that passes because its region is wrong is exactly what we are guarding against. Paste it.
+6. Full suite: baseline 148 passed plus 8 subtests.
 
 Python: C:\Users\ysuliman\AppData\Local\Microsoft\WindowsApps\python3.exe
 
 ## Report
-Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 10 lines: the gate line
-with its row count, the diff stat, the new rows with scopes, and the idempotency result.
+Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 10 lines: the measured
+length, checks 2 and 5 verbatim, and the four test results.
