@@ -1340,3 +1340,228 @@ measured character and byte count, reproduced by
 `research/38-verify-candidate-j.py`; **moderate-to-low** on prompt 10 holding,
 which is why it is named as the first required re-run rather than folded into
 "re-run everything."
+
+---
+
+## Candidate L - lead with the priority claim over Word/PowerPoint
+
+DRAFT ONLY. SKILL.md not touched. F, G, H and I-min are live at **972
+characters** (J was vetoed and is not part of the base). Every number below
+is reproducible with `research/38-verify-candidate-l.py`, which reads the
+live description out of `SKILL.md`, builds the package by exact-substring
+replacement, and runs `scripts/tests/test_description_coverage.py` against
+three patched copies of the skill tree (unpatched, naive-rename, two-marker
+fix) to prove the coupling claim in L.2 rather than assert it. It never
+writes to `SKILL.md` or the real test file.
+
+### L.1 The reorder
+
+This is a pure move, not a rewrite. H's existing sentence already **is** the
+priority claim the brief asks for - it was simply sentence five of six, not
+one. Moving it whole to the front, with the one word its new position
+requires ("above" -> "below", so it still points at the noun list that now
+follows it instead of precedes it), needs zero invented content beyond that
+single same-length substitution:
+
+```
+Creating any document type below is still this skill's job even as Word or
+PowerPoint; defer to that format's own skill only when the user names it for
+a plain conversion or edit with no design ask. Creates and fixes
+print/office documents: CVs, resumes, cover letters, brochures, flyers,
+posters, reports, whitepapers, slide decks, presentations, forms, letters,
+quotes, offers; also note interne, fiche, courrier, lettre, affiche,
+dépliant, présentation, formulaire, Lebenslauf, Angebot, Bericht, invoice,
+memo, proposal, one-pager, facture, devis, rapport, Rechnung, Formular,
+Broschüre. Triggers: make me a CV, write a note interne, turn this into a
+brochure, I need slides for Monday, format this report, fais-moi une fiche,
+erstelle ein Angebot; appearance fixes: looks like AI, looks generic, make
+it look professional, fix the layout. Applies sourced layout, typography,
+color, print, and ATS rules. Not for web or app UI/UX design (use UI/UX Pro
+Max for screens).
+```
+
+**972 characters, 975 UTF-8 bytes - identical to the live string.** Cap is
+1,023. **Headroom: 51 characters, unchanged from today.** Verified with
+`len()`, not estimated: moving a sentence and swapping one five-letter word
+for another five-letter word cannot change the count, and it didn't.
+
+**Verbatim survival: effectively 100%.** Every character of the live 972
+survives; the only edit anywhere in the string is `above` -> `below`, five
+bytes touched out of 972. `lettre`, `sourced`, `Word or PowerPoint`, and the
+deferral clause `only when the user names it for a plain conversion or edit
+with no design ask` each still occur exactly once, checked with
+`str.count()`.
+
+**I did not follow the lead's sketch's exact wording, and the reason is
+rule 1 itself.** The sketch opens "Use this before the docx or pptx skills
+whenever the user asks for a document to be created, drafted, structured or
+fixed." Checked against the live description, `docx`, `pptx`, `before`,
+`whenever`, `asks`, `drafted` and `structured` appear nowhere in it - that
+sketch is seven-plus invented words, not a reorder. Two of those words carry
+real cost: `docx`/`pptx` would abandon the verbatim tokens the description
+already uses (`Word`/`PowerPoint`), for no gain since the two pairs name the
+same programs; and `structured` is the exact word Candidate J.6 flagged as
+the one addition that meaningfully closes the gap between the description
+and prompt 10 ("summarize this PDF research paper"), on a candidate that was
+then **vetoed**. Rule 1 says move words, don't invent them, and the sketch's
+own risk claim is "scope does NOT widen here - the same claims in a
+different order." Importing `structured` would falsify that claim while
+claiming to satisfy it. I used the description's own existing words instead
+and got a smaller edit with no new risk surface.
+
+### L.2 The coupling break the brief asked me to name - and it is worse than a rename
+
+The brief frames this as "the marker must move with it. Say what the new
+marker should be." I checked that framing against
+`scripts/tests/test_description_coverage.py`'s actual code before answering,
+and **a renamed marker string is not sufficient - the mechanism itself
+cannot survive this reorder unmodified.**
+
+The test's constructor is one line: `cut = raw.find(NEGATIVE_SCOPE_MARKER);
+self.positive = raw[:cut]`. Positive region is *everything before the first
+occurrence of the marker*, full stop. That design is fine as long as all
+deferral/exclusion language sits after the noun list. Candidate L moves
+deferral language - including the literal words `Word` and `PowerPoint` -
+**before** the noun list. `Word`/`PowerPoint` are not neutral text here:
+`doctypes.csv` row `slide-deck-projection` carries `powerpoint` as a
+Keywords entry, which is exactly the false-credit path
+`test_description_coverage.py`'s own file header already warns about
+("crediting slide-deck-projection from [PowerPoint] would score the skill
+as covered by the very sentence that silences it").
+
+I checked both fixes a reader would try first, empirically, not by
+inspection:
+
+1. **Just rename the marker string** (`"...above"` -> `"...below"`).
+   Because the moved sentence now sits at index 0, `raw.find()` returns 0,
+   so `positive = raw[:0]` is the **empty string**. Every doctype with a
+   Structure Key becomes unreachable. Confirmed by running the real test
+   against this exact patch: `2 failed, 4 passed` -
+   `test_every_structured_doctype_is_reachable` and
+   `test_generic_covered_parents_are_still_present` both fail, listing all
+   thirty doctypes as unreachable. This is not a hypothetical - it is the
+   literal, obvious fix a reviewer would apply from the brief's own
+   wording, and it silently(-ish; the test does fail, just for the wrong
+   reason) breaks everything.
+2. **Leave the marker where it is, at the tail** (e.g. rename it to `"Not
+   for web or app UI/UX design"`, since H's sentence no longer sits there).
+   This fixes the doctype-unreachable failure, but `Word`/`PowerPoint` are
+   now inside `raw[:cut]` again - because they precede *any* marker placed
+   later in the string, no matter what that marker says. This is the exact
+   defect the test's own comment names, just moved from theoretical to
+   real: `slide-deck-projection` would score covered by the sentence that
+   silences it.
+
+**No single marker string fixes this, because the design has one cut point
+and this reorder needs two.** The concrete fix - which I wrote and verified
+passes all six tests - is a second constant:
+
+```python
+NEGATIVE_HEAD_MARKER = "Creating any document type below is still this skill's job even as Word or PowerPoint; defer to that format's own skill only when the user names it for a plain conversion or edit with no design ask."
+NEGATIVE_SCOPE_MARKER = "Not for web or app UI/UX design"
+```
+
+with the constructor changed from `cut = raw.find(NEGATIVE_SCOPE_MARKER);
+self.positive = raw[:cut]` to finding `NEGATIVE_HEAD_MARKER` first, taking
+`head_start` as the character after it, then finding
+`NEGATIVE_SCOPE_MARKER` starting from `head_start`, and setting
+`self.positive = raw[head_start:cut]`. Verified with
+`research/38-verify-candidate-l.py`: unpatched fails (6 errors, marker not
+found - loud, not silent), naively renamed fails differently (2 failed, 4
+passed, as above), two-marker patch passes (6 passed). **This is a code
+change to the test file, not a string edit inside it** - the brief's ask
+("say what the new marker should be") does not have a one-string answer for
+this particular reorder.
+
+### L.3 references/activation.md
+
+Per the existing `test_description_mirror.py` (byte-for-byte check, added
+since Candidate I's draft, per this brief), the fenced block under `##
+The description as shipped` must become the exact L.1 string above, on one
+line, no reflowing. No other change needed there - the mirror test doesn't
+know or care about `test_description_coverage.py`'s internals.
+
+### L.4 Risk to prompts 8, 9, 10
+
+The brief states "scope does NOT widen here - the same claims in a different
+order." For the *model-facing* description (not the test), that claim
+holds: no token is added or removed, only relocated, so a coverage-style,
+keyword-presence argument gives no new reason for prompts 8, 9 or 10 to
+fire.
+
+- **Prompt 8 (Python refactor) - unaffected.** No document noun in play
+  regardless of order.
+- **Prompt 9 (marketing strategy) - unaffected.** Same reasoning as every
+  prior candidate: `proposal` is present either way; `strategy` matches
+  nothing.
+- **Prompt 10 ("summarize this PDF research paper") - unaffected by the
+  reorder itself, and this is worth stating precisely.** The words that
+  could plausibly move this prompt (`structured`, an "asks for... to be
+  structured" framing) belong to the vetoed J sketch, not to L. L only
+  relocates existing text; nothing in the relocated text overlaps
+  "summarize" or "PDF" or "research paper" any more than it already did at
+  the tail. I see no mechanism by which *reordering* changes this prompt's
+  outcome, positively or negatively.
+
+**Does leading with the priority claim risk something outside the named
+three?** One thing, and it cuts against the brief's own goal, not toward it.
+The new sentence 1 is entirely about the Word/PowerPoint boundary case - it
+says nothing about CVs, letters, reports, or any of the document nouns that
+make up the actual majority of this skill's traffic. Every prompt that
+*doesn't* mention a file format now meets, as the very first idea in the
+description, a sentence about a case that doesn't apply to it, before ever
+reaching the noun list that would tell it "this is relevant to what I'm
+being asked." Whether that helps or hurts salience for the *unrelated*
+majority of prompts is exactly the kind of platform-rendering-order question
+I can't test from here (see L.5) - it's a real, named uncertainty, not a
+confirmed regression.
+
+### L.5 The judgement the brief asked for: does reordering fix the salience problem this brief opens with?
+
+**Partially, and the gap is visible in the brief's own evidence.** The two
+quoted failures are not the same failure:
+
+- **FR letter** is squarely what H's sentence (now first) addresses: Claude
+  explicitly reached for "the docx skill" and reasoned about this skill's
+  deferral condition after the fact. A sentence about Word/PowerPoint
+  priority, read *before* the model commits to a tool, is exactly the kind
+  of fix this failure calls for. Leading with it is a defensible, evidence-
+  backed change for this half.
+- **FR report** is not about docx or pptx at all. Claude's own account:
+  "I considered the general file-creation guidance... I treated this as a
+  short internal markdown summary." No named skill competed here - the
+  competing default was writing plain markdown natively, which is precisely
+  the failure mode Candidate J's (vetoed) "whether the answer is a chat
+  reply or a file" clause targeted, not anything H's sentence says. Moving
+  H's sentence to the front changes nothing about a model that never
+  considered Word or PowerPoint in the first place, because the sentence's
+  entire content is scoped to that comparison.
+
+So: **reordering can fix the half of this brief's own evidence that is
+about competing with docx/pptx. It cannot reach the half that is about
+competing with no-tool-at-all, chat-native markdown**, because that
+half's fix was vetoed and nothing in L restores it. If both failure modes
+matter equally, L is a half-fix by construction, not by execution error -
+no reordering of *this* sentence reaches the other half; only a sentence
+that addresses "the answer might be a chat reply" would, and that is J's
+territory, already declined.
+
+### L.6 Verdict
+
+**Ship the reorder in L.1 only together with the L.2 code change to
+`test_description_coverage.py`.** The description edit alone is inert
+without it - not "slightly worse tested," but actively breaks the test in
+one of two ways depending which obvious fix a reviewer reaches for first,
+one of which (the tail-marker rename) reintroduces the exact false-credit
+bug the test exists to prevent, silently, since that variant reports green
+right up until `test_generic_covered_parents_are_still_present`-style drift
+is checked by hand. Do not ship the string change and leave the marker
+question for later.
+
+Confidence: **high** on every measured count and both test outcomes -
+computed and reproduced end-to-end by `research/38-verify-candidate-l.py`,
+which runs the real test file against three patched copies of the skill
+tree, not a simulation of it. **High** that L addresses the FR-letter half
+of the brief's evidence. **High**, on the model's own words, that it does
+not address the FR-report half - that gap is stated by the brief's own
+quoted transcript, not inferred.
