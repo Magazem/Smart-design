@@ -1,59 +1,62 @@
-# BRIEF — Mechanism — v0.2: make the degradation message honest again
+# BRIEF — Mechanism — Candidate H: is the deferral sentence over-reaching?
 
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
-DO NOT touch git. DO NOT change any threshold, weight or constant in the resolver. If you find
-yourself wanting to, stop and tell me instead — that is a standing rule in this project.
+READ-ONLY TASK. Do not edit SKILL.md. Do not edit any script. Do not touch git.
+The ONLY file you write is research/38-description-candidate.md, appending a section.
 
-## Why
-Every one of the 17 structure rows now carries a Section Order (commit aec56f4, gate zero at
-414 rows). The "no section-order guidance" path and the comment that justifies it were both
-written when 15 of 17 rows were empty by ruling. The behaviour is still right; the reasoning
-attached to it is now false, and there is no longer any row in shipping data that exercises it.
+## Why — a hypothesis worth testing before the re-run, not after
+The user ran the v0.2 acceptance prompts. The skill fired on NONE. Claude explained itself:
 
-## The code
-skill/document-design-intelligence/scripts/resolve.py, `_field_value`, docstring at line 528:
+    "I was doing a clean Word file as per the request, no need for design skills."
 
-    most structure rows ship empty on purpose (headings.csv only holds CV
-    sections; the rest is deferred)
+NONE of those prompts names Word, .docx, PowerPoint or any file format. Read prompt 1 in
+research/44-v02-acceptance.md and confirm that yourself before going further — if I am wrong
+about that, say so and stop.
 
-Both halves of that parenthesis are now untrue.
+So where did "Word file" come from? The leading hypothesis: our own deferral sentence is being
+read as "any office document belongs to the built-in docx/pptx skills". If that is what is
+happening, then candidate G — which adds the missing nouns — is NECESSARY BUT NOT SUFFICIENT,
+and it will be blamed unfairly when the re-run still fails.
 
-## Deliverable (ONE)
-1. Rewrite that docstring to state what is actually true: an empty group-FK list column is
-   expected data rather than a broken reference, and the function names the gap instead of
-   printing nothing. Drop the claim about CV sections and deferral. Keep the ruling citation.
-2. Keep the BEHAVIOUR unchanged. The message must still fire when a group-FK list column is
-   genuinely empty. Do not delete the path because nothing currently triggers it — it is the
-   safety net for the next table that ships a blank.
-3. ADD A TEST that proves the path still works, using a SYNTHETIC row with an empty Section
-   Order. No row in data/base has one any more, so the test must construct its own fixture
-   rather than rely on shipping data. Follow the existing fixture pattern under
-   scripts/tests/fixtures/. Assert the exact message text.
-4. Add a second test asserting that a POPULATED Section Order returns the real value and NOT
-   the guidance message. That is the regression the first test cannot catch alone.
+## The sentence
+In skill/document-design-intelligence/SKILL.md's frontmatter description:
 
-## Then re-run the 12-query set
-research/35-resolve-live.md holds a 12-query table (E1-E4, F1-F4, D1-D4) with the verdicts from
-before the section data existed. Every query that reached the FK walk ended in REFUSED PATH,
-because structures had no section orders. That should now be gone.
+    When a specific file format (Word, PowerPoint, .docx, .pptx) is named for a plain
+    conversion or edit with no design ask, use that format's own skill instead.
 
-Re-run all 12 exactly as written there and record the results in research/43-resolve-live-v2.md
-as the same table shape, with a column for what changed since. State plainly:
-- how many now produce a full RESOLVED payload end to end;
-- whether E3 ("make me a flyer") and D3 ("erstelle eine präsentation") still resolve confidently
-  instead of abstaining. Both were known FAILs. Do NOT fix them — they are backlog, and the
-  fix is length normalisation which needs real query data. Just report the current state.
-- F1's brand pass is still untestable without a brand overlay. Say so rather than inventing a
-  verdict.
+Its history is in references/activation.md and research/24-builtin-alignment.md item 1: it was
+added to align with Anthropic's own docx and pptx skills, which each carry a clause deferring to
+a dedicated document skill. It exists for a real reason. Activation prompts 11 and 13 test it,
+and both PASS today. Do not propose throwing it away.
 
-## Verify
-1. `python3 -m pytest scripts -q` from skill/document-design-intelligence. Baseline is 138
-   passed plus 8 subtests; expect 140 with your two new tests.
-2. `python3 scripts/validate_data.py data/base` — still `OK: validated 14 table(s), 414 row(s)`.
-3. No constant in resolve.py changed. Confirm with a diff and say so explicitly.
+## Deliverable (ONE) — research/38-description-candidate.md, appended as "Candidate H"
+Do NOT overwrite candidates B, F or G. F is applied and live. G is drafted and with the user now.
+
+1. QUOTE the sentence exactly as it ships.
+2. List EVERY phrase in it a model could read as "office documents are not this skill's job".
+   Be specific about which words carry the over-reach — naming the four formats first, the bare
+   "use that format's own skill instead", whatever you find. This analysis is the real value of
+   the brief; the sentence is only worth replacing if you can say precisely what goes wrong.
+3. Draft ONE replacement sentence that:
+   - KEEPS the plain-conversion carve-out. "Convert this .docx to PDF, change nothing" must
+     still defer. That is activation prompt 13 and it passes today.
+   - States POSITIVELY that creating or designing any of the listed document types is THIS
+     skill's job, even when the output happens to be Word or PowerPoint.
+4. MEASURE it. G leaves 24 characters of headroom under the 1023 cap. If H does not fit
+   alongside G, say exactly what in G you would trade for it and why that trade is right. Do
+   not quietly assume G shrinks.
+5. Say which of activation prompts 11, 12 and 13 your sentence puts at risk, and how a reader
+   would tell if it broke them. 11 and 13 must still defer; 12 must still fire.
+
+## The judgement I actually want
+If, having read the sentence closely, you conclude it is NOT the cause and the "Word file"
+explanation came from somewhere else, SAY SO and say what you think the real cause is. A
+well-argued "this hypothesis is wrong" is a better outcome than a sentence nobody needed. Do
+not manufacture a candidate to fill the brief.
 
 Python: C:\Users\ysuliman\AppData\Local\Microsoft\WindowsApps\python3.exe
 
 ## Report
-Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 10 lines: the new docstring,
-the two test names, the 12-query tally with the E3/D3 status, and the confirmation from verify 3.
+Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 10 lines: your verdict on
+the hypothesis, the offending phrases, the replacement sentence, its measured length against
+G's headroom, and the prompt-11/12/13 risk.

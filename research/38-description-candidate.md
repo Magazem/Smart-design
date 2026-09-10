@@ -615,3 +615,197 @@ Three conditions on that recommendation:
 Confidence: high on the table and the measurements, which are computed and
 reproducible; moderate on the loanword language credits in G.1; low on whether
 G alone makes prompts 1-5 pass, for the reason in G.8.
+
+---
+
+## Candidate H - is the deferral sentence over-reaching?
+
+Status: PROPOSAL ONLY. SKILL.md was not touched. READ-ONLY analysis.
+
+### H.0 The hypothesis, checked first
+
+Confirmed against `research/44-v02-acceptance.md` prompt 1 (the German
+invoice request, "Kannst du mir daraus eine ordentliche Rechnung machen?"):
+it names no file format, no ".docx", no "Word", no "PowerPoint" anywhere in
+its text. The same holds for prompts 2-5 (French letter, English memo,
+German form, English proposal) - none of the fifteen v0.2 prompts names a
+file format. If the skill fired on none of them and Claude's own stated
+reason was "I was doing a clean Word file as per the request," that reason
+cannot be a correct reading of any of these five prompts' actual words. The
+hypothesis is **CONFIRMED as stated**: something is producing a "Word file"
+belief that the prompts themselves do not support, and the deferral
+sentence is the only part of `SKILL.md` that mentions "Word" at all.
+
+### H.1 The sentence, quoted exactly as it ships
+
+```
+When a specific file format (Word, PowerPoint, .docx, .pptx) is named for a
+plain conversion or edit with no design ask, use that format's own skill
+instead.
+```
+
+### H.2 Every phrase a model could read as over-reach
+
+Read close, in order, with the specific failure each one enables:
+
+1. **"is named" - passive, agentless.** The sentence never says *who* does
+   the naming. Grammatically the condition is satisfied by the format being
+   named by anyone, anywhere in the exchange - including the model's own
+   silent decision about what format it intends to produce. Nothing in the
+   text blocks the reading "a format is named [by me, the model, as my
+   output plan]" from satisfying "is named." This is the single most likely
+   mechanism behind "I was doing a clean Word file as per the request": the
+   request never named Word, but the model's own default assumption about
+   how to deliver a business document did, and the passive voice does not
+   distinguish the two.
+2. **"(Word, PowerPoint, .docx, .pptx)" as a bare parenthetical list.**
+   Stated with no framing other than "named," these four nouns are the only
+   place in the whole description where "Word" or "PowerPoint" appear. A
+   model that has already decided (for any reason) that its output will be
+   a Word-shaped document has a ready-made textual anchor to associate that
+   decision with this clause, purely by word-overlap, independent of
+   whether the *user* said "Word."
+3. **"for a plain conversion or edit with no design ask" - a squishy gate
+   that structural document families satisfy by default, not by
+   exception.** "Design ask" reads naturally as branding, color,
+   typography, or print-finish language. None of the fifteen v0.2 families'
+   prompts use that vocabulary - they ask for correct *structure*
+   (issuer-before-totals, agenda-after-cover, signature-before-date), which
+   this skill's actual v0.2 value-add is built entirely around. If "design
+   ask" is read at ordinary-language width, turning raw facts into "an
+   ordentliche Rechnung" or "a proper internal memo" scores as "no design
+   ask" - a plain edit - even though it is exactly the structural work this
+   skill exists to do. The gate does not distinguish "no design ask" from
+   "no design ask *because this family's design work is structural, not
+   decorative*."
+4. **"use that format's own skill instead" - "instead" as total
+   replacement, not "instead as renderer."** Elsewhere in `SKILL.md` (the
+   Workflow section, `references/activation.md` prompt 12) `.docx`/`.pptx`
+   are explicitly *renderers this skill calls*, not competitors for the
+   whole request. This sentence is the only place that frames the
+   relationship as full substitution ("instead"), which - combined with
+   item 1's agentless "is named" - is what lets a model conclude "the
+   output is Word-shaped, so the *entire task*, not just rendering, belongs
+   to the other skill."
+
+Items 1 and 3, compounding, are the load-bearing defect: item 1 lets the
+model's own rendering default silently satisfy "named," and item 3 lets a
+purely structural request silently satisfy "no design ask." Neither
+requires the user to have said "Word" or "PowerPoint" at all, which is
+exactly what prompts 1-5 demonstrate.
+
+### H.3 Replacement sentence
+
+```
+Creating any document type above is still this skill's job even as Word or
+PowerPoint; defer to that format's own skill only when the user names it
+for a plain conversion or edit with no design ask.
+```
+
+- **Fixes item 1** by making the agent of naming explicit ("the user
+  names it," not "is named") - the model's own choice of output format no
+  longer has any textual claim to satisfying the condition.
+- **Fixes item 3's blast radius, not its wording**, by leading with an
+  unconditional positive claim ("creating any document type above is still
+  this skill's job") that the deferral clause must now override rather
+  than default past. A model no longer reaches "no design ask, so this
+  isn't mine" as the path of least resistance - it has to affirmatively
+  clear the "user names it" bar first.
+- **Keeps the plain-conversion carve-out intact and unweakened.** "Plain
+  conversion or edit with no design ask" survives verbatim from the
+  original, so prompt 13 ("Just convert this .docx file to a PDF, don't
+  change anything") is untouched: format named, plain conversion, no
+  design ask, no restructuring - defers exactly as before.
+- **Does not weaken item 4** ("instead") by itself - I judged item 4 lower
+  priority than 1 and 3 (see H.2) and left "own skill" out of scope for
+  this edit to keep the sentence's growth small; if a future review wants
+  to also state that the deferral is for rendering specifically, that is a
+  separate, additive change, not required to fix prompts 1-5.
+
+### H.4 Measured length, against G's headroom
+
+```
+orig  (shipping today): 157 characters
+H (replacement)        : 198 characters
+delta                  : +41 characters
+```
+
+Computed with Python `len()`, not by eye.
+
+- **Against F alone (831, live today, G not yet applied):** F+H = 872
+  characters. Headroom under the 1,023 cap: **151 characters.** Fits
+  cleanly with no trade needed if G is never applied.
+- **Against G (999, drafted, not applied, 24 characters of headroom):**
+  G+H = 1,040 characters - **17 characters over the cap.** H does **not**
+  fit alongside G as G is currently drafted. Per the brief, here is the
+  exact trade, not an assumption that G shrinks on its own:
+
+  **Cut G's insertion 2 in full** - the 76-character trigger-phrase list
+  `, draft an invoice, write a memo, rédige une facture, erstelle eine
+  Rechnung` - and keep G's insertion 1 (the noun list: `invoice, memo,
+  proposal, one-pager, facture, devis, rapport, Rechnung, Formular,
+  Broschüre`) untouched.
+
+  **Why this is the right item to cut, not an arbitrary one:** G's own
+  matching methodology (G.1, rule 4 - "a keyword scores `own` only when it
+  equals a whole comma- or semicolon-delimited item") already credits
+  `invoice`, `memo`, `Rechnung`, and `Formular` as `own`-matching the
+  moment they appear as bare comma-delimited items in the noun list. The
+  trigger phrases in insertion 2 restate those same nouns inside longer
+  utterances (`draft an invoice` still contains the whole item `invoice`;
+  `erstelle eine Rechnung` still contains `Rechnung`) - by G's own rules
+  they add no doctype that the noun list alone does not already cover.
+  Checked directly: recomputing G's gap table (G.2) with insertion 2
+  removed changes no cell. This is the one 76-character block in G that is
+  reinforcement, not coverage, which makes it the correct thing to trade
+  for H's 17-character shortfall rather than cutting into insertion 1,
+  where every noun (including `Rechnung` and `Formular`, which are the
+  exact nouns prompts 1 and 4 of the v0.2 set need) is load-bearing.
+
+  Result: G (minus insertion 2, 923 characters) + H = **964 characters,
+  59 characters of headroom.** Verified with `len()` against the exact
+  resulting string, not estimated.
+
+### H.5 Risk to activation prompts 11, 12, 13
+
+- **Prompt 11 ("Turn my rough notes into a Word document.") - the one
+  genuine new risk, MODERATE.** Walking the sentence: the user's own words
+  name "Word document" (clears H's tightened bar), it is a plain edit of
+  notes into a document, and no design language appears - so the "only
+  when" exception still holds and the sentence still says to defer.
+  Outcome should be unchanged. The risk is not in the logic, it is in
+  emphasis: H opens with an unconditional affirmative claim ("creating any
+  document type above is still this skill's job") in the same sentence a
+  model is now reading for a memo-shaped request. A reader would know this
+  broke if the model's response shows DDI resolving structure or asking a
+  clarifying design question for prompt 11 instead of staying silent while
+  `docx` responds - that is the regression signal, not a changed final
+  file format.
+- **Prompt 12 ("two-page CV, make it look professional...") - unaffected,
+  slightly reinforced.** No format is named, so the exception clause never
+  engages regardless of wording; the new leading positive claim only makes
+  the "this is ours" reading more explicit. No new risk.
+- **Prompt 13 (".docx to PDF, don't change anything") - unaffected, LOW.**
+  Not a "creating" case (it edits an existing artifact, not one of the
+  document types above), format is named, plain conversion, explicit
+  no-change instruction. A reader would know this broke only if DDI
+  produced any layout/design reasoning at all for a bare format-conversion
+  request with an attachment - the same signal as before H.
+
+### H.6 Verdict
+
+Apply H. It targets the actual mechanism (an agentless "is named" plus a
+loosely-scoped "no design ask" that structural, non-decorative requests
+satisfy by default) rather than the trigger-noun gap G already addresses -
+the two are complementary, not competing: G makes the model recognize the
+words describing these document families; H stops the model from silently
+exempting them once recognized. Confidence: high that prompts 1-5's
+literal text supports the hypothesis (checked directly against
+`research/44-v02-acceptance.md`); moderate that H alone, without G, is
+sufficient to make 1-5 fire, since G still supplies nouns (`Rechnung`,
+`Formular`, `invoice`, `memo`, `proposal`, `one-pager`) that are absent
+from the description today and that the model must first recognize before
+H's fixed deferral logic can even be consulted. **Recommendation: apply
+both, with the insertion-2 trade in H.4 if character budget forces a
+choice.** Re-run prompts 1-5 and 11 first, since 11 is H's only named risk
+and 1-5 are the prompts both candidates jointly target.
