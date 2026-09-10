@@ -439,6 +439,35 @@ DDR rather than forced into a section list. Not v0.2.
   from research/09-library-schema.md Revision 4, which does not describe it either.
 - Heading variants for non-CV families.
 
+## STANDING RULE, ruled 2026-09-10: widen the description in the SAME release that adds families
+WHEN A RELEASE ADDS DOCUMENT FAMILIES, THE DESCRIPTION'S NOUN LIST MUST BE WIDENED IN THE SAME
+RELEASE, AND THE COVERAGE MUST BE CHECKED PROGRAMMATICALLY, PER LANGUAGE.
+
+Origin: v0.2 added section guidance for 15 families and shipped a description that never
+mentioned them. The user ran acceptance prompts 1-5 and the skill fired on NONE. Claude's own
+explanation: "I was doing a clean Word file as per the request, no need for design skills." It
+was right -- the description gave it no reason to fire.
+
+Measured by me on 2026-09-10: 8 of the 30 doctypes have NO Keywords token appearing anywhere in
+the description -- cv-eu-europass, cv-academic, brochure-gatefold, report-long-toc,
+slide-deck-handout, one-pager, infographic, invoice-tabular. The words "invoice", "facture",
+"rechnung", "memo", "proposal", "one-pager" and "devis" are all absent.
+
+The per-language part matters: memo-internal is reachable through "note interne" in French and
+INVISIBLE in English and German. A single-language check would have called it covered.
+
+The description is the ONLY activation lever. Data can be perfect and unreachable.
+
+## SECOND DEFECT, same blocker: an acceptance prompt must not answer its own question
+All 15 v0.2 prompts pre-labelled their sections -- "Rechnungssteller:", "To:", "From:",
+"Cover:", "Executive summary:". The structure under test was supplied IN the request, so the
+task collapsed to transcription and the docx skill correctly took it.
+
+This is the SAME CLASS as the v0.1.0 round, where four of five failures were prompts referencing
+content that was never attached. Both times the test proved nothing and looked like a product
+failure. The rule now lives in research/44-v02-acceptance.md's header:
+  An acceptance prompt must not pre-supply the structure it is testing.
+
 ## STANDING RULE, ruled 2026-09-09: draft in the loader's shape, verified against the loader
 ANY new data draft MUST be authored in the EXACT shape research/load-base.py reads, and the
 sub-manager MUST check load-base.py BEFORE writing the brief. Do not infer the shape from

@@ -1,67 +1,61 @@
-# BRIEF — Coverage — v0.2 phase B2: the truth pass
+# BRIEF — Coverage — v0.2 blocker: the description noun gap
 
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
-DO NOT touch git. DO NOT run git stash — that is what wiped your first B1 pass.
+DO NOT touch git. DO NOT edit SKILL.md. Draft only — the user vetoes description changes.
 
 ## Why
-B1 changed the numbers. Several comments and generated strings now describe the world as it was
-before the load. Every one of them reads as authoritative and is now false. This brief makes
-them true. No behaviour changes.
+The user ran v0.2 acceptance prompts 1-5 and the skill fired on NONE. Claude's own explanation:
+"I was doing a clean Word file as per the request, no need for design skills."
 
-## Deliverable (ONE — seven edits, all in research/load-base.py unless stated)
+There are two defects. The other one (the prompts pre-supply their own structure) is DDR's, in
+parallel. Yours is the description. v0.2 added section guidance for 15 families but nobody
+widened the trigger noun list, so Claude had no reason to fire on an invoice or a memo.
 
-1. **The rationale/headings.md generator prose, line ~467.** It hardcodes the literal string
-   `convention (not in report 03)` and claims that distinction "governs every row". With 49
-   citation groups over 204 rows that is false. Rewrite the paragraph so it describes the real
-   shape: the CV rows split sourced-versus-convention against report 03; the transactional,
-   long-form and marketing rows carry their own citations. Compute any number you state.
-   Do NOT hand-edit data/rationale/headings.md itself — it is generated, and it says so.
+I have already confirmed the gap is real, so do not spend the brief re-proving it exists:
+8 of the 30 doctypes have NO keyword token appearing anywhere in the description at all —
+cv-eu-europass, cv-academic, brochure-gatefold, report-long-toc, slide-deck-handout, one-pager,
+infographic, invoice-tabular. And "invoice", "facture", "rechnung", "memo", "proposal",
+"one-pager", "devis" are all absent. My check was crude substring matching in English only.
+Yours must be better.
 
-2. **The T10 CHANGES string, line ~621.** It still justifies blanks with "by ruling --
-   headings.csv covers CV sections only". There are no blanks now. Say what is true: all 17
-   rows carry a section order, fifteen loaded from the phase A drafts.
+## Deliverable (ONE — two parts, one file)
 
-3. **The comment block above the T10 loader, around line 595.** It asserts Section Order is
-   empty on 15 of 17 rows BY RULING and points at research/36-notes.md. Rewrite it to record
-   what the column IS — a group-FK list into headings.canonical_section — and that it is now
-   fully populated. Keep the warning that only this loader may write data/base.
+### Part A: the gap table
+For EACH of the 30 doctypes in data/base/doctypes.csv, determine whether the description gives
+Claude any reason to fire on it, PER LANGUAGE (en, fr, de). Match on the doctype's Keywords
+tokens and its Display Name. Do it properly:
+- token-level, not naive substring — "brief" must not count as a hit inside "briefing"
+- report per language, because a family can be covered in French and invisible in German.
+  memo-internal is exactly this case: "note interne" is in the description, "memo" is not.
+State your matching rule in the file. A table that overstates coverage is worse than none.
 
-4. **The reuse rule, into the headings.md generator paragraph.** Add it so it is REGENERATED
-   each load rather than hand-typed. The rule: never reuse a canonical_section across document
-   classes when its FR or DE primary heading text reads as a word from the other class; check
-   the actual heading text in all three languages, not just the English name. Give the three
-   worked examples:
-   - `summary` refused for a proposal's executive summary; its FR/DE primary is "Profil", a CV
-     word. `executive-summary` authored instead.
-   - `references` refused for a report's bibliography; the DE primary "Referenzen" reads as
-     testimonials. `bibliography` authored instead.
-   - `proposed-solution` refused for a whitepaper over its commercial-bid flavour, then REUSED
-     for a pitch deck, where that flavour is correct. The rule cuts both ways.
+### Part B: Candidate G
+Draft the MINIMAL noun and trigger-phrase additions that close the gap for the 15 v0.2 families,
+in all three languages. Append to the existing noun list and trigger list rather than
+restructuring the description — F and B are already drafted against its current shape.
+The lead's examples: "draft an invoice", "write a memo", "erstelle eine Rechnung",
+"rédige une facture".
 
-5. **data/schema-manifest-NOTES.md section 1.4** documents every manifest key and does not
-   mention `distinct_token_columns`, which you added. Document it: what it declares, why it is
-   opt-in per column rather than derived from list_columns, and that page-formats."Panels mm" is
-   deliberately exempt because repeated panel widths are correct.
+Append it to research/38-description-candidate.md as "Candidate G". DO NOT overwrite candidates
+B or F. B is permanently parked; F is APPLIED and live at 831 characters.
 
-6. **research/build-manifest.py's docstring** claims the manifest derives from
-   research/09-library-schema.md Revision 4, which does not describe `distinct_token_columns`.
-   Make the docstring honest about that key's provenance.
+Give, exactly as you did for F:
+1. The precise substrings to insert and where.
+2. The full resulting description on one line with its MEASURED length.
+3. Headroom under the cap. The cap is 1023 — the claude.ai UI enforces "under 1024".
+4. Whether G composes with B, should B ever be revived.
+5. Risk: which of the 13 activation prompts, especially the should-not-fire set 6-10 and the
+   docx handoff 11-13, does G endanger? G WIDENS the trigger, unlike F which narrowed it, so
+   this section is the important one. Say plainly if you think any addition is too broad.
 
-7. Re-run the loader afterwards and confirm the regenerated rationale/headings.md contains your
-   new prose and the reuse rule.
-
-## Verify — paste the actual output
-1. `python3 scripts/validate_data.py data/base` — must still be `OK: validated 14 table(s),
-   414 row(s)`, exit 0.
-2. `python3 -m pytest scripts -q` — 138 passed plus 8 subtests.
-3. The loader is idempotent: run it twice, and confirm the second run changes nothing.
-4. Confirm data/base/*.csv are byte-identical to before this brief. This brief must change
-   PROSE only. If a CSV moves, that is a finding — report it, do not tidy it.
-5. Grep the repo for the strings you removed. None of "81 rows", "covers CV sections only", or
-   "governs every row" should survive anywhere.
+## A judgement I want from you, not a fill-in
+If the honest answer is that the description cannot carry 15 families' nouns in 3 languages
+within the character budget, say so and tell me what you would drop. Do not silently pick the
+ones that fit. That is a finding, not a failure.
 
 Python: C:\Users\ysuliman\AppData\Local\Microsoft\WindowsApps\python3.exe
 
 ## Report
-Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 10 lines: each of the seven
-done or not, the gate line, the test tally, the idempotency result, and the grep from check 5.
+Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 10 lines: the gap table's
+headline numbers per language, the measured length of G, the headroom, your risk verdict, and
+whether everything fit.
