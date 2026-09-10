@@ -439,6 +439,41 @@ DDR rather than forced into a section list. Not v0.2.
   from research/09-library-schema.md Revision 4, which does not describe it either.
 - Heading variants for non-CV families.
 
+## STANDING RULE, 2026-09-10: "byte-identical" MEANS A BYTE COMPARISON
+I reported several times that the fenced "as shipped" block in references/activation.md was
+byte-identical to SKILL.md's description. It was not. It was line-WRAPPED, and my check folded
+whitespace before comparing -- `" ".join(block.split()) == description`. That is a weaker claim
+than the words I used, and nothing in the suite enforced it at all.
+
+From now on: if a report says byte-identical, it means the bytes were compared. If whitespace
+was folded, say "equal after whitespace folding". The fenced block is now genuinely one line and
+gets a real test in a follow-up brief.
+
+## THE TEST MARKER TRAP -- worth reading before touching the description again
+scripts/tests/test_description_coverage.py splits the description into a positive region and a
+negative one using a LITERAL string marker. Candidate H deleted the string that was serving as
+that marker. Left alone, `find` returns -1, the positive region silently becomes the WHOLE
+description, and the test passes forever while checking nothing.
+
+Coverage caught it, moved the marker to H's wording, and added a hard AssertionError if the
+marker is ever absent. I verified the guard by altering the phrase in SKILL.md: all six tests
+ERROR rather than pass. Any future description edit that touches the marker phrase must move the
+marker with it -- the guard will now stop you, loudly.
+
+## APPLIED 2026-09-10, commit f69c6a2: description is now 964 characters
+Candidates F, G and H are all live. B remains parked forever. The old deferral sentence
+("When a specific file format ... is named") NO LONGER EXISTS -- do not grep for it.
+
+FOLLOW-UP, ruled and not yet done, both AFTER the rebuild, one deliverable each:
+1. activation.md stale prose: it still says the description "grew from 667 to 964 with the
+   addition of the built-in-skill deferral sentence" (wrong cause now), and the paragraph below
+   argues .docx/.pptx stay out of the trigger list while describing a sentence that no longer
+   names them.
+2. A real test enforcing the fenced "as shipped" block against SKILL.md's description, by BYTE
+   comparison.
+Neither blocks the user's re-run: activation.md ships in the ZIP but does not affect firing.
+They go into a follow-up rebuild before the tag.
+
 ## THE PACKAGE AWAITING THE USER, as of 2026-09-10: G-minus-triggers + H = 964 chars
 Not G alone. G supplies the missing nouns; H stops the deferral sentence from handing those
 documents away. Applying G alone risks a re-run that still fails and unfairly blames G.
