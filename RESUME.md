@@ -669,6 +669,34 @@ Caught before phase B; A2 corrected mid-flight, research/39 retrofitted after.
 The same single-source shape applies elsewhere: T10 structures loads only from
 research/36-t10-structures-draft.csv.
 
+## STANDING RULE, after its SECOND occurrence: IF A FILE HAS A GENERATOR, EDIT THE GENERATOR
+First occurrence: data/rationale/headings.md, which says "do not hand-edit" on its own second
+line and is written by load-base.py.
+SECOND occurrence, 2026-09-10: `display_columns` was added BY HAND to
+data/schema-manifest.json, which is written by research/build-manifest.py. I ran the generator
+from the skill directory and the key was WIPED. The page-flow render handoff would have stopped
+working silently at the next regeneration, with no test failing.
+
+THE MANIFEST IS THE DANGEROUS ONE because it looks like data. It sits in data/, it is JSON, and
+nothing in the file says it is generated. Before editing ANY file under data/, check whether
+something writes it: `grep -rn "<filename>" research/*.py`.
+
+Generated files known so far: data/schema-manifest.json (build-manifest.py); data/base/*.csv and
+data/rationale/*.md (load-base.py). The generator must be run FROM the skill directory -- it
+writes a relative path and fails silently-ish from the repo root.
+
+## THE DOCX HANDOFF BLOCK HAS BEEN EMPTY SINCE v0.1.0 (found 2026-09-10)
+Running `resolve.py --doctype report-long-toc --json` into `ddi.py handoff --format docx` on
+PRODUCTION data gives:
+    page / TOC heading levels / characterSpacing / palette -> "(not present in this resolution)"
+    fonts -> blank;  font sizes -> ": pt  ->  None half-points"
+    page flow -> correct (added 2026-09-10)
+The handoff block is WHAT THE DOCX SKILL IS HANDED. It is the only path by which any resolved
+decision reaches a rendered file. It has shipped with no page size, no fonts and no palette.
+
+Ruled a v0.2 BLOCKER. RELEASE-NOTES v0.2.0 "Fixed" must carry one honest line saying v0.1.0's
+docx handoff shipped without page, font or palette values. Bind that into the Packaging brief.
+
 ## GENERATED FILES -- do not hand-edit, change the generator
 data/rationale/headings.md, cv-regions.md and doc-reasoning.md are WRITTEN BY load-base.py.
 headings.md says so on its own second line. A paragraph typed into any of them is destroyed by
