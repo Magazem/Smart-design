@@ -439,6 +439,26 @@ DDR rather than forced into a section list. Not v0.2.
   from research/09-library-schema.md Revision 4, which does not describe it either.
 - Heading variants for non-CV families.
 
+## RULING K PAGE-FLOW RULES SHIP AS CONVENTION, NOT SOURCED -- say so in the release notes
+The ruling that commissioned these rows named Bringhurst, Butterick and DIN 5008. DDR grepped
+this library's own citations before authoring and found: Bringhurst is cited repeatedly but ONLY
+for measure and leading, never pagination; Butterick and DIN 5008 are cited NOWHERE in this
+library at all. It tagged all five rows CONVENTION rather than borrow an authority it could not
+verify, and the lead confirmed the naming was a suggestion, not a citation.
+
+BINDING: the v0.2 release notes must state, IN THE SAME SENTENCE that announces the page-flow
+rules, that they ship as convention rather than sourced. Bind it into the Packaging brief for
+the tag. This project's whole discipline is keeping sourced and conventional apart; announcing
+these as if they were cited would spend that credibility for nothing.
+
+The one number, `min_lines_together=2`, is convention-by-ubiquity, flagged the same way the
+existing legal-text 8pt floor flags its own unsourced threshold.
+
+THREE SCOPES ARE DELIBERATELY EMPTY, not missing: `report-heading-keep-with-next` and
+`report-figure-caption-keep-together` carry their block type in Parameter via `applies_to_block`
+and `binds_to`, following the photocopy-safe precedent of putting roles in Parameter. Do not
+"fix" them.
+
 ## CLAUDE'S OWN ACCOUNT -- the decisive evidence, verbatim (2026-09-10)
 The user asked Claude, in the two FAILED French chats, which skills it considered.
 
