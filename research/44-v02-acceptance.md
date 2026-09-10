@@ -6,6 +6,11 @@ expected section order for each family is quoted verbatim from
 `skill/document-design-intelligence/data/base/structures.csv` (checked programmatically, see
 Verification below). A response is scored PASS/FAIL against the two lines given per prompt.
 
+**Rule: an acceptance prompt must not pre-supply the structure it is testing.** If the prompt
+names the sections, the model only has to transcribe them, and the test proves nothing. Every
+prompt below gives raw, unlabeled content plus a natural request for a document — never a list of
+field names or colon-prefixed labels the model can just copy into headings.
+
 General FAIL conditions that apply to all fifteen, not repeated per prompt:
 - Sections appear out of order, merged, or a section is dropped/added versus the expected order.
 - The model produces content with no visible structural/section reasoning.
@@ -20,17 +25,14 @@ section set for this family.
 
 ## 1. Invoice — `invoice-standard` (German)
 
-> Ich brauche eine Rechnung für unseren Kunden. Bitte alles sauber strukturieren.
->
-> Rechnungssteller: Nordlicht Werkzeugbau GmbH, Hafenstraße 12, 20457 Hamburg, USt-IdNr. DE123456789
-> Rechnungsempfänger: Baumann Maschinenbau AG, Industrieweg 4, 70565 Stuttgart
-> Rechnungsnummer: RE-2026-0447, Rechnungsdatum: 03.09.2026, Leistungsdatum: 28.08.2026
-> Positionen:
-> 1. CNC-Frässpindel, Modell FS-220, Menge 2, Einzelpreis 1.840,00 €, Gesamt 3.680,00 €
-> 2. Wartungsvertrag Q3 2026, Menge 1, Einzelpreis 650,00 €, Gesamt 650,00 €
-> 3. Expressversand, Menge 1, Einzelpreis 95,00 €, Gesamt 95,00 €
-> Zwischensumme: 4.425,00 €, USt (19 %): 840,75 €, Gesamtbetrag: 5.265,75 €
-> Zahlungsbedingungen: zahlbar innerhalb von 14 Tagen netto, Bankverbindung IBAN DE12 3456 7890 1234 5678 90
+> Kannst du mir daraus eine ordentliche Rechnung machen? Wir haben Baumann Maschinenbau AG aus
+> der Industrieweg 4, 70565 Stuttgart beliefert — zwei CNC-Frässpindeln Modell FS-220 zu je
+> 1.840,00 €, macht 3.680,00 €, dazu der Wartungsvertrag für Q3 2026 für 650,00 € und der
+> Expressversand für 95,00 €. Das Leistungsdatum war der 28.08.2026, gestellt wird das Ganze am
+> 03.09.2026 unter der Nummer RE-2026-0447 von uns, der Nordlicht Werkzeugbau GmbH, Hafenstraße
+> 12, 20457 Hamburg, USt-IdNr. DE123456789. Die Zwischensumme liegt bei 4.425,00 €, die 19 % USt
+> kommen auf 840,75 €, macht zusammen 5.265,75 €. Zahlung bitte netto innerhalb von 14 Tagen auf
+> IBAN DE12 3456 7890 1234 5678 90.
 
 **Expected section order:** issuer → bill-to → invoice-details → line-items → totals → tax → payment-terms
 (German headings per the library: Rechnungssteller, Rechnungsempfänger, Rechnungsdetails, Positionen, Gesamtbetrag, Steuern, Zahlungsbedingungen)
@@ -42,17 +44,14 @@ section set for this family.
 
 ## 2. Letter — `letter-standard` (French)
 
-> Rédigez une lettre commerciale formelle. Voici le contenu :
->
-> Expéditeur : Élise Fontaine, Directrice des Achats, Atelier Rivoli SARL, 14 rue de Rivoli, 75004 Paris
-> Destinataire : M. Thomas Weber, Service Client, Solvex Distribution, 8 avenue Louise, 1050 Bruxelles
-> Date : 9 septembre 2026
-> Formule d'appel : Monsieur Weber,
-> Corps : Nous vous écrivons pour signaler un retard de livraison de trois semaines sur la commande
-> n° CMD-88213, passée le 2 août 2026. Ce retard perturbe notre planning de production. Nous vous
-> demandons de confirmer une nouvelle date de livraison sous 5 jours ouvrés, faute de quoi nous nous
-> réservons le droit d'annuler la commande sans frais.
-> Formule de politesse : Nous vous prions d'agréer, Monsieur Weber, l'expression de nos salutations distinguées.
+> Peux-tu rédiger une lettre commerciale bien formelle à partir de ça ? Ça vient de moi, Élise
+> Fontaine, directrice des achats chez Atelier Rivoli SARL, 14 rue de Rivoli, 75004 Paris, et on
+> est le 9 septembre 2026. Il faut l'envoyer à M. Thomas Weber, du service client de Solvex
+> Distribution, 8 avenue Louise, 1050 Bruxelles. En gros je veux lui signaler qu'on a un retard de
+> livraison de trois semaines sur la commande CMD-88213, passée le 2 août 2026, que ça perturbe
+> notre planning de production, et qu'on veut une nouvelle date de livraison confirmée sous 5
+> jours ouvrés, sinon on annule sans frais. Termine de façon polie, quelque chose comme "nous vous
+> prions d'agréer nos salutations distinguées".
 
 **Expected section order:** sender → recipient → date → salutation → body → closing
 (French headings: Expéditeur, Destinataire, Date, Formule d'appel, Corps du texte, Formule de politesse)
@@ -70,15 +69,12 @@ prompt 15's output wrong just because the orders match — they're supposed to.
 
 ## 3. Memo — `memo-standard` (English)
 
-> Write an internal memo with this content:
->
-> To: All Engineering Staff
-> From: Priya Nathan, VP Engineering
-> Date: September 9, 2026
-> Subject: Change to on-call rotation starting October 1
-> Body: Starting October 1, on-call shifts move from weekly to five-day rotations to reduce fatigue
-> reported in the last two retros. The new schedule will be published in PagerDuty by September 20.
-> Anyone with a scheduling conflict for the first rotation should message their team lead by September 15.
+> Can you turn this into a proper internal memo? It needs to go out to all of engineering, it's
+> from me, Priya Nathan, VP Engineering, dated September 9, 2026. Starting October 1 we're moving
+> on-call shifts from weekly to five-day rotations, because people have been reporting fatigue in
+> the last two retros. The new schedule goes up in PagerDuty by September 20. If anyone's got a
+> scheduling conflict for the first rotation they should message their team lead by September 15.
+> Give it a clear heading about the on-call change so people know what it's about at a glance.
 
 **Expected section order:** to → from → date → subject → body
 
@@ -89,15 +85,13 @@ prompt 15's output wrong just because the orders match — they're supposed to.
 
 ## 4. Form — `form-standard` (German)
 
-> Erstellen Sie ein Anmeldeformular mit folgendem Inhalt:
->
-> Formularkopf: Anmeldung zur Herbstkonferenz 2026 der Handwerkskammer Leipzig
-> Anweisungen: Bitte in Blockschrift ausfüllen und bis zum 20. September 2026 per E-Mail an
-> anmeldung@hwk-leipzig.de zurücksenden. Pro Person ist ein separates Formular auszufüllen.
-> Formularfelder: Vollständiger Name; Firma; Position; E-Mail-Adresse; Telefonnummer; Teilnahme am
-> Abendessen (Ja/Nein); Ernährungshinweise (freiwillig)
-> Unterschrift: Unterschrift des Antragstellers
-> Datum: Datum der Anmeldung
+> Mach mir daraus ein sauberes Anmeldeformular. Es geht um die Anmeldung zur Herbstkonferenz 2026
+> der Handwerkskammer Leipzig. Die Leute sollen es bitte in Blockschrift ausfüllen und bis zum
+> 20. September 2026 per E-Mail an anmeldung@hwk-leipzig.de zurückschicken, pro Person ein eigenes
+> Formular. Es braucht Felder für den vollständigen Namen, die Firma, die Position, die
+> E-Mail-Adresse, die Telefonnummer, ob man am Abendessen teilnimmt (ja/nein) und optional
+> Ernährungshinweise. Am Ende soll noch Platz für eine Unterschrift und das Datum der Anmeldung
+> sein.
 
 **Expected section order:** header → instructions → fields → signature → date
 (German headings: Formularkopf, Anweisungen, Formularfelder, Unterschrift, Datum)
@@ -109,20 +103,17 @@ prompt 15's output wrong just because the orders match — they're supposed to.
 
 ## 5. Proposal — `proposal-standard` (English)
 
-> Draft a business proposal using this content:
->
-> Cover: Proposal for Warehouse Inventory Automation — prepared for Caldwell Logistics by Arden Systems
-> Executive summary: Arden Systems proposes a barcode-and-RFID inventory system to cut Caldwell's
-> stock-count time by 60% within two quarters.
-> Problem statement: Caldwell currently reconciles inventory manually across three warehouses, causing
-> a 4% average stock discrepancy and monthly overtime costs.
-> Proposed solution: Deploy RFID tagging at receiving, handheld scanners for floor staff, and a
-> real-time dashboard integrated with Caldwell's existing WMS.
-> Scope of work: Site survey, hardware installation across 3 sites, staff training, 90-day hypercare.
-> Timeline: Site survey (Weeks 1-2), installation (Weeks 3-6), training (Weeks 7-8), hypercare (Weeks 9-20).
-> Pricing: $184,000 fixed fee, payable in three milestones.
-> Terms: Net 30, 12-month hardware warranty, cancellation clause after milestone 1.
-> Closing: We look forward to partnering with Caldwell Logistics on this project.
+> Could you put this together as a proper business proposal? We're Arden Systems and we want to
+> pitch Caldwell Logistics on a barcode-and-RFID inventory system that should cut their
+> stock-count time by 60% within two quarters. Right now they're reconciling inventory by hand
+> across three warehouses, which is causing about a 4% average stock discrepancy and racking up
+> overtime costs every month. Our plan is to deploy RFID tagging at receiving, hand scanners for
+> the floor staff, and a real-time dashboard hooked into their existing WMS — a site survey in
+> weeks 1-2, installation across all three sites in weeks 3-6, training in weeks 7-8, then 90 days
+> of hypercare running through week 20. We're pricing it at $184,000 fixed fee split across three
+> milestones, net 30, with a 12-month hardware warranty and a cancellation clause after the first
+> milestone. Wrap it up saying we're looking forward to partnering with them, and give it a title
+> page naming the project and both companies.
 
 **Expected section order:** cover → executive-summary → problem-statement → proposed-solution → scope-of-work → timeline → pricing → terms → closing
 
@@ -133,18 +124,15 @@ prompt 15's output wrong just because the orders match — they're supposed to.
 
 ## 6. Report (short) — `report-short` (French)
 
-> Rédigez un rapport court avec ce contenu :
->
-> Résumé exécutif : Le programme pilote de covoiturage d'entreprise a réduit les trajets en voiture
-> individuelle de 22 % sur trois mois.
-> Introduction : Ce rapport évalue le programme pilote lancé le 1er juin 2026 auprès de 140 employés
-> volontaires du site de Lyon.
-> Résultats : Taux d'adoption de 61 % parmi les inscrits ; économie moyenne de 38 € par mois et par
-> participant ; réduction de 14 tonnes de CO2 sur la période.
-> Conclusion : Le pilote confirme la viabilité du covoiturage à grande échelle sur ce site.
-> Recommandations : Étendre le programme aux sites de Marseille et Toulouse au T1 2027 ; ajouter une
-> prime d'incitation de 20 € pour les nouveaux inscrits.
-> Bibliographie : Données internes RH, juin-août 2026 ; enquête de satisfaction interne, août 2026.
+> Tu peux en faire un rapport court, bien structuré ? On a lancé le 1er juin 2026 un programme
+> pilote de covoiturage d'entreprise auprès de 140 employés volontaires sur le site de Lyon, et ce
+> rapport doit évaluer comment ça s'est passé. Le taux d'adoption chez les inscrits est de 61 %,
+> l'économie moyenne par participant est de 38 € par mois, et on a réduit les émissions de 14
+> tonnes de CO2 sur la période. Au global les trajets en voiture individuelle ont baissé de 22 %
+> sur trois mois. Ça confirme que le covoiturage est viable à plus grande échelle sur ce site, donc
+> on recommande d'étendre le programme aux sites de Marseille et Toulouse au T1 2027, avec une
+> prime d'incitation de 20 € pour les nouveaux inscrits. Les chiffres viennent des données internes
+> RH de juin à août 2026 et d'une enquête de satisfaction interne réalisée en août 2026.
 
 **Expected section order:** executive-summary → introduction → findings → conclusion → recommendations → bibliography
 (French headings: Résumé exécutif, Introduction, Résultats, Conclusion, Recommandations, Bibliographie)
@@ -156,22 +144,17 @@ prompt 15's output wrong just because the orders match — they're supposed to.
 
 ## 7. Report (long, with TOC) — `report-long-toc` (English)
 
-> Write a long-form report with a table of contents, using this content:
->
-> Cover: Annual Water Quality Assessment 2026 — Prepared for the Ashford Regional Water Authority
-> Executive summary: Water quality across all six monitored sites remained within regulatory limits,
-> with one exception flagged at the Millbrook intake.
-> Introduction: This report covers quarterly sampling at six sites from January through August 2026.
-> Methodology: Samples were collected biweekly and tested for turbidity, pH, nitrate, and coliform
-> bacteria per EPA method 9223B.
-> Findings: Millbrook intake showed elevated nitrate levels (11.2 mg/L) in July, exceeding the 10 mg/L
-> threshold; all other sites remained under 6 mg/L throughout.
-> Conclusion: The Millbrook exceedance appears linked to upstream agricultural runoff following heavy
-> June rainfall.
-> Recommendations: Increase Millbrook sampling to weekly through Q4; coordinate with the county on
-> runoff mitigation upstream.
-> Appendices: Full sampling data table by site and date, lab certification records.
-> Bibliography: EPA Method 9223B documentation; county rainfall records, 2026.
+> Can you write this up as a full long-form report with a table of contents? This is the annual
+> water quality assessment for 2026, prepared for the Ashford Regional Water Authority. We sampled
+> six sites biweekly from January through August 2026, testing for turbidity, pH, nitrate, and
+> coliform bacteria using EPA method 9223B. Water quality stayed within regulatory limits at every
+> site except one exception at the Millbrook intake, where nitrate hit 11.2 mg/L in July, over the
+> 10 mg/L threshold, while every other site stayed under 6 mg/L the whole time. That exceedance
+> looks tied to upstream agricultural runoff after the heavy June rainfall. We think Millbrook
+> sampling should go to weekly through Q4, and we should coordinate with the county on runoff
+> mitigation upstream. Include the full sampling data table by site and date and the lab
+> certification records as an appendix, and cite the EPA method 9223B documentation and the
+> county's 2026 rainfall records as sources.
 
 **Expected section order:** cover → table-of-contents → executive-summary → introduction → methodology → findings → conclusion → recommendations → appendices → bibliography
 
@@ -182,21 +165,17 @@ prompt 15's output wrong just because the orders match — they're supposed to.
 
 ## 8. Whitepaper — `whitepaper-standard` (German)
 
-> Verfassen Sie ein Whitepaper mit folgendem Inhalt:
->
-> Deckblatt: Whitepaper — Edge Computing in der Fertigungsindustrie, herausgegeben von Vantek Systems
-> Zusammenfassung: Edge Computing reduziert Latenzzeiten in Produktionslinien um bis zu 80 % gegenüber
-> reiner Cloud-Verarbeitung.
-> Einleitung: Fertigungsbetriebe stehen zunehmend vor Echtzeitanforderungen, die zentrale Cloud-Systeme
-> nicht zuverlässig erfüllen können.
-> Problemstellung: Latenzspitzen von über 200 ms bei cloudbasierter Sensorauswertung führen zu
-> Produktionsausfällen in getakteten Fertigungslinien.
-> Lösungsansatz: Lokale Edge-Knoten verarbeiten Sensordaten direkt an der Maschine und senden nur
-> aggregierte Daten in die Cloud.
-> Ergebnisse: In einem Pilotprojekt bei einem Automobilzulieferer sank die Latenz von 220 ms auf 35 ms,
-> die Ausfallzeit um 47 %.
-> Schlussfolgerung: Edge Computing ist für getaktete Fertigungslinien mit Echtzeitanforderungen wirtschaftlich sinnvoll.
-> Literaturverzeichnis: Vantek Pilotstudie 2026; IEEE-Artikel zu Edge-Latenz in der Fertigung, 2025.
+> Schreib mir daraus ein Whitepaper, herausgegeben von Vantek Systems, zum Thema Edge Computing in
+> der Fertigungsindustrie. Fertigungsbetriebe stehen zunehmend vor Echtzeitanforderungen, die
+> zentrale Cloud-Systeme nicht zuverlässig erfüllen können — bei cloudbasierter Sensorauswertung
+> treten Latenzspitzen von über 200 ms auf, was in getakteten Fertigungslinien zu
+> Produktionsausfällen führt. Unser Ansatz: lokale Edge-Knoten verarbeiten die Sensordaten direkt
+> an der Maschine und schicken nur aggregierte Daten in die Cloud. Bei einem Automobilzulieferer
+> haben wir das in einem Pilotprojekt getestet — die Latenz sank von 220 ms auf 35 ms, die
+> Ausfallzeit um 47 %. Insgesamt zeigt das, dass sich Edge Computing für getaktete
+> Fertigungslinien mit Echtzeitanforderungen wirtschaftlich rechnet, und Latenzzeiten um bis zu
+> 80 % gegenüber reiner Cloud-Verarbeitung reduziert. Als Quellen dienen unsere eigene Pilotstudie
+> von 2026 und ein IEEE-Artikel zu Edge-Latenz in der Fertigung von 2025.
 
 **Expected section order:** cover → executive-summary → introduction → problem-statement → solution-approach → findings → conclusion → bibliography
 (German headings: Deckblatt, Zusammenfassung, Einleitung, Problemstellung, Lösungsansatz, Ergebnisse, Schlussfolgerung, Literaturverzeichnis)
@@ -208,13 +187,11 @@ prompt 15's output wrong just because the orders match — they're supposed to.
 
 ## 9. One-pager — `one-pager-standard` (English)
 
-> Create a one-pager with this content:
->
-> Headline: Cut onboarding time in half with FlowSeat
-> Key points: Automated document collection; e-signature built in; syncs with existing HR systems;
-> average customer onboarding time dropped from 9 days to 4
-> Call to action: Book a 15-minute demo this week
-> Contact: sales@flowseat.io, +1 (415) 555-0199
+> Turn this into a one-pager. FlowSeat cuts onboarding time in half — customers have gone from 9
+> days down to 4 on average. It automates document collection, has e-signature built right in, and
+> syncs with whatever HR system a company is already running. The push here is to get people to
+> book a 15-minute demo this week, and they can reach us at sales@flowseat.io or
+> +1 (415) 555-0199.
 
 **Expected section order:** headline → key-points → call-to-action → contact
 
@@ -231,14 +208,12 @@ the library -- the two brochures, letter and cover-letter, and this one.
 
 ## 10. Brochure, tri-fold — `brochure-3panel` (French)
 
-> Créez le contenu d'une brochure trois volets avec ce texte :
->
-> Accroche : Voyagez léger, arrivez reposé — la valise cabine Voltis
-> Introduction : Voltis conçoit des valises cabine ultralégères pensées pour les voyageurs fréquents.
-> Points clés : Poids de 1,9 kg ; coque en polycarbonate renforcé ; compartiment chargeur intégré ;
-> garantie 10 ans
-> Appel à l'action : Commandez avant le 30 septembre et bénéficiez de la livraison gratuite
-> Coordonnées : www.voltis-bagages.fr, contact@voltis-bagages.fr, 01 84 60 22 10
+> Peux-tu me faire le contenu d'une brochure trois volets ? C'est pour Voltis, qui conçoit des
+> valises cabine ultralégères pour les voyageurs fréquents — l'idée, c'est de voyager léger et
+> d'arriver reposé. La valise pèse 1,9 kg, la coque est en polycarbonate renforcé, il y a un
+> compartiment chargeur intégré et une garantie de 10 ans. On veut pousser les gens à commander
+> avant le 30 septembre pour avoir la livraison gratuite. On peut nous joindre sur
+> www.voltis-bagages.fr, à contact@voltis-bagages.fr, ou au 01 84 60 22 10.
 
 **Expected section order:** headline → introduction → key-points → call-to-action → contact
 (French headings: Accroche, Introduction, Points clés, Appel à l'action, Coordonnées)
@@ -254,14 +229,12 @@ correct and intentional — panel count isn't a content difference, it's a page-
 
 ## 11. Brochure, gate-fold — `brochure-gatefold` (German)
 
-> Erstellen Sie den Inhalt für eine Gatefold-Broschüre mit diesem Text:
->
-> Kernbotschaft: Mehr Energie sparen mit der SolarDach-Komplettlösung
-> Einleitung: SolarDach bietet Photovoltaikanlagen inklusive Installation und Wartung aus einer Hand.
-> Kernpunkte: Amortisation in durchschnittlich 7 Jahren; 25 Jahre Leistungsgarantie; kostenlose
-> Vor-Ort-Beratung; Förderung nach KfW 270 möglich
-> Handlungsaufruf: Vereinbaren Sie jetzt Ihre kostenlose Dachanalyse
-> Kontakt: www.solardach-plus.de, beratung@solardach-plus.de, 030 405060
+> Erstell mir den Inhalt für eine Gatefold-Broschüre für SolarDach — mehr Energie sparen mit der
+> Komplettlösung. Wir bieten Photovoltaikanlagen inklusive Installation und Wartung aus einer
+> Hand. Die Amortisation liegt im Schnitt bei 7 Jahren, es gibt 25 Jahre Leistungsgarantie, eine
+> kostenlose Vor-Ort-Beratung, und man kann eine Förderung nach KfW 270 bekommen. Die Leute
+> sollen jetzt ihre kostenlose Dachanalyse vereinbaren — erreichbar sind wir über
+> www.solardach-plus.de, beratung@solardach-plus.de oder 030 405060.
 
 **Expected section order:** headline → introduction → key-points → call-to-action → contact
 (German headings: Kernbotschaft, Einleitung, Kernpunkte, Handlungsaufruf, Kontakt)
@@ -276,12 +249,10 @@ tester "corrects" one of these two prompts to look different, that's the finding
 
 ## 12. Flyer — `flyer-single-sheet` (English)
 
-> Design a flyer with this content:
->
-> Headline: Saturday Farmers Market — Every week, rain or shine
-> Key points: 40+ local vendors; live music from 10am; free parking on Elm Street; kids' craft table
-> Call to action: See you there — Saturdays, 8am to 1pm, Elm Street Plaza
-> Contact: farmersmarket@elmtown.org
+> Make me a flyer out of this. It's for the Saturday Farmers Market, every week, rain or shine,
+> 8am to 1pm at Elm Street Plaza. There's 40+ local vendors, live music starting at 10am, free
+> parking on Elm Street, and a kids' craft table. People can reach us at
+> farmersmarket@elmtown.org. Make it feel like a see-you-there kind of invite.
 
 **Expected section order:** headline → key-points → call-to-action → contact
 
@@ -292,10 +263,8 @@ tester "corrects" one of these two prompts to look different, that's the finding
 
 ## 13. Poster — `poster-single-canvas` (French)
 
-> Créez le contenu d'une affiche avec ce texte :
->
-> Accroche : Festival de musique de rue — 18-20 septembre, Place du Capitole
-> Appel à l'action : Entrée libre, tous publics — venez en famille
+> J'ai besoin d'une affiche avec ça. C'est pour le festival de musique de rue, du 18 au 20
+> septembre, Place du Capitole. Entrée libre, tous publics, venez en famille.
 
 **Expected section order:** headline → call-to-action
 
@@ -310,15 +279,15 @@ third section here because two "feels incomplete," that's the mistake — not th
 
 ## 14. Slide deck — `deck-standard` (German)
 
-> Erstellen Sie die Gliederung für ein Pitch-Deck mit diesem Inhalt:
->
-> Deckblatt: NovaGrid — Intelligentes Lastmanagement für Gewerbeimmobilien
-> Agenda: Problem, Lösung, Ergebnisse, nächste Schritte
-> Problemstellung: Gewerbeimmobilien zahlen Lastspitzenentgelte, die bis zu 30 % der Stromkosten ausmachen.
-> Lösungsvorschlag: NovaGrid prognostiziert Lastspitzen und steuert Verbraucher automatisch gegen.
-> Ergebnisse: Pilotkunde reduzierte Lastspitzenentgelte um 34 % innerhalb von vier Monaten.
-> Handlungsaufruf: Pilotprojekt für Q1 2027 vereinbaren
-> Kontakt: invest@novagrid.io, +49 30 1234567
+> Kannst du mir daraus die Gliederung für ein Pitch-Deck machen? Es geht um NovaGrid,
+> intelligentes Lastmanagement für Gewerbeimmobilien. Gewerbeimmobilien zahlen
+> Lastspitzenentgelte, die bis zu 30 % der Stromkosten ausmachen — das ist das Problem, und
+> NovaGrid prognostiziert die Lastspitzen im Voraus und steuert die Verbraucher automatisch
+> dagegen. Bei einem Pilotkunden hat das die Lastspitzenentgelte innerhalb von vier Monaten um
+> 34 % gesenkt.
+> Wir wollen daraus ein Pilotprojekt für Q1 2027 vereinbaren, erreichbar unter invest@novagrid.io
+> oder +49 30 1234567. Die Übersicht am Anfang sollte kurz zeigen, dass es um Problem, Lösung,
+> Ergebnisse und nächste Schritte geht.
 
 **Expected section order:** cover → agenda → problem-statement → proposed-solution → findings → call-to-action → contact
 (German headings: Deckblatt, Agenda, Problemstellung, Lösungsvorschlag, Ergebnisse, Handlungsaufruf, Kontakt)
@@ -330,16 +299,12 @@ third section here because two "feels incomplete," that's the mistake — not th
 
 ## 15. Cover letter — `cover-letter-standard` (English)
 
-> Write a cover letter for a job application, using this content:
->
-> Sender: Daniela Reyes, 2214 Birchwood Ave, Austin, TX 78704
-> Recipient: Hiring Committee, Meridian Analytics, 900 Congress Ave, Austin, TX 78701
-> Date: September 9, 2026
-> Salutation: Dear Hiring Committee,
-> Body: I am applying for the Senior Data Analyst position posted on your careers page. In my current
-> role at Larkspur Retail, I built a demand-forecasting model that cut inventory overstock by 18%. I
-> would bring that same rigor to Meridian's forecasting team.
-> Closing: Sincerely, Daniela Reyes
+> Can you write this up as a cover letter for a job application? It's from me, Daniela Reyes,
+> 2214 Birchwood Ave, Austin, TX 78704, dated September 9, 2026. It's going to the hiring
+> committee at Meridian Analytics, 900 Congress Ave, Austin, TX 78701. I'm applying for the
+> Senior Data Analyst role posted on their careers page. At my current job at Larkspur Retail I
+> built a demand-forecasting model that cut inventory overstock by 18%, and I'd bring that same
+> rigor to Meridian's forecasting team. Sign it off from me, Daniela Reyes.
 
 **Expected section order:** sender → recipient → date → salutation → body → closing
 
