@@ -31,7 +31,11 @@
   and nothing else.
 - Three pairs of families share an identical section order, deliberately: the
   two brochures, letter and cover letter, and flyer and one-pager. What
-  separates each pair is page format, not content.
+  separates each pair is page format, not content. When two document types
+  share an order, the difference between them is carried by page-formats and
+  doc-styles -- page size, panel count, measure, margins, typography -- so the
+  section list is not the only guidance you get, and identical section lists
+  do not mean identical documents.
 
 # v0.1.0
 

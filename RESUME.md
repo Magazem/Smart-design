@@ -379,9 +379,17 @@ research/39 (transactional), research/40 (long-form) and research/41 (marketing)
 rows across four loader inputs, zero dangling FKs, zero generated-key collisions under a shared
 counter, one primary per section per language, and no section order repeats a token.
 
-1. brochure-3panel and brochure-gatefold have IDENTICAL Section Orders, RULED INTENTIONAL. Panel
-   count is not content. What separates a tri-fold from a gate-fold lives in page-formats --
-   panel count and widths -- not in structures. Do not "differentiate" them.
+1. THREE PAIRS of families have IDENTICAL Section Orders, ALL RULED INTENTIONAL:
+   - brochure-3panel and brochure-gatefold: panel count is not content; what separates a
+     tri-fold from a gate-fold lives in page-formats, panel count and widths.
+   - letter-standard and cover-letter-standard: a cover letter IS a letter.
+   - flyer-single-sheet and one-pager-standard: same content arc, different format.
+   Do not "differentiate" any of them, and do not special-case shared orders in the resolver.
+   When two doctypes share an order, the DISCRIMINATING WORK IS DONE BY page-formats and
+   doc-styles -- page size, panel count, measure, margins, typography. An identical section
+   list does not mean an identical document. All three pairs are flagged in
+   research/44-v02-acceptance.md so a user is not surprised by matching answers, and the
+   release notes say it in one sentence.
 2. The marketing class added only ONE new canonical section, `agenda`. Five of its six families
    are served entirely by sections authored for the earlier classes. That is the reuse rule
    working, not a shortcut.
