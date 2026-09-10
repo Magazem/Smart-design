@@ -2,12 +2,13 @@
 
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
 DO NOT touch git. Do not tag. Do not push. Do not edit VERSION.
-DO NOT START without the go-ahead.
+DISPATCHED. Candidate L IS applied (f23fb03) and ruling M has landed (5a98f85). Proceed.
 
 ## What this bundles
-- Candidate L, the description reorder, IF it has been applied
+- Candidate L, the description reorder (applied)
 - the five page-flow constraints, loaded at gate 419
 - K step 3, the page-flow render handoff
+- ruling M, the docx handoff block fix and its two new test files
 
 ## Deliverable (ONE)
 Run scripts/build_zip.py, then verify:
@@ -18,6 +19,9 @@ Run scripts/build_zip.py, then verify:
    "Creating any document type below". Report which you found.
 4. It still contains "lettre", "appearance fixes", "the user names it", and the nouns invoice,
    memo, one-pager, facture, Rechnung, devis.
+5a. NEW: the archive must contain scripts/tests/test_schema_manifest.py, and the manifest
+    member must declare display_columns on six tables. That fix is what stops the docx handoff
+    from shipping empty; confirm it is actually IN the archive, not just on disk.
 5. The constraints member has 47 rows and contains all five page-flow keys:
    report-heading-keep-with-next, report-widow-orphan-control, report-table-row-no-split,
    report-table-header-repeat, report-figure-caption-keep-together.
@@ -28,7 +32,7 @@ Run scripts/build_zip.py, then verify:
 8. All 14 data/base CSVs present; headings 204 rows; structures 17 rows, zero empty Section
    Order cells.
 9. No .docx members. No data/brand/<slug>/ and no active.json; data/brand/README.md expected.
-10. `python3 -m pytest scripts -q` — report the tally and your delta from 148.
+10. `python3 -m pytest scripts -q` — baseline is now 158 passed plus 30 subtests.
 11. Archive size, member count, schema-manifest.json md5. Two md5 values are correct, the CRLF
     working copy and the LF form in the archive; report what you measure.
 
