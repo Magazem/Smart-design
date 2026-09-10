@@ -430,7 +430,12 @@ CHANGES.append("T12: rationale/cv-regions.md written (%d entries) -- the draft-o
 # ----------------------------------------------------------------- T13 headings
 rows, n = [], {}
 head_sources = []
-for r in read("18-ats-headings.csv"):
+HEADING_FILES = ["18-ats-headings.csv", "39-headings-transactional-draft.csv",
+                 "40-headings-longform-draft.csv", "41-headings-marketing-draft.csv"]
+# `n` is deliberately shared across all four files: it numbers the `<section>-<lang>-<n>`
+# surrogate globally, so a section that appears in two inputs keeps counting up rather
+# than restarting and colliding.
+for r in [row for name in HEADING_FILES for row in read(name)]:
     key = (r["canonical_section"], r["language"])
     n[key] = n.get(key, 0) + 1
     head_sources.append(("%s-%s-%d" % (r["canonical_section"], r["language"], n[key]),
@@ -439,7 +444,12 @@ for r in read("18-ats-headings.csv"):
                  "canonical_section": r["canonical_section"],
                  "Heading Text": r["heading_text"], "Language": r["language"],
                  "Is Primary": r["is_primary"]})
-CHANGES.append("T13: 81 rows, +heading_key surrogate, 3 columns renamed, `source` dropped")
+if len({r["heading_key"] for r in rows}) != len(rows):
+    sys.exit("T13: duplicate heading_key across the %d heading inputs"
+             % len(HEADING_FILES))
+CHANGES.append("T13: %d rows over %d heading inputs, +heading_key surrogate, "
+               "3 columns renamed, `source` dropped"
+               % (len(rows), len(HEADING_FILES)))
 write("headings", rows)
 RATIONALE.mkdir(parents=True, exist_ok=True)
 by_src = {}
