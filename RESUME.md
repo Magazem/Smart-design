@@ -589,7 +589,7 @@ disagree, this project fixes the product. Cite this the next time a threshold is
 
 ## STEP 9 -- DONE in v0.2, kept for the reasoning. THE COUNTS BELOW ARE HISTORICAL.
 All 17 structure rows carry a Section Order as of commit aec56f4. headings.csv is 204 rows over
-51 canonical sections. What follows describes the state that MOTIVATED the work, not today's.
+52 canonical sections. What follows describes the state that MOTIVATED the work, not today's.
 
 ### Original ruling, 2026-09-09 (AFTER v0.1.0): headings for the other 14 doc classes
 `structures.Section Order` is a list FK into `headings.canonical_section`. `headings.csv`
