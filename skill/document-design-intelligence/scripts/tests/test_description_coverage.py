@@ -50,7 +50,11 @@ SKILL_MD = SKILL_ROOT / "SKILL.md"
 DOCTYPES_CSV = SKILL_ROOT / "data" / "base" / "doctypes.csv"
 
 # Everything from here on is the deferral/exclusion boundary, not coverage.
-NEGATIVE_SCOPE_MARKER = "When a specific file format"
+# Candidate H rewrote that boundary sentence: it used to open "When a specific
+# file format", and the old marker string stopped existing the moment H landed.
+# A marker that is never found silently widens the positive region to the whole
+# description -- the narrowing above would have gone quiet without failing.
+NEGATIVE_SCOPE_MARKER = "Creating any document type above"
 
 # Doctypes reachable only through a broader parent noun already in the
 # description. Value = the parent noun it rides on, which must itself still be
@@ -84,15 +88,13 @@ GENERIC_COVERED = {
     "slide-deck-handout": "slide decks",
 }
 
-# Known gaps that candidate G closes and nothing else does. This list is an
-# explicit xfail, not a weakening of the rule above: these two doctypes have
-# NO keyword and NO display-name noun anywhere in the description today.
-# Candidate G adds "invoice", "facture", "Rechnung" and "one-pager".
-# test_pending_list_has_no_stale_entries forces this list empty once G ships.
-PENDING_CANDIDATE_G = {
-    "invoice-tabular",
-    "one-pager",
-}
+# EMPTY, and it stays empty. This was the skip list that held invoice-tabular
+# and one-pager out of the rule while candidate G was unapplied -- an xfail in
+# all but name. G has landed ("invoice", "facture", "Rechnung", "one-pager" are
+# in the description), so both doctypes are now guarded for real by the rule
+# below. Never re-populate this to make a red build green: widen the
+# description instead, or declare the family in GENERIC_COVERED.
+PENDING_CANDIDATE_G = set()
 
 
 def _read_description():
@@ -138,7 +140,14 @@ class _Description:
 
     def __init__(self, raw):
         cut = raw.find(NEGATIVE_SCOPE_MARKER)
-        self.positive = raw if cut < 0 else raw[:cut]
+        if cut < 0:
+            raise AssertionError(
+                "NEGATIVE_SCOPE_MARKER %r is not in the description. The "
+                "boundary sentence was reworded; update the marker. Falling "
+                "back to the whole string would count the deferral sentence "
+                "as coverage and quietly void this file's main narrowing."
+                % NEGATIVE_SCOPE_MARKER)
+        self.positive = raw[:cut]
         self.tokens = _norm(self.positive)
         self.items = []
         for chunk in re.split(r"[;,:.()]", self.positive):
