@@ -439,6 +439,40 @@ DDR rather than forced into a section list. Not v0.2.
   from research/09-library-schema.md Revision 4, which does not describe it either.
 - Heading variants for non-CV families.
 
+## ACTIVATION: THE DISCRIMINATOR IS LANGUAGE. THREE THEORIES ARE DEAD. (2026-09-10)
+Final tally on the G+H archive, every prompt with its noun present in the description:
+    GERMAN  4/4 FIRE   (invoice 2/2, form 1/1, whitepaper, memo)
+    ENGLISH 2/5        (memo 0/2, proposal 2/3)
+    FRENCH  0/4        (letter 0/2, report 0/2)
+
+### THE REFUTATION CHAIN -- read this before proposing any description change
+1. NOUNS. Dead. "memo" and "rapport" are IN the description and both families failed.
+2. TRIGGER PHRASES. Dead. invoice and form have NO create-verb phrase and both fire. This is
+   what refuted candidate I, and my own premise for it.
+3. ARTEFACT vs PROSE GENRE. Dead, and it was the best theory we had. It predicted that prose
+   genres would not fire. The GERMAN WHITEPAPER FIRED and the GERMAN MEMO FIRED -- both prose
+   genres. Candidate J was built on this and was VETOED before application. The draft stays in
+   research/38 as history; do not resurrect it without new evidence.
+
+### WHAT I CHECKED ABOUT THE FRENCH NOUNS, and it clears them
+Asked whether the FR nouns are written in some way that matches worse than the DE ones:
+- ACCENTS ARE NOT IT. Only `dépliant`, `présentation` and `Broschüre` carry accents -- one of
+  them GERMAN. The failing French prompts used `rapport` and `lettre`, both UNACCENTED.
+- FRAMING IS NOT IT. French and German nouns sit in the SAME "also ..." list, same sentence,
+  same punctuation. Nothing separates them.
+- AND THE DECISIVE ONE: **the German MEMO fired, and there is NO German memo noun in the
+  description at all.** No Aktennotiz, no Memo. A German prompt fired for a family whose German
+  noun we never shipped. So the German advantage cannot be coming from the noun list.
+
+Whatever drives this sits OUTSIDE the noun list. Do not spend description budget on French
+nouns until we know what it is.
+
+### NEXT STEP IS EVIDENCE, NOT A DRAFT
+The lead has asked the user to probe Claude directly in the FAILED English memo and French
+report chats: "which skills did you consider, and why not this one?" We act on its own account,
+as we did with the "clean Word file" clue that produced candidate H. DO NOT draft a language
+hypothesis before that answer arrives.
+
 ## THE ACTIVATION DISCRIMINATOR: ARTEFACT vs PROSE GENRE (2026-09-10, 2-of-2 evidence)
 Measured on the G+H archive, same prompts run twice:
     DE invoice  2/2 FIRE       DE form     1/1 FIRE

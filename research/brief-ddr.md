@@ -2,7 +2,7 @@
 
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
 DO NOT touch git. research/ drafts only — never write under data/.
-DO NOT START until the orchestrator dispatches this. If you are reading it without a task, stop.
+DISPATCHED - the hold is lifted, proceed.
 
 ## Why
 A user saw a section heading land at the bottom of a page with its body on the next. I grepped

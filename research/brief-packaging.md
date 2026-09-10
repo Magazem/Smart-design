@@ -2,14 +2,14 @@
 
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
 DO NOT touch git. Do not tag. Do not push. Do not edit VERSION.
-DO NOT START without the go-ahead — the description change this depends on may not be applied.
+DISPATCHED. Candidate J was VETOED and is NOT applied, so expect the description to measure 972.
 
 ## Why
 The archive is four commits stale. This rebuild bundles:
 - d3219d0 activation prompt 11's criteria, changed under candidate H
 - 706da0d SKILL.md body: plain-text answers keep the section order
 - 5ac9d4a the "lettre" noun and the description mirror tests
-- and candidate J, IF it has been applied — check the description length to find out.
+- candidate J is NOT in this build. It was vetoed. The description must measure 972.
 
 ## Deliverable (ONE)
 Run scripts/build_zip.py, then verify:
