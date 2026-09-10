@@ -48,12 +48,12 @@ mapping, not inventing:
   report-table-row-no-split            docx_property=cantSplit;applies_to_block=table-row
   report-table-header-repeat           docx_property=tblHeader;applies_to_block=table-header-row
   report-figure-caption-keep-together  docx_property=keepNext;applies_to_block=figure;binds_to=caption-block
-All five are Set Key , Applies To , Severity .
+All five are Set Key report-typography, Applies To artifact-class:flow, Severity warn.
 Two carry an empty Element Scope BY DESIGN -- their block type lives in Parameter. Do not treat
 that as missing data.
 
 READ THE PARAMETER, do not hardcode a second copy of this mapping in the handoff code. If the
-Parameter says , emit keepNext. A hardcoded parallel table is how the
+Parameter says docx_property=keepNext, emit keepNext. A hardcoded parallel table is how the
 two copies drift apart.
 
 THESE RULES ARE CONVENTION, NOT SOURCED. DDR checked and could not attribute them to any
