@@ -439,6 +439,28 @@ DDR rather than forced into a section list. Not v0.2.
   from research/09-library-schema.md Revision 4, which does not describe it either.
 - Heading variants for non-CV families.
 
+## v0.2 ADDS TWO CONVENTION-TAGGED SETS -- ONE release-notes sentence covers BOTH
+Ruled by the lead. Bind into the Packaging tag brief.
+1. The five PAGE-FLOW rules (keep-with-next, widows and orphans, table row integrity, repeated
+   table headers, figure with caption).
+2. The five HEADING SIZES for report-print and cv-print.
+
+Both are CONVENTION, not sourced, and both were checked before authoring rather than assumed:
+- Page flow: Bringhurst is cited in this library only for measure and leading, never pagination.
+  Butterick and DIN 5008 are cited NOWHERE in it.
+- Heading sizes: report 03 gives NO print point-size floor for any role. The rows derive from
+  print-office-generic at the same 11pt body -- but THAT set is itself house-authored and
+  validated by the leading-ratio formula, NOT a report-03 floor. So the derivation inherits
+  convention status; it does not borrow a source that never existed.
+
+TWICE TODAY a ruling named an authority that turned out not to cover the case, and DDR checked
+and said so instead of borrowing the name. That is the behaviour to keep.
+
+## cv-print HAS NO h3, DELIBERATELY
+h1 and h2 only. A CV's third tier -- job title and dates -- is carried by WEIGHT CONTRAST, not a
+distinct size, and a page-budget document should not gain a heading tier without a reason.
+Mirroring the report's three tiers would have passed unquestioned. Do not "complete the set".
+
 ## RULING K PAGE-FLOW RULES SHIP AS CONVENTION, NOT SOURCED -- say so in the release notes
 The ruling that commissioned these rows named Bringhurst, Butterick and DIN 5008. DDR grepped
 this library's own citations before authoring and found: Bringhurst is cited repeatedly but ONLY
