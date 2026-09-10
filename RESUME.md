@@ -460,12 +460,16 @@ Asked whether the FR nouns are written in some way that matches worse than the D
   them GERMAN. The failing French prompts used `rapport` and `lettre`, both UNACCENTED.
 - FRAMING IS NOT IT. French and German nouns sit in the SAME "also ..." list, same sentence,
   same punctuation. Nothing separates them.
-- AND THE DECISIVE ONE: **the German MEMO fired, and there is NO German memo noun in the
-  description at all.** No Aktennotiz, no Memo. A German prompt fired for a family whose German
-  noun we never shipped. So the German advantage cannot be coming from the noun list.
+- AND THE DECISIVE ONE, THE CLEANEST COMPARISON IN THE WHOLE FILE:
+  **SAME NOUN. SAME FAMILY. SAME CONTENT. ENGLISH 0/2, GERMAN 1/1.**
+  The German prompt said "internes Memo", and `memo` IS in the description, so the German memo
+  had EXACTLY the same noun match as the English memo that failed twice. Nothing about the
+  vocabulary differed. Only the language did.
+  (I first recorded this as "there is no German memo noun". That was WRONG -- the lead caught it.
+  The corrected version is stronger, not weaker: a controlled comparison beats an absence.)
 
-Whatever drives this sits OUTSIDE the noun list. Do not spend description budget on French
-nouns until we know what it is.
+Whatever drives this sits OUTSIDE the description's vocabulary. Do not spend description budget
+on French nouns until we know what it is.
 
 ### NEXT STEP IS EVIDENCE, NOT A DRAFT
 The lead has asked the user to probe Claude directly in the FAILED English memo and French
