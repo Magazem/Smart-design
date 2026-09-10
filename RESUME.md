@@ -165,6 +165,14 @@ Full history: research/05-SYNTHESIS.md (long). This file is the short version.
 - NOTE: the `sticky-board` skill is disabled for model invocation; findings go to
   research/handover-*.md instead.
 
+## MANIFEST HASHES CHANGED IN v0.2 -- the v0.1.0 pair below is OBSOLETE
+The manifest gained `distinct_token_columns`, so its content changed. The CURRENT pair, both
+correct, same two-form reason as before:
+  c41634d53cd50ebbc3788e1b4e542e72  = the CRLF working copy on disk (768 CRLF pairs)
+  e94ff944ac4645edd0871eb9156434b1  = the LF form, which is what git stores and what the ZIP
+                                      member carries
+A rebuild report quoting e94ff944 is quoting the ARCHIVE and is correct. Do not "fix" either.
+
 ## TWO MANIFEST HASHES -- both correct, do not "fix" either
 `data/schema-manifest.json` has TWO valid md5s and they differ only by line endings:
   731d874ff6052d8c3809a3d44a9d4196 = the WORKING COPY on Windows (CRLF, 740 pairs)

@@ -34,13 +34,13 @@ anything to the user.
 For PDF, the tier that is actually delivered is: PDF/X-4 structurally emitted;
 conformance not independently verifiable with open tooling.
 
-## Section-order guidance is CV-only today
+## Section-order guidance
 
-`resolve` returns a full section order only for `cv-experienced` and
-`cv-academic`. Every other document type resolves with no section order — the
-resolver says so explicitly rather than returning an empty list. In practice:
-this skill gives full section-by-section structure guidance for CVs today, and
-layout/typography/colour/print guidance for every other document type it covers.
+`resolve` now returns a full section order for every document family this
+skill covers, with one exception: `infographic`, which has no Structure Key
+and so gets no section order — the resolver says so explicitly rather than
+returning an empty list. Every document type, infographic included, still
+gets layout, typography, colour, and print guidance.
 
 ## Give it your brand
 
