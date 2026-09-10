@@ -1,53 +1,45 @@
-# BRIEF — Coverage — apply "lettre", and pin the mirror with a test
+# BRIEF — Coverage — apply candidate J (HOLD until the lead says "user approved")
 
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
-DO NOT touch git.
+DO NOT touch git. DO NOT START without the go-ahead. If you are reading this without it, stop
+and say so.
 
-## What was decided
-Your refutation was accepted. The lead's ruling (d) was wrong on the mechanism and you were
-right to say so. THE PHRASE BLOCK IS NOT BEING APPLIED. Only the one-word addition you
-recommended is, plus the test you identified as missing.
+## What is being applied
+Candidate J, from research/38-description-candidate.md. It replaces the LEAD sentence and trims
+the trigger examples. Everything else in the description stays.
 
-## Deliverable (ONE — two parts, one coherent change)
+Live description today: 972. After J: **986**. I measured that myself against disk; do not
+trust the number, reproduce it.
 
-### Part 1: add the bare noun "lettre"
-In skill/document-design-intelligence/SKILL.md's frontmatter description, add "lettre" to the
-non-English noun list. It currently reads:
-  ... also note interne, fiche, courrier, affiche, dépliant, présentation, formulaire,
-  Lebenslauf, Angebot, Bericht, invoice, memo, proposal, one-pager, facture, devis, rapport,
-  Rechnung, Formular, Broschüre.
-Result MUST measure exactly **972** characters. If you get anything else, STOP and report. Do
-not adjust other wording to reach the number.
+What J changes, and nothing else:
+- The lead "Creates and fixes print/office documents:" becomes the use-when wording.
+- The trigger examples drop from seven to three, one per language.
+- KEPT, verify each survives: "sourced", the UI/UX boundary sentence, "lettre", candidate H's
+  deferral sentence (must appear EXACTLY ONCE and byte-intact), and every document noun. Note
+  "report" leaves only as part of the deleted example "format this report" — the noun "reports"
+  must remain in the list.
 
-THE COUPLED EDITS, which have now bitten twice:
-- references/activation.md line 23, the fenced "as shipped" block: must be updated to match,
-  BYTE for byte, on one line.
-- references/activation.md lines 15, 26 and 28: "964" becomes 972 in all three. Leave the
-  historical 667 alone.
-
-### Part 2: the test that would have caught this
-Add a test asserting the fenced block equals SKILL.md's description BY BYTES. Requirements:
-- Read BOTH files at runtime. Do not embed either string in the test.
-- Compare bytes. NOT `" ".join(x.split())` — that is the whitespace-folded comparison I used in
-  my own verification and reported as "byte-identical", which is how this drifted unnoticed.
-- Locate the block by a marker, and raise a clear AssertionError if the marker is missing —
-  same guard you added to the coverage test after candidate H deleted its marker. A test that
-  silently finds nothing is worse than no test.
-- The failure message must say which file to edit and that the two must move together.
-Put it wherever it best belongs — beside the description coverage test is the obvious home.
+## Deliverable (ONE)
+1. Apply J to SKILL.md's frontmatter description. Result MUST measure exactly 986. If it does
+   not, STOP and report. Do not adjust wording to reach the number.
+2. The coupled edits, which now have a test behind them:
+   - references/activation.md's fenced "as shipped" block, updated to match BYTE for byte, on
+     ONE line.
+   - "972" becomes 986 on the three prose lines that carry it. Leave the historical 667 alone.
 
 ## Verify — paste actual output
-1. Description measures exactly 972 and contains "lettre".
-2. Your new test passes.
-3. NEGATIVE CONTROL, and I will repeat it myself: break the mirror by changing one character in
-   activation.md's fenced block, confirm the new test FAILS and names the problem, then restore.
-   Paste both results. A test not seen failing is not known to work.
-4. No "964" survives in activation.md.
-5. `python3 -m pytest scripts/tests/test_description_coverage.py -q` green on its own.
-6. Full suite: baseline was 146 passed plus 8 subtests; expect 147 with your new test.
+1. Description measures exactly 986 and contains "whether the answer is a chat reply or a file".
+2. H's sentence: `description.count(<H sentence>) == 1`.
+3. `python3 -m pytest scripts/tests/test_description_mirror.py -q` — both tests green. These are
+   the tests you wrote; they are now the ones protecting this edit.
+4. `python3 -m pytest scripts/tests/test_description_coverage.py -q` — green on its own, not as
+   part of the suite.
+5. No "972" survives in activation.md.
+6. Full suite: baseline 148 passed plus 8 subtests.
+7. Confirm no document noun was lost: diff the noun list before and after and paste it.
 
 Python: C:\Users\ysuliman\AppData\Local\Microsoft\WindowsApps\python3.exe
 
 ## Report
 Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 10 lines: the measured
-length, checks 3 and 4 verbatim, and the test tally.
+length, checks 2, 5 and 7 verbatim, and the two test results.
