@@ -809,3 +809,281 @@ H's fixed deferral logic can even be consulted. **Recommendation: apply
 both, with the insertion-2 trade in H.4 if character budget forces a
 choice.** Re-run prompts 1-5 and 11 first, since 11 is H's only named risk
 and 1-5 are the prompts both candidates jointly target.
+
+---
+
+## Candidate I - nouns were necessary but not sufficient, and neither were verbs
+
+DRAFT ONLY. Not applied. F, G and H are live at **964 characters**; every number
+below is measured against that string, not against G.4 or H.4.
+
+Everything here is reproducible with `research/38-verify-candidate-i.py`, which reads
+the live description out of `SKILL.md`, builds each package by string substitution,
+and runs `scripts/tests/test_description_coverage.py` against a temporary copy of the
+skill tree. It never writes to `SKILL.md`.
+
+### I.0 The brief's premise does not survive the run that motivated it
+
+The brief asks me to restore the four create-verb trigger phrases on the reasoning
+that "the create-verb phrases were doing work we did not credit". I checked that
+against the archive the run was made on, and it is not supported. This is a
+correction of the lead's reasoning, offered because the brief asked for exactly this
+kind of correction.
+
+The G+H archive's trigger list is, in full:
+
+```
+make me a CV, write a note interne, turn this into a brochure, I need slides for
+Monday, format this report, fais-moi une fiche, erstelle ein Angebot
+```
+
+There is **no create-verb phrase for invoice, and none for form**. Both of those
+prompts FIRED. There is a bare noun for memo (`memo`) and one for report (`rapport`),
+present and correctly spelled. Both of those prompts FAILED.
+
+| prompt | family | its noun in the description? | a create-verb phrase for it? | outcome |
+| --- | --- | --- | --- | --- |
+| 1 (de) | invoice | yes, `Rechnung` | no | FIRED |
+| 4 (de) | form | yes, `Formular` | no | FIRED |
+| 2 (fr) | letter | **no** - `courrier` only, not `lettre` | no | failed |
+| 3 (en) | memo | yes, `memo` | no | failed |
+| 6 (fr) | report (short) | yes, `rapport` | no | failed |
+
+Read down the create-verb column: it is `no` for all five. A variable that is
+constant across both outcomes cannot be the discriminator. The same holds for noun
+presence, which is `yes` for four of the five and appears on both sides.
+
+So the honest statement is stronger and less comfortable than the brief's: **on this
+evidence we cannot attribute prompts 3 and 6 to the description text at all.** Their
+nouns were there. Something outside the string decided those two, and the duplicated
+chat tells us what that something is.
+
+**Prompt 5 (proposal, English) is unaccounted for in the report.** I have outcomes
+for five of the six v0.2 prompts; 5 is missing. It matters for the
+never-versus-sometimes question, because `proposal` is in the description and a
+failure there would make a third noun-present failure. Ask for it with the re-runs.
+
+### I.1 The one genuine text gap: `lettre`
+
+`lettre` is absent. Verified with `str.count()` against the live description, not by
+eye. `courrier` is present and `letters` is present, and `letter-formal`'s CSV
+keyword row is `letter, business letter, formal letter, official letter,
+correspondence, write a letter, draft a letter, courrier, lettre formelle, redige une
+lettre, fais-moi un courrier, geschaeftsbrief, formeller brief, erstelle einen brief`
+- so the family is not unreachable today, it is reachable through the wrong French
+word.
+
+**I am not going to overclaim this.** Applying my own standard from I.0: prompt 2 is
+one failure with one absent literal string, which is the same shape of inference I
+just rejected for the verb hypothesis. A model does not string-match, and `courrier`
+is a real French synonym sitting three words away. `lettre` is worth adding because
+it costs 8 characters against 51 of headroom, not because it is proven to be the
+cause. Cheap insurance, not a confirmed fix.
+
+### I.2 The exact edits
+
+Three independent edits. Anchor uniqueness checked with `str.count()` on the live
+description; each anchor below occurs exactly once. Note that `letters,` occurs
+**twice** and must not be used as an anchor.
+
+**Edit 1 - the bare noun (8 characters).** Anchor `courrier,` (count 1).
+
+- remove: `courrier,`
+- insert: `courrier, lettre,`
+
+**Edit 2 - the trigger phrases.** Anchor `erstelle ein Angebot;` (count 1). Insert
+before the semicolon. Two variants, see I.4 and I.5.
+
+- I-full inserts, 76 characters: `, draft an invoice, write a memo, redige une facture, erstelle eine Rechnung` (with the acute accent on `redige`)
+- I-alt inserts, 52 characters: `, redige une lettre, write a memo, redige un rapport` (with the acute accent on both `redige`)
+
+The accent-stripped spellings above are for safe reading only. The authoritative
+byte-exact forms are inside the fenced one-line descriptions in I.6 - copy from
+there, not from this list.
+
+**Edit 3 - the funding cuts.** Both anchors occur exactly once.
+
+| | remove | insert | saves |
+| --- | --- | --- | --- |
+| A | `Applies sourced layout, typography, color, print, and ATS rules.` | `Applies sourced layout, typography, color, print, ATS rules.` | 4 |
+| A-lean | (the same sentence) | `Applies layout, typography, color, print, ATS rules.` | 12 |
+| B | `Not for web or app UI/UX design (use UI/UX Pro Max for screens).` | `Not for web or app UI/UX design; use UI/UX Pro Max.` | 13 |
+| M | `I need slides for Monday` | `I need slides` | 11 |
+
+No inserted substring contains a double quote, a backslash or a newline, so the
+double-quoted YAML scalar still parses.
+
+**The mirror edit, which is part of the spec and not an afterthought.**
+`references/activation.md` line 23 is a byte-identical copy of the description under
+"## The description as shipped", and RESUME.md's binding note says it must stay that
+way. **No test enforces it.** Any package below is therefore a two-file edit:
+`SKILL.md` frontmatter and `references/activation.md` line 23. Cut M needs a third:
+line 96 of `activation.md` quotes `'I need slides for Monday'` in prose and would be
+left quoting a string that no longer exists.
+
+### I.3 What the tail sentences can actually pay
+
+The brief told me to fund the additions out of the two 64-character tail sentences.
+Measured, they hold **five characters of pure fat**: one Oxford comma in A, and the
+parentheses-to-semicolon swap in B. Everything past that is a content word. Ranked by
+what deleting it costs activation:
+
+| cut | chars | what is lost |
+| --- | --- | --- |
+| A's `and` to `,` | 4 | nothing. The list still reads as a list. |
+| B's parens to `;` | 1 | nothing. |
+| B's `for screens` | 12 | describes UI/UX Pro Max's scope, not our exclusion. The clause `Not for web or app UI/UX design` is untouched and the alternative skill is still named. |
+| A's `sourced` | 8 | the provenance claim. No user types it, so no activation cost, but it is the sentence's differentiator against improvised design opinions. |
+| M's `for Monday` | 11 | nothing for coverage, but it strands the `activation.md` line 96 quote. |
+| B's `design` | 7 | **do not.** The brief calls this boundary load-bearing and prompts 6 and 7 test it. Not costed further. |
+
+A and B together, without weakening the boundary, yield **17 characters**. Enough for
+I-alt. Not enough for I-full.
+
+### I.4 The four briefed phrases are the wrong four
+
+Checked against `data/base/doctypes.csv`, which is the project's own record of what
+users type per family:
+
+| briefed phrase | an exact keyword of | targets a family that |
+| --- | --- | --- |
+| `write a memo` | `memo-internal` | **failed** |
+| `draft an invoice` | nothing | fired |
+| `redige une facture` | nothing | fired |
+| `erstelle eine Rechnung` | nothing | fired |
+
+Three of the four are invented rather than drawn from the CSV vocabulary, and all
+three point at the one family with demonstrated activation success. 64 of the 76
+characters go to invoice. Nothing in the set matches prompt 2's utterance ("Peux-tu
+rediger une lettre commerciale...") or prompt 6's ("Tu peux en faire un rapport
+court...").
+
+The CSV already holds verbatim keywords for all three failing families: `redige une
+lettre` (letter-formal), `write a memo` (memo-internal), `redige un rapport`
+(report-short). Each is unique to its row, so each scores a `specific` hit under the
+coverage test's rule 4 rather than riding on a parent noun. That is I-alt: 52
+characters instead of 76, aimed at the three prompts that failed instead of the one
+that did not.
+
+### I.5 The packages, measured
+
+Cap is 1,023 characters; the claude.ai upload UI enforces "under 1024". All four rows
+were run through `scripts/tests/test_description_coverage.py` on a patched temporary
+copy of the skill tree.
+
+| package | contents | chars | UTF-8 bytes | headroom | coverage test |
+| --- | --- | --- | --- | --- | --- |
+| live today | F+G+H | 964 | 967 | 59 | 6 passed |
+| **I-min** | edit 1 only, no cuts | **972** | 975 | **51** | **6 passed** |
+| I-full, cuts A+B only | edits 1, 2-full, A, B | 1031 | 1035 | **-8** | 1 FAILED (cap) |
+| I-full, viable | edits 1, 2-full, A-lean, B, M | 1012 | 1016 | 11 | 6 passed |
+| **I-alt** | edits 1, 2-alt, A, B | **1007** | 1012 | **16** | **6 passed** |
+
+I-full as the brief specifies it **does not fit** on the funding the brief specifies:
+it lands 8 characters over the cap. Making it fit costs two further content deletions
+- `sourced` and `for Monday` - and drags `activation.md` line 96 in with it, for 11
+characters of headroom.
+
+### I.6 Full resulting descriptions, one line each
+
+**I-min, 972 characters, 975 bytes, headroom 51:**
+
+```
+Creates and fixes print/office documents: CVs, resumes, cover letters, brochures, flyers, posters, reports, whitepapers, slide decks, presentations, forms, letters, quotes, offers; also note interne, fiche, courrier, lettre, affiche, dépliant, présentation, formulaire, Lebenslauf, Angebot, Bericht, invoice, memo, proposal, one-pager, facture, devis, rapport, Rechnung, Formular, Broschüre. Triggers: make me a CV, write a note interne, turn this into a brochure, I need slides for Monday, format this report, fais-moi une fiche, erstelle ein Angebot; appearance fixes: looks like AI, looks generic, make it look professional, fix the layout. Applies sourced layout, typography, color, print, and ATS rules. Creating any document type above is still this skill's job even as Word or PowerPoint; defer to that format's own skill only when the user names it for a plain conversion or edit with no design ask. Not for web or app UI/UX design (use UI/UX Pro Max for screens).
+```
+
+**I-full (viable variant), 1,012 characters, 1,016 bytes, headroom 11:**
+
+```
+Creates and fixes print/office documents: CVs, resumes, cover letters, brochures, flyers, posters, reports, whitepapers, slide decks, presentations, forms, letters, quotes, offers; also note interne, fiche, courrier, lettre, affiche, dépliant, présentation, formulaire, Lebenslauf, Angebot, Bericht, invoice, memo, proposal, one-pager, facture, devis, rapport, Rechnung, Formular, Broschüre. Triggers: make me a CV, write a note interne, turn this into a brochure, I need slides, format this report, fais-moi une fiche, erstelle ein Angebot, draft an invoice, write a memo, rédige une facture, erstelle eine Rechnung; appearance fixes: looks like AI, looks generic, make it look professional, fix the layout. Applies layout, typography, color, print, ATS rules. Creating any document type above is still this skill's job even as Word or PowerPoint; defer to that format's own skill only when the user names it for a plain conversion or edit with no design ask. Not for web or app UI/UX design; use UI/UX Pro Max.
+```
+
+**I-alt, 1,007 characters, 1,012 bytes, headroom 16 - the variant I recommend if any
+phrase block is applied at all:**
+
+```
+Creates and fixes print/office documents: CVs, resumes, cover letters, brochures, flyers, posters, reports, whitepapers, slide decks, presentations, forms, letters, quotes, offers; also note interne, fiche, courrier, lettre, affiche, dépliant, présentation, formulaire, Lebenslauf, Angebot, Bericht, invoice, memo, proposal, one-pager, facture, devis, rapport, Rechnung, Formular, Broschüre. Triggers: make me a CV, write a note interne, turn this into a brochure, I need slides for Monday, format this report, fais-moi une fiche, erstelle ein Angebot, rédige une lettre, write a memo, rédige un rapport; appearance fixes: looks like AI, looks generic, make it look professional, fix the layout. Applies sourced layout, typography, color, print, ATS rules. Creating any document type above is still this skill's job even as Word or PowerPoint; defer to that format's own skill only when the user names it for a plain conversion or edit with no design ask. Not for web or app UI/UX design; use UI/UX Pro Max.
+```
+
+### I.7 Risk, ranked
+
+- **Prompt 10 ("Summarize this PDF research paper in three bullet points") -
+  UNCHANGED, and still the sharpest test.** I adds no bare noun except `lettre`, and
+  nobody asks for a "lettre" when they want a summary. The `one-pager` risk G named
+  is neither raised nor lowered by I. Prompt 10 passed on the F ZIP; nothing here
+  moves it.
+- **Prompt 11 ("Turn my rough notes into a Word document") - RAISED by I-full and by
+  I-alt, both of which add `write a memo`. MODERATE, and the highest new risk in this
+  candidate.** Rough notes are memo-shaped input, and `write a memo` is an explicit
+  create-verb utterance sitting in the trigger list where only the bare noun `memo`
+  sat before. H's deferral sentence is what holds prompt 11, and I does not touch it.
+  Regression signal: DDI resolving structure or asking a design question for prompt
+  11 instead of staying silent while `docx` responds. **I-min does not carry this
+  risk at all.**
+- **Prompts 6 and 7, the UI/UX boundary - LOW, and only for the packages that cut B.**
+  The exclusion clause `Not for web or app UI/UX design` survives verbatim and the
+  alternative skill is still named. What is lost is `for screens`, which described
+  UI/UX Pro Max's scope rather than ours. Survivable. I would not cut `design`, and
+  did not.
+- **`activation.md` drift - MODERATE, and process rather than activation.** Line 23
+  must be updated in the same change or the two files disagree with no test to catch
+  it. Cut M additionally strands the line 96 prose quote. That is why I would not
+  spend `for Monday` unless forced.
+- **Prompt 12 - unaffected.** No format named, so no clause engages.
+- **A-lean's loss of `sourced` - not an activation risk, a positioning one.** It is
+  the word separating "applies rules from a sourced library" from "has design
+  opinions". Only I-full needs to spend it.
+
+### I.8 What we control, what we do not, and where this stops helping
+
+We control one string of at most 1,023 characters. We do not control whether the
+platform routes a given chat to this skill, and the duplicated chat is direct
+evidence that it does not always route the same prompt the same way: the same text
+went to `docx` in one copy and to us in the other, with the description held
+constant. Activation is probabilistic.
+
+That single fact reframes the exercise. **A pass rate measured once, at n=1 per
+prompt, cannot distinguish a description defect from a routing draw.** Two of the
+three failures had their exact noun in the description already. If those two are
+re-run and fire, the description was never their problem, and every character spent
+on I-full was spent against a phantom. If they fail three times each, we have a real
+signal and a far better idea of which family to spend on.
+
+**Is there a point past which adding words stops helping? We are at it, and here is
+the test that shows it rather than asserting it.** Both demonstrated failures - memo
+and rapport - had their target noun present in the string at the moment they failed.
+Adding more words to a description whose relevant word was already there is not a
+fix, it is a hope. The only addition still justified on evidence is one covering a
+word that is genuinely absent, and after `lettre` the remaining absentees are G.6's
+dropped list - `Anschreiben`, `lettre de motivation`, `Brief`, `livre blanc`,
+`proposition` - none of which any run has yet exercised.
+
+The remaining lever with real headroom is not the description. It is the deferral
+sentence, which H has already been rewritten once for, and the routing behaviour,
+which we cannot touch at all.
+
+### I.9 Verdict
+
+**Apply I-min now. Hold the phrase block.**
+
+1. **Apply edit 1 (`lettre`) on its own.** 8 characters, 51 of headroom left, no
+   funding cuts, no new risk to any activation prompt, coverage test green at 6
+   passed. It closes the only word this run showed to be genuinely missing. Mirror it
+   into `references/activation.md` line 23 in the same change.
+2. **Do not apply the phrase block until the re-runs distinguish "never" from
+   "sometimes".** Its premise is contradicted by the same run that motivated it, it
+   costs content words we have no evidence buys anything, and if prompts 3 and 6 fire
+   on a re-run the whole spend retires itself. Ask for prompt 5's outcome at the same
+   time.
+3. **If the re-runs show "never" - three consecutive failures per prompt - apply
+   I-alt, not I-full.** 1,007 characters, 16 of headroom, two cuts instead of four,
+   no `activation.md` prose drift, and its three phrases are the CSV's own verbatim
+   utterances for the three families that actually failed. Re-run prompt 11 first,
+   because `write a memo` is common to both variants and is the one addition that
+   nudges a currently-passing prompt.
+
+Confidence: **high** that the four-phrase premise is unsupported - it is a direct
+reading of the archive's own trigger list against the outcomes, checked with
+`str.count()`. **High** on every measured number, all reproduced by
+`research/38-verify-candidate-i.py`. **Low** that any version of I materially moves
+the pass rate, for the reason in I.8: the words were already there when it failed.
