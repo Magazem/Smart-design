@@ -439,6 +439,23 @@ DDR rather than forced into a section list. Not v0.2.
   from research/09-library-schema.md Revision 4, which does not describe it either.
 - Heading variants for non-CV families.
 
+## THE PACKAGE AWAITING THE USER, as of 2026-09-10: G-minus-triggers + H = 964 chars
+Not G alone. G supplies the missing nouns; H stops the deferral sentence from handing those
+documents away. Applying G alone risks a re-run that still fails and unfairly blames G.
+
+H's diagnosis, which is the real find of this round: the shipped deferral sentence says a format
+"is named" WITHOUT SAYING BY WHOM, so the model's own choice to render a Word file satisfies it.
+Combined with "no design ask" reading at ordinary width, a structural request like an invoice or
+a memo is handed to the built-in docx skill by default. That is exactly what Claude told the
+user: "a clean Word file, no design skills needed." H says "the USER names it" and keeps the
+plain-conversion carve-out word for word.
+
+The trade that makes it fit: G's 76-char trigger-phrase insertion is dropped. I VERIFIED this
+costs no coverage -- every noun those phrases carry still appears elsewhere in G. G+H would be
+1040, 17 over the cap; G-minus-triggers+H is 964, with 59 to spare.
+
+The application brief is written and HELD at research/brief-coverage.md.
+
 ## WHEN CANDIDATE G IS APPLIED -- a condition that must not be forgotten
 The description-coverage test is expected to be RED until candidate G lands, so it may ship
 marked xfail with a reason naming G. Lead's condition, binding:
