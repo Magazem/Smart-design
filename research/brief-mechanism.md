@@ -1,54 +1,59 @@
-# BRIEF — Mechanism Analyst: fold diacritics in the tokenizer (pre-release, ~10 min)
-
-Context reset by policy; nothing lost. Your zero-score fix is verified, committed (81bfaeb)
-and closed: 128 passed + 8 subtests, "[NO MATCH]" for a query that matches nothing.
-Act from THIS FILE and from disk.
+# BRIEF — Mechanism — v0.2: make the degradation message honest again
 
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
-Skill dir: skill\document-design-intelligence
-Python:    C:\Users\ysuliman\AppData\Local\Microsoft\WindowsApps\python3.exe
+DO NOT touch git. DO NOT change any threshold, weight or constant in the resolver. If you find
+yourself wanting to, stop and tell me instead — that is a standing rule in this project.
 
-## The defect, reproduced directly (not inferred)
-`BM25.tokenize` splits on `[^a-z0-9]+`, so one word has THREE tokenizations:
-    accented form  -> ['pr', 'sentation']
-    ae-spelling    -> ['praesentation']
-    plain form     -> ['presentation']
-Consequences measured on live data:
-- D3, the German deck query in its accented spelling, still RESOLVES confidently to
-  `slide-deck-projection` when it should abstain. All three deck rows tie at pr=2,
-  sentation=2, and projection wins only on length normalisation (18 tokens vs 34).
-- The same query in its ASCII spelling scores **0.0 on all 30 rows** — no candidates at all.
-- Every accented French and German term in the library is effectively unsearchable.
-The skill's activation description advertises French and German triggers, so this is a
-claim the product does not honour. RULED pre-release by the lead.
+## Why
+Every one of the 17 structure rows now carries a Section Order (commit aec56f4, gate zero at
+414 rows). The "no section-order guidance" path and the comment that justifies it were both
+written when 15 of 17 rows were empty by ruling. The behaviour is still right; the reasoning
+attached to it is now false, and there is no longer any row in shipping data that exercises it.
 
-## ONE deliverable: accented and plain spellings score identically.
-1. **Fold diacritics in `tokenize`**: NFKD normalise, strip combining marks, then the
-   existing split. Apply it SYMMETRICALLY to the query and to the keyword/searchable text —
-   asymmetry here is its own bug.
-2. **German transliteration equivalence**: ae/oe/ue/ss must match the umlaut and eszett
-   forms, so both spellings of a German word converge on one token.
-3. **NO THRESHOLD CHANGE.** A margin in (0.1862, 0.2492] would turn all four acceptance
-   bullets green with one constant, and the Coverage analyst deliberately refused it: a
-   0.063-wide window fitted to two queries is tuning to the test, and it leaves every
-   accented term unsearchable. Do not take that shortcut. If your change alone does not
-   satisfy a bullet, report that honestly.
-4. **The ASCII-clean test still applies** to your source: write the transliteration map with
-   `\x` escapes or `unicodedata` lookups, not literal accented characters.
+## The code
+skill/document-design-intelligence/scripts/resolve.py, `_field_value`, docstring at line 528:
 
-## Acceptance — report each explicitly
-- The accented and plain spellings of the German deck word produce IDENTICAL scores.
-- D3 (accented) ABSTAINS, with the deck family as candidates.
-- D1 "erstelle einen tabellarischen lebenslauf" still RESOLVES to `cv-dach`.
-- E3 "make me a flyer" still ABSTAINS with its two flyer rows.
-- The ASCII spelling no longer scores 0.0 on every row.
-- The existing 128 tests stay green; add tests for the folding itself.
+    most structure rows ship empty on purpose (headings.csv only holds CV
+    sections; the rest is deferred)
 
-## Do not
-Touch `data/`, `research/load-base.py`, the manifest, or any `research/*.csv` draft.
-Do not run ANY git command — the Orchestrator commits, path-scoped, after verifying.
+Both halves of that parenthesis are now untrue.
 
-## REPORT
-Max 8 lines to the Workflow Orchestrator, slot 01a080c5-2001-78b3-bbbe-afaae15edafa:
-the six acceptance results with numbers, the test count, and the paths you changed.
-If you approach ~10 minutes, checkpoint to research/handover-mechanism.md and stop.
+## Deliverable (ONE)
+1. Rewrite that docstring to state what is actually true: an empty group-FK list column is
+   expected data rather than a broken reference, and the function names the gap instead of
+   printing nothing. Drop the claim about CV sections and deferral. Keep the ruling citation.
+2. Keep the BEHAVIOUR unchanged. The message must still fire when a group-FK list column is
+   genuinely empty. Do not delete the path because nothing currently triggers it — it is the
+   safety net for the next table that ships a blank.
+3. ADD A TEST that proves the path still works, using a SYNTHETIC row with an empty Section
+   Order. No row in data/base has one any more, so the test must construct its own fixture
+   rather than rely on shipping data. Follow the existing fixture pattern under
+   scripts/tests/fixtures/. Assert the exact message text.
+4. Add a second test asserting that a POPULATED Section Order returns the real value and NOT
+   the guidance message. That is the regression the first test cannot catch alone.
+
+## Then re-run the 12-query set
+research/35-resolve-live.md holds a 12-query table (E1-E4, F1-F4, D1-D4) with the verdicts from
+before the section data existed. Every query that reached the FK walk ended in REFUSED PATH,
+because structures had no section orders. That should now be gone.
+
+Re-run all 12 exactly as written there and record the results in research/43-resolve-live-v2.md
+as the same table shape, with a column for what changed since. State plainly:
+- how many now produce a full RESOLVED payload end to end;
+- whether E3 ("make me a flyer") and D3 ("erstelle eine präsentation") still resolve confidently
+  instead of abstaining. Both were known FAILs. Do NOT fix them — they are backlog, and the
+  fix is length normalisation which needs real query data. Just report the current state.
+- F1's brand pass is still untestable without a brand overlay. Say so rather than inventing a
+  verdict.
+
+## Verify
+1. `python3 -m pytest scripts -q` from skill/document-design-intelligence. Baseline is 138
+   passed plus 8 subtests; expect 140 with your two new tests.
+2. `python3 scripts/validate_data.py data/base` — still `OK: validated 14 table(s), 414 row(s)`.
+3. No constant in resolve.py changed. Confirm with a diff and say so explicitly.
+
+Python: C:\Users\ysuliman\AppData\Local\Microsoft\WindowsApps\python3.exe
+
+## Report
+Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 10 lines: the new docstring,
+the two test names, the 12-query tally with the E3/D3 status, and the confirmation from verify 3.

@@ -326,5 +326,36 @@ class TestPerKeyDegradation(unittest.TestCase):
         self.assertEqual(payload["status"], "resolved")
 
 
+class TestGroupFkGuidanceMessage(unittest.TestCase):
+    """research/brief-mechanism.md item 3, v0.2: no row in data/base still
+    ships an empty group-FK list column (commit aec56f4 loaded Section
+    Order for all 17 structure rows), so this exercises `_field_value`
+    directly against a synthetic row -- the fixture pattern
+    TestMarginRatioBoundary already uses for hand-built rows -- rather
+    than a CSV fixture directory, since no shipping data can trigger this
+    path any more."""
+
+    SPEC = {
+        "foreign_keys": {
+            "Section Order": {
+                "table": "headings",
+                "column": "canonical_section",
+                "group": True,
+                "list": True,
+            }
+        }
+    }
+
+    def test_empty_group_fk_list_returns_named_guidance_message(self):
+        row = {"structure_key": "struct-empty", "Section Order": ""}
+        value = resolve._field_value(row, "Section Order", self.SPEC, "struct-empty")
+        self.assertEqual(value, "no section-order guidance for struct-empty")
+
+    def test_populated_group_fk_list_returns_real_value_not_guidance(self):
+        row = {"structure_key": "cv-academic", "Section Order": "contact;summary"}
+        value = resolve._field_value(row, "Section Order", self.SPEC, "cv-academic")
+        self.assertEqual(value, "contact;summary")
+
+
 if __name__ == "__main__":
     unittest.main()

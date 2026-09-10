@@ -528,10 +528,8 @@ _PREFLIGHT_HINT = "python3 scripts/preflight.py <rendered-file>  # verify fonts/
 def _field_value(row, column, spec, entry_key):
     """RULED (research/brief-mechanism.md item 3): a group-FK list column
     (e.g. structures."Section Order") that is empty on this row must never
-    surface as a bare empty answer -- most structure rows ship empty on
-    purpose (headings.csv only holds CV sections; the rest is deferred),
-    so an empty list here is expected data, not a broken reference. Say so
-    by name instead of printing nothing."""
+    surface as a bare empty answer -- an empty list here is expected data,
+    not a broken reference. Say so by name instead of printing nothing."""
     value = row.get(column, "")
     if value:
         return value
