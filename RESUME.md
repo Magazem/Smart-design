@@ -381,6 +381,35 @@ counter, one primary per section per language, and no section order repeats a to
    commercial-bid flavour) and REUSED for deck-standard in A3 (a pitch deck's sales register is
    exactly where that flavour belongs). Both calls stand. The rule cuts both ways.
 
+## PHASE B RESULTS, 2026-09-10
+B1 loaded the section model: gate zero at **414 rows** (was 291), headings 81 -> 204, all 17
+structure rows carry a Section Order. Commit aec56f4. Only headings.csv, structures.csv and
+rationale/headings.md moved; no other table.
+Mechanism made the degradation docstring honest and pinned the path with two synthetic-row
+tests, since NO row in shipping data has an empty Section Order any more. 140 tests. Commit
+47ede8d, a five-line docstring diff, no constant touched.
+
+### E3 VINDICATED THE NO-TUNING RULE
+"make me a flyer" was a FAIL in research/35: it resolved confidently instead of abstaining, and
+a one-constant margin change would have turned it green. Coverage refused that change at the
+time (see the green-tick precedent). E3 NOW PASSES on its own -- it abstains and offers the real
+flyer candidates -- repaired by the keyword de-duplication and the tokenizer diacritic fold,
+neither of which was aimed at it. The honest fix elsewhere solved the symptom here. Cite this
+alongside the green-tick precedent.
+
+### BACKLOG: language signal in ranking
+F3 "fais-moi un cv" still passes, but its internals moved: cv-generic dropped out of the top
+three entirely and it now abstains among cv-uk, cv-gulf-gcc and cv-france within 0.014 of each
+other. Lead's ruling after running it himself: NOT a regression -- a French prompt has no
+business matching the generic row, and all three offered are CVs. What it exposes is that
+LANGUAGE CARRIES NO RANKING WEIGHT: cv-france should lead on a French query and does not.
+Backlog line "language signal in ranking (cv-france on 'fais-moi un cv')". Same family as D3.
+Not v0.2.
+
+### D3 STILL FAILS, ON PURPOSE
+"erstelle eine präsentation" resolves confidently instead of abstaining. Untouched. The real fix
+is BM25 length normalisation, which waits on real query data. Do not lower b.
+
 ## BACKLOG: physical layout order for folded and paged formats
 The content arc fits a Section Order fine. Panel COUNT, slide COUNT, and the non-linear panel
 adjacency of a tri-fold or gate-fold fit NOWHERE in the current model. Flagged as a real gap by
