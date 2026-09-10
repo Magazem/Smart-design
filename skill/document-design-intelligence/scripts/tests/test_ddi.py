@@ -133,6 +133,71 @@ class TestHandoff(unittest.TestCase):
         self.assertNotEqual(proc.returncode, 0)
 
 
+class TestHandoffPageFlow(unittest.TestCase):
+    """Ruling K step 3 (research/brief-mechanism.md): page-flow constraints
+    (keepNext/widowControl/cantSplit/tblHeader) must reach the docx handoff
+    block, and the pptx block must say plainly that pagination properties
+    have no slide equivalent -- a hand-built resolved.json rather than the
+    manifest_ok toy fixture, since that fixture's constraints table carries
+    no Parameter data and growing it is out of this task's scope."""
+
+    _RESOLVED = {
+        "status": "resolved",
+        "resolved": {
+            "constraints": [
+                {"key": "report-heading-keep-with-next", "Element Scope": "",
+                 "Parameter": "docx_property=keepNext;applies_to_block=heading;binds_to=body-paragraph"},
+                {"key": "report-widow-orphan-control", "Element Scope": "body-paragraph",
+                 "Parameter": "docx_property=widowControl;min_lines_together=2"},
+                {"key": "report-table-row-no-split", "Element Scope": "table-cell",
+                 "Parameter": "docx_property=cantSplit;applies_to_block=table-row"},
+                {"key": "report-table-header-repeat", "Element Scope": "table-cell",
+                 "Parameter": "docx_property=tblHeader;applies_to_block=table-header-row"},
+                {"key": "report-figure-caption-keep-together", "Element Scope": "",
+                 "Parameter": "docx_property=keepNext;applies_to_block=figure;binds_to=caption-block"},
+                # same Set Key, no docx_property -- must be skipped, not crash
+                {"key": "report-measure-cpl", "Element Scope": "body-paragraph",
+                 "Parameter": "cpl_min=45;cpl_max=75"},
+            ],
+        },
+    }
+
+    def _write(self, tmpdir, payload):
+        path = Path(tmpdir) / "resolved.json"
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        return path
+
+    def test_docx_block_carries_all_five_page_flow_properties(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            proc = _run(["handoff", "--json", str(self._write(tmp, self._RESOLVED)), "--format", "docx"])
+        self.assertEqual(proc.returncode, 0)
+        for expected in (
+            "keepNext: heading bound to body-paragraph",
+            "widowControl: body-paragraph, min_lines_together=2",
+            "cantSplit: table-row",
+            "tblHeader: table-header-row",
+            "keepNext: figure bound to caption-block",
+        ):
+            self.assertIn(expected, proc.stdout)
+        self.assertNotIn("cpl_min", proc.stdout)
+
+    def test_pptx_block_states_no_equivalent_and_names_each_property(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            proc = _run(["handoff", "--json", str(self._write(tmp, self._RESOLVED)), "--format", "pptx"])
+        self.assertEqual(proc.returncode, 0)
+        self.assertIn("NOT APPLICABLE", proc.stdout)
+        self.assertIn("slides do not paginate", proc.stdout)
+        for prop in ("keepNext", "widowControl", "cantSplit", "tblHeader"):
+            self.assertIn(prop, proc.stdout)
+
+    def test_pptx_states_not_applicable_even_with_no_page_flow_constraints_resolved(self):
+        empty = {"status": "resolved", "resolved": {}}
+        with tempfile.TemporaryDirectory() as tmp:
+            proc = _run(["handoff", "--json", str(self._write(tmp, empty)), "--format", "pptx"])
+        self.assertEqual(proc.returncode, 0)
+        self.assertIn("NOT APPLICABLE", proc.stdout)
+
+
 class TestVersion(unittest.TestCase):
     def test_prints_version_and_exits_zero(self):
         code = ddi.main(["version"])

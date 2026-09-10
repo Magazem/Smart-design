@@ -225,6 +225,8 @@ HANDOFF_VOCAB = {
     "render_target_tier_column": "Print Tier Max",
     "constraints_table": "constraints",
     "constraints_id_column": "Set Key",
+    "constraints_element_scope_column": "Element Scope",
+    "constraints_parameter_column": "Parameter",
 }
 
 
@@ -302,6 +304,68 @@ def _constraints_and_preflight_lines(resolved, target_format):
     return lines
 
 
+def _parse_kv_parameter(param_string):
+    """Split a constraints.csv `Parameter` cell (`key=value;key=value`) into
+    a dict. Segments with no '=' are skipped rather than raising -- most
+    constraint rows pack a single bare token here, not a key=value pair."""
+    pairs = {}
+    for segment in (param_string or "").split(";"):
+        key, sep, value = segment.partition("=")
+        if sep:
+            pairs[key.strip()] = value.strip()
+    return pairs
+
+
+def _page_flow_constraints(resolved):
+    """Resolved constraint rows whose Parameter names a docx_property --
+    found by reading the schema (research/brief-mechanism.md: "READ THE
+    PARAMETER, do not hardcode a second copy of this mapping"), not a
+    hardcoded constraint_key list, so a newly authored page-flow constraint
+    reaches the handoff block with no change here."""
+    v = HANDOFF_VOCAB
+    out = []
+    for row in resolved.get(v["constraints_table"], []):
+        params = _parse_kv_parameter(row.get(v["constraints_parameter_column"], ""))
+        if params.get("docx_property"):
+            out.append((row, params))
+    return out
+
+
+def _page_flow_docx_lines(resolved):
+    lines = ["  page flow (OOXML paragraph/table properties, mapped from each "
+              "constraint's own Parameter column -- convention, not sourced to any "
+              "authority this library cites):"]
+    v = HANDOFF_VOCAB
+    flow = _page_flow_constraints(resolved)
+    if not flow:
+        lines.append(f"    {NOT_PRESENT}")
+        return lines
+    for row, params in flow:
+        prop = params["docx_property"]
+        block = params.get("applies_to_block") or row.get(v["constraints_element_scope_column"], "")
+        detail = block or NOT_PRESENT
+        binds_to = params.get("binds_to")
+        if binds_to:
+            detail = f"{detail} bound to {binds_to}"
+        min_lines = params.get("min_lines_together")
+        if min_lines:
+            detail = f"{detail}, min_lines_together={min_lines}"
+        lines.append(f"    {prop}: {detail}  [{row.get('key', '')}]")
+    return lines
+
+
+def _page_flow_pptx_lines(resolved):
+    lines = ["  page flow: NOT APPLICABLE -- slides do not paginate, so docx's "
+              "page-flow properties have no pptx equivalent:"]
+    flow = _page_flow_constraints(resolved)
+    if flow:
+        properties = sorted({params["docx_property"] for _, params in flow})
+        lines.append(f"    no pptx equivalent for: {', '.join(properties)}")
+    else:
+        lines.append(f"    {NOT_PRESENT}")
+    return lines
+
+
 def _build_docx_lines(resolved):
     v = HANDOFF_VOCAB
     lines = []
@@ -375,6 +439,8 @@ def _build_docx_lines(resolved):
     else:
         lines.append(f"    {NOT_PRESENT}")
 
+    lines.extend(_page_flow_docx_lines(resolved))
+
     return lines
 
 
@@ -428,6 +494,8 @@ def _build_pptx_lines(resolved):
             lines.append(f"    {NOT_PRESENT}")
     else:
         lines.append(f"    {NOT_PRESENT}")
+
+    lines.extend(_page_flow_pptx_lines(resolved))
 
     return lines
 

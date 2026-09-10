@@ -492,6 +492,7 @@
         }
       },
       "searchable_columns": [],
+      "display_columns": ["Element Scope", "Parameter"],
       "typed_json_columns": [],
       "derived": []
     },
