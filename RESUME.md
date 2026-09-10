@@ -439,6 +439,41 @@ DDR rather than forced into a section list. Not v0.2.
   from research/09-library-schema.md Revision 4, which does not describe it either.
 - Heading variants for non-CV families.
 
+## CLAUDE'S OWN ACCOUNT -- the decisive evidence, verbatim (2026-09-10)
+The user asked Claude, in the two FAILED French chats, which skills it considered.
+
+FR LETTER: "I only pulled up the docx skill and didn't check document-design-intelligence. In
+hindsight, that was probably the wrong call. You never said Word or .docx -- you just asked for
+a formal business letter. Per document-design-intelligence's own trigger rules, letters
+(courrier) without a named file format are its job, and it defers to docx only when the user
+explicitly names the format for a plain conversion. Since you didn't name a format, it should
+have taken priority."
+
+FR REPORT: "I considered the general file-creation guidance (whether this needed a file vs.
+inline text, and which format), but I didn't check document-design-intelligence before creating
+the file -- I should have. That skill's trigger list explicitly includes reports, so it was
+relevant here and I skipped it. I treated this as a short internal markdown summary rather than
+a designed document."
+
+### WHAT THIS SETTLES
+**THE DESCRIPTION'S CONTENT IS CORRECT.** Claude ENDORSES it once it reads it -- it names
+courrier, it recites the deferral condition, it concludes we should have taken priority.
+**THE FAILURE IS SALIENCE AT DECISION TIME.** Claude decides "make a file", reaches for docx or
+a markdown file, and never opens ours at all.
+
+Candidate H's priority claim is the RIGHT SENTENCE in the WRONG PLACE: it is the seventh of
+eight, arriving long after the decision is made. Candidate L reorders it to first.
+
+Note this also reframes the language finding above: the German prompts may simply have been
+phrased in ways that made the decision differently, not "German routes better". Keep the tally,
+but do not treat language as the root cause now that Claude has told us the mechanism.
+
+## ACTIVATION PROMPT 11 WITH TEXT OUTPUT: PASS -- the plain-text fix is PROVEN
+User report: the skill fired, produced well-organised structured text WITHOUT asking for a
+format first, and only then offered PDF or docx. That is exactly the behaviour commit 706da0d
+was written to produce. It was reported as "addressed, not proven"; it is now proven in
+behaviour, which is the only evidence that counts for a prose change.
+
 ## ACTIVATION: THE DISCRIMINATOR IS LANGUAGE. THREE THEORIES ARE DEAD. (2026-09-10)
 Final tally on the G+H archive, every prompt with its noun present in the description:
     GERMAN  4/4 FIRE   (invoice 2/2, form 1/1, whitepaper, memo)
