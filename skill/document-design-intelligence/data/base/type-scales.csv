@@ -9,7 +9,12 @@ print-office-generic-print-h3,print-office-generic,print,h3,12,1.20
 print-office-generic-print-h2,print-office-generic,print,h2,16,1.20
 print-office-generic-print-h1,print-office-generic,print,h1,24,1.20
 cv-print-print-body,cv-print,print,body,11,1.35
+cv-print-print-h2,cv-print,print,h2,16,1.20
+cv-print-print-h1,cv-print,print,h1,24,1.20
 report-print-print-body,report-print,print,body,11,1.35
+report-print-print-h3,report-print,print,h3,12,1.20
+report-print-print-h2,report-print,print,h2,16,1.20
+report-print-print-h1,report-print,print,h1,24,1.20
 report-technical-print-body,report-technical,print,body,11,1.35
 report-screen-screen-body,report-screen,screen,body,11,1.35
 form-print-print-body,form-print,print,body,11,1.35

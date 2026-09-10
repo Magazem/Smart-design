@@ -229,11 +229,18 @@ class TestHandoffEndToEndOnRealData(unittest.TestCase):
     This test runs the real pipeline (`ddi.py resolve` -> `ddi.py handoff`) on
     real data/, on TWO doctypes, and asserts those sections carry CONTENT. A
     test that only checked exit 0 would have passed for the whole of v0.1.0 --
-    that is the gap this closes. `TOC heading levels` and `characterSpacing`
-    are deliberately NOT asserted: see the class docstring below each.
+    that is the gap this closes. `TOC heading levels` is asserted too, as of
+    RULING N -- see TOC_HEADING_ROLES. `characterSpacing` is still deliberately
+    NOT asserted: see the docstring on the test below it.
     """
 
     DOCTYPES = ("report-long-toc", "cv-generic")
+    #: RULING N: the heading roles each doctype's type scale is authored to carry.
+    #: Checked as a SET, not merely for presence, so a missing level is a failure
+    #: rather than a shorter list -- and so cv-generic states that h3 is ABSENT
+    #: on purpose instead of leaving it unsaid.
+    TOC_HEADING_ROLES = {"report-long-toc": ("h1", "h2", "h3"),
+                         "cv-generic": ("h1", "h2")}
     #: `  <label...>:` at two spaces, its values indented four. Splitting on the
     #: indent rather than matching each label keeps this test from having to
     #: restate ddi.py's exact (long, citation-bearing) section headers.
@@ -317,3 +324,45 @@ class TestHandoffEndToEndOnRealData(unittest.TestCase):
                         if "constraints to preflight" in l]
                 self.assertEqual(len(line), 1, line)
                 self.assertTrue(line[0].split(":", 1)[1].strip(), line[0])
+
+    def test_toc_heading_levels_name_the_scale_roles_and_carry_their_sizes(self):
+        """RULING N. `report-long-toc` is the doctype named for its table of
+        contents, and this section printed NOT_PRESENT right up until the five
+        authored type-scale heading rows were loaded: `report-print` and
+        `cv-print` carried a `body` row and nothing else, so _heading_roles()
+        found nothing shaped like h<n> to emit a HeadingLevel for.
+
+        Asserting the section is merely NON-EMPTY would not have closed that gap
+        -- it passes on `h2, h3` alone, which is a table of contents with no top
+        level. So the roles are checked as a SET against what each scale is
+        authored to carry, and every role listed must then appear in `font sizes`
+        with a real point value. A HeadingLevel with no size behind it is the same
+        empty handoff wearing a label.
+
+        cv-generic asserts h3 is ABSENT. `cv-print` has no h3 by decision: a CV's
+        third tier is weight contrast, not a size (research/46-notes.md).
+        """
+        for doctype, expected in self.TOC_HEADING_ROLES.items():
+            with self.subTest(doctype=doctype):
+                sections = self._sections(self._handoff(doctype))
+                header, values = self._section_values(sections, "TOC heading levels")
+                roles = [line.split("->")[0].strip() for line in values
+                         if line and line != ddi.NOT_PRESENT]
+                self.assertEqual(
+                    sorted(roles), sorted(expected),
+                    f"{doctype}: handoff section {header!r} carries {roles}, expected "
+                    f"{list(expected)} -- TOC heading levels are the type-scale h<n> "
+                    "rows, so a missing level means the scale row is not in data/base")
+                _, size_lines = self._section_values(sections, "font sizes ")
+                sizes = {}
+                for line in size_lines:
+                    role, _, rest = line.partition(": ")
+                    sizes[role] = rest.partition("pt")[0]
+                for role in roles:
+                    self.assertIn(
+                        role, sizes,
+                        f"{doctype}: TOC heading levels lists {role} but `font sizes` "
+                        "carries no size for it")
+                    self.assertGreater(
+                        float(sizes[role]), 0,
+                        f"{doctype}: TOC heading level {role} has no positive size")
