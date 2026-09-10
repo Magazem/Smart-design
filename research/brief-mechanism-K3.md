@@ -1,7 +1,7 @@
 # BRIEF — Mechanism — RULING K step 3: page flow must reach the renderer (HOLD)
 
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
-DO NOT touch git. DO NOT START until dispatched, and not before the constraints are loaded.
+DO NOT touch git. DISPATCHED. The constraints are loaded and committed as 0076fff. Proceed.
 
 ## Why
 Page-flow rules in the library are useless if the render handoff never mentions them. The
@@ -39,3 +39,23 @@ Python: C:\Users\ysuliman\AppData\Local\Microsoft\WindowsApps\python3.exe
 ## Report
 Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 10 lines: the two blocks,
 the test names, and the tally.
+
+## The five rows are already in data/base -- here they are
+Loaded 2026-09-10, gate 419 rows. Every Parameter already NAMES the OOXML property, so you are
+mapping, not inventing:
+  report-heading-keep-with-next        docx_property=keepNext;applies_to_block=heading;binds_to=body-paragraph
+  report-widow-orphan-control          docx_property=widowControl;min_lines_together=2
+  report-table-row-no-split            docx_property=cantSplit;applies_to_block=table-row
+  report-table-header-repeat           docx_property=tblHeader;applies_to_block=table-header-row
+  report-figure-caption-keep-together  docx_property=keepNext;applies_to_block=figure;binds_to=caption-block
+All five are Set Key , Applies To , Severity .
+Two carry an empty Element Scope BY DESIGN -- their block type lives in Parameter. Do not treat
+that as missing data.
+
+READ THE PARAMETER, do not hardcode a second copy of this mapping in the handoff code. If the
+Parameter says , emit keepNext. A hardcoded parallel table is how the
+two copies drift apart.
+
+THESE RULES ARE CONVENTION, NOT SOURCED. DDR checked and could not attribute them to any
+authority this library cites. If the handoff block labels provenance anywhere, label them
+honestly.

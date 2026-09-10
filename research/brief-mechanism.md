@@ -1,71 +1,61 @@
-# BRIEF — Mechanism — Candidate L: the priority claim must come FIRST
+# BRIEF — Mechanism — RULING K step 3: page flow must reach the renderer (HOLD)
 
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
-DRAFT ONLY. DO NOT edit SKILL.md. DO NOT touch git. You append one section to
-research/38-description-candidate.md.
+DO NOT touch git. DISPATCHED. The constraints are loaded and committed as 0076fff. Proceed.
 
-## The evidence — Claude's own account, verbatim, from the two failed French chats
-FR letter: "I only pulled up the docx skill and didn't check document-design-intelligence. In
-hindsight, that was probably the wrong call. You never said Word or .docx — you just asked for a
-formal business letter. Per document-design-intelligence's own trigger rules, letters (courrier)
-without a named file format are its job, and it defers to docx only when the user explicitly
-names the format for a plain conversion. Since you didn't name a format, it should have taken
-priority."
+## Why
+Page-flow rules in the library are useless if the render handoff never mentions them. The
+`handoff` command prints resolved fonts, colours, spacing, page format and constraints for the
+built-in docx and pptx skills to act on. Unless the page-flow constraints arrive there in words
+docx understands, a heading will still land alone at the foot of a page.
 
-FR report: "I considered the general file-creation guidance ... but I didn't check
-document-design-intelligence before creating the file — I should have. That skill's trigger list
-explicitly includes reports, so it was relevant here and I skipped it. I treated this as a short
-internal markdown summary rather than a designed document."
+## Deliverable (ONE)
+Make the render-handoff block carry page flow.
+1. Find where `handoff` builds its block — scripts/ddi.py and whatever it calls.
+2. Emit the page-flow constraints in terms the docx skill can act on directly:
+   keepNext, keepLines, widowControl, cantSplit, tblHeader.
+   Map each loaded constraint to its property rather than inventing a parallel vocabulary.
+3. STATE PLAINLY IN THE OUTPUT THAT PPTX HAS NO EQUIVALENT. Slides do not paginate, so these
+   properties do not apply. Say it in the block rather than silently omitting it — a silent
+   omission reads as an oversight to anyone comparing the two paths.
+4. Add a test that the docx handoff block contains the properties and the pptx one carries the
+   not-applicable statement.
 
-## What that means, and it is different from every theory we have tested
-THE DESCRIPTION'S CONTENT IS CORRECT. Claude ENDORSES it once it reads it — it names courrier,
-it names the deferral condition, it concludes we should have taken priority. The failure is
-SALIENCE AT DECISION TIME: Claude decides "make a file", reaches for docx or a markdown file,
-and never opens ours at all.
+## Constraints
+- Do NOT change any threshold, weight or constant in the resolver. If you want to, stop and tell
+  me — that is a standing rule here.
+- Do NOT edit SKILL.md's frontmatter description. It is under test.
+- If the body needs a sentence pointing at this, keep it to one line; the file is a router.
 
-Candidate H's priority claim is the RIGHT SENTENCE. It is just the SEVENTH of eight, arriving
-long after the decision is made.
-
-## Deliverable (ONE) — research/38-description-candidate.md, appended as "Candidate L"
-Do NOT overwrite B, F, G, H, I or J. F, G and H are APPLIED and live at 972. J was VETOED.
-
-REORDER so the FIRST sentence is the priority claim over docx and pptx. The lead's sketch:
-  "Use this before the docx or pptx skills whenever the user asks for a document to be created,
-   drafted, structured or fixed: CVs, ... [noun list] ... appearance fixes ... Applies sourced
-   ... Defer to docx/pptx only when the user names the format for a plain conversion or edit
-   with no design ask. Not for web/app UI ..."
-
-Rules:
-1. MOVE words, do not invent them. This is a reordering, not a rewrite. The more of the current
-   972 characters that survive verbatim, the less new risk we take.
-2. THE DEFERRAL CONDITION MUST SURVIVE VERBATIM — "only when the user names it for a plain
-   conversion or edit with no design ask". Activation prompt 13 depends on it and passes today.
-3. Keep "sourced", the UI/UX boundary, "lettre", and every document noun.
-4. Measure. Under 1023. Give the exact result on one line, its measured length, and headroom.
-
-## TWO COUPLED CHANGES YOU MUST NAME, or the application breaks
-- scripts/tests/test_description_coverage.py uses a LITERAL STRING as its region marker,
-  currently "Creating any document type above". If your reorder moves or rewords that sentence,
-  the marker must move with it. This exact trap nearly shipped a silent test when candidate H
-  deleted the previous marker; there is now a hard AssertionError guarding it. Say in your draft
-  what the new marker should be.
-- references/activation.md's fenced "as shipped" block must be updated byte for byte. There is
-  now a test enforcing that, so a missed update fails the suite rather than drifting silently.
-
-## Risk
-State the effect on should-not-fire prompts 8, 9 and 10. Scope does NOT widen here — the same
-claims in a different order — so if you find a real risk, that is a finding worth flagging
-loudly. Also say whether leading with a claim about OTHER skills' priority could misfire.
-
-## The judgement I want
-If you think reordering cannot fix a salience problem — because the platform may show only part
-of the description, or because the decision happens before any description is read — SAY SO and
-say what would. You refuted the H brief's framing correctly and Coverage refuted I. The same
-permission applies.
+## Verify
+1. Run `handoff` on a resolved report and paste the block, so the page-flow lines are visible.
+2. Run it for pptx and paste the not-applicable statement.
+3. `python3 -m pytest scripts -q` — baseline will be whatever step 2 left it at; report the
+   number and your delta.
+4. `python3 scripts/validate_data.py data/base` unchanged.
 
 Python: C:\Users\ysuliman\AppData\Local\Microsoft\WindowsApps\python3.exe
 
 ## Report
-Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 10 lines: the new first
-sentence verbatim, the measured length and headroom, how much survived verbatim, the new marker
-string, and your risk verdict.
+Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 10 lines: the two blocks,
+the test names, and the tally.
+
+## The five rows are already in data/base -- here they are
+Loaded 2026-09-10, gate 419 rows. Every Parameter already NAMES the OOXML property, so you are
+mapping, not inventing:
+  report-heading-keep-with-next        docx_property=keepNext;applies_to_block=heading;binds_to=body-paragraph
+  report-widow-orphan-control          docx_property=widowControl;min_lines_together=2
+  report-table-row-no-split            docx_property=cantSplit;applies_to_block=table-row
+  report-table-header-repeat           docx_property=tblHeader;applies_to_block=table-header-row
+  report-figure-caption-keep-together  docx_property=keepNext;applies_to_block=figure;binds_to=caption-block
+All five are Set Key , Applies To , Severity .
+Two carry an empty Element Scope BY DESIGN -- their block type lives in Parameter. Do not treat
+that as missing data.
+
+READ THE PARAMETER, do not hardcode a second copy of this mapping in the handoff code. If the
+Parameter says , emit keepNext. A hardcoded parallel table is how the
+two copies drift apart.
+
+THESE RULES ARE CONVENTION, NOT SOURCED. DDR checked and could not attribute them to any
+authority this library cites. If the handoff block labels provenance anywhere, label them
+honestly.
