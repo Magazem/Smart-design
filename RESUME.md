@@ -448,15 +448,12 @@ headings.md says so on its own second line. A paragraph typed into any of them i
 the next load. To change their content, change the write_text block in load-base.py -- for
 headings.md that is around line 448.
 
-## PHASE B MUST ALSO DO THESE
-1. Put the cross-class reuse rule into the load-base.py generator for rationale/headings.md.
-2. Merge the section orders into research/36-t10-structures-draft.csv, the loader's only
-   structures source.
-3. Rewrite the comment block above the T10 loader (around line 595) which asserts the fifteen
-   blanks are correct BY RULING and points at research/36-notes.md.
-4. Fix the T13 CHANGES string, which hardcodes "81 rows", and the T10 CHANGES string, which
-   says "headings.csv covers CV sections only".
-5. Fix the scripts/resolve.py _field_value docstring around line 528, same stale claim.
+## PHASE B IS DONE -- all seven truth-pass edits landed 2026-09-10
+The reuse rule is in the load-base.py generator, so it is REGENERATED each load. The section
+orders are merged. The T10 comment block, both CHANGES strings and the resolve.py docstring no
+longer make claims that stopped being true when the data loaded. The manifest NOTES document
+`distinct_token_columns` and build-manifest.py's docstring is honest about its provenance.
+Every number in the new rationale prose is COMPUTED at load time, not typed.
 
 ## STANDING RULE, ruled 2026-09-09: cross-class section reuse
 NEVER reuse a canonical_section across document classes when its FR or DE primary Heading Text
@@ -507,12 +504,13 @@ find yourself about to apply it because activation testing looks weak, stop: fix
 validates EVERY token. I read the code path at scripts/validate_data.py around line 236 to
 confirm it splits rather than validating the joined string.
 
-headings.csv has 81 rows covering exactly 11 canonical sections, and ALL ELEVEN ARE CV-ONLY:
-certifications, contact, education, experience, languages, projects, publications, references,
-skills, summary, volunteering.
+HISTORICAL, and the reason phase A was shaped as it was: at the time, headings.csv held 81 rows
+over exactly 11 canonical sections, ALL OF THEM CV-ONLY. **As of 2026-09-10 it holds 204 rows
+over 51 sections** and every structure row carries an order. The rule below still governs any
+FUTURE family:
 
-CONSEQUENCE: every non-CV family needs brand-new canonical sections, so **headings rows must be
-authored and loaded BEFORE or WITH their Section Orders, never after.** Load a Section Order
+CONSEQUENCE: a new family needing brand-new canonical sections must have its **headings rows
+authored and loaded BEFORE or WITH its Section Orders, never after.** Load a Section Order
 first and every section name without a headings row is a dangling FK and the gate goes non-zero.
 This is how gate 82 happened last time. The drafts are therefore authored in pairs.
 
@@ -589,7 +587,11 @@ disagree, this project fixes the product. Cite this the next time a threshold is
   Nobody pushes. Tag and push are the lead's, after the user confirms.
   Step 8 = final ZIP check, commit the remainder, hand the tag command over.
 
-## STEP 9, ruled 2026-09-09 (AFTER v0.1.0): headings for the other 14 doc classes
+## STEP 9 -- DONE in v0.2, kept for the reasoning. THE COUNTS BELOW ARE HISTORICAL.
+All 17 structure rows carry a Section Order as of commit aec56f4. headings.csv is 204 rows over
+51 canonical sections. What follows describes the state that MOTIVATED the work, not today's.
+
+### Original ruling, 2026-09-09 (AFTER v0.1.0): headings for the other 14 doc classes
 `structures.Section Order` is a list FK into `headings.canonical_section`. `headings.csv`
 has 81 rows but only ELEVEN distinct canonical_section values, all CV sections:
 certifications, contact, education, experience, languages, projects, publications,

@@ -185,6 +185,45 @@ Columns that are list *foreign keys* — `doctypes.Render Target Keys`,
 already split by the FK checker and are **not** declared twice. `build-manifest.py` asserts
 this, along with "the column exists" and "the pattern compiles", for both new keys.
 
+> **The paragraph immediately above is stale and is left standing as a record, not as a
+> ruling.** `build-manifest.py` now asserts the *inverse*: every `list: true` FK must ALSO
+> appear in `list_columns`, because the FK loop skips empty tokens and so never sees a
+> stray or doubled `;`. All four list FK columns are declared in both places today, and
+> `list_columns` holds twelve columns, not eight. Correcting this section is a separate
+> edit that has not been made; it is reported as a candidate eighth edit for whoever owns
+> the next pass.
+
+### 1.5 `distinct_token_columns` — repeated tokens inside one cell
+
+`list_columns` checks that a delimited cell *parses*. It does not check what the parsed
+tokens say, so a cell could name the same token twice and pass. `distinct_token_columns`
+closes that: a non-empty value in a declared column is split on that column's delimiter,
+stripped, and rejected if any token appears more than once.
+
+The key maps column name → single-character delimiter, exactly as `list_columns` does, and
+**twelve** columns are declared across eight tables. The live defect it was added for was the
+`brochure-flyer-a4` row of `doctypes`, whose `Keywords` cell carried `flyer a4` twice until
+v0.2.
+
+**It is opt-in per column, and deliberately not derived from `list_columns`, in both
+directions.**
+
+- It covers a column that is *not* a `;`-list: `doctypes.Keywords` is a `, `-separated
+  search-token cell, delimiter `,`. A repeated keyword doubles that term's BM25 frequency
+  and biases retrieval toward the row carrying the accidental repeat, so the check matters
+  there even though the well-formedness check does not apply.
+- It omits a column that *is* a declared list: `page-formats."Panels mm"` is **exempt on
+  purpose**. It is a positional sequence of panel widths, and equal panels are the normal
+  case — `a4-trifold` is `99.5;99.5;98.0`, `letter-gatefold` is
+  `53.175;54.775;54.775;53.175`. A blanket "no repeated token in any list column" rule
+  would fail four correct rows.
+
+Repetition is a defect in a *set* and normal in a *sequence*, and nothing in the manifest
+says which a given column is. Only the schema author knows, so the declaration is made per
+column rather than inferred. `build-manifest.py` therefore guards it only weakly: the column
+must exist, and the delimiter must be a single non-empty character. It cannot check the
+delimiter against `list_columns`, because agreeing with `list_columns` is not the invariant.
+
 ---
 
 ## 2. Columns I added that Revision 2 does not have

@@ -2,6 +2,14 @@
 """Emit data/schema-manifest.json from research/09-library-schema.md Revision 4.
 
 Run from skill/document-design-intelligence/ -- the output path is relative.
+
+One key is NOT from Revision 4: `distinct_token_columns`. Revision 4 does not describe it,
+does not name it and rules nothing about it -- it was added at v0.2, after a repeated
+`flyer a4` token in one `doctypes.Keywords` cell was found to double that term's retrieval
+weight. Its provenance is this file plus `validate_data.py`, which implements the check, and
+`data/schema-manifest-NOTES.md` section 1.5, which states the ruling. Treat the twelve
+declarations below as authored here, not as transcribed from the schema, and do not
+"reconcile" them against Revision 4 -- there is nothing there to reconcile with.
 """
 import json, pathlib, re
 

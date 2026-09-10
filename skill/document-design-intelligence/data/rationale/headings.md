@@ -1,16 +1,50 @@
 # rationale/headings.md
 
 Written by `research/load-base.py`. **Do not hand-edit** -- the source is the
-`source` column of `research/18-ats-headings.csv`.
+`source` column of the 4 heading inputs (`research/18-ats-headings.csv`, `research/39-headings-transactional-draft.csv`, `research/40-headings-longform-draft.csv`, `research/41-headings-marketing-draft.csv`).
 
 Rule 2 (`09-library-schema.md:70`): rationale and provenance live in a sibling
 `rationale/<table>.md`, not in a column.
 
 T13 is the table where that citation carries the most weight and repeats the most:
-the distinction governing every row is whether a heading string comes from **report
-03** or is an unsourced **convention**, and 59 of the 204 rows carry the identical
-`convention (not in report 03)` string. Grouped by citation rather than listed per
-row, so the shape of the evidence is visible instead of buried in the repetition.
+204 rows over 49 distinct citations. No single distinction runs through all of them,
+because the rows arrive from four inputs authored against different evidence.
+
+The 81 CV rows (`18-ats-headings.csv`) are the ones that measure themselves against **report 03**:
+6 name it as their source and 75 are convention, of which 59 carry the identical
+`convention (not in report 03)` string.
+
+The remaining 123 transactional, long-form and marketing rows are cited against
+different evidence, over 33 distinct strings. **Not one of them names report 03 as
+a source.** 35 mention it at all, and only to disclaim it (`not in report 03`) --
+report 03 is a CV document, and these classes are outside it. 25 carry a `sourced`
+citation to a standard or convention of their own, and 86 name the phase A notes
+file beside their draft. Grouped by citation rather than listed per row, so the
+shape of the evidence is visible instead of buried in the repetition.
+
+## The reuse rule for `canonical_section`
+
+Never reuse a `canonical_section` across document classes when its **FR or DE**
+primary heading text reads as a word belonging to the other class. Check the actual
+heading text in all three languages before reusing a section, not just the English
+canonical name -- an English name that fits is exactly what makes a wrong reuse look
+right.
+
+Three worked examples, quoting the shipped rows:
+
+- `summary` was refused for a proposal's executive summary. Its EN primary is
+  "Summary", which fits, but its FR primary is "Profil" and its DE primary "Profil" -- a CV
+  word in both. `executive-summary` was authored instead (FR "Résumé exécutif", DE "Zusammenfassung").
+- `references` was refused for a report's bibliography. Its DE primary "Referenzen"
+  reads as testimonials, not as a list of works cited. `bibliography` was authored
+  instead (DE "Literaturverzeichnis").
+- `proposed-solution` was refused for a whitepaper: its DE primary "Lösungsvorschlag" carries a
+  commercial-bid flavour a whitepaper's solution section does not have, so
+  `solution-approach` (DE "Lösungsansatz") was authored for it. That same `proposed-solution`
+  was then REUSED for a pitch deck, where the bid flavour is correct. The rule cuts
+  both ways -- it forbids the wrong reuse, not reuse.
+
+## Citations
 
 ### convention (not in report 03)
 

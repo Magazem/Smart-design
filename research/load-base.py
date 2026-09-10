@@ -435,15 +435,18 @@ HEADING_FILES = ["18-ats-headings.csv", "39-headings-transactional-draft.csv",
 # `n` is deliberately shared across all four files: it numbers the `<section>-<lang>-<n>`
 # surrogate globally, so a section that appears in two inputs keeps counting up rather
 # than restarting and colliding.
-for r in [row for name in HEADING_FILES for row in read(name)]:
-    key = (r["canonical_section"], r["language"])
-    n[key] = n.get(key, 0) + 1
-    head_sources.append(("%s-%s-%d" % (r["canonical_section"], r["language"], n[key]),
-                         (r.get("source") or "").strip()))
-    rows.append({"heading_key": "%s-%s-%d" % (r["canonical_section"], r["language"], n[key]),
-                 "canonical_section": r["canonical_section"],
-                 "Heading Text": r["heading_text"], "Language": r["language"],
-                 "Is Primary": r["is_primary"]})
+for name in HEADING_FILES:
+    for r in read(name):
+        key = (r["canonical_section"], r["language"])
+        n[key] = n.get(key, 0) + 1
+        hk = "%s-%s-%d" % (r["canonical_section"], r["language"], n[key])
+        # The input filename rides along in the third slot so the rationale prose below
+        # can split the CV rows from the phase A ones without re-reading the four files.
+        head_sources.append((hk, (r.get("source") or "").strip(), name))
+        rows.append({"heading_key": hk,
+                     "canonical_section": r["canonical_section"],
+                     "Heading Text": r["heading_text"], "Language": r["language"],
+                     "Is Primary": r["is_primary"]})
 if len({r["heading_key"] for r in rows}) != len(rows):
     sys.exit("T13: duplicate heading_key across the %d heading inputs"
              % len(HEADING_FILES))
@@ -453,20 +456,79 @@ CHANGES.append("T13: %d rows over %d heading inputs, +heading_key surrogate, "
 write("headings", rows)
 RATIONALE.mkdir(parents=True, exist_ok=True)
 by_src = {}
-for hk, hs in head_sources:
+for hk, hs, _src_file in head_sources:
     by_src.setdefault(hs or "(none given)", []).append(hk)
+
+# Every number in the prose below is counted here rather than typed, so the next input
+# file added to HEADING_FILES cannot leave the paragraph describing an older shape.
+# HEADING_FILES[0] is the CV input; the other three are the phase A drafts.
+CV_INPUT = HEADING_FILES[0]
+cv_cites = [hs for _hk, hs, fn in head_sources if fn == CV_INPUT]
+cv_sourced = [c for c in cv_cites if c.lower().startswith("report 03")]
+cv_identical = [c for c in cv_cites if c == "convention (not in report 03)"]
+rest_cites = [hs for _hk, hs, fn in head_sources if fn != CV_INPUT]
+
+
+def primary(section, lang):
+    """The `is_primary` heading text for one (section, language), read back out of the
+    rows just built -- so the reuse rule's worked examples quote the shipped data and
+    cannot drift from it."""
+    for r in rows:
+        if (r["canonical_section"] == section and r["Language"] == lang
+                and r["Is Primary"] == "yes"):
+            return r["Heading Text"]
+    return "(absent)"
+
+
 (RATIONALE / "headings.md").write_text(
     "# rationale/headings.md\n\n"
     "Written by `research/load-base.py`. **Do not hand-edit** -- the source is the\n"
-    "`source` column of `research/18-ats-headings.csv`.\n\n"
-    "Rule 2 (`09-library-schema.md:70`): rationale and provenance live in a sibling\n"
+    "`source` column of the %d heading inputs (%s).\n\n"
+    % (len(HEADING_FILES), ", ".join("`research/%s`" % f for f in HEADING_FILES))
+    + "Rule 2 (`09-library-schema.md:70`): rationale and provenance live in a sibling\n"
     "`rationale/<table>.md`, not in a column.\n\n"
     "T13 is the table where that citation carries the most weight and repeats the most:\n"
-    "the distinction governing every row is whether a heading string comes from **report\n"
-    "03** or is an unsourced **convention**, and %d of the %d rows carry the identical\n"
-    "`convention (not in report 03)` string. Grouped by citation rather than listed per\n"
-    "row, so the shape of the evidence is visible instead of buried in the repetition.\n\n"
-    % (len(by_src.get("convention (not in report 03)", [])), len(head_sources))
+    "%d rows over %d distinct citations. No single distinction runs through all of them,\n"
+    "because the rows arrive from four inputs authored against different evidence.\n\n"
+    "The %d CV rows (`%s`) are the ones that measure themselves against **report 03**:\n"
+    "%d name it as their source and %d are convention, of which %d carry the identical\n"
+    "`convention (not in report 03)` string.\n\n"
+    "The remaining %d transactional, long-form and marketing rows are cited against\n"
+    "different evidence, over %d distinct strings. **Not one of them names report 03 as\n"
+    "a source.** %d mention it at all, and only to disclaim it (`not in report 03`) --\n"
+    "report 03 is a CV document, and these classes are outside it. %d carry a `sourced`\n"
+    "citation to a standard or convention of their own, and %d name the phase A notes\n"
+    "file beside their draft. Grouped by citation rather than listed per row, so the\n"
+    "shape of the evidence is visible instead of buried in the repetition.\n\n"
+    % (len(head_sources), len(by_src), len(cv_cites), CV_INPUT, len(cv_sourced),
+       len(cv_cites) - len(cv_sourced), len(cv_identical), len(rest_cites),
+       len(set(rest_cites)),
+       len([c for c in rest_cites if "report 03" in c.lower()]),
+       len([c for c in rest_cites if c.lower().startswith("sourced")]),
+       len([c for c in rest_cites if "-notes.md" in c]))
+    + "## The reuse rule for `canonical_section`\n\n"
+    "Never reuse a `canonical_section` across document classes when its **FR or DE**\n"
+    "primary heading text reads as a word belonging to the other class. Check the actual\n"
+    "heading text in all three languages before reusing a section, not just the English\n"
+    "canonical name -- an English name that fits is exactly what makes a wrong reuse look\n"
+    "right.\n\n"
+    "Three worked examples, quoting the shipped rows:\n\n"
+    "- `summary` was refused for a proposal's executive summary. Its EN primary is\n"
+    "  \"%s\", which fits, but its FR primary is \"%s\" and its DE primary \"%s\" -- a CV\n"
+    "  word in both. `executive-summary` was authored instead (FR \"%s\", DE \"%s\").\n"
+    "- `references` was refused for a report's bibliography. Its DE primary \"%s\"\n"
+    "  reads as testimonials, not as a list of works cited. `bibliography` was authored\n"
+    "  instead (DE \"%s\").\n"
+    "- `proposed-solution` was refused for a whitepaper: its DE primary \"%s\" carries a\n"
+    "  commercial-bid flavour a whitepaper's solution section does not have, so\n"
+    "  `solution-approach` (DE \"%s\") was authored for it. That same `proposed-solution`\n"
+    "  was then REUSED for a pitch deck, where the bid flavour is correct. The rule cuts\n"
+    "  both ways -- it forbids the wrong reuse, not reuse.\n\n"
+    % (primary("summary", "en"), primary("summary", "fr"), primary("summary", "de"),
+       primary("executive-summary", "fr"), primary("executive-summary", "de"),
+       primary("references", "de"), primary("bibliography", "de"),
+       primary("proposed-solution", "de"), primary("solution-approach", "de"))
+    + "## Citations\n\n"
     + "".join("### %s\n\n%d heading(s): %s\n\n"
               % (src, len(keys), ", ".join("`%s`" % k for k in keys))
               for src, keys in sorted(by_src.items(), key=lambda kv: (-len(kv[1]), kv[0]))),
@@ -606,22 +668,32 @@ CHANGES.append("T4: %d draft rows -> %d generic (`ens-core` is `Brand Scope` ens
 # generic_only() passes the rows through whole (neither Rule 1 nor Rule 2 applies).
 # This is the table 29 `doctypes.Structure Key` lines were dangling on.
 #
-# `Section Order` is EMPTY on 15 of 17 rows BY RULING, not by omission: it is a
-# group-FK list into `headings.canonical_section`, and headings.csv holds only the 11
-# CV sections. Authoring the rest is step 9, after v0.1.0 -- research/36-notes.md
-# lists exactly which tokens each document family still needs. Do not read those
-# blanks as a load defect and do not fill them here.
+# `Section Order` is a group-FK list into `headings.canonical_section`: each `;`-token
+# must match a canonical_section that headings.csv actually carries, checked token by
+# token by the gate. It is now populated on every row. The two CV rows were authored
+# with the draft; the other fifteen were filled in the draft by
+# research/42-merge-section-orders.py from the phase A section-order drafts (39/40/41),
+# which the phase A heading drafts gave canonical_section tokens for.
+#
+# The fill happened in research/36-t10-structures-draft.csv, and that is the only place
+# it may ever happen: data/base/structures.csv is written by this loader and by nothing
+# else. Hand-editing it puts the shipped table out of step with its own draft and the
+# next load silently reverts the edit.
 
 # ----------------------------------------------------------------- T10 structures
 src = read("36-t10-structures-draft.csv")
 rows = write("structures", src)
+CV_AUTHORED = ("cv-academic", "cv-experienced")  # authored with the draft, before phase A
 CHANGES.append("T10: %d draft rows -> %d generic (no ENS rows in the draft; the 4 "
                "ENS-scoped structure keys T1 references are out of scope until the "
-               "brand overlay authors them). `Section Order` is blank on %d of %d "
-               "rows by ruling -- headings.csv covers CV sections only, see "
-               "research/36-notes.md" % (len(src), len(rows),
-                                         sum(1 for r in rows if not r["Section Order"]),
-                                         len(rows)))
+               "brand overlay authors them). `Section Order` carries an order on %d of "
+               "%d rows: %s were authored with the draft, the other %d were merged into "
+               "it by research/42-merge-section-orders.py from the phase A section-order "
+               "drafts" % (len(src), len(rows),
+                           sum(1 for r in rows if r["Section Order"]), len(rows),
+                           " and ".join(CV_AUTHORED),
+                           len([r for r in rows
+                                if r["structure_key"] not in CV_AUTHORED])))
 
 assert_no_brand_rows()
 
