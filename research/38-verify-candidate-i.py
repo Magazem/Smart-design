@@ -18,6 +18,17 @@ CAP = 1023
 LIVE = re.search(r'^description:\s*"(.*)"\s*$',
                  io.open(SRC, encoding='utf-8').read(), re.M).group(1)
 
+# I-min has since been applied: 'lettre' is now in the live description. Every
+# package below was built by inserting it into the 964-character F+G+H string,
+# so re-running against the current SKILL.md would insert a second copy and
+# print numbers that mean nothing. Refuse rather than mislead.
+if 'lettre' in LIVE:
+    raise SystemExit(
+        'I-min has landed: the live description already contains "lettre" '
+        '(%d characters). This script measures candidate I against the '
+        '964-character F+G+H description and is spent. Keep it as the record '
+        'of how those numbers were produced; do not re-run it.' % len(LIVE))
+
 A_OLD = 'Applies sourced layout, typography, color, print, and ATS rules.'
 B_OLD = 'Not for web or app UI/UX design (use UI/UX Pro Max for screens).'
 A_TIGHT = 'Applies sourced layout, typography, color, print, ATS rules.'

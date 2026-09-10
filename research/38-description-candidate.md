@@ -868,8 +868,9 @@ failure there would make a third noun-present failure. Ask for it with the re-ru
 `lettre` is absent. Verified with `str.count()` against the live description, not by
 eye. `courrier` is present and `letters` is present, and `letter-formal`'s CSV
 keyword row is `letter, business letter, formal letter, official letter,
-correspondence, write a letter, draft a letter, courrier, lettre formelle, redige une
-lettre, fais-moi un courrier, geschaeftsbrief, formeller brief, erstelle einen brief`
+correspondence, write a letter, draft a letter, courrier, lettre formelle, rédige
+une lettre, fais-moi un courrier, geschäftsbrief, formeller brief, erstelle einen
+brief`
 - so the family is not unreachable today, it is reachable through the wrong French
 word.
 
@@ -894,12 +895,21 @@ description; each anchor below occurs exactly once. Note that `letters,` occurs
 **Edit 2 - the trigger phrases.** Anchor `erstelle ein Angebot;` (count 1). Insert
 before the semicolon. Two variants, see I.4 and I.5.
 
-- I-full inserts, 76 characters: `, draft an invoice, write a memo, redige une facture, erstelle eine Rechnung` (with the acute accent on `redige`)
-- I-alt inserts, 52 characters: `, redige une lettre, write a memo, redige un rapport` (with the acute accent on both `redige`)
+- I-full inserts, 76 characters:
 
-The accent-stripped spellings above are for safe reading only. The authoritative
-byte-exact forms are inside the fenced one-line descriptions in I.6 - copy from
-there, not from this list.
+```
+, draft an invoice, write a memo, rédige une facture, erstelle eine Rechnung
+```
+
+- I-alt inserts, 52 characters:
+
+```
+, rédige une lettre, write a memo, rédige un rapport
+```
+
+Both blocks are byte-exact and `38-verify-candidate-i.py` asserts that they still
+appear verbatim in this file, so a stripped accent fails the script rather than
+shipping a misspelled French word.
 
 **Edit 3 - the funding cuts.** Both anchors occur exactly once.
 
@@ -949,21 +959,28 @@ users type per family:
 | --- | --- | --- |
 | `write a memo` | `memo-internal` | **failed** |
 | `draft an invoice` | nothing | fired |
-| `redige une facture` | nothing | fired |
+| `rédige une facture` | nothing | fired |
 | `erstelle eine Rechnung` | nothing | fired |
 
 Three of the four are invented rather than drawn from the CSV vocabulary, and all
 three point at the one family with demonstrated activation success. 64 of the 76
-characters go to invoice. Nothing in the set matches prompt 2's utterance ("Peux-tu
-rediger une lettre commerciale...") or prompt 6's ("Tu peux en faire un rapport
-court...").
+characters go to invoice.
 
-The CSV already holds verbatim keywords for all three failing families: `redige une
-lettre` (letter-formal), `write a memo` (memo-internal), `redige un rapport`
-(report-short). Each is unique to its row, so each scores a `specific` hit under the
-coverage test's rule 4 rather than riding on a parent noun. That is I-alt: 52
-characters instead of 76, aimed at the three prompts that failed instead of the one
-that did not.
+The CSV already holds verbatim keywords for all three failing families:
+`rédige une lettre` (letter-formal), `write a memo` (memo-internal),
+`rédige un rapport` (report-short).
+
+**Be precise about how much better that is.** On matching the failing prompts'
+actual utterances, I-alt is one for three - `rédige une lettre` against prompt 2's
+"Peux-tu rédiger une lettre commerciale", while `write a memo` does not match "Can
+you turn this into a proper internal memo" and `rédige un rapport` does not match
+"Tu peux en faire un rapport court". The briefed set is zero for four. I-alt's real
+justification is not utterance matching, it is that all three phrases are the
+project's own recorded vocabulary for the three families that failed, rather than
+invented vocabulary for the one that did not. Each is unique to its row, so each scores a `specific` hit under the coverage test's
+matching rule rather than riding on a parent noun. That is I-alt: 52 characters
+instead of 76, aimed at the three families that failed instead of the one that did
+not.
 
 ### I.5 The packages, measured
 

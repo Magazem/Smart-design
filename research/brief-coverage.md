@@ -1,61 +1,53 @@
-# BRIEF — Coverage — candidate I: nouns were necessary but not sufficient
+# BRIEF — Coverage — apply "lettre", and pin the mirror with a test
 
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
-DO NOT touch git. DO NOT edit SKILL.md. DRAFT ONLY — the user vetoes description changes.
+DO NOT touch git.
 
-## What the re-run showed, and why it matters more than the pass count
-On the G+H archive: the German invoice FIRED and was correct. The German form FIRED. But the
-French letter, the English memo and the French short report did NOT fire.
+## What was decided
+Your refutation was accepted. The lead's ruling (d) was wrong on the mechanism and you were
+right to say so. THE PHRASE BLOCK IS NOT BEING APPLIED. Only the one-word addition you
+recommended is, plus the test you identified as missing.
 
-Now the uncomfortable part, which I have verified myself against the live description:
-- "lettre" is NOT in it. We dropped "lettre de motivation" for budget and never considered the
-  bare noun. That one is a straightforward miss.
-- "memo" IS in it. "rapport" IS in it. Those two failed anyway.
+## Deliverable (ONE — two parts, one coherent change)
 
-So NOUNS ARE NECESSARY BUT NOT SUFFICIENT. We spent the whole trigger-phrase budget on nouns,
-and the evidence now suggests the create-verb phrases were doing work we did not credit.
+### Part 1: add the bare noun "lettre"
+In skill/document-design-intelligence/SKILL.md's frontmatter description, add "lettre" to the
+non-English noun list. It currently reads:
+  ... also note interne, fiche, courrier, affiche, dépliant, présentation, formulaire,
+  Lebenslauf, Angebot, Bericht, invoice, memo, proposal, one-pager, facture, devis, rapport,
+  Rechnung, Formular, Broschüre.
+Result MUST measure exactly **972** characters. If you get anything else, STOP and report. Do
+not adjust other wording to reach the number.
 
-There is a second finding you must account for: the platform DUPLICATED one chat, and the same
-prompt went to docx in one copy and to us in the other. ACTIVATION IS PROBABILISTIC. A prompt
-that fails once may fire on a retry. The lead is asking the user to re-run the three failures to
-establish "never" versus "sometimes".
+THE COUPLED EDITS, which have now bitten twice:
+- references/activation.md line 23, the fenced "as shipped" block: must be updated to match,
+  BYTE for byte, on one line.
+- references/activation.md lines 15, 26 and 28: "964" becomes 972 in all three. Leave the
+  historical 667 alone.
 
-## Deliverable (ONE) — research/38-description-candidate.md, appended as "Candidate I"
-Do NOT overwrite candidates B, F, G or H. F, G and H are APPLIED and live at 964 characters.
+### Part 2: the test that would have caught this
+Add a test asserting the fenced block equals SKILL.md's description BY BYTES. Requirements:
+- Read BOTH files at runtime. Do not embed either string in the test.
+- Compare bytes. NOT `" ".join(x.split())` — that is the whitespace-folded comparison I used in
+  my own verification and reported as "byte-identical", which is how this drifted unnoticed.
+- Locate the block by a marker, and raise a clear AssertionError if the marker is missing —
+  same guard you added to the coverage test after candidate H deleted its marker. A test that
+  silently finds nothing is worse than no test.
+- The failure message must say which file to edit and that the two must move together.
+Put it wherever it best belongs — beside the description coverage test is the obvious home.
 
-Candidate I keeps G's nouns and H's sentence, and adds:
-1. The bare noun "lettre".
-2. The FOUR create-verb trigger phrases that were dropped to make room for H — "draft an
-   invoice", "write a memo", "rédige une facture", "erstelle eine Rechnung". I verified when we
-   dropped them that they were redundant FOR NOUN COVERAGE. The re-run suggests they were not
-   redundant for ACTIVATION. Say so plainly in the draft; that is a correction of my earlier
-   reasoning, not yours.
-
-Pay for it by TIGHTENING these two tail sentences without losing their meaning. Both are
-currently 64 characters:
-   "Applies sourced layout, typography, color, print, and ATS rules."
-   "Not for web or app UI/UX design (use UI/UX Pro Max for screens)."
-The UI/UX boundary is load-bearing — activation prompts 6 and 7 test it. Do not weaken it into
-something a model could miss.
-
-Give, as you did for G:
-- the exact substrings to insert and remove, so the edit is unambiguous
-- the full resulting description on one line with its MEASURED length and headroom under 1023
-- which activation prompts the additions endanger, especially 10 and 11
-
-## The honest paragraph I want in the draft
-State plainly what we can and cannot control. We control the description text. We do not control
-whether the platform routes a given chat to us, and we now have direct evidence the same prompt
-can go either way. Say what a reasonable person should conclude from that about how much
-improvement candidate I can be expected to deliver — and whether there is a point past which
-adding words stops helping. If you think we are near it, say so.
-
-If your honest view is that I is not worth applying until the re-runs distinguish "never" from
-"sometimes", say that too. A well-argued "wait" is a valid deliverable.
+## Verify — paste actual output
+1. Description measures exactly 972 and contains "lettre".
+2. Your new test passes.
+3. NEGATIVE CONTROL, and I will repeat it myself: break the mirror by changing one character in
+   activation.md's fenced block, confirm the new test FAILS and names the problem, then restore.
+   Paste both results. A test not seen failing is not known to work.
+4. No "964" survives in activation.md.
+5. `python3 -m pytest scripts/tests/test_description_coverage.py -q` green on its own.
+6. Full suite: baseline was 146 passed plus 8 subtests; expect 147 with your new test.
 
 Python: C:\Users\ysuliman\AppData\Local\Microsoft\WindowsApps\python3.exe
 
 ## Report
 Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 10 lines: the measured
-length and headroom, what you tightened and whether meaning survived, your risk list, and your
-recommendation on whether to apply I now or wait.
+length, checks 3 and 4 verbatim, and the test tally.

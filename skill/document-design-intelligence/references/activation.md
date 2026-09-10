@@ -12,7 +12,7 @@ upload.
 "Description must be under 1024 characters" — note "under," so the practical
 maximum is 1,023, not 1,024 itself. The 200-character figure came from a
 support-article summary (`research/04-packaging.md` §5) and does not hold on
-this surface. The 964-character primary description below ships as-is, with
+this surface. The 972-character primary description below ships as-is, with
 no truncation risk. The three alternates further down were built against the
 truncation contingency and are **retained for reference only — not needed**
 now that the cap is confirmed at 1,024.
@@ -20,12 +20,12 @@ now that the cap is confirmed at 1,024.
 ## The description as shipped
 
 ```
-Creates and fixes print/office documents: CVs, resumes, cover letters, brochures, flyers, posters, reports, whitepapers, slide decks, presentations, forms, letters, quotes, offers; also note interne, fiche, courrier, affiche, dépliant, présentation, formulaire, Lebenslauf, Angebot, Bericht, invoice, memo, proposal, one-pager, facture, devis, rapport, Rechnung, Formular, Broschüre. Triggers: make me a CV, write a note interne, turn this into a brochure, I need slides for Monday, format this report, fais-moi une fiche, erstelle ein Angebot; appearance fixes: looks like AI, looks generic, make it look professional, fix the layout. Applies sourced layout, typography, color, print, and ATS rules. Creating any document type above is still this skill's job even as Word or PowerPoint; defer to that format's own skill only when the user names it for a plain conversion or edit with no design ask. Not for web or app UI/UX design (use UI/UX Pro Max for screens).
+Creates and fixes print/office documents: CVs, resumes, cover letters, brochures, flyers, posters, reports, whitepapers, slide decks, presentations, forms, letters, quotes, offers; also note interne, fiche, courrier, lettre, affiche, dépliant, présentation, formulaire, Lebenslauf, Angebot, Bericht, invoice, memo, proposal, one-pager, facture, devis, rapport, Rechnung, Formular, Broschüre. Triggers: make me a CV, write a note interne, turn this into a brochure, I need slides for Monday, format this report, fais-moi une fiche, erstelle ein Angebot; appearance fixes: looks like AI, looks generic, make it look professional, fix the layout. Applies sourced layout, typography, color, print, and ATS rules. Creating any document type above is still this skill's job even as Word or PowerPoint; defer to that format's own skill only when the user names it for a plain conversion or edit with no design ask. Not for web or app UI/UX design (use UI/UX Pro Max for screens).
 ```
 
-**Length: 964 characters** (well under the confirmed 1,024-character ceiling —
+**Length: 972 characters** (well under the confirmed 1,024-character ceiling —
 resolved above; no truncation risk in practice). Grew from 667 (the original
-starting number) to 964 across candidates F, G, and H, not from a single
+starting number) to 972 across candidates F, G, and H, not from a single
 addition — see `research/24-builtin-alignment.md` item 1 and the candidate-H
 record for why: Anthropic's own `docx` and `pptx` skills each carry a clause
 deferring to "a dedicated document/slide skill" when the user doesn't name a
