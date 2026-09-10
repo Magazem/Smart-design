@@ -271,3 +271,347 @@ costs 8 characters and it narrows the trigger rather than widening it, so unlike
 it carries no over-trigger risk and needs no regression re-run of prompts 10 and
 11. **Recommendation: apply F on its own merits regardless of how the revised
 prompt 4 scores. Keep B held back under its existing section 6 verdict.**
+
+---
+
+## Candidate G - the v0.2 trigger-noun gap
+
+Status: PROPOSAL ONLY. SKILL.md was not touched. B remains parked; F is applied
+and live at 831 characters, and G is drafted against F, not against the pre-F
+823-character text. Applying G does not require B and is incompatible with it
+(see G.7).
+
+### G.0 The defect
+
+v0.2 added section guidance for fifteen document families. Nobody widened the
+description's noun list, so `invoice`, `memo`, `proposal`, `one-pager`,
+`facture`, `devis`, `rapport`, `Rechnung` and `Formular` appear nowhere in the
+only string that decides whether this skill ever runs. The acceptance run
+failed on prompts 1-5 with no design skill firing at all. F narrowed the
+trigger; G is the opposite operation, and section G.8 is the important part of
+this candidate.
+
+### G.1 Part A - the matching rule
+
+Everything below was computed, not read off by eye, against the description
+read out of `SKILL.md`'s frontmatter at runtime. Five rules, each chosen to
+*under*-report coverage rather than over-report it:
+
+1. **Positive region only.** Matching stops at `When a specific file format`.
+   The deferral and UI/UX sentences are the boundary that tells the model NOT
+   to fire, and `PowerPoint`, `.docx` and `.pptx` occur only there. Counting
+   them would have scored `slide-deck-projection` as covered by the sentence
+   that silences it. This correction alone moved three doctypes from covered
+   to generic.
+2. **Token-level, never substring.** `brief` does not match inside `briefing`;
+   `gate` does not match inside `gatefold`. A keyword phrase hits only as a
+   contiguous run of whole tokens.
+3. **Folded, then singularised.** Diacritics stripped (`depliant` matches
+   `dépliant`), case dropped, and a conservative English plural rule so the
+   description's `brochures` matches the CSV's `brochure`. Acronyms and region
+   codes (`ats`, `us`, `uk`, `gcc`) are never singularised.
+4. **Whole item versus fragment.** A keyword scores `own` only when it equals a
+   whole comma- or semicolon-delimited item, or a whole trigger utterance. A
+   phrase found only *inside* a longer item is a fragment and scores `gen`.
+   This is what keeps `memo-internal` honest in English: the token `note` is
+   present, but only inside the French item `note interne`.
+5. **Shared nouns are generic by construction.** A keyword listed by more than
+   one doctype cannot tell those doctypes apart, so it scores `gen`, not `own`.
+   `brochures` cannot distinguish tri-fold from gate-fold; `reports` cannot
+   distinguish short from long-form.
+
+Display names are matched as the head phrase before `--` or `(`, split on `/`,
+plus that phrase's final token, so `Formal business letter` is credited to the
+description's `letters`. A display-name hit is always `gen` - it is the family
+name, not the doctype's own noun.
+
+Language is assigned per keyword phrase, not per doctype. A phrase counts for
+French or German only if it contains a token exclusive to that language;
+otherwise it counts as English. Thirteen loanwords are credited across
+languages by an explicit declared list (`cv`, `flyer` and `brochure` to French,
+`poster`, `whitepaper`, `handout` and `deck` to German, and so on) rather than
+by guesswork. That list is the softest part of the analysis and is the first
+thing to challenge if a number here looks wrong.
+
+### G.2 Part A - the gap table
+
+`own` = the doctype's own noun or trigger utterance is present. `gen` =
+reachable only through a broader parent noun. `--` = nothing at all. Each cell
+is `en/fr/de`.
+
+| doc_key | structure key | today (F) | under G |
+| --- | --- | --- | --- |
+| `cv-us` | `cv-experienced` | gen/gen/gen | gen/gen/gen |
+| `cv-uk` | `cv-experienced` | own/gen/gen | own/gen/gen |
+| `cv-eu-generic` | `cv-experienced` | gen/gen/gen | gen/gen/gen |
+| `cv-eu-europass` | `cv-experienced` | gen/--/-- | gen/--/-- |
+| `cv-dach` | `cv-experienced` | gen/--/own | gen/--/own |
+| `cv-france` | `cv-experienced` | gen/gen/gen | gen/gen/gen |
+| `cv-gulf-gcc` | `cv-experienced` | gen/gen/gen | gen/gen/gen |
+| `cv-generic` | `cv-experienced` | gen/gen/gen | gen/gen/gen |
+| `cv-academic` | `cv-academic` | gen/--/-- | gen/--/-- |
+| `cover-letter` | `cover-letter-standard` | own/--/-- | own/--/-- |
+| `letter-formal` | `letter-standard` | gen/own/-- | gen/own/-- |
+| `memo-internal` | `memo-standard` | gen/own/-- | own/own/own |
+| `form-handfilled` | `form-standard` | own/own/-- | own/own/own |
+| `brochure-trifold-letter` | `brochure-3panel` | gen/own/gen | gen/own/own |
+| `brochure-trifold-a4` | `brochure-3panel` | gen/gen/-- | gen/gen/-- |
+| `brochure-gatefold` | `brochure-gatefold` | gen/--/-- | gen/--/-- |
+| `brochure-flyer-letter` | `flyer-single-sheet` | gen/gen/gen | gen/gen/gen |
+| `brochure-flyer-a4` | `flyer-single-sheet` | gen/gen/gen | gen/gen/gen |
+| `poster` | `poster-single-canvas` | own/own/own | own/own/own |
+| `report-short` | `report-short` | own/--/own | own/own/own |
+| `report-long-toc` | `report-long-toc` | gen/--/-- | gen/--/-- |
+| `whitepaper` | `whitepaper-standard` | own/--/own | own/--/own |
+| `proposal` | `proposal-standard` | --/--/own | own/--/own |
+| `quote-devis` | `invoice-standard` | own/--/-- | own/own/-- |
+| `slide-deck-projection` | `deck-standard` | gen/gen/gen | gen/gen/gen |
+| `slide-deck-document` | `deck-standard` | gen/--/-- | gen/--/-- |
+| `slide-deck-handout` | `deck-standard` | gen/--/-- | gen/--/-- |
+| `one-pager` | `one-pager-standard` | --/--/-- | own/--/-- |
+| `infographic` | `(none)` | --/--/-- | --/--/-- |
+| `invoice-tabular` | `invoice-standard` | --/--/-- | own/own/own |
+
+Headline counts across all thirty doctypes:
+
+| | English | French | German |
+| --- | --- | --- | --- |
+| own noun today (F) | 7 | 5 | 5 |
+| generic only today | 19 | 10 | 10 |
+| nothing at all today | 4 | 15 | 15 |
+| own noun under G | 11 | 8 | 9 |
+| nothing at all under G | 1 | 12 | 12 |
+
+Three doctypes are invisible in all three languages today: `one-pager`,
+`invoice-tabular` and `infographic`. G fixes the first two. `infographic` has
+no Structure Key, is not one of the fifteen v0.2 families, and is deliberately
+left alone.
+
+Two results worth reading before these numbers are quoted anywhere:
+
+- **`letter-formal` is a CSV defect, not a description defect.** The
+  description already carries the noun `letters`. That row's Keywords are all
+  two-word (`business letter`, `formal letter`, `write a letter`), so a strict
+  keyword match scores English as nothing; it is credited `gen` above only
+  through the display-name head noun. **Recommendation: add the bare token
+  `letter` to `letter-formal`'s Keywords in `doctypes.csv`.** That costs zero
+  description characters and is strictly better than spending them.
+- **The `gen` column is not a pass.** Fourteen doctypes never score `own` in
+  any language. `brochure-gatefold` is reachable only as "a brochure",
+  `report-long-toc` only as "a report", all three deck variants only as "slide
+  decks". Those families are told apart by page format and structure rather
+  than by trigger words, so this is acceptable - but it has to be stated out
+  loud, which is what the permanent test in G.9 forces.
+
+### G.3 Part B - the exact edit
+
+Two insertions, no restructuring. Both anchors occur exactly once in the
+description and exactly once in the whole of `SKILL.md`, checked with
+`str.count()`.
+
+**Insertion 1, the noun list.** After `Lebenslauf, Angebot, Bericht` and before
+its full stop, insert this 92-character substring:
+
+```
+, invoice, memo, proposal, one-pager, facture, devis, rapport, Rechnung, Formular, Broschüre
+```
+
+**Insertion 2, the trigger list.** After `erstelle ein Angebot` and before the
+semicolon that follows it, insert this 76-character substring:
+
+```
+, draft an invoice, write a memo, rédige une facture, erstelle eine Rechnung
+```
+
+Total inserted: 168 characters. Neither insertion contains a double quote, a
+backslash or a newline, so the double-quoted YAML scalar in the frontmatter
+still parses unchanged.
+
+### G.4 Full resulting description, one line
+
+```
+Creates and fixes print/office documents: CVs, resumes, cover letters, brochures, flyers, posters, reports, whitepapers, slide decks, presentations, forms, letters, quotes, offers; also note interne, fiche, courrier, affiche, dépliant, présentation, formulaire, Lebenslauf, Angebot, Bericht, invoice, memo, proposal, one-pager, facture, devis, rapport, Rechnung, Formular, Broschüre. Triggers: make me a CV, write a note interne, turn this into a brochure, I need slides for Monday, format this report, fais-moi une fiche, erstelle ein Angebot, draft an invoice, write a memo, rédige une facture, erstelle eine Rechnung; appearance fixes: looks like AI, looks generic, make it look professional, fix the layout. Applies sourced layout, typography, color, print, and ATS rules. When a specific file format (Word, PowerPoint, .docx, .pptx) is named for a plain conversion or edit with no design ask, use that format's own skill instead. Not for web or app UI/UX design (use UI/UX Pro Max for screens).
+```
+
+**999 characters**, 1,003 bytes in UTF-8 - the four accented characters cost
+one byte each.
+
+### G.5 Headroom
+
+The cap is 1,023; the claude.ai upload UI enforces "under 1024".
+
+| | characters | UTF-8 bytes | headroom (chars) |
+| --- | --- | --- | --- |
+| F, live today | 831 | 833 | 192 |
+| **G (recommended)** | **999** | **1003** | **24** |
+| G plus B | 1161 | 1165 | **-138** |
+| G with every noun I wanted (G.6) | 1081 | 1089 | -58 |
+
+Twenty-four characters is thin. It is enough, but it means the description is
+now a budgeted resource: the next family added cannot simply append a noun.
+
+### G.6 The judgement: it does not all fit, and here is what I dropped
+
+**The description cannot carry fifteen families' nouns in three languages.**
+The full set I would write with no cap comes to 1,081 characters, 58 over. That
+is a finding, not a failure, and per the brief I am naming the cuts rather than
+silently keeping whatever fit.
+
+Dropped, in the order I would restore them if characters ever come back:
+
+| dropped | family | why it survives without it |
+| --- | --- | --- |
+| `Präsentation`, `Folien` | deck-standard (de) | German users type the loanword *Deck*, and acceptance prompt 14 itself says "Pitch-Deck". `slide decks` carries it. Cost to restore: 14. |
+| `Anschreiben` | cover-letter (de) | Genuinely uncovered in German; acceptance prompt 15 is English. Cost: 13. The weakest of these drops. |
+| `lettre de motivation` | cover-letter (fr) | The same gap in French, and the most expensive single noun at 22 characters. |
+| `livre blanc` | whitepaper (fr) | French technical writing uses *whitepaper* directly often enough, and that noun is already present. Cost: 13. |
+| `proposition` | proposal (fr) | `proposal` and `Angebot` are both present; French is the one hole. Cost: 13. |
+| `Brief`, `Geschäftsbrief` | letter-standard (de) | Uncovered in German. See the `letter-formal` CSV note in G.2 - fix the row first, then reconsider. |
+| `Plakat` | poster (de) | German uses *Poster* freely and it is present. Low risk. |
+| `gatefold`, `Wickelfalz` | brochure-gatefold | Panel count is a page-format dimension. Declared generic-covered instead. |
+| `infographie`, `Infografik` | infographic | Out of v0.2 scope - no Structure Key. |
+
+The rule I applied, per Addendum 1: English plus the one non-English noun users
+actually type, never three weak ones. `Rechnung`, `facture`, `devis` and
+`rapport` are in because those are the words the pilot's users type, and
+because four of the fifteen acceptance prompts are French and five are German.
+`Präsentation` is out because the German prompt in that family does not use the
+word.
+
+**A cheaper alternative to weigh before spending characters.** Several of the
+fifteen families would also be reached by editing `doctypes.csv` instead of the
+description - adding `letter` to `letter-formal`, adding `deck` to the German
+side of the deck rows, and so on. That does not help activation, since the
+model never sees the CSV before firing, but it does make this analysis and its
+test agree with reality. The description edit is still required; the CSV edit
+is free and should happen as well.
+
+### G.7 Does G compose with B?
+
+**No. Shipping G kills B.** They do not conflict textually - B inserts after
+`fix the layout. `, which G leaves byte-identical, and both anchors survive -
+but G plus B is 1,161 characters against a 1,023 cap, 138 over. No arrangement
+of the two fits.
+
+If B is ever revived, one of three things has to give: B's sentence must lose
+roughly 140 characters (it is 161, and section 5 of this file argues its
+load-bearing phrase cannot be trimmed), or G must fall back to its English-only
+core, or the noun list must be restructured - which is what this candidate was
+told not to do, and which would invalidate F's and B's placement arguments at
+the same time. Treat G and B as mutually exclusive and choose between them
+rather than planning to apply both.
+
+### G.8 Risk: G widens the trigger
+
+F narrowed the promise and carried no over-trigger risk. G is the opposite
+operation, so this is the section to read carefully. Ranked by how likely each
+is to cost a currently-passing activation prompt:
+
+- **`one-pager` against prompt 10. HIGHEST RISK, and the one I would argue
+  about.** "Give me a one-pager on X" is, in ordinary usage, a request for a
+  *summary*, not for a designed document. Prompt 10 ("Summarize this PDF
+  research paper in three bullet points") is the case `references/activation.md`
+  itself calls the sharpest over-trigger test. `one-pager` sits in the noun
+  list as a bare noun with no create-or-fix verb attached to protect it, unlike
+  every trigger phrase G adds. I recommend it anyway, because
+  `one-pager-standard` is one of the fifteen v0.2 families and is invisible in
+  all three languages without it - but if prompt 10 regresses after G, this is
+  the word to remove first, and removing it costs nothing else.
+- **The transactional cluster - `invoice`, `Rechnung`, `facture`, `devis`.
+  MODERATE, and a different failure mode.** These nouns attract arithmetic and
+  pricing questions ("what is the VAT on this invoice", "check these line-item
+  totals") where the user wants a calculation, not a layout. The skill would
+  fire with nothing relevant to offer. This is a new false-activation class
+  that does not exist today, and no current activation prompt tests for it.
+  **Recommendation: add a should-not-fire prompt for it**, something like
+  "Calculate the VAT on this invoice: three line items at ...", so the class is
+  measured rather than assumed.
+- **`memo` against prompt 11. LOW-MODERATE.** Prompt 11 turns rough notes into
+  a Word document, and rough notes are memo-shaped input. The format-deferral
+  sentence is what holds there and G does not touch it, but prompt 11 was
+  already flagged as B's highest risk and G nudges the same boundary from the
+  other side. Re-run 11 after applying G.
+- **`proposal` against prompt 9. LOW.** Prompt 9 asks for a marketing strategy.
+  `proposal` is a document noun and `strategy` is not, so the boundary holds.
+  Note that I deliberately did not add `pitch document` or `pitch deck`, which
+  would have edged into prompt 9's territory for no coverage gain.
+- **Prompts 6, 7, 8, 12 and 13. NEGLIGIBLE.** G adds only document nouns and
+  create-verb trigger utterances. It does not touch the UI/UX boundary, the
+  coding case, or the format-conversion case.
+
+**The four trigger phrases are the safe part of G.** `draft an invoice`,
+`write a memo`, `rédige une facture` and `erstelle eine Rechnung` each carry an
+explicit create verb, which is precisely what stops them landing on prompt 10.
+If characters ever get tight, cut a bare noun before cutting one of these.
+
+**Nothing in G is too broad to ship**, with one qualification: `one-pager` is
+the single addition I would call genuinely arguable, for the reason above.
+Everything else is a concrete document noun.
+
+**A hypothesis the lead needs, which I cannot verify from here.** None of
+acceptance prompts 1-5 names Word, PowerPoint, `.docx` or `.pptx`, yet Claude's
+stated reason for not firing was "I was doing a clean Word file as per the
+request". Either the run differed from the written prompt, or the deferral
+sentence is being read far more broadly than its text says, as "any office
+document belongs to the built-ins". If it is the second, **G is necessary but
+not sufficient**: adding nouns will not make prompts 1-5 fire, and G will be
+scored a failure when the real defect is the deferral sentence's scope. That
+sits outside the two defects the brief assigns, so it needs to be visible
+before G is judged.
+
+### G.9 The permanent test
+
+`scripts/tests/test_description_coverage.py`, new, six tests. It reads
+SKILL.md's frontmatter and `doctypes.csv` at runtime, so it fails the moment
+either changes. The rule: every doctype with a non-empty Structure Key must
+have one of its Keywords phrases, or its display-name noun, present in the
+description's positive region, folded, in at least one language.
+
+`GENERIC_COVERED` is the part that matters. Fifteen doctypes reachable only
+through a parent noun are listed there with the noun each rides on, and that
+noun's continued presence is itself asserted - so the list is a check, not a
+comment. `PENDING_CANDIDATE_G` holds the two doctypes G exists to fix,
+`invoice-tabular` and `one-pager`, as an explicit named xfail.
+
+**The suite is green today by design, and that is deliberate.** The honest
+statement of the current state is "two known gaps, named, with the fix drafted"
+rather than a permanently red suite that everyone learns to ignore. It goes red
+on all of these:
+
+| change | test that fails |
+| --- | --- |
+| add a family with no matching noun | `test_every_structured_doctype_is_reachable` |
+| remove `whitepapers` or `quotes` from the description | `test_every_structured_doctype_is_reachable` |
+| remove `cover letters` | `test_generic_only_doctypes_are_declared` |
+| remove `flyers` | reachability, **and** `test_generic_covered_parents_are_still_present` |
+| apply candidate G | `test_pending_list_has_no_stale_entries` |
+| push the description past 1023 characters | `test_description_still_fits_the_upload_cap` |
+
+To verify by hand, delete `whitepapers, ` from the description and run
+`pytest -q` from the skill directory. Do **not** use `posters` or `reports` for
+that check: `poster` stays reachable through the French `affiche`, and `report`
+through the trigger `format this report`, so the suite stays green - correctly.
+
+The last row is the self-clearing mechanism. When G is applied,
+`test_pending_list_has_no_stale_entries` goes red and names the two doctypes,
+forcing whoever applies it to empty the list so the rule guards them for real.
+
+### G.10 Verdict
+
+**Apply G, with `one-pager` flagged for removal if prompt 10 regresses.** It is
+the only thing that can make prompts 1-5 fire. No change to `data/base`, the
+router, or the reference files can substitute, because a skill that never
+activates never has its body read.
+
+Three conditions on that recommendation:
+
+1. **Re-run prompts 10 and 11 before re-running 1-5.** Those are the two that
+   can regress, and 10 is the one `one-pager` endangers.
+2. **Decide G or B, not both.** They do not fit together (G.7).
+3. **Settle the deferral-sentence question first** (G.8, last bullet). If the
+   deferral sentence is what silenced prompts 1-5, G will not fix them and will
+   be blamed for it.
+
+Confidence: high on the table and the measurements, which are computed and
+reproducible; moderate on the loanword language credits in G.1; low on whether
+G alone makes prompts 1-5 pass, for the reason in G.8.
