@@ -217,3 +217,103 @@ class TestUnknownCommand(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestHandoffEndToEndOnRealData(unittest.TestCase):
+    """RULING M: the handoff block is what the docx skill is HANDED. It shipped
+    all through v0.1.0 with no page size, no fonts and no palette, because the
+    six tables it reads carried no `display_columns` -- resolve attached the
+    right rows and then surfaced only their searchable/FK columns, so every
+    lookup found a row and no values in it.
+
+    This test runs the real pipeline (`ddi.py resolve` -> `ddi.py handoff`) on
+    real data/, on TWO doctypes, and asserts those sections carry CONTENT. A
+    test that only checked exit 0 would have passed for the whole of v0.1.0 --
+    that is the gap this closes. `TOC heading levels` and `characterSpacing`
+    are deliberately NOT asserted: see the class docstring below each.
+    """
+
+    DOCTYPES = ("report-long-toc", "cv-generic")
+    #: `  <label...>:` at two spaces, its values indented four. Splitting on the
+    #: indent rather than matching each label keeps this test from having to
+    #: restate ddi.py's exact (long, citation-bearing) section headers.
+    REQUIRED_SECTIONS = ("page ", "fonts:", "font sizes ", "palette ")
+
+    def _handoff(self, doctype, fmt="docx"):
+        resolved = _run(["resolve", "--doctype", doctype, "--json"])
+        self.assertEqual(resolved.returncode, 0, resolved.stderr)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "resolved.json"
+            path.write_text(resolved.stdout, encoding="utf-8")
+            proc = _run(["handoff", "--json", str(path), "--format", fmt])
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        return proc.stdout
+
+    @staticmethod
+    def _sections(stdout):
+        """{section-header: [value lines]} -- headers are indented two spaces,
+        their values four."""
+        out, current = {}, None
+        for line in stdout.splitlines():
+            if line.startswith("    "):
+                if current is not None:
+                    out[current].append(line.strip())
+            elif line.startswith("  "):
+                current = line[2:]
+                out[current] = []
+        return out
+
+    def _section_values(self, sections, prefix):
+        for header, values in sections.items():
+            if header.startswith(prefix):
+                return header, values
+        self.fail(f"no handoff section starting {prefix!r}; got {list(sections)}")
+
+    def test_required_sections_are_non_empty_on_both_doctypes(self):
+        for doctype in self.DOCTYPES:
+            sections = self._sections(self._handoff(doctype))
+            for prefix in self.REQUIRED_SECTIONS:
+                with self.subTest(doctype=doctype, section=prefix):
+                    header, values = self._section_values(sections, prefix)
+                    real = [v for v in values if v and v != ddi.NOT_PRESENT]
+                    self.assertTrue(
+                        real,
+                        f"{doctype}: handoff section {header!r} is EMPTY -- this is the "
+                        "v0.1.0 blocker, not a formatting nit")
+
+    def test_page_and_font_sizes_are_numeric_where_they_claim_to_be(self):
+        for doctype in self.DOCTYPES:
+            sections = self._sections(self._handoff(doctype))
+            with self.subTest(doctype=doctype, section="page"):
+                _, values = self._section_values(sections, "page ")
+                for line in values:
+                    mm, _, dxa = line.partition("  ->  ")
+                    self.assertRegex(mm, r"^[A-Za-z ]+: [0-9.]+mm$", line)
+                    label, _, number = dxa.partition(": ")
+                    self.assertTrue(number.isdigit() and int(number) > 0, line)
+            with self.subTest(doctype=doctype, section="font sizes"):
+                _, values = self._section_values(sections, "font sizes ")
+                for line in values:
+                    role, _, rest = line.partition(": ")
+                    pt, _, half = rest.partition("pt  ->  ")
+                    self.assertTrue(role, line)
+                    self.assertGreater(float(pt), 0, line)
+                    self.assertGreater(float(half.split()[0]), 0, line)
+
+    def test_palette_values_are_six_digit_hex(self):
+        for doctype in self.DOCTYPES:
+            with self.subTest(doctype=doctype):
+                _, values = self._section_values(
+                    self._sections(self._handoff(doctype)), "palette ")
+                for line in values:
+                    self.assertRegex(line, r"^[A-Za-z ]+: #[0-9A-Fa-f]{6}$", line)
+
+    def test_constraint_set_keys_line_names_the_sets(self):
+        """The hand-added `display_columns` omitted `Set Key`, so this line
+        rendered as a bare label with nothing after the colon."""
+        for doctype in self.DOCTYPES:
+            with self.subTest(doctype=doctype):
+                line = [l for l in self._handoff(doctype).splitlines()
+                        if "constraints to preflight" in l]
+                self.assertEqual(len(line), 1, line)
+                self.assertTrue(line[0].split(":", 1)[1].strip(), line[0])

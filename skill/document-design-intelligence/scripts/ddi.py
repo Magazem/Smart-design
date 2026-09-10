@@ -389,13 +389,23 @@ def _build_docx_lines(resolved):
     typeface_row = _first_row(resolved, v["typeface_table"])
     lines.append("  fonts:")
     if typeface_row:
+        shown = False
         for column in v["typeface_family_columns"]:
             value = typeface_row.get(column, "")
             if value:
                 lines.append(f"    {column}: {value}")
+                shown = True
         fallback = typeface_row.get(v["typeface_fallback_column"], "")
         if fallback:
             lines.append(f"    {v['typeface_fallback_column']}: {fallback}")
+            shown = True
+        # A resolved typefaces row that surfaces none of these columns is the same
+        # state as no row at all, and must SAY so. Without this guard the section
+        # printed its header and then nothing -- which is how v0.1.0 shipped an
+        # empty `fonts:` that read as "no fonts needed" instead of "not resolved".
+        # `page` and `palette` already had this guard; `fonts` did not.
+        if not shown:
+            lines.append(f"    {NOT_PRESENT}")
     else:
         lines.append(f"    {NOT_PRESENT}")
 
@@ -455,13 +465,23 @@ def _build_pptx_lines(resolved):
     typeface_row = _first_row(resolved, v["typeface_table"])
     lines.append("  fonts:")
     if typeface_row:
+        shown = False
         for column in v["typeface_family_columns"]:
             value = typeface_row.get(column, "")
             if value:
                 lines.append(f"    {column}: {value}")
+                shown = True
         fallback = typeface_row.get(v["typeface_fallback_column"], "")
         if fallback:
             lines.append(f"    {v['typeface_fallback_column']}: {fallback}")
+            shown = True
+        # A resolved typefaces row that surfaces none of these columns is the same
+        # state as no row at all, and must SAY so. Without this guard the section
+        # printed its header and then nothing -- which is how v0.1.0 shipped an
+        # empty `fonts:` that read as "no fonts needed" instead of "not resolved".
+        # `page` and `palette` already had this guard; `fonts` did not.
+        if not shown:
+            lines.append(f"    {NOT_PRESENT}")
     else:
         lines.append(f"    {NOT_PRESENT}")
 

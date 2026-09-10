@@ -195,6 +195,15 @@
         "Fill-Only Roles": ";",
         "Category Marker Roles": ";"
       },
+      "display_columns": [
+        "Display Name",
+        "Keywords",
+        "Primary",
+        "Secondary",
+        "Accent",
+        "Background",
+        "Foreground"
+      ],
       "searchable_columns": [
         "Display Name",
         "Keywords"
@@ -284,6 +293,15 @@
           "group": true
         }
       },
+      "display_columns": [
+        "Display Name",
+        "Keywords",
+        "Best For",
+        "Scale Key",
+        "Heading Family",
+        "Body Family",
+        "Safe Stack Fallback"
+      ],
       "searchable_columns": [
         "Display Name",
         "Keywords",
@@ -322,6 +340,11 @@
         ]
       },
       "foreign_keys": {},
+      "display_columns": [
+        "Medium",
+        "Role",
+        "Size pt"
+      ],
       "searchable_columns": [],
       "typed_json_columns": [],
       "derived": []
@@ -380,6 +403,17 @@
       "list_columns": {
         "Panels mm": ";"
       },
+      "display_columns": [
+        "Display Name",
+        "Keywords",
+        "Trim W mm",
+        "Trim H mm",
+        "Margin Top mm",
+        "Margin Bottom mm",
+        "Margin Inside mm",
+        "Margin Outside mm",
+        "Bleed mm"
+      ],
       "searchable_columns": [
         "Display Name",
         "Keywords"
@@ -453,6 +487,15 @@
       "foreign_keys": {
         "Fallback Render Key": "render-targets.render_key"
       },
+      "display_columns": [
+        "Fallback Render Key",
+        "Format",
+        "Engine",
+        "Engine Path",
+        "Engine Invocation",
+        "Font Rule",
+        "Print Tier Max"
+      ],
       "searchable_columns": [],
       "typed_json_columns": [],
       "derived": []
@@ -491,8 +534,12 @@
           "must_resolve": true
         }
       },
+      "display_columns": [
+        "Set Key",
+        "Element Scope",
+        "Parameter"
+      ],
       "searchable_columns": [],
-      "display_columns": ["Element Scope", "Parameter"],
       "typed_json_columns": [],
       "derived": []
     },

@@ -30,6 +30,16 @@ YNA = ["yes", "no", "n/a"]
 
 tables = {}
 
+#: `display_columns` -- the columns a resolved row of this table SHOWS (resolve.py
+#: `_display_columns`). Declaring it OVERRIDES the default outright, so each list below is
+#: a SUPERSET: today's default (searchable columns, then this table's own FK source
+#: columns, in that order) PLUS every column `ddi.py handoff` reads out of that table.
+#: Written here and never by hand in data/schema-manifest.json -- that file is generated,
+#: and a hand-added key is wiped by the next run of this script. Six tables get one; they
+#: are exactly the six `ddi.py`'s HANDOFF_VOCAB names. Without it a handoff block resolves
+#: the right rows and then prints nothing from them, which is how v0.1.0 shipped with no
+#: page size, no fonts and no palette.
+
 tables["doctypes"] = {
     "filename": "doctypes.csv",
     "columns": ["doc_key", "Display Name", "Keywords", "Artifact Class", "Brand Scope",
@@ -122,6 +132,8 @@ tables["palettes"] = {
                      "Category Marker Roles": ";"},
     "distinct_token_columns": {"Text-Safe Roles": ";", "Fill-Only Roles": ";",
                                "Category Marker Roles": ";"},
+    "display_columns": ["Display Name", "Keywords", "Primary", "Secondary", "Accent",
+                        "Background", "Foreground"],
     "searchable_columns": ["Display Name", "Keywords"],
     "typed_json_columns": [],
     "derived": [
@@ -152,6 +164,8 @@ tables["typefaces"] = {
         "Has Tabular Figures": ["yes", "unknown"],
     },
     "foreign_keys": {"Scale Key": group("type-scales", "scale_key")},
+    "display_columns": ["Display Name", "Keywords", "Best For", "Scale Key",
+                        "Heading Family", "Body Family", "Safe Stack Fallback"],
     "searchable_columns": ["Display Name", "Keywords", "Best For"],
     "typed_json_columns": [],
     "derived": [],
@@ -167,6 +181,7 @@ tables["type-scales"] = {
         "Role": ["legal", "label", "caption", "body", "body-dense", "lead", "h3", "h2", "h1"],
     },
     "foreign_keys": {},
+    "display_columns": ["Medium", "Role", "Size pt"],
     "searchable_columns": [],
     "typed_json_columns": [],
     "derived": [],
@@ -193,6 +208,9 @@ tables["page-formats"] = {
     # `a4-trifold` is `99.5;99.5;98.0` and `letter-gatefold` is
     # `53.175;54.775;54.775;53.175`. A blanket "no repeated token in any list column"
     # rule would fail four correct rows here, which is why the check is opt-in.
+    "display_columns": ["Display Name", "Keywords", "Trim W mm", "Trim H mm",
+                        "Margin Top mm", "Margin Bottom mm", "Margin Inside mm",
+                        "Margin Outside mm", "Bleed mm"],
     "searchable_columns": ["Display Name", "Keywords"],
     "typed_json_columns": [],
     "derived": [],
@@ -216,6 +234,8 @@ tables["render-targets"] = {
         "Availability": ["preinstalled", "pip", "unverified"],
     },
     "foreign_keys": {"Fallback Render Key": "render-targets.render_key"},
+    "display_columns": ["Fallback Render Key", "Format", "Engine", "Engine Path",
+                        "Engine Invocation", "Font Rule", "Print Tier Max"],
     "searchable_columns": [],
     "typed_json_columns": [],
     "derived": [],
@@ -242,6 +262,7 @@ tables["constraints"] = {
         "Threshold": {"pattern": "^[a-z][a-z-]*:[A-Za-z][A-Za-z0-9 -]*$",
                       "must_resolve": True},
     },
+    "display_columns": ["Set Key", "Element Scope", "Parameter"],
     "searchable_columns": [],
     "typed_json_columns": [],
     "derived": [],
@@ -409,6 +430,11 @@ for name, t in tables.items():
         assert col in t["columns"], ("reference_columns names no such column", name, col)
         assert "pattern" in ref, (name, col)
         re.compile(ref["pattern"])
+    # `display_columns` overrides the default outright, so a name that does not exist here
+    # does not fall back to anything -- it just never prints, which is the exact
+    # silent-empty-field failure this key was added to end. Same idiom as the guards above.
+    for col in t.get("display_columns", []):
+        assert col in t["columns"], ("display_columns names no such column", name, col)
     for col in t["searchable_columns"]:
         assert col in t["columns"], (name, col)
     for d in t["derived"]:
@@ -422,7 +448,9 @@ n_group = sum(1 for t in tables.values() for r in t["foreign_keys"].values()
 n_list = sum(len(t.get("list_columns", {})) for t in tables.values())
 n_ref = sum(len(t.get("reference_columns", {})) for t in tables.values())
 n_distinct = sum(len(t.get("distinct_token_columns", {})) for t in tables.values())
+n_display = sum(1 for t in tables.values() if "display_columns" in t)
 print("wrote %s -- %d tables, %d columns, %d foreign keys (%d group), "
-      "%d list columns, %d reference columns, %d distinct-token columns"
+      "%d list columns, %d reference columns, %d distinct-token columns, "
+      "%d tables with display_columns"
       % (out, len(tables), sum(len(t["columns"]) for t in tables.values()), n_fk, n_group,
-         n_list, n_ref, n_distinct))
+         n_list, n_ref, n_distinct, n_display))
