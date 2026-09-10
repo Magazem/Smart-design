@@ -25,6 +25,11 @@ report-running-heads,report-typography,artifact-class:flow,validate-running-head
 report-pagination-frontmatter,report-typography,artifact-class:flow,validate-pagination-format,,frontmatter=roman;body=arabic-restart,present,warn
 report-table-rules,report-typography,artifact-class:flow,validate-table-rules,,vertical_borders=0;row_rules=header+total-only,present,warn
 report-table-numeric-align,report-typography,artifact-class:flow,validate-table-alignment,,numeric=right;text=left,present,warn
+report-heading-keep-with-next,report-typography,artifact-class:flow,validate-keep-with-next,,docx_property=keepNext;applies_to_block=heading;binds_to=body-paragraph,present,warn
+report-widow-orphan-control,report-typography,artifact-class:flow,validate-widow-orphan,body-paragraph,docx_property=widowControl;min_lines_together=2,2,warn
+report-table-row-no-split,report-typography,artifact-class:flow,validate-table-row-integrity,table-cell,docx_property=cantSplit;applies_to_block=table-row,present,warn
+report-table-header-repeat,report-typography,artifact-class:flow,validate-table-header-repeat,table-cell,docx_property=tblHeader;applies_to_block=table-header-row,present,warn
+report-figure-caption-keep-together,report-typography,artifact-class:flow,validate-keep-with-next,,docx_property=keepNext;applies_to_block=figure;binds_to=caption-block,present,warn
 photocopy-safe-color,photocopy-safe,doctype:*,validate-text-safe-color,,roles=label|legal;metric=text_l_star,15,warn
 legal-text-min-size,legal-text,doctype:*,validate-type-floor,,medium=print;role=legal,8,warn
 legal-text-no-sustained-uppercase,legal-text,doctype:*,validate-text-case,,role=legal;max_uppercase_run_words,3,warn

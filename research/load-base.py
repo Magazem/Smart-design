@@ -227,15 +227,30 @@ CV_FIELD = {"us-cv-no-photo", "uk-cv-no-photo", "gulf-cv-photo-expected",
             "us-cv-no-dob", "us-cv-no-marital-status"}
 DROP = {"print-legibility-l-delta"}
 
+# `Element Scope` is in the manifest but in neither draft -- it is derived here. A key
+# absent from this map loads EMPTY, which the schema defines as a real value ("whole
+# document; no container-type routing"), not a missing one. Two of the page-flow rows
+# are deliberately absent: `report-heading-keep-with-next` and
+# `report-figure-caption-keep-together` carry their block type in `Parameter`
+# (`applies_to_block=`/`binds_to=`), the same way photocopy-safe-color keeps `roles=`
+# there -- `Element Scope` has no `heading` or `figure` value and must not grow one.
+# Reasoning in research/45-notes.md. Do not "fix" them into this map.
+ELEMENT_SCOPE = {
+    "report-measure-cpl": "body-paragraph",
+    "report-widow-orphan-control": "body-paragraph",
+    "report-table-row-no-split": "table-cell",
+    "report-table-header-repeat": "table-cell",
+}
+
 out = []
 for r in np_rows + pr_rows:
     k = r["constraint_key"]
     if k in CV_LENGTH or k in CV_FIELD or k in DROP:
         continue
     r = dict(r)
-    r["Element Scope"] = ""
+    r["Element Scope"] = ELEMENT_SCOPE.get(k, "")
     if k == "report-measure-cpl":
-        r["Element Scope"] = "body-paragraph"
+        # the scope came OUT of Parameter; leave only the two CPL numbers behind
         r["Parameter"] = "cpl_min=45;cpl_max=75"
     out.append(r)
 
@@ -265,6 +280,13 @@ CHANGES.append("T9: 10 CV rows -> 2 (cv-page-count reading cv-regions:Max Pages;
 CHANGES.append("T9: -print-legibility-l-delta (superseded; research/21 already authored the "
                "two WCAG rows print-contrast-ratio 4.5 body / 3.0 large)")
 CHANGES.append("T9: report-measure-cpl Parameter scope=/exempt= -> Element Scope=body-paragraph")
+CHANGES.append("T9: Element Scope derivation is now a key->scope map, not one hardcoded key. "
+               "+5 page-flow rows: report-widow-orphan-control=body-paragraph, "
+               "report-table-row-no-split / report-table-header-repeat=table-cell. "
+               "report-heading-keep-with-next and report-figure-caption-keep-together "
+               "stay EMPTY by design -- their block type lives in Parameter "
+               "(applies_to_block=/binds_to=) because the enum has no heading/figure "
+               "value. That is not a gap; see research/45-notes.md")
 CHANGES.append("T9: +font-substitute-available, +redesign-text-frozen binding rows")
 CHANGES.append("T9: Threshold table half T# -> manifest table name on FIVE rows -- "
                "cv-page-count (T12->cv-regions) and pro-bleed-geometry / "
