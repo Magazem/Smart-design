@@ -1,59 +1,58 @@
-# BRIEF — DDR — v0.2 blocker: the acceptance prompts answer their own question
-
-## RESTART NOTE -- read first
-The workstation restarted and killed your previous turn. research/44-v02-acceptance.md is
-UNTOUCHED since 08:39, so nothing was lost and nothing was half-applied. Start fresh from this
-brief.
+# BRIEF — DDR — activation prompt 11's rubric is now wrong, not the skill
 
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
-DO NOT touch git. Rewrite research/44-v02-acceptance.md in place.
+DO NOT touch git. DO NOT edit SKILL.md or the description.
 
-## Why — read this carefully, it is the whole brief
-The user ran prompts 1-5. The skill fired on NONE. Claude said: "I was doing a clean Word file
-as per the request, no need for design skills." It was right to.
+## Why
+Candidate H is now live. It says creating a listed document type is this skill's job even when
+the output is Word or PowerPoint, and defers only when THE USER names a format for a plain
+conversion.
 
-Every prompt pre-labels its own sections. Prompt 1 supplies "Rechnungssteller:", prompt 3
-supplies "To:", "From:", prompt 5 supplies "Cover:", "Executive summary:". The section
-structure the skill exists to supply is ALREADY IN THE REQUEST, and the ask is effectively
-"write this up". That is a transcription job, and the docx skill correctly takes it.
+Activation prompt 11 is "turn my rough notes into a Word document", and its current pass
+criterion is that the docx skill takes it and OURS STAYS SILENT. Under H that criterion is
+wrong: turning notes into a document is CREATION, not conversion, so our skill firing is the
+intended behaviour. In the user's re-run it fired twice and produced good output the second
+time. The rubric would score that a failure.
 
-This is the SAME CLASS OF DEFECT as the v0.1.0 activation round, where four of five failures
-were prompts referencing content that was never attached. The test answered its own question.
-There is a separate description defect being fixed in parallel — not your concern.
+The plain-conversion deferral is tested by prompt 13 alone — "Just convert this .docx file to a
+PDF, don't change anything" — which still passes and must keep its criterion unchanged.
 
 ## Deliverable (ONE)
-Rewrite all 15 prompts in research/44-v02-acceptance.md so each is a genuine test.
+In skill/document-design-intelligence/references/activation.md, rewrite prompt 11's Pass and
+Fail lines.
+- PASS: this skill fires and renders through the docx handoff. Firing is correct.
+- FAIL: docx responds as the top-level skill and ours never engages, or ours engages but
+  reimplements OOXML generation itself instead of handing off.
+- Add one line recording WHY this changed: it is a consequence of candidate H, which moved
+  "create a document that happens to be Word" from the deferral side to ours.
 
-### Rules for the new prompts
-1. RAW CONTENT ONLY. No section labels. No colon-prefixed field names. Give the facts the way a
-   real person dumps them: a paragraph, a jumble, a list of details in no particular order.
-   If a reader can reconstruct your expected section order by reading the prompt, it is wrong.
-2. THE ASK MUST CARRY DESIGN OR STRUCTURE INTENT, in natural words a person would use. "make me
-   a proper invoice", "I need this as a professional memo", "turn these notes into a business
-   proposal", "erstelle daraus ein ordentliches Angebot". Not "write this up".
-3. Keep the content INLINE. That lesson stands.
-4. Keep the language mix. It is currently 6 English, 5 German, 4 French — keep roughly that, and
-   keep each family in the language it has now so the expected orders stay comparable.
-5. The expected section orders DO NOT CHANGE. They are correct and verified against
-   structures.csv. You are changing the stimulus, not the answer.
-6. Keep the three trap notes about families that share an identical order.
+Leave the prompt TEXT itself unchanged — only the criteria move.
+Change nothing about prompts 1-10, 12 or 13.
 
-### Add a rule to the file header
-State it so nobody reintroduces the defect:
-  An acceptance prompt must not pre-supply the structure it is testing. If the prompt names the
-  sections, the model only has to transcribe them, and the test proves nothing.
+## While you are in that file — two known stale passages, FIX THEM TOO
+These are already ruled and are part of this one deliverable:
+1. The prose still says the description "grew from 667 to 964 with the addition of the
+   built-in-skill deferral sentence". Wrong cause: 964 is the result of candidates F, G and H.
+   Make it honest and keep 667 only as the historical starting number.
+2. The paragraph below it argues that .docx and .pptx stay out of the trigger list, while
+   describing a sentence that no longer names them. H's sentence names neither format as a
+   trigger; it names the CONDITION (the user naming a format for plain conversion). Rewrite so
+   it describes the sentence that actually ships.
+
+## Do NOT touch
+- The fenced block under "## The description as shipped". It is byte-identical to SKILL.md's
+  description and that will shortly be enforced by a test. Leave it exactly as it is.
+- "Alternate A" and "Alternate B". Retained history.
 
 ## Verify before you report
-1. Grep your own prompts for colon-prefixed labels at line starts. There should be none inside
-   the quoted prompt blocks.
-2. For each prompt, ask yourself the reconstruction test in rule 1 and say which was hardest.
-3. All 15 keys still present exactly once; expected orders still match data/base/structures.csv
-   verbatim — re-run the check, do not assume, since you are editing the file around them.
-4. Language counts still roughly 6/5/4.
+1. `git diff` on activation.md shows ONLY prompt 11's criteria and the two stale passages.
+2. The fenced block is untouched — confirm with a byte comparison against SKILL.md's
+   description, not a whitespace-folded one.
+3. All 13 prompts still present and numbered.
+4. Prompt 13's criteria are unchanged.
 
 Python: C:\Users\ysuliman\AppData\Local\Microsoft\WindowsApps\python3.exe
 
 ## Report
-Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 10 lines: two rewritten
-prompts verbatim as samples, the output of check 3, and which family was hardest to write
-without leaking its structure.
+Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 8 lines: prompt 11's new
+criteria verbatim, what you changed in the two stale passages, and the result of check 2.

@@ -1,63 +1,61 @@
-# BRIEF — Coverage — apply candidates G and H (HOLD until the lead says "user approved")
+# BRIEF — Coverage — candidate I: nouns were necessary but not sufficient
 
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
-DO NOT touch git. DO NOT START until the orchestrator tells you the user has approved. If you
-are reading this without that go-ahead, stop and say so.
+DO NOT touch git. DO NOT edit SKILL.md. DRAFT ONLY — the user vetoes description changes.
 
-## What is being applied — one package, one commit
-The user is deciding on ONE thing: G-minus-triggers plus H, a 964-character description.
-- **G nouns**: the missing document nouns, from research/38-description-candidate.md's
-  "Candidate G" section.
-- **NOT G's trigger phrases.** Drop the 76-character trigger insertion ("draft an invoice",
-  "write a memo", "rédige une facture", "erstelle eine Rechnung"). I verified this costs nothing:
-  every noun those phrases carry — invoice, memo, facture, Rechnung, one-pager, devis, proposal,
-  Angebot — still appears elsewhere in G. It is pure redundancy and it buys the room for H.
-- **H**: replace the deferral sentence with the "Candidate H" wording. It keeps the
-  plain-conversion carve-out word for word and closes the agentless hole by saying "the USER
-  names it".
-- **The letter-formal Keywords fix**, which costs zero description characters.
+## What the re-run showed, and why it matters more than the pass count
+On the G+H archive: the German invoice FIRED and was correct. The German form FIRED. But the
+French letter, the English memo and the French short report did NOT fire.
 
-## Deliverable (ONE — four edits, one coherent change)
+Now the uncomfortable part, which I have verified myself against the live description:
+- "lettre" is NOT in it. We dropped "lettre de motivation" for budget and never considered the
+  bare noun. That one is a straightforward miss.
+- "memo" IS in it. "rapport" IS in it. Those two failed anyway.
 
-### 1. SKILL.md description
-Apply G's nouns and H's replacement sentence. The result MUST measure exactly **964**
-characters. Measure with Python len() on the quoted value. If you get anything else, STOP and
-report — do not adjust wording to hit the number.
+So NOUNS ARE NECESSARY BUT NOT SUFFICIENT. We spent the whole trigger-phrase budget on nouns,
+and the evidence now suggests the create-verb phrases were doing work we did not credit.
 
-### 2. The coupled edits that must move with it
-These are the same four that bit us when candidate F was applied. Miss one and the build breaks:
-- references/activation.md, the fenced block under "## The description as shipped" — it must
-  stay BYTE-IDENTICAL to the description. A test depends on it.
-- references/activation.md prose: every "831" becomes 964. Leave the historical "grew from 667"
-  first number alone.
-- Do NOT touch "Alternate A" or "Alternate B" further down. They are retained history.
+There is a second finding you must account for: the platform DUPLICATED one chat, and the same
+prompt went to docx in one copy and to us in the other. ACTIVATION IS PROBABILISTIC. A prompt
+that fails once may fire on a retry. The lead is asking the user to re-run the three failures to
+establish "never" versus "sometimes".
 
-### 3. letter-formal Keywords
-research/26-t1-doctypes-draft.csv line 12: the Keywords cell has "business letter", "formal
-letter", "official letter" but no bare "letter" token, although the description carries
-"letters". Add the bare token. Then RELOAD via research/load-base.py so it reaches data/base —
-only that script may write there. The reload diff must be one row of one file.
+## Deliverable (ONE) — research/38-description-candidate.md, appended as "Candidate I"
+Do NOT overwrite candidates B, F, G or H. F, G and H are APPLIED and live at 964 characters.
 
-### 4. REMOVE THE XFAIL — this is a binding condition, not a cleanup
-In scripts/tests/test_description_coverage.py, EMPTY the PENDING_CANDIDATE_G list and remove
-the xfail marker. In the SAME commit.
-The reason, recorded in RESUME.md: an xfail test passes the suite while proving nothing. If G
-lands and the marker stays, the project keeps a permanently silent test covering the exact
-defect that blocked v0.2 acceptance — worse than having no test.
+Candidate I keeps G's nouns and H's sentence, and adds:
+1. The bare noun "lettre".
+2. The FOUR create-verb trigger phrases that were dropped to make room for H — "draft an
+   invoice", "write a memo", "rédige une facture", "erstelle eine Rechnung". I verified when we
+   dropped them that they were redundant FOR NOUN COVERAGE. The re-run suggests they were not
+   redundant for ACTIVATION. Say so plainly in the draft; that is a correction of my earlier
+   reasoning, not yours.
 
-## Verify — paste actual output, and note what does NOT count
-1. Description measures exactly 964 and contains "the user names it".
-2. The fenced block in activation.md equals the description. Must print True.
-3. No "831" survives in activation.md.
-4. `python3 -m pytest scripts/tests/test_description_coverage.py -q` run WITHOUT the xfail
-   marker, GREEN, with PENDING_CANDIDATE_G empty. **"The full suite passed" is NOT acceptable
-   evidence** — an xfail test passes the suite while proving nothing. Run this file and show it.
-5. Full suite: baseline 146 passed plus 8 subtests.
-6. `python3 scripts/validate_data.py data/base` — `OK: validated 14 table(s), 414 row(s)`.
-7. The reload diff touches only doctypes.csv, one row.
+Pay for it by TIGHTENING these two tail sentences without losing their meaning. Both are
+currently 64 characters:
+   "Applies sourced layout, typography, color, print, and ATS rules."
+   "Not for web or app UI/UX design (use UI/UX Pro Max for screens)."
+The UI/UX boundary is load-bearing — activation prompts 6 and 7 test it. Do not weaken it into
+something a model could miss.
+
+Give, as you did for G:
+- the exact substrings to insert and remove, so the edit is unambiguous
+- the full resulting description on one line with its MEASURED length and headroom under 1023
+- which activation prompts the additions endanger, especially 10 and 11
+
+## The honest paragraph I want in the draft
+State plainly what we can and cannot control. We control the description text. We do not control
+whether the platform routes a given chat to us, and we now have direct evidence the same prompt
+can go either way. Say what a reasonable person should conclude from that about how much
+improvement candidate I can be expected to deliver — and whether there is a point past which
+adding words stops helping. If you think we are near it, say so.
+
+If your honest view is that I is not worth applying until the re-runs distinguish "never" from
+"sometimes", say that too. A well-argued "wait" is a valid deliverable.
 
 Python: C:\Users\ysuliman\AppData\Local\Microsoft\WindowsApps\python3.exe
 
 ## Report
 Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 10 lines: the measured
-length, checks 2-4 verbatim, the reload diff stat, and confirmation the PENDING list is empty.
+length and headroom, what you tightened and whether meaning survived, your risk list, and your
+recommendation on whether to apply I now or wait.

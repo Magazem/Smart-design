@@ -24,15 +24,18 @@ Creates and fixes print/office documents: CVs, resumes, cover letters, brochures
 ```
 
 **Length: 964 characters** (well under the confirmed 1,024-character ceiling —
-resolved above; no truncation risk in practice). Grew from 667 to 964 with
-the addition of the built-in-skill deferral sentence — see
-`research/24-builtin-alignment.md` item 1 for why: Anthropic's own `docx` and
-`pptx` skills each carry a clause deferring to "a dedicated document/slide
-skill" when the user doesn't name a file format — that dedicated skill is
-supposed to be us, and the boundary needs to hold in both directions. Neither
-".docx" nor ".pptx" appears anywhere in our own trigger list, by design —
-those filename mentions belong to the built-ins, not to us; naming them here
-would blur the exact boundary this sentence exists to draw.
+resolved above; no truncation risk in practice). Grew from 667 (the original
+starting number) to 964 across candidates F, G, and H, not from a single
+addition — see `research/24-builtin-alignment.md` item 1 and the candidate-H
+record for why: Anthropic's own `docx` and `pptx` skills each carry a clause
+deferring to "a dedicated document/slide skill" when the user doesn't name a
+file format — that dedicated skill is supposed to be us, and the boundary
+needs to hold in both directions. The sentence that ships doesn't name
+".docx" or ".pptx" as triggers; it states the CONDITION instead — creating
+any listed document type is still this skill's job even when the output is
+Word or PowerPoint, and deferral happens only when the user names a format
+for a plain conversion or edit with no design ask. That condition, not a
+filename mention, is what draws the boundary.
 
 **Scope note**: the skill fixes how a document looks, not how its prose
 reads; AI-sounding wording is out of scope for v0.1.0.
@@ -374,13 +377,15 @@ behavior versus answering as a generalist.
     - Need to hire 2 more support reps by Q4
     - Churn rate flat at 4.1%
     Turn my rough notes into a Word document."
-    **Pass**: the `docx` skill activates (file format named explicitly,
-    matches its own trigger list) — this skill stays silent. Asking for
-    the file with no skill named also counts as a pass, but it's weak
-    evidence — that's why the notes are now inline; a test with content is
-    the stronger signal. **Fail**: this skill activates instead of, or
-    alongside, `docx` — the boundary sentence didn't hold in the direction
-    that protects the built-ins from us.
+    **Pass**: this skill fires and renders through the docx handoff. Firing
+    is correct. **Fail**: `docx` responds as the top-level skill and ours
+    never engages, or ours engages but reimplements OOXML generation itself
+    instead of handing off.
+    **Changed under candidate H**: turning notes into a document is
+    CREATION, not conversion, so this skill firing is the intended
+    behaviour — H moved "create a document that happens to be Word" from
+    the deferral side to ours, which is why the criteria above replace the
+    older silent-and-defer expectation.
 12. "I need a two-page CV, make it look professional. I'm Sara Lindqvist, 8 years as a
     supply-chain analyst at Nordica Freight, before that 3 years as a logistics coordinator at
     Baltic Rail; MSc Logistics, Gothenburg; fluent Swedish, English, German; Excel, SAP,
