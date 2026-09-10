@@ -1,7 +1,7 @@
 # BRIEF — Coverage — RULING K step 2: load the page-flow constraints (HOLD)
 
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
-DO NOT touch git. DO NOT START until dispatched, and not before DDR's step 1 is committed.
+DO NOT touch git. DISPATCHED. DDR step 1 is committed as 21de2b3 and verified. Proceed.
 
 ## Why
 DDR has authored page-flow rows into research/16-t9-constraints-draft.csv. Only

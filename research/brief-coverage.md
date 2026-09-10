@@ -1,45 +1,52 @@
-# BRIEF — Coverage — apply candidate J (HOLD until the lead says "user approved")
+# BRIEF — Coverage — RULING K step 2: load the page-flow constraints (HOLD)
 
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
-DO NOT touch git. DO NOT START without the go-ahead. If you are reading this without it, stop
-and say so.
+DO NOT touch git. DISPATCHED. DDR step 1 is committed as 21de2b3 and verified. Proceed.
 
-## What is being applied
-Candidate J, from research/38-description-candidate.md. It replaces the LEAD sentence and trims
-the trigger examples. Everything else in the description stays.
+## Why
+DDR has authored page-flow rows into research/16-t9-constraints-draft.csv. Only
+research/load-base.py may write data/base.
 
-Live description today: 972. After J: **986**. I measured that myself against disk; do not
-trust the number, reproduce it.
+## A loader change you will almost certainly need — I checked this before writing the brief
+T9's `Element Scope` is NOT in either draft. The loader derives it, and the derivation is
+hardcoded to a SINGLE key (load-base.py around line 236):
+    r["Element Scope"] = ""
+    if k == "report-measure-cpl":
+        r["Element Scope"] = "body-paragraph"
+So every new row lands with an EMPTY Element Scope unless you extend that logic. Page-flow rules
+need real scopes — `body-paragraph` for widows and orphans, `table-cell` for table splitting,
+`caption-block` for figure-and-caption. All three are already in the enum.
 
-What J changes, and nothing else:
-- The lead "Creates and fixes print/office documents:" becomes the use-when wording.
-- The trigger examples drop from seven to three, one per language.
-- KEPT, verify each survives: "sourced", the UI/UX boundary sentence, "lettre", candidate H's
-  deferral sentence (must appear EXACTLY ONCE and byte-intact), and every document noun. Note
-  "report" leaves only as part of the deleted example "format this report" — the noun "reports"
-  must remain in the list.
+DDR HAS ALREADY TOLD YOU WHICH ROWS NEED WHAT, so do not re-derive it:
+- `report-widow-orphan-control` needs `body-paragraph`.
+- `report-table-row-no-split` and `report-table-header-repeat` need `table-cell`.
+- `report-heading-keep-with-next` and `report-figure-caption-keep-together` stay scope-EMPTY
+  BY DESIGN. Their block type is carried in Parameter via `applies_to_block` and `binds_to`,
+  following the photocopy-safe precedent of putting roles in Parameter. That is NOT a gap and
+  must not be "fixed".
+Its full reasoning is in research/45-notes.md; read it before changing anything.
+
+Extend the derivation to carry the scopes those rows need. Prefer a data-driven mapping over
+another hardcoded key comparison; a chain of `if k ==` lines is how this became a special case
+in the first place. If DDR's notes say the rows cannot get their scope, say so and stop.
 
 ## Deliverable (ONE)
-1. Apply J to SKILL.md's frontmatter description. Result MUST measure exactly 986. If it does
-   not, STOP and report. Do not adjust wording to reach the number.
-2. The coupled edits, which now have a test behind them:
-   - references/activation.md's fenced "as shipped" block, updated to match BYTE for byte, on
-     ONE line.
-   - "972" becomes 986 on the three prose lines that carry it. Leave the historical 667 alone.
+Load, to gate zero.
+1. Extend the Element Scope derivation as above.
+2. Run research/load-base.py.
+3. Update the T9 CHANGES string if it states a row count that your load changes.
 
 ## Verify — paste actual output
-1. Description measures exactly 986 and contains "whether the answer is a chat reply or a file".
-2. H's sentence: `description.count(<H sentence>) == 1`.
-3. `python3 -m pytest scripts/tests/test_description_mirror.py -q` — both tests green. These are
-   the tests you wrote; they are now the ones protecting this edit.
-4. `python3 -m pytest scripts/tests/test_description_coverage.py -q` — green on its own, not as
-   part of the suite.
-5. No "972" survives in activation.md.
-6. Full suite: baseline 148 passed plus 8 subtests.
-7. Confirm no document noun was lost: diff the noun list before and after and paste it.
+1. `python3 scripts/validate_data.py data/base` — exit 0. Report the table and ROW COUNT; it was
+   414, and constraints grows by however many rows DDR added.
+2. `git diff --stat skill/document-design-intelligence/data/` — expect constraints.csv only. If
+   any OTHER table moved, that is a finding: report it, do not tidy it.
+3. Every new row has the Element Scope DDR intended. Print the new rows with their scopes.
+4. `python3 -m pytest scripts -q` — baseline 148 passed plus 8 subtests.
+5. The loader is idempotent: run it twice and confirm the second run changes nothing.
 
 Python: C:\Users\ysuliman\AppData\Local\Microsoft\WindowsApps\python3.exe
 
 ## Report
-Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 10 lines: the measured
-length, checks 2, 5 and 7 verbatim, and the two test results.
+Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 10 lines: the gate line
+with its row count, the diff stat, the new rows with scopes, and the idempotency result.
