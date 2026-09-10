@@ -454,7 +454,7 @@ these as if they were cited would spend that credibility for nothing.
 The one number, `min_lines_together=2`, is convention-by-ubiquity, flagged the same way the
 existing legal-text 8pt floor flags its own unsourced threshold.
 
-THREE SCOPES ARE DELIBERATELY EMPTY, not missing: `report-heading-keep-with-next` and
+TWO SCOPES ARE DELIBERATELY EMPTY, not missing (the other three carry a real scope): `report-heading-keep-with-next` and
 `report-figure-caption-keep-together` carry their block type in Parameter via `applies_to_block`
 and `binds_to`, following the photocopy-safe precedent of putting roles in Parameter. Do not
 "fix" them.
