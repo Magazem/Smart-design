@@ -439,6 +439,19 @@ DDR rather than forced into a section list. Not v0.2.
   from research/09-library-schema.md Revision 4, which does not describe it either.
 - Heading variants for non-CV families.
 
+## WHEN CANDIDATE G IS APPLIED -- a condition that must not be forgotten
+The description-coverage test is expected to be RED until candidate G lands, so it may ship
+marked xfail with a reason naming G. Lead's condition, binding:
+
+**THE XFAIL MARKER MUST BE REMOVED IN THE SAME COMMIT THAT APPLIES G.**
+
+And the sub-manager's verification of that commit MUST include running the test WITHOUT the
+marker and seeing it GREEN. Not "the suite passed" -- an xfail test passes the suite while
+proving nothing. Run it un-marked, watch it go green, then commit.
+
+If G is applied and the marker is left behind, the project keeps a permanently silent test
+covering the exact defect that blocked v0.2 acceptance. That is worse than having no test.
+
 ## STANDING RULE, ruled 2026-09-10: widen the description in the SAME release that adds families
 WHEN A RELEASE ADDS DOCUMENT FAMILIES, THE DESCRIPTION'S NOUN LIST MUST BE WIDENED IN THE SAME
 RELEASE, AND THE COVERAGE MUST BE CHECKED PROGRAMMATICALLY, PER LANGUAGE.

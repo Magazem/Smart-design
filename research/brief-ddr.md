@@ -1,5 +1,10 @@
 # BRIEF — DDR — v0.2 blocker: the acceptance prompts answer their own question
 
+## RESTART NOTE -- read first
+The workstation restarted and killed your previous turn. research/44-v02-acceptance.md is
+UNTOUCHED since 08:39, so nothing was lost and nothing was half-applied. Start fresh from this
+brief.
+
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
 DO NOT touch git. Rewrite research/44-v02-acceptance.md in place.
 

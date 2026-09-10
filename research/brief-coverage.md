@@ -1,5 +1,12 @@
 # BRIEF — Coverage — v0.2 blocker: the description noun gap
 
+## RESTART NOTE -- read first
+The workstation restarted and killed your previous turn mid-task. YOUR WORK SURVIVED:
+research/tmp-g/ holds gap.py, audit.tsv and out.json, and the audit already has per-language
+rows. REUSE IT. Do not start the analysis again.
+What never got written: Candidate G in research/38, and the permanent test.
+research/tmp-g/ is SCRATCH. It must not be committed. Delete it when you are done.
+
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
 DO NOT touch git. DO NOT edit SKILL.md. Draft only — the user vetoes description changes.
 
@@ -59,3 +66,24 @@ Python: C:\Users\ysuliman\AppData\Local\Microsoft\WindowsApps\python3.exe
 Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 10 lines: the gap table's
 headline numbers per language, the measured length of G, the headroom, your risk verdict, and
 whether everything fit.
+
+## ADDENDUM 1 -- budget guidance, decide deliberately
+If three languages for all fifteen families will not fit under 1023, do NOT spread thin.
+English plus the ONE non-English noun users actually type beats three weak ones -- Rechnung,
+facture, Angebot, devis. Say what you dropped and why.
+
+## ADDENDUM 2 -- a PERMANENT TEST, not just a table
+Add a test to the suite so this cannot recur.
+Rule: every doctype with a non-empty Structure Key must have at least one of its Keywords
+tokens, or its display-name noun, present in the description -- case- and diacritic-folded --
+in at least one language.
+Doctypes covered ONLY through a generic parent noun, such as cv-academic through "CV", pass
+ONLY if the test lists them explicitly as generic-covered, with a comment saying so. That list
+is the point: it forces the next person adding a family to state the claim out loud.
+The test MUST read SKILL.md's frontmatter AT RUNTIME, so it fails the moment someone edits the
+description or adds a family.
+It must FAIL, not warn. I will verify by removing a noun and confirming the suite goes red.
+
+Note: the test will be red until candidate G is applied, and G needs the user's approval. Write
+the test so that is honest -- if you must, mark it xfail with an explicit reason naming
+candidate G, and say so in your report. Do NOT weaken the rule to make it pass today.
