@@ -17,7 +17,16 @@ So every new row lands with an EMPTY Element Scope unless you extend that logic.
 need real scopes — `body-paragraph` for widows and orphans, `table-cell` for table splitting,
 `caption-block` for figure-and-caption. All three are already in the enum.
 
-Extend the derivation to carry the scopes DDR's rows need. Prefer a data-driven mapping over
+DDR HAS ALREADY TOLD YOU WHICH ROWS NEED WHAT, so do not re-derive it:
+- `report-widow-orphan-control` needs `body-paragraph`.
+- `report-table-row-no-split` and `report-table-header-repeat` need `table-cell`.
+- `report-heading-keep-with-next` and `report-figure-caption-keep-together` stay scope-EMPTY
+  BY DESIGN. Their block type is carried in Parameter via `applies_to_block` and `binds_to`,
+  following the photocopy-safe precedent of putting roles in Parameter. That is NOT a gap and
+  must not be "fixed".
+Its full reasoning is in research/45-notes.md; read it before changing anything.
+
+Extend the derivation to carry the scopes those rows need. Prefer a data-driven mapping over
 another hardcoded key comparison; a chain of `if k ==` lines is how this became a special case
 in the first place. If DDR's notes say the rows cannot get their scope, say so and stop.
 
