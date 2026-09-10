@@ -439,6 +439,30 @@ DDR rather than forced into a section list. Not v0.2.
   from research/09-library-schema.md Revision 4, which does not describe it either.
 - Heading variants for non-CV families.
 
+## THE ACTIVATION DISCRIMINATOR: ARTEFACT vs PROSE GENRE (2026-09-10, 2-of-2 evidence)
+Measured on the G+H archive, same prompts run twice:
+    DE invoice  2/2 FIRE       DE form     1/1 FIRE
+    EN proposal 1/2            EN memo     0/2
+    FR letter   0/2            FR report   0/2
+The three failures were RE-RUN and failed AGAIN. Deterministic non-fires, not routing noise.
+
+**An invoice and a form are ARTEFACTS Claude cannot produce as prose, so it reaches for a
+document tool and finds us. A letter, a memo, a report and a proposal are GENRES CLAUDE WRITES
+NATIVELY IN CHAT -- it writes them and never considers a skill.**
+
+This explains what killed every earlier theory:
+- NOUNS ARE NOT THE ISSUE. "memo" and "rapport" are both IN the description and both families
+  failed anyway. Adding nouns cannot fix a family Claude never thinks to delegate.
+- TRIGGER PHRASES ARE NOT THE ISSUE EITHER. invoice and form have NO create-verb phrase and both
+  fire. That is what refuted my candidate-I premise.
+
+The suspect is the LEAD SENTENCE, "Creates and fixes print/office documents", which reads as
+FILES. Candidate H reached the case where a format is involved; nothing reaches the case where
+Claude intends an ordinary chat reply. Candidate J tests this.
+
+DO NOT go back to adding nouns for a family that fails. Check first whether it is a genre Claude
+writes natively -- if it is, the noun is not the lever.
+
 ## STANDING RULE, 2026-09-10: "byte-identical" MEANS A BYTE COMPARISON
 I reported several times that the fenced "as shipped" block in references/activation.md was
 byte-identical to SKILL.md's description. It was not. It was line-WRAPPED, and my check folded

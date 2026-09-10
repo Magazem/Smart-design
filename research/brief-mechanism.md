@@ -1,59 +1,64 @@
-# BRIEF — Mechanism — plain-text output must keep the section order
+# BRIEF — Mechanism — Candidate J: the lead sentence reads as "files"
 
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
-DO NOT touch git. DO NOT change the description in SKILL.md's frontmatter — that is settled and
-under test. You are editing the SKILL.md BODY prose only. No script changes.
+DRAFT ONLY. DO NOT edit SKILL.md. DO NOT touch git. You append one section to
+research/38-description-candidate.md.
 
-## Why — this is a v0.2 blocker, not polish
-The user ran activation prompt 11 twice on the new archive. Both times this skill fired, which
-is now correct. Run one asked "PDF or text?", the user chose TEXT, and the output was
-unstructured AI-looking prose. Run two did not ask and produced something the user called very
-neat and professional.
+## The data, which is now good enough to reason from
+Same archive, same prompts, run twice:
+  DE invoice  2/2 FIRE      DE form     1/1 FIRE
+  EN proposal 1/2           EN memo     0/2
+  FR letter   0/2           FR report   0/2
+The three that failed were re-run and failed AGAIN. These are deterministic non-fires, not
+routing noise.
 
-So on the plain-text path the skill dropped the section order entirely. That means the ENTIRE
-structure model added in v0.2 — 52 canonical sections, 204 heading rows, section orders for all
-17 families — is silently absent whenever the user asks for text rather than a file. The data is
-loaded, the resolver returns it, and the body prose never tells the model it still applies.
+## The hypothesis you are testing — the lead's, and it fits every point
+An invoice and a form are ARTEFACTS. Claude cannot produce them as prose, so it reaches for a
+document tool and finds us. A letter, a memo, a report and a proposal are GENRES CLAUDE WRITES
+NATIVELY IN CHAT. It writes them and never considers a skill at all.
 
-## The body as it stands
-skill/document-design-intelligence/SKILL.md, 52 lines. Two sections matter:
-- "## Rendering is a handoff, not ours" at line 24, which frames output as docx, pptx or PDF.
-  Plain text is not mentioned anywhere, so a model reasonably reads text as outside the flow.
-- "## Section-order guidance" at line 37, which says resolve returns a section order but never
-  says what to DO with it when there is no file to render.
+If that is right, nouns were never the issue — which explains the thing that broke the previous
+theory, that "memo" and "rapport" are both present in the description and both families failed
+anyway.
 
-## Deliverable (ONE)
-Body prose that makes this unambiguous. The rule to state:
+The suspect is the LEAD SENTENCE: "Creates and fixes print/office documents". That reads as
+FILES. Candidate H helped the case where a format is involved — "even as Word or PowerPoint" —
+but says nothing to the case where Claude intends an ordinary chat reply.
 
-  THE OUTPUT FORMAT NEVER CHANGES THE SECTION ORDER OR THE HEADINGS. Plain text in the chat
-  still gets the resolved structure — the same sections, in the same order, with the same
-  headings. Only the RENDERING changes.
+## Deliverable (ONE) — research/38-description-candidate.md, appended as "Candidate J"
+Do NOT overwrite B, F, G, H or I. F, G and H are APPLIED and live at 964.
 
-Put it where a model reading top to bottom will hit it before it starts generating. Decide
-yourself whether that is inside the section-order section, the handoff section, or the numbered
-step list near the top, and say why you chose that place.
+1. Rewrite the LEAD so it is format-agnostic and USE-WHEN framed. The lead's sketch, which you
+   may improve but not weaken: "Use whenever the user asks for any of these documents to be
+   written, drafted, made, structured or fixed, whether the answer is a chat reply or a file:"
+   followed by the existing noun list.
+2. KEEP candidate H's deferral sentence intact. It is doing real work and prompt 13 depends on
+   it.
+3. INCLUDE the bare noun "lettre". It is genuinely missing.
+4. FUND IT by trimming the TRIGGER-EXAMPLE list. The data says those examples are not the
+   discriminator — invoice and form have no trigger phrase and both fire. Do NOT pay for it out
+   of "sourced" or the UI/UX boundary sentence; both were fought for and both are load-bearing.
+5. Measure. Under 1023. Give the exact substrings, the full result on one line, the measured
+   length and the headroom.
 
-Keep it SHORT. This file is a router, and every line competes for attention with the four-step
-flow that is the point of it. Two or three sentences. If you find yourself writing a paragraph,
-you are explaining rather than instructing.
+## The risk section is the important part of this brief
+A use-when lead WIDENS scope, where every recent change narrowed it. Say explicitly what it does
+to the should-not-fire prompts:
+- 8, the Python refactor
+- 9, the marketing strategy question
+- 10, "summarize this PDF research paper" — the sharpest one, because a use-when lead plus a
+  noun list is close to "any mention of a document type"
+Say how a reader would TELL if you broke them, and say plainly if you think the risk is not
+worth taking.
 
-Also make sure the handoff section no longer implies output is only ever a file. One clause is
-probably enough.
-
-## What NOT to do
-- Do not touch the frontmatter. Not one character. There is a test that reads it.
-- Do not add a fifth step to the four-step flow.
-- Do not restate the section list or name families.
-
-## Verify before you report
-1. `git diff` on SKILL.md shows body changes only, and the description line is untouched.
-2. `python3 -m pytest scripts -q` — baseline 146 passed plus 8 subtests. The description
-   coverage test must still pass, which is your proof the frontmatter is intact.
-3. Report the file's new line count. It was 52. If it grew by more than about 5, you wrote too
-   much.
+## And the judgement I want
+If, having read the shipped description, you think the lead sentence is NOT the cause, say so
+and say what is. You refuted a brief premise correctly on candidate H and Coverage did the same
+on I. A well-argued "this hypothesis is wrong" remains a valid deliverable here.
 
 Python: C:\Users\ysuliman\AppData\Local\Microsoft\WindowsApps\python3.exe
 
 ## Report
-Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 8 lines: the new prose
-verbatim, where you put it and why, the line count, and the test tally.
+Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 10 lines: the new lead
+verbatim, what you trimmed, the measured length and headroom, your risk verdict on 8, 9 and 10,
+and whether you back the hypothesis.
