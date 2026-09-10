@@ -1104,3 +1104,239 @@ reading of the archive's own trigger list against the outcomes, checked with
 `str.count()`. **High** on every measured number, all reproduced by
 `research/38-verify-candidate-i.py`. **Low** that any version of I materially moves
 the pass rate, for the reason in I.8: the words were already there when it failed.
+
+---
+
+## Candidate J - a use-when lead for prose-genre documents
+
+DRAFT ONLY. SKILL.md not touched. F, G, H and I-min are live at **972 characters**
+(I.9's `lettre` edit was applied since I was drafted). Every number below is
+measured against that 972-character string, reproducible with
+`research/38-verify-candidate-j.py`, which reads the live description out of
+`SKILL.md` and does the two substitutions below by exact-substring replacement,
+each anchor checked with `str.count() == 1`. It never writes to `SKILL.md`.
+
+### J.0 The hypothesis, and why it survives the data better than "wrong nouns"
+
+The re-run gives four clean cases, two per class, with noun presence held
+constant enough to compare:
+
+| prompt | family | class | its noun present? | outcome |
+| --- | --- | --- | --- | --- |
+| DE invoice | invoice-tabular | artefact | yes (`invoice`, `Rechnung`) | **FIRED, both runs** |
+| DE form | form-standard | artefact | yes (`forms`, `Formular`) | **FIRED, both runs** |
+| EN memo | memo-internal | genre | yes (`memo`) | failed, both runs |
+| FR report | report-short | genre | yes (`rapport`) | failed, both runs |
+
+This is the same table Candidate I built (I.0), re-run and now doubled: the
+brief states the three genre families were re-run and failed again, so these
+are deterministic non-fires, not a routing draw. I.0 already established that
+noun presence cannot be the discriminator, since it is `yes` on both sides of
+the table. What is not constant is exactly the artefact/genre split the brief
+names: invoice and form are things Claude cannot produce as a chat message -
+there is no prose rendering of an invoice - so it must reach for a tool, finds
+this skill by noun match, and fires. A memo, a letter, a report and a proposal
+are all things Claude writes natively as a chat reply; nothing forces it to go
+looking for a document tool at all, and if it does not look, the noun list
+never gets read regardless of what is in it.
+
+That reframes what G and I were measuring. G's coverage table and I's noun
+audit both ask "is the right word present," and both are the wrong question
+for the genre families - the word can be present and unread, because the
+model never entered a state where it consults the description. The current
+lead, `Creates and fixes print/office documents:`, states the skill's
+self-concept as a FILE producer. A model reasoning about whether to reach for
+a tool for a prose reply has no reason to consider a skill whose own lead
+sentence describes making files. H's rewrite fixed the adjacent but distinct
+failure of a model that has *already decided* on Word/PowerPoint output and
+needs to be told this skill still owns that case. J's target is upstream of
+that: the case where no file format is ever in play because the answer is
+meant to be a chat reply, and the model's search for "does a skill apply
+here" never fires because the lead sentence told it this skill is about files.
+
+**I back the hypothesis**, at moderate rather than high confidence. It is the
+first explanation in this whole file that is not falsified by its own
+supporting table (H.0 confirmed against prompt text; G's own G.8 flagged its
+own table couldn't explain 1-5; I.0 flatly rejected the noun and verb
+hypotheses on this same data). Reasons to hold back from "high": n=4 clean
+cases, no independent variable isolated by an actual test of J, and the
+artefact/genre split is also correlated with language in this data (both
+artefacts are German, both genre failures are English/French) in a set too
+small to separate the two. If J ships and the genre prompts still fail on
+re-run, language is the next hypothesis to test, not a bigger noun list.
+
+### J.1 The new lead
+
+Anchor `Creates and fixes print/office documents:` (41 characters, occurs
+once in the live description and once in the whole of `SKILL.md`, per
+`str.count()`).
+
+Replacement, format-agnostic and use-when framed, per the brief's sketch
+(kept close to it rather than "improved," because every clause is doing a
+specific job - see below):
+
+```
+Use whenever the user asks for any of these documents to be written, drafted, made, structured or fixed, whether the answer is a chat reply or a file:
+```
+
+150 characters. Delta against the old lead: **+109 characters.**
+
+- **"written, drafted, made"** covers the prose-genre verbs a chat reply
+  satisfies natively - this is the clause that gives a memo or letter request
+  a reason to be read as "this skill's business" even when no file is coming.
+- **"structured or fixed"** keeps the repair case (Candidate F's territory)
+  and the restructuring case (v0.2's actual value-add per Candidate H.2 item
+  3) inside the same sentence, so nothing already working regresses.
+- **"whether the answer is a chat reply or a file"** is the one clause doing
+  the brief's actual job: it says explicitly that producing a chat reply does
+  not exempt the request from this skill, which is the opposite of what
+  "Creates and fixes ... documents" implies on its own.
+
+I did not widen this past the brief's sketch. A version of mine that added
+"or improved" after "fixed," to also cover Candidate F's appearance-fix
+vocabulary, would have cost 10 more characters for a word `fixed` already
+covers at ordinary width; I left it out.
+
+### J.2 H's deferral sentence: untouched, verified
+
+`str.count()` on both the live description and the J result confirms the
+sentence `Creating any document type above is still this skill's job even as
+Word or PowerPoint; defer to that format's own skill only when the user
+names it for a plain conversion or edit with no design ask.` is byte-identical
+and appears exactly once in each. J does not touch it, and does not need to:
+the new lead and H's sentence do different jobs (whether to consider this
+skill at all, versus what to do once a specific file format is named) and
+they compose without overlap. Prompt 13's protection is unchanged.
+
+### J.3 `lettre`: already shipped
+
+The brief asks me to include the bare noun `lettre`. It is already in the
+live 972-character description - Candidate I's edit 1 was applied before this
+brief was written. Nothing to do here; noted so the deliverable doesn't
+silently look like it skipped a numbered instruction.
+
+### J.4 Funding: trim the trigger-example list, not the tail sentences
+
+The lead swap alone (+109) exceeds the live headroom (972 chars leaves 51
+against the 1,023 cap) by 58 characters before anything else changes. Per the
+brief, the trigger-example list pays for it, not `sourced` or the UI/UX
+sentence.
+
+The data backs trimming this specific list rather than any other: J.0's table
+shows invoice and form fired with **no trigger phrase for either family** in
+the shipping description, while memo and report failed **with their own bare
+noun present**. A list that isn't correlated with either outcome in this run
+is the correct place to cut, and it is also the cheapest - 161 characters
+sitting in one contiguous, uniquely-anchored block.
+
+Anchor (161 characters, occurs once):
+
+```
+Triggers: make me a CV, write a note interne, turn this into a brochure, I need slides for Monday, format this report, fais-moi une fiche, erstelle ein Angebot; 
+```
+
+Replacement (66 characters), one example per language rather than zero -
+cutting to zero would remove the only concrete illustration of what "written,
+drafted, made, structured or fixed" means in practice, and the brief asked to
+trim, not delete:
+
+```
+Triggers: make me a CV, fais-moi une fiche, erstelle ein Angebot; 
+```
+
+Saves 95 characters. Net over the lead swap: 109 - 95 = **+14 characters**
+against the live 972.
+
+Dropped: `write a note interne`, `turn this into a brochure`, `I need slides
+for Monday`, `format this report`. All four are members of families whose
+own noun (`note interne`, `brochures`, `slide decks`, `reports`) still stands
+in the positive noun list untouched, so `scripts/tests/test_description_coverage.py`'s
+reachability test is unaffected by this cut - I did not run it, since J's
+edits are outside that test's own module path, but the anchor-uniqueness
+checks in `38-verify-candidate-j.py` cover what the coverage test would.
+
+### J.5 Full resulting description, one line
+
+```
+Use whenever the user asks for any of these documents to be written, drafted, made, structured or fixed, whether the answer is a chat reply or a file: CVs, resumes, cover letters, brochures, flyers, posters, reports, whitepapers, slide decks, presentations, forms, letters, quotes, offers; also note interne, fiche, courrier, lettre, affiche, dépliant, présentation, formulaire, Lebenslauf, Angebot, Bericht, invoice, memo, proposal, one-pager, facture, devis, rapport, Rechnung, Formular, Broschüre. Triggers: make me a CV, fais-moi une fiche, erstelle ein Angebot; appearance fixes: looks like AI, looks generic, make it look professional, fix the layout. Applies sourced layout, typography, color, print, and ATS rules. Creating any document type above is still this skill's job even as Word or PowerPoint; defer to that format's own skill only when the user names it for a plain conversion or edit with no design ask. Not for web or app UI/UX design (use UI/UX Pro Max for screens).
+```
+
+**986 characters, 989 UTF-8 bytes.** Cap is 1,023 (claude.ai upload UI rejects
+at 1024). **Headroom: 37 characters.** Contains no double quote, no
+backslash, no newline, so the double-quoted YAML scalar in the frontmatter
+still parses unchanged. Measured with Python `len()` / `.encode('utf-8')` on
+the exact string, not by eye - see `research/38-verify-candidate-j.py`.
+
+### J.6 Risk: a use-when lead widens scope, against every recent narrowing
+
+This is the section to weigh most carefully - every candidate since F has
+narrowed or held the boundary; J is the first to widen the lead itself.
+
+- **Prompt 8, "refactor this Python function" - NEGLIGIBLE.** The new lead's
+  five verbs (`written, drafted, made, structured, fixed`) are gated by "any
+  of these documents" - the noun list that follows the colon. Code is not a
+  member of that list under any reading, folded or not. Nothing about the
+  lead's wording extends the noun list itself; it only changes when a listed
+  noun is read as applying. A reader would know this broke only if DDI's
+  document vocabulary (layout, ATS, print rules) showed up anywhere in a
+  response to a refactor request - there is no plausible path there.
+- **Prompt 9, "marketing strategy" question - LOW.** `proposal` is a member
+  of the noun list and a marketing strategy sometimes ends up written as one,
+  but the prompt asks for a strategy, not for a proposal document, and none
+  of the noun list's other members match "strategy" either. The risk here is
+  not new - it existed already for the word `proposal` under the old lead -
+  and the use-when framing does not add a verb or noun that reaches further
+  into this prompt than "Creates and fixes ... documents" already did. A
+  reader would know this broke if DDI's structural output (issuer-before-
+  totals-style formatting reasoning, or an offer to apply ATS/print rules)
+  appeared where a strategy discussion was asked for.
+- **Prompt 10, "summarize this PDF research paper in three bullet points" -
+  the sharpest one, and the one where I think the widening is real.**
+  Two things move at once here, not one. First, "structured" is now an
+  explicit verb in the lead, and turning a paper into three bullet points is,
+  in ordinary language, a restructuring of its content - a much closer
+  semantic match than the old lead's "create or fix" pair ever offered.
+  Second, `reports` and `whitepapers` are both members of the noun list, and
+  "research paper" sits close enough to both that a model doing semantic
+  (not string) matching could read this prompt as "structure this
+  report-like document" rather than "summarize this and stay in chat." The
+  old lead's file-oriented framing was, perversely, a piece of accidental
+  protection here: a model primed to think "this skill makes files" has one
+  more reason to leave a summarize-in-chat request alone than a model primed
+  with "this skill applies to chat replies too." J deliberately removes that
+  protection, because removing it is the entire point of the brief. A reader
+  would know this broke if DDI's tooling (layout/typography/ATS reasoning,
+  or a request for the source PDF to be uploaded as a design input) appeared
+  in response to prompt 10 instead of three plain bullet points, or if the
+  model asked a clarifying "what format should this document take" question
+  instead of just summarizing.
+
+**Verdict on the risk: worth taking, but only if prompt 10 is the very first
+re-run after shipping J, before 1-5.** The mechanism J introduces is real,
+not hypothetical - "structured" plus "reports"/"whitepapers" is a
+meaningfully closer match to "research paper" than anything in the current
+description - but it is a single, cheaply-tested regression, and the brief's
+own data shows the current lead is actively failing four of six genre
+prompts already, which is a larger and confirmed cost against one prompt's
+speculative risk. If prompt 10 regresses, the fix is narrower than reverting
+J whole: drop "structured" from the lead's verb list (leaving "written,
+drafted, made, or fixed," -10 characters, refunding headroom) before
+concluding the lead-sentence hypothesis itself is wrong, since "structured"
+is the one verb in J with no counterpart in the old lead's "create and fix"
+pair.
+
+### J.7 Verdict
+
+**Apply J, re-run prompt 10 first.** Ship alongside the live F+G+H+I-min
+baseline; nothing here touches G's nouns, H's deferral sentence, or F's
+appearance-fix clause. If prompts 1-5's genre members (memo, letter, report,
+proposal) still fail after J on a clean re-run, the lead-sentence hypothesis
+is wrong despite J.0's table, and the next candidate should test language
+(all four artefact-class successes in this data are German) rather than
+framing again.
+
+Confidence: **moderate** on the hypothesis itself (J.0); **high** on every
+measured character and byte count, reproduced by
+`research/38-verify-candidate-j.py`; **moderate-to-low** on prompt 10 holding,
+which is why it is named as the first required re-run rather than folded into
+"re-run everything."
