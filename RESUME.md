@@ -506,7 +506,7 @@ confirm it splits rather than validating the joined string.
 
 HISTORICAL, and the reason phase A was shaped as it was: at the time, headings.csv held 81 rows
 over exactly 11 canonical sections, ALL OF THEM CV-ONLY. **As of 2026-09-10 it holds 204 rows
-over 51 sections** and every structure row carries an order. The rule below still governs any
+over 52 sections** and every structure row carries an order. The rule below still governs any
 FUTURE family:
 
 CONSEQUENCE: a new family needing brand-new canonical sections must have its **headings rows
