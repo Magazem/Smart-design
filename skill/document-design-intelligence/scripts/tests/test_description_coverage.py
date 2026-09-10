@@ -54,7 +54,8 @@ DOCTYPES_CSV = SKILL_ROOT / "data" / "base" / "doctypes.csv"
 # file format", and the old marker string stopped existing the moment H landed.
 # A marker that is never found silently widens the positive region to the whole
 # description -- the narrowing above would have gone quiet without failing.
-NEGATIVE_SCOPE_MARKER = "Creating any document type above"
+NEGATIVE_HEAD_MARKER = "Creating any document type below is still this skill's job even as Word or PowerPoint; defer to that format's own skill only when the user names it for a plain conversion or edit with no design ask."
+NEGATIVE_SCOPE_MARKER = "Not for web or app UI/UX design"
 
 # Doctypes reachable only through a broader parent noun already in the
 # description. Value = the parent noun it rides on, which must itself still be
@@ -139,7 +140,11 @@ class _Description:
     """The positive region of the description, prepared for token matching."""
 
     def __init__(self, raw):
-        cut = raw.find(NEGATIVE_SCOPE_MARKER)
+        head_cut = raw.find(NEGATIVE_HEAD_MARKER)
+        if head_cut < 0:
+            raise AssertionError('NEGATIVE_HEAD_MARKER not found')
+        head_start = head_cut + len(NEGATIVE_HEAD_MARKER)
+        cut = raw.find(NEGATIVE_SCOPE_MARKER, head_start)
         if cut < 0:
             raise AssertionError(
                 "NEGATIVE_SCOPE_MARKER %r is not in the description. The "
@@ -147,7 +152,7 @@ class _Description:
                 "back to the whole string would count the deferral sentence "
                 "as coverage and quietly void this file's main narrowing."
                 % NEGATIVE_SCOPE_MARKER)
-        self.positive = raw[:cut]
+        self.positive = raw[head_start:cut]
         self.tokens = _norm(self.positive)
         self.items = []
         for chunk in re.split(r"[;,:.()]", self.positive):
