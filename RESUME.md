@@ -439,6 +439,26 @@ DDR rather than forced into a section list. Not v0.2.
   from research/09-library-schema.md Revision 4, which does not describe it either.
 - Heading variants for non-CV families.
 
+## THE LESSON OF 2026-09-10: A GREEN GATE DOES NOT MEAN THE OUTPUT SAYS ANYTHING
+Coverage removed the `report-print-print-h1` row and re-ran everything. **The gate STILL PASSED**
+-- `OK: validated 14 table(s)` -- because the remaining rows were perfectly well-formed. Only the
+new end-to-end test caught it, by name, showing ['h2','h3'] against the expected
+['h1','h2','h3'].
+
+VALIDATION PROVES ROWS ARE WELL-FORMED. ONLY AN END-TO-END TEST PROVES THE OUTPUT SAYS SOMETHING.
+
+Every significant defect found today has this shape -- the data was valid, the code ran, exit 0,
+and the answer was empty or wrong:
+- the docx handoff block carried no page size, fonts or palette since v0.1.0
+- the table-of-contents doctype handed over no heading levels
+- a plain-text answer silently dropped the whole section model
+- the description coverage test would have passed while checking nothing, twice
+None of these were caught by the gate, by validate_data, or by the suite as it stood. All were
+caught by looking at what the thing actually PRINTED.
+
+When adding any check, ask what it would say if the feature produced NOTHING AT ALL. If the
+answer is "it would pass", it is not a test.
+
 ## v0.2 ADDS TWO CONVENTION-TAGGED SETS -- ONE release-notes sentence covers BOTH
 Ruled by the lead. Bind into the Packaging tag brief.
 1. The five PAGE-FLOW rules (keep-with-next, widows and orphans, table row integrity, repeated
