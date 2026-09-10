@@ -19,9 +19,11 @@ Run scripts/build_zip.py, then verify:
    "Creating any document type below". Report which you found.
 4. It still contains "lettre", "appearance fixes", "the user names it", and the nouns invoice,
    memo, one-pager, facture, Rechnung, devis.
-5a. NEW: the archive must contain scripts/tests/test_schema_manifest.py, and the manifest
-    member must declare display_columns on six tables. That fix is what stops the docx handoff
-    from shipping empty; confirm it is actually IN the archive, not just on disk.
+5a. The manifest member must declare display_columns on SIX tables. That is what stops the docx
+    handoff from shipping empty; confirm it is in the ARCHIVE, not just on disk.
+    (An earlier version of this check also demanded test_schema_manifest.py be present in the
+    archive. That was MY ERROR -- build_zip excludes every "tests" directory by design and always
+    has. Tests are not shipped and must not be.)
 5. The constraints member has 47 rows and contains all five page-flow keys:
    report-heading-keep-with-next, report-widow-orphan-control, report-table-row-no-split,
    report-table-header-repeat, report-figure-caption-keep-together.
