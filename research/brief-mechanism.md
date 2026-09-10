@@ -1,61 +1,54 @@
-# BRIEF — Mechanism — RULING K step 3: page flow must reach the renderer (HOLD)
+# BRIEF — Mechanism — apply candidate L (USER APPROVED, proceed)
 
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
-DO NOT touch git. DISPATCHED. The constraints are loaded and committed as 0076fff. Proceed.
+DO NOT touch git. The user has APPROVED — the hold is lifted, proceed.
+Reassigned to you because Coverage is busy on ruling M and YOU wrote the two-marker fix.
+No collision: L touches SKILL.md, activation.md and the coverage test; M touches
+build-manifest.py, the manifest and the ddi tests.
 
-## Why
-Page-flow rules in the library are useless if the render handoff never mentions them. The
-`handoff` command prints resolved fonts, colours, spacing, page format and constraints for the
-built-in docx and pptx skills to act on. Unless the page-flow constraints arrive there in words
-docx understands, a heading will still land alone at the foot of a page.
+## What is being applied
+Candidate L, from research/38-description-candidate.md. It is a PURE REORDER: the priority
+claim moves from seventh position to FIRST. I rebuilt it from the live description and diffed at
+token level — the only change across all 972 characters is `above` becoming `below`.
 
-## Deliverable (ONE)
-Make the render-handoff block carry page flow.
-1. Find where `handoff` builds its block — scripts/ddi.py and whatever it calls.
-2. Emit the page-flow constraints in terms the docx skill can act on directly:
-   keepNext, keepLines, widowControl, cantSplit, tblHeader.
-   Map each loaded constraint to its property rather than inventing a parallel vocabulary.
-3. STATE PLAINLY IN THE OUTPUT THAT PPTX HAS NO EQUIVALENT. Slides do not paginate, so these
-   properties do not apply. Say it in the block rather than silently omitting it — a silent
-   omission reads as an oversight to anyone comparing the two paths.
-4. Add a test that the docx handoff block contains the properties and the pptx one carries the
-   not-applicable statement.
+New first sentence:
+  Creating any document type below is still this skill's job even as Word or PowerPoint; defer
+  to that format's own skill only when the user names it for a plain conversion or edit with no
+  design ask.
 
-## Constraints
-- Do NOT change any threshold, weight or constant in the resolver. If you want to, stop and tell
-  me — that is a standing rule here.
-- Do NOT edit SKILL.md's frontmatter description. It is under test.
-- If the body needs a sentence pointing at this, keep it to one line; the file is a router.
+Length stays 972. If you measure anything else, STOP and report.
 
-## Verify
-1. Run `handoff` on a resolved report and paste the block, so the page-flow lines are visible.
-2. Run it for pptx and paste the not-applicable statement.
-3. `python3 -m pytest scripts -q` — baseline will be whatever step 2 left it at; report the
-   number and your delta.
-4. `python3 scripts/validate_data.py data/base` unchanged.
+## THE TEST CHANGE IS PART OF THIS, NOT A FOLLOW-UP
+You proved this by running the real test, and it is the reason L cannot ship alone:
+- Moving that sentence to the front puts NEGATIVE_SCOPE_MARKER at INDEX 0. The positive region
+  collapses to an empty string and ALL THIRTY doctypes read as unreachable.
+- Renaming the marker alone does NOT fix it. It leaks "PowerPoint" into the positive region and
+  falsely credits slide-deck-projection — the exact bug that test exists to catch.
+The fix is a genuine two-marker change to scripts/tests/test_description_coverage.py:
+NEGATIVE_HEAD_MARKER plus NEGATIVE_SCOPE_MARKER. YOU wrote and verified it. Your working version is in
+research/38-description-candidate.md under Candidate L, section L.2, and
+research/38-verify-candidate-l.py reproduces all four scenarios. Use it as you wrote it.
+
+Apply it as written. Keep the hard AssertionError guard on BOTH markers — a marker
+that silently fails to match is how this test nearly went quiet twice.
+
+## Also coupled
+references/activation.md's fenced "as shipped" block: copy the new description in verbatim, one
+line. test_description_mirror.py enforces it, so a miss fails the suite rather than drifting.
+The "972" prose figures do NOT change — the length is identical.
+
+## Verify — paste actual output
+1. Description measures exactly 972 and STARTS with "Creating any document type below".
+2. Token-level diff against the previous description: the ONLY difference is above/below.
+3. `python3 -m pytest scripts/tests/test_description_coverage.py -q` — 6 passed, run on its own.
+4. `python3 -m pytest scripts/tests/test_description_mirror.py -q` — 2 passed, on its own.
+5. NEGATIVE CONTROL, and I will repeat it: with L applied and your two-marker fix in place,
+   confirm the coverage test still FAILS when a noun is removed from the description. A test
+   that passes because its region is wrong is exactly what we are guarding against. Paste it.
+6. Full suite: baseline 148 passed plus 8 subtests.
 
 Python: C:\Users\ysuliman\AppData\Local\Microsoft\WindowsApps\python3.exe
 
 ## Report
-Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 10 lines: the two blocks,
-the test names, and the tally.
-
-## The five rows are already in data/base -- here they are
-Loaded 2026-09-10, gate 419 rows. Every Parameter already NAMES the OOXML property, so you are
-mapping, not inventing:
-  report-heading-keep-with-next        docx_property=keepNext;applies_to_block=heading;binds_to=body-paragraph
-  report-widow-orphan-control          docx_property=widowControl;min_lines_together=2
-  report-table-row-no-split            docx_property=cantSplit;applies_to_block=table-row
-  report-table-header-repeat           docx_property=tblHeader;applies_to_block=table-header-row
-  report-figure-caption-keep-together  docx_property=keepNext;applies_to_block=figure;binds_to=caption-block
-All five are Set Key report-typography, Applies To artifact-class:flow, Severity warn.
-Two carry an empty Element Scope BY DESIGN -- their block type lives in Parameter. Do not treat
-that as missing data.
-
-READ THE PARAMETER, do not hardcode a second copy of this mapping in the handoff code. If the
-Parameter says docx_property=keepNext, emit keepNext. A hardcoded parallel table is how the
-two copies drift apart.
-
-THESE RULES ARE CONVENTION, NOT SOURCED. DDR checked and could not attribute them to any
-authority this library cites. If the handoff block labels provenance anywhere, label them
-honestly.
+Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 10 lines: the measured
+length, checks 2 and 5 verbatim, and the four test results.
