@@ -439,6 +439,41 @@ DDR rather than forced into a section list. Not v0.2.
   from research/09-library-schema.md Revision 4, which does not describe it either.
 - Heading variants for non-CV families.
 
+## DESCRIPTION ITERATION IS CLOSED FOR v0.2. DO NOT OPEN ANOTHER CANDIDATE.
+FIVE description changes were applied across 2026-09-09/10 -- F, G, H, lettre, L. Final results
+on the L archive:
+    FR letter    FAIL      EN memo      FAIL      FR report    FAIL (no trigger)
+    activation 10 PASS     activation 13 PASS     activation 11 FAIL (went to docx)
+Activation 11 had fired 2/2 under H, before L. That flip is n=1, NOTED AND NOT ACTED ON.
+
+**FIVE CHANGES HAVE NOT MOVED ENGLISH OR FRENCH PROSE-GENRE ACTIVATION.** Routing against the
+built-in docx skill is CLAUDE'S DECISION, not something we can force with description text.
+L stays: it states intent, costs nothing, and prompt 13 still passes.
+
+### THE FULL REFUTATION CHAIN -- every theory tried and killed, in order
+1. NOUNS. Dead. "memo" and "rapport" were IN the description; both families failed.
+2. TRIGGER PHRASES. Dead. invoice and form have NO create-verb phrase and both fire.
+3. ARTEFACT vs PROSE GENRE. Dead. The German whitepaper and German memo both fired -- prose
+   genres in German. Candidate J was built on this and vetoed before application.
+4. LANGUAGE AS ROOT CAUSE. Superseded. It is a correlate; Claude's own account gave the
+   mechanism instead.
+5. SALIENCE / ORDERING. Applied as candidate L. Did NOT fix EN/FR prose genres.
+
+### STANDING RULE
+**NO FURTHER DESCRIPTION CANDIDATES WITHOUT A NEW MECHANISM HYPOTHESIS BACKED BY CLAUDE'S OWN
+ACCOUNT.** Not by our theorising, not by another tally. The one genuinely new fact all day came
+from ASKING CLAUDE what it did, and it produced candidate H and then L. If you cannot point at a
+fresh statement from Claude explaining a decision, there is nothing to write a candidate against.
+
+### THE HONEST SHAPE OF IT, for the release notes
+German and ARTEFACT-type documents (invoice, form) fire reliably. English and French letters,
+memos and reports may be routed to the built-in docx skill or answered directly in chat. That is
+a limitation to STATE, not to hide behind more description text.
+
+The user is running two workaround probes: an English memo with "Use the
+document-design-intelligence skill." appended, and an English memo with the built-in docx skill
+disabled. Their results decide the exact wording of the workaround line.
+
 ## THE LESSON OF 2026-09-10: A GREEN GATE DOES NOT MEAN THE OUTPUT SAYS ANYTHING
 Coverage removed the `report-print-print-h1` row and re-ran everything. **The gate STILL PASSED**
 -- `OK: validated 14 table(s)` -- because the remaining rows were perfectly well-formed. Only the
