@@ -1488,13 +1488,20 @@ request. **The file-not-genre mechanism above is the ONLY live lead. Everything 
 SCOPE: the problem is PROSE GENRES (letter, report, proposal) in FRENCH. The EN memo now fires
 and CV prompts fire reliably.
 
-### *** THE ACCOUNT DOES NOT HOLD THE PUBLISHED BUILD (as of 2026-09-11) ***
-The user's claude.ai account has **CANDIDATE M installed, not v0.2.0.** M is refuted and will
-not be applied to the repo, so the account carries a build that exists nowhere in the release
-history. **Any browser test that reads "the installed description" will read M** unless this is
-corrected. Either restore the published asset or re-verify what is installed before scoring
-anything. Reference copy: research/test-builds/_published-v0.2.0-reference.zip,
-md5 9e9f30fb08c663686bde842c41dd2c42. Only the USER can change the account.
+### *** WHAT IS INSTALLED IN THE ACCOUNT (updated 2026-09-11) ***
+**The user reports the published v0.2.0 build is RESTORED.** Candidate M was uploaded for its
+trial, refuted, and then replaced. **USER-REPORTED, NOT TESTER-VERIFIED** -- treat it as probable,
+not established, until someone reads the installed description.
+
+**THE ONE-LINE CHECK, cheap and read-only:** published v0.2.0's description does **NOT** contain
+`'.docx'/'.pptx'` anywhere. Candidate M's does. First-words matching proves NOTHING -- both open
+with the identical "Creating any document type below is still this skill's job". So:
+  contains '.docx'/'.pptx'  -> M is still installed
+  does not contain it       -> published v0.2.0, as expected
+
+Do this before scoring any browser result, every time. Reference copy of the published asset:
+research/test-builds/_published-v0.2.0-reference.zip, md5 9e9f30fb08c663686bde842c41dd2c42.
+Only the USER can change the account.
 
 ## BROWSER TESTING — the three rules that cost us a session each
 1. **NEVER RELOAD or navigate away mid-trial.** A reload destroyed the accessibility tree and
