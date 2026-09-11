@@ -641,6 +641,12 @@ user's weekly quota like any other. A six-send ceiling is therefore THREE PROMPT
 each prompt costs one send for the prompt and one for the follow-up. Plan browser sessions in
 PAIRS of sends, never in prompts.
 
+**PARALLEL TESTERS AUTHORISED (user, 2026-09-11).** Two or three copies of the Acceptance
+Tester may be spawned to split a large browser run. Not needed below ~7 prompts. Keep it for
+the 13x3 run. Spawning is LEAD-ONLY -- ask the lead, do not attempt it yourself. Each copy
+needs its browser panel attached in ITS OWN conversation (see the teammate list), so N copies
+means N panels the user must open; factor that into whether splitting is actually cheaper.
+
 **USER RULING 2026-09-11, SUPERSEDING THE SIX-SEND CEILING ABOVE.** The quota is NOT a
 concern: the 75% came from the user's other work, 25% remained, and it resets in under 18
 hours. The spot-check was dispatched at SEVEN prompts x 2 sends = 14 sends. Keep the cost
