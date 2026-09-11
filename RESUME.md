@@ -578,6 +578,28 @@ Auto-firing stays deferred behind the documented workaround: add
 "Use the document-design-intelligence skill." to the request. That is the v0.3 ruling and this
 result confirms it.
 
+### *** STANDING RULE, 2026-09-11: CENSUS THE SURFACE BEFORE FIXING THE INSTANCE ***
+Ruled by the lead after the v0.3 gate. **When you find a dropped-value defect -- a value
+resolved correctly and then discarded at the last step -- MEASURE THE WHOLE SURFACE IT COULD
+AFFECT BEFORE FIXING THE ONE YOU FOUND.** Report the census with the fix.
+
+Earned the hard way. In ONE DAY the same defect was found THREE TIMES in three places:
+the 204 heading rows reaching no output; the pdf handoff missing sizes, heading levels and
+palette; and the pdf handoff missing SECTIONS, which blocked the v0.3 tag. Each fix was scoped
+to what a brief happened to NAME. **The defect was never scoped that way.** After v0.3 fixed the
+four tables that were named, the census found EIGHT MORE with the same defect -- including
+cv-regions at 2 of 14 columns on the CV CONTROL FAMILY.
+
+The two questions to ask, every time:
+1. **Across FORMATS** -- does every builder do this, or only the ones someone remembered?
+   The v0.3 builder-parity test is the structural answer and it exists because png picked up a
+   call that pdf did not.
+2. **Across TABLES / ROWS / FAMILIES** -- is this one row, or the whole column? One doctype, or
+   every doctype with that shape?
+
+A brief names examples. **A brief is not the scope of a defect.** If a brief names four tables
+and there are fourteen, say so rather than fixing four and reporting success.
+
 ### *** STANDING PRACTICE, 2026-09-11: PRE-REGISTER THE FALSIFIER ***
 Ruled by the lead after candidate M. **Every experiment states, IN WRITING AND BEFORE THE RUN,
 the exact prompt that would kill it and what result counts as a kill.**

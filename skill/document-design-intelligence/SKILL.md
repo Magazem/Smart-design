@@ -38,10 +38,9 @@ conformance not independently verifiable with open tooling.
 ## Section-order guidance
 
 `resolve` now returns a full section order for every document family this
-skill covers, with one exception: `infographic`, which has no Structure Key
-and so gets no section order — the resolver says so explicitly rather than
-returning an empty list. Every document type, infographic included, still
-gets layout, typography, colour, and print guidance.
+skill covers, `infographic` included — it resolves `infographic-canvas`
+(headline, key-points, call-to-action). Every document type gets layout,
+typography, colour, and print guidance alongside its section order.
 
 The output format never changes this order or these headings: a plain-text
 reply in chat gets the same resolved sections and headings as a rendered
