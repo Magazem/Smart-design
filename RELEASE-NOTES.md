@@ -48,7 +48,7 @@
   the column is a v0.3 decision.
 - With the built-in docx/pptx skills present, letters, memos and reports in
   English and French may be routed to docx or answered in chat without this
-  skill; invoices, forms and German prompts fire reliably. The French report
+  skill; CVs, invoices, forms and German prompts fire reliably. The French report
   is a known non-fire. Add "Use the document-design-intelligence skill." to
   the request; this fired in every test.
 
