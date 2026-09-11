@@ -1,6 +1,97 @@
-# 49 — Candidate L settle: BLOCKED
+# 49 — Candidate L settle
+
+## RESULT: DOCX-ONLY (trial run after user enabled the skill — see BLOCKED section below for the disable finding)
+
+The skill was found DISABLED (see "BLOCKED: SKILL FOUND DISABLED" section, preserved below).
+The orchestrator held the trial, escalated the enable decision, and reported back that **the
+user enabled the skill themselves** in this browser window — the tester did not touch the
+toggle. On how long it had been off: nothing beyond what's already recorded below under Q1 —
+the only visible timestamp was a "last edited" stamp climbing in real time (not a disable-event
+marker), so no duration for how long it was off could be established.
+
+Before running the trial, re-verified read-only:
+- **Confound proof still holds:** `Instructions for Claude` textbox (uid=1_55) still carries no
+  `value` attribute, while `Full name`/`Display name` on the same page both carry
+  `value="yazan"`. Confound proof: EMPTY — confirmed (re-confirmed a second time).
+- **Description still matches Candidate L:** same verbatim text as originally recorded
+  ("Creating any document type below is still this skill's job even as Word or PowerPoint;
+  ..."). Re-confirmed in one line: still matches.
+- **Skill now shows ENABLED:** hovering the skill row showed `button "Turn off
+  document-design-intelligence"` — the "Turn off" affordance implies current state = enabled.
+  Quoted verbatim: `"Turn off document-design-intelligence"`.
+
+### Step 1 — test prompt (activation 11), sent verbatim, one fresh chat, no workaround sentence added
+
+Sent, waited 20s, response completed (confirmed via `wait_for "Copy"` appearing under the
+message, not by polling in a loop).
+
+### Step 2 — follow-up, same chat, sent verbatim: "Which skills did you use for this request, and why?"
+
+### Fields A–E
+
+**A. Commands line, VERBATIM (PRIMARY EVIDENCE).** The message showed `"Ran 3 commands, read 2
+files, shared files"`. Expanded, the entries were:
+1. `button "Checking docx skill before creating Word document SKILL.md"` — `description="/mnt/skills/public/docx/SKILL.md"`
+2. `"Ran a command"` — expanded to a bash heredoc: `mkdir -p /home/claude/docx_work && cat >
+   /home/claude/docx_work/gen.js << 'EOF' ... node gen.js` (a Node script using the `docx` npm
+   package to build the file), output `done`
+3. `button "Check rendered document page-1.jpg"` — `description="/home/claude/docx_work/page-1.jpg"`
+4. A second `"Ran a command"` entry (not expanded — render/screenshot step, inferred from
+   context, not from its own expanded content)
+5. `"Presented file"` (not expanded — matches the "shared files" part of the summary line)
+
+**Only one SKILL.md path appeared anywhere in the full trace:
+`/mnt/skills/public/docx/SKILL.md`. No `/mnt/skills/plugins/document-design-intelligence/SKILL.md`
+path appeared anywhere**, in any expanded or collapsed entry.
+
+**B. Indicator seen:** yes — the single "Checking docx skill... SKILL.md" entry described
+above, found by expanding the "Ran 3 commands, read 2 files, shared files" disclosure under
+the assistant's message in the chat transcript.
+
+**C. Claude's follow-up answer, VERBATIM:**
+
+> "I used one skill: the docx skill, since you asked for a Word document specifically.
+>
+> It told me to build the file with the docx npm library rather than writing raw XML (that
+> approach is only needed for editing existing Word files), and it flagged a few formatting
+> gotchas I applied — like using a proper numbering config for the bullets instead of typing
+> "•" characters manually, and setting US Letter page dimensions instead of the library's A4
+> default.
+>
+> It also has me render the finished file to images and actually look at it before handing it
+> over, which is what that last screenshot step was — catching layout issues before you see
+> them rather than after."
+
+Per the standing caution: this is corroboration only, not independent evidence — it names only
+the docx skill and never mentions document-design-intelligence, consistent with A.
+
+**D. First 300 characters of the original reply, verbatim** (full reply was shorter than 300
+characters): "I organized your notes into sections (Revenue, Sales & Clients, Support &
+Operations, Retention) with headings and bullet points for readability."
+
+**E. Did a .docx file actually get produced? YES.** The assistant's message included an
+attached file card: "Q3 business update" · "Document" · "DOCX" with a "Download" button. The
+expanded command trace also showed the generating script explicitly writing
+`/home/claude/docx_work/Q3_Business_Update.docx` via `fs.writeFileSync`, with console output
+`done`.
+
+### Verdict
+
+**DOCX-ONLY.** The commands line contains `/mnt/skills/public/docx/SKILL.md` and does NOT
+contain `/mnt/skills/plugins/document-design-intelligence/SKILL.md`. This matches the
+"docx-only" pattern from earlier runs, now established under a confirmed-empty confound and a
+confirmed-enabled skill — i.e. not confounded by custom instructions and not confounded by the
+skill being off.
+
+No workaround sentence was added, no retry was performed, only one chat was used throughout
+(the same chat opened fresh for Step 1 was reused for Step 2, per instruction).
+
+---
 
 ## BLOCKED: SKILL FOUND DISABLED
+
+*(Preserved from the earlier hold — the disable finding below is what triggered the hold. The
+skill was subsequently enabled by the user, as recorded above, and the trial was then run.)*
 
 Trial NOT run. No prompt was sent. Writing this now per instruction, durable-before-complete.
 

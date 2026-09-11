@@ -35,10 +35,12 @@ tables = {}
 #: a SUPERSET: today's default (searchable columns, then this table's own FK source
 #: columns, in that order) PLUS every column `ddi.py handoff` reads out of that table.
 #: Written here and never by hand in data/schema-manifest.json -- that file is generated,
-#: and a hand-added key is wiped by the next run of this script. Six tables get one; they
-#: are exactly the six `ddi.py`'s HANDOFF_VOCAB names. Without it a handoff block resolves
-#: the right rows and then prints nothing from them, which is how v0.1.0 shipped with no
-#: page size, no fonts and no palette.
+#: and a hand-added key is wiped by the next run of this script. Eight tables get one; they
+#: are exactly the eight `ddi.py`'s HANDOFF_VOCAB names (research/54 part 3 added `structures`
+#: and `headings` -- HANDOFF_VOCAB referenced neither, so the section order and the heading
+#: wording it names never reached a renderer). Without it a handoff block resolves the right
+#: rows and then prints nothing from them, which is how v0.1.0 shipped with no page size, no
+#: fonts and no palette, and how v0.2.0 shipped with no heading wording.
 
 tables["doctypes"] = {
     "filename": "doctypes.csv",
@@ -181,7 +183,7 @@ tables["type-scales"] = {
         "Role": ["legal", "label", "caption", "body", "body-dense", "lead", "h3", "h2", "h1"],
     },
     "foreign_keys": {},
-    "display_columns": ["Medium", "Role", "Size pt"],
+    "display_columns": ["scale_key", "Medium", "Role", "Size pt", "Leading Ratio"],
     "searchable_columns": [],
     "typed_json_columns": [],
     "derived": [],
@@ -262,7 +264,8 @@ tables["constraints"] = {
         "Threshold": {"pattern": "^[a-z][a-z-]*:[A-Za-z][A-Za-z0-9 -]*$",
                       "must_resolve": True},
     },
-    "display_columns": ["Set Key", "Element Scope", "Parameter"],
+    "display_columns": ["Set Key", "Applies To", "Check", "Element Scope", "Parameter",
+                        "Threshold", "Severity"],
     "searchable_columns": [],
     "typed_json_columns": [],
     "derived": [],
@@ -282,6 +285,9 @@ tables["structures"] = {
     "foreign_keys": {"Section Order": group("headings", "canonical_section", is_list=True)},
     "list_columns": {"Section Order": ";"},
     "distinct_token_columns": {"Section Order": ";"},
+    "display_columns": ["Display Name", "Section Order", "Heading Language",
+                        "Heading Depth Max", "TOC Depth", "Front Matter Numbering",
+                        "Caption Position", "Cross-Ref Style"],
     "searchable_columns": ["Display Name"],
     "typed_json_columns": [],
     "derived": [],
@@ -362,6 +368,7 @@ tables["headings"] = {
     "key_column": "heading_key",
     "enums": {"Language": ["en", "fr", "de"], "Is Primary": YN},
     "foreign_keys": {},
+    "display_columns": ["canonical_section", "Heading Text", "Language", "Is Primary"],
     "searchable_columns": [],
     "typed_json_columns": [],
     "derived": [],

@@ -227,6 +227,22 @@ HANDOFF_VOCAB = {
     "constraints_id_column": "Set Key",
     "constraints_element_scope_column": "Element Scope",
     "constraints_parameter_column": "Parameter",
+    # research/54 part 3: `structures` and `headings` were absent from this
+    # dict entirely, so declaring `display_columns` on them (part 1) put
+    # heading wording into the resolved JSON but left the handoff printing
+    # nothing from it -- the handoff only ever reads THIS dict's names.
+    # `structures."Heading Language"` is the schema's OWN language selector
+    # (data/base/structures.csv, one value per structure row, not invented
+    # here); `headings."Is Primary"` picks the one wording per section once
+    # that language is fixed. See `_section_headings` below.
+    "structure_table": "structures",
+    "structure_section_order_column": "Section Order",
+    "structure_heading_language_column": "Heading Language",
+    "headings_table": "headings",
+    "headings_canonical_section_column": "canonical_section",
+    "headings_text_column": "Heading Text",
+    "headings_language_column": "Language",
+    "headings_is_primary_column": "Is Primary",
 }
 
 
@@ -285,6 +301,42 @@ def _heading_roles(scale_rows):
     roles = {row.get(role_column, "") for row in scale_rows}
     heading_roles = [r for r in roles if re.fullmatch(r"h[0-9]+", r or "")]
     return sorted(heading_roles, key=lambda r: int(r[1:]))
+
+
+def _section_headings(resolved):
+    """(Heading Language, [(canonical_section, primary Heading Text or None), ...])
+    for the resolved structure row, in Section Order -- the section list AND the
+    wording a renderer needs (research/54 part 3), not just the structural TOC
+    depth `_heading_roles` already gives. The language is read off the structure
+    row itself (`Heading Language`), the schema's existing per-structure selector;
+    nothing here invents a new one. A section with no primary heading in that
+    language returns None for that section rather than silently dropping it."""
+    v = HANDOFF_VOCAB
+    structure_row = _first_row(resolved, v["structure_table"])
+    if not structure_row:
+        return None, []
+    lang = structure_row.get(v["structure_heading_language_column"], "")
+    order = structure_row.get(v["structure_section_order_column"], "")
+    sections = [s for s in order.split(";") if s]
+    primary_text = {}
+    for row in resolved.get(v["headings_table"], []):
+        if (row.get(v["headings_language_column"]) == lang
+                and row.get(v["headings_is_primary_column"]) == "yes"):
+            primary_text[row.get(v["headings_canonical_section_column"])] = \
+                row.get(v["headings_text_column"], "")
+    return lang, [(section, primary_text.get(section)) for section in sections]
+
+
+def _sections_lines(resolved):
+    lang, pairs = _section_headings(resolved)
+    lines = [f"  sections (Section Order, wording in Heading Language={lang}):"
+             if lang else "  sections:"]
+    if not pairs:
+        lines.append(f"    {NOT_PRESENT}")
+        return lines
+    for section, text in pairs:
+        lines.append(f"    {section}: {text if text else NOT_PRESENT}")
+    return lines
 
 
 def _constraints_and_preflight_lines(resolved, target_format):
@@ -429,6 +481,8 @@ def _build_docx_lines(resolved):
     else:
         lines.append(f"    {NOT_PRESENT}")
 
+    lines.extend(_sections_lines(resolved))
+
     spacing_pt = _letter_spacing_pt(typeface_row, scale_rows)
     lines.append(f"  {v['docx_letter_spacing_key']} (DXA -- docx (npm) TextRun option; "
                  f"UNSOURCED from research/23, see module docstring):")
@@ -494,6 +548,8 @@ def _build_pptx_lines(resolved):
             lines.append(f"    {role}: {size_pt}pt")
     else:
         lines.append(f"    {NOT_PRESENT}")
+
+    lines.extend(_sections_lines(resolved))
 
     spacing_pt = _letter_spacing_pt(typeface_row, scale_rows)
     lines.append(f"  {v['pptx_letter_spacing_key']} (pt -- research/23 pptx:458, "

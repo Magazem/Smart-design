@@ -341,9 +341,11 @@
       },
       "foreign_keys": {},
       "display_columns": [
+        "scale_key",
         "Medium",
         "Role",
-        "Size pt"
+        "Size pt",
+        "Leading Ratio"
       ],
       "searchable_columns": [],
       "typed_json_columns": [],
@@ -536,8 +538,12 @@
       },
       "display_columns": [
         "Set Key",
+        "Applies To",
+        "Check",
         "Element Scope",
-        "Parameter"
+        "Parameter",
+        "Threshold",
+        "Severity"
       ],
       "searchable_columns": [],
       "typed_json_columns": [],
@@ -586,6 +592,16 @@
       "distinct_token_columns": {
         "Section Order": ";"
       },
+      "display_columns": [
+        "Display Name",
+        "Section Order",
+        "Heading Language",
+        "Heading Depth Max",
+        "TOC Depth",
+        "Front Matter Numbering",
+        "Caption Position",
+        "Cross-Ref Style"
+      ],
       "searchable_columns": [
         "Display Name"
       ],
@@ -766,6 +782,12 @@
         ]
       },
       "foreign_keys": {},
+      "display_columns": [
+        "canonical_section",
+        "Heading Text",
+        "Language",
+        "Is Primary"
+      ],
       "searchable_columns": [],
       "typed_json_columns": [],
       "derived": []
