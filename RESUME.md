@@ -1508,9 +1508,10 @@ CI writes `VERSION` and SKILL.md's stamp from the tag, so the published asset di
 local build in those two places and nowhere else.
 
 ### THE FIRST THING TO KNOW BEFORE ANY BROWSER TEST
-**The user's claude.ai account holds PUBLISHED v0.2.0, tester-verified.** It does NOT hold
-v0.3.0. **The user must upload v0.3.0 before any browser result means anything.**
-Only the user can change the account — ask, never change it, and never ask a tester to.
+**The user's claude.ai account holds v0.3.0, USER-REPORTED on 2026-09-11 (end of day), NOT
+yet tester-verified.** Before the first browser result is scored, one read-only check: the
+shown description must name `infographic` (v0.2.0 does not). Only the user can change the
+account — ask, never change it, and never ask a tester to.
 
 **HOW TO TELL WHICH BUILD IS INSTALLED.** Descriptions open with identical words, so
 first-words matching PROVES NOTHING. Read the shown description and look for distinguishing
