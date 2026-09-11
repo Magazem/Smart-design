@@ -157,3 +157,184 @@ skills are real in other surfaces and may be invoked inside the code-execution c
 Earlier testing recorded activation 11 "went to docx", which implies something docx-shaped does
 route. Expanding a "Ran N commands" line on a Word-output prompt would settle it. Do not rewrite
 the description on this observation alone.
+
+---
+
+# RE-RUN v2 — 2026-09-11, full run, all 7 prompts completed
+
+Run by the Acceptance Tester via the AionUi in-app browser against claude.ai, per
+`research/brief-tester-spotcheck.md` v2. Fresh browser panel, no reload used at any point
+(navigated only between fresh `/new` chats — never reloaded or navigated away mid-trial).
+**All 7 prompts scored — none unscored.**
+
+## Step 0 — settings check (this run)
+
+**Instructions for Claude** (Settings → General → Profile): checked the `Instructions for
+Claude` textbox directly in the accessibility snapshot. It rendered as:
+`uid=1_55 textbox "Instructions for Claude" multiline` — **no `value` attribute present at
+all**, unlike every other populated field on the same page (e.g. `Full name` showed
+`value="yazan"`). This is the accessibility-tree equivalent of an empty textbox. **CONFIRMED
+EMPTY.** Looked at: Settings → General tab, Profile section, the field directly below "What
+best describes your work?". This run is NOT confounded by custom instructions.
+
+**Memory** (Settings → Memory): ON — "Search and reference chats" checked, "Generate memory
+from chats" checked, "Include sensitive topics in memory" unchecked. Same as prior run,
+unrelated "You"/Topics/Areas/People entries present (not reproduced, not relevant to routing).
+
+**Skills enabled** (Settings → Skills → Your skills): unchanged from the prior run —
+`document-design-intelligence` (by you, tag "New", edited "2m ago" this session),
+`import-memory`/`morning`/`skill-creator` (Anthropic), and the 7 `ui-ux-pro-max-skill`
+marketplace skills (`banner-design`, `brand`, `design`, `design-system`, `slides`,
+`ui-styling`, `ui-ux-pro-max`). No separate `docx`/`pptx`/`pdf` entries listed under Skills —
+those are invoked as `/mnt/skills/public/<name>/SKILL.md` from inside the code-execution
+capability, confirmed directly this run (see P2, P6, P7 below).
+
+## Prompt results
+
+| # | Expected | Indicator seen | Follow-up verdict on skill | Verdict | Agrees w/ expectation? |
+|---|---|---|---|---|---|
+| P1 | fire | `/mnt/skills/plugins/document-design-intelligence/SKILL.md` + region picker | "I used the document-design-intelligence skill for this... ran its resolve step... ambiguous between three regional CV formats" | **FIRED** | yes |
+| P2 | fire | `/mnt/skills/public/docx/SKILL.md` only, no design-skill path anywhere | "J'ai utilisé la compétence docx (document Word)... Je n'ai pas eu besoin d'autres compétences" | **DID NOT FIRE** | **NO — surprise** |
+| P3 | fire | `/mnt/skills/plugins/document-design-intelligence/SKILL.md` then `/mnt/skills/public/docx/SKILL.md` | "I used two skills together: document-design-intelligence... docx... one skill decided what the memo should look like, the other handled how to build and verify the actual file" | **FIRED** | yes |
+| P4 | fire | no SKILL.md check of any kind; plain "Drafting a report..." → `.md` file at `/mnt/user-data/outputs/` | "I didn't use any of the document-creation skills (docx, pptx, xlsx, pdf) for this one — this was a plain Markdown file, and Markdown doesn't have a dedicated skill in my toolkit" | **DID NOT FIRE** | **NO — surprise** |
+| P5 | should NOT fire | no commands/tool-use indicator at all, plain text reply both times (see double-submit note) | "None. Skills are only relevant when I'm creating/editing a file... no file-handling or document-creation skill applied" | **DID NOT FIRE** | yes |
+| P6 | fire | `/mnt/skills/public/docx/SKILL.md` only, no design-skill path anywhere | "I used the docx skill... I didn't need any other skills for this one" | **DID NOT FIRE** | **NO — surprise, and this settles the open question below** |
+| P7 | should NOT fire | `/mnt/skills/public/pdf/SKILL.md` only | "I only checked the pdf skill... I skipped the docx skill entirely... used LibreOffice's headless conversion (`soffice --headless --convert-to pdf`) directly via bash" | **DID NOT FIRE** | yes |
+
+**Score: 4 of 7 match expectation (P1, P3, P5, P7). 3 of 7 disagree (P2, P4, P6) — all three
+were expected to fire and did not.**
+
+## Per-prompt detail
+
+### P1 — CV, marketing coordinator (fired)
+Fresh chat `https://claude.ai/chat/90d2b41f-210d-4b37-8872-b36de3672a2c`. Single send, no
+double-submit. Commands line expanded: `"Checking CV creation guidance SKILL.md"` with
+description `/mnt/skills/plugins/document-design-intelligence/SKILL.md`. Reply text in full (it
+was short, no truncation needed): `"Since CV conventions differ by region (photo, length,
+layout), which style fits best?"` — followed by an interactive picker titled "Which CV
+format/region style?" with options **"UK/International style", "France style", "US style",
+"Other (tell me)"**, a "Something else" textbox, and "Skip".
+
+Notable discrepancy: the follow-up answer, in prose, described the picker as having offered
+**"UK, Gulf/GCC, and France"** — but the on-screen picker this run actually showed "UK/International,
+France, **US**", not Gulf/GCC. Either the picker options are drawn probabilistically/vary run to
+run, or Claude's self-report of its own tool output was inexact. Recording both observations as
+seen; not resolving the discrepancy myself.
+
+### P2 — French formal letter (did NOT fire) — surprise
+Fresh chat `https://claude.ai/chat/3ee04c6a-59cc-44ff-9611-2df098b7f132`. Single send, no
+double-submit. Expanded "Ran 3 commands, read 2 files, shared files": the only SKILL.md
+reference anywhere in the chain was `"Checking docx skill before creating formal business
+letter SKILL.md"` → `/mnt/skills/public/docx/SKILL.md`. The expanded bash command showed Claude
+hand-writing a raw `docx` npm script (`mkdir -p /home/claude/lettre && ... cat > gen.js`) with
+manually composed paragraph structure (sender block, right-aligned recipient block, bold
+objet line, manually placed empty paragraphs for spacing) — i.e. improvised layout, not a
+lookup against a `letter-standard` template. Follow-up confirmed explicitly: only the `docx`
+skill was used, "Je n'ai pas eu besoin d'autres compétences (pas de tableur, pas de PDF à
+éditer, pas de présentation), donc c'était la seule pertinente ici."
+First ~240 chars of visible reply body: `"J'ai repris tous les éléments : retard de trois
+semaines, commande CMD-88213 du 2 août, impact sur la production, délai de 5 jours ouvrés pour
+une nouvelle date confirmée, sinon annulation sans frais, et la formule de politesse demandée."`
+
+### P3 — English internal memo (fired)
+Fresh chat `https://claude.ai/chat/382575d0-6fdb-41ee-90c4-3de157297b07`. Single send, no
+double-submit. Expanded "Ran 5 commands, read 3 files, shared files": in order,
+`"Checking memo creation guidance SKILL.md"` → `/mnt/skills/plugins/document-design-intelligence/SKILL.md`,
+then `"Now let me view the docx skill to build the file correctly."` →
+`"Checking docx creation guidance SKILL.md"` → `/mnt/skills/public/docx/SKILL.md` — the exact
+two-stage resolve-then-build handoff the skill's own description promises. Follow-up confirmed
+in detail: document-design-intelligence "resolved the right structure (To/From/Date/Subject/Body
+ordering), layout (A4, standard margins), typography (Arial, restrained single-column style),
+and color palette (plain black-on-white 'mono-ink')," then handed off to docx "to write the
+script that generates the Word file, then followed its verification step (convert to PDF,
+render to an image, and visually check the layout)."
+
+### P4 — French short report (did NOT fire) — surprise
+Fresh chat `https://claude.ai/chat/1ec04019-3362-4c6e-9911-36d87461d948`.
+**Double-submit occurred**: my first send appeared to land in an empty "What can I help you
+with today?" chat (the message did not render), so I re-filled and re-sent; both sends actually
+went through, producing two full user-turn/assistant-turn pairs in the same chat (the user
+message shows "2 / 2" versions in the UI). Recording per the brief's double-submit rule; scoring
+the (identical) second/final exchange, whose commands line I expanded.
+No `SKILL.md` check of any kind appeared — the commands line reads only
+`"Drafting a report on a company carpooling pilot."` → `"Presented file"` at
+`/mnt/user-data/outputs/rapport-pilote-covoiturage-lyon.md`. Output was a plain **Markdown**
+file, not DOCX, and the reply itself offered `"Dis-moi si tu veux une version Word"` as a
+follow-on option — meaning the model recognized Word as a separate, not-yet-taken path. Follow-up
+confirmed explicitly: `"I didn't use any of the document-creation skills (docx, pptx, xlsx,
+pdf) for this one — this was a plain Markdown file, and Markdown doesn't have a dedicated skill
+in my toolkit... I chose Markdown over Word specifically because you didn't ask for a Word file
+or signal you needed a formal downloadable document."`
+First 300 chars of final reply: `"Voilà le rapport, prêt à être repris pour ton manager. Dis-moi
+si tu veux une version Word, ou si tu préfères ajuster le ton ou ajouter une section (budget
+prévisionnel de l'extension, par exemple)."`
+
+### P5 — summarize pasted abstract, no attachment (did NOT fire, as expected)
+Fresh chat `https://claude.ai/chat/8e28f234-3bdf-448f-9a06-51c3d9d4f113`.
+**Double-submit occurred again**, same pattern as P4 (first send appeared to land in an empty
+chat, resend produced two full exchanges in one chat — 6 messages total before the follow-up).
+Both assistant turns were plain text with **no commands/tool-use indicator of any kind** —
+no "Ran N commands" line appeared at all, consistent with a pure-text task. Both turns opened
+by flagging the missing attachment ("I don't see an actual file attached — just want to flag
+that in case you meant to upload one" / "Just confirming — there's still no PDF attached to
+this message, only the pasted text"), then gave the 3-bullet summary anyway. Follow-up
+confirmed: `"None. Skills are only relevant when I'm creating/editing a file (docx, pptx, xlsx,
+pdf, etc.) or reading an uploaded file from disk... If you actually attach a PDF next time, I'd
+use the pdf-reading skill to extract its content before summarizing."`
+
+### P6 — rough notes → Word document (did NOT fire) — surprise, settles the open question
+Fresh chat `https://claude.ai/chat/fffa374e-4b92-41d1-a9bb-e8619c88a13e`. Single send, no
+double-submit (editor auto-reformatted the pasted notes into a bulleted list on paste — content
+preserved, just rendered differently; noting the UI behavior for the record).
+Expanded "Ran 3 commands, read 2 files, shared files": the only SKILL.md reference anywhere is
+`"Checking docx skill before creating Word document SKILL.md"` → `/mnt/skills/public/docx/SKILL.md`.
+No document-design-intelligence path appears at any point. Follow-up confirmed explicitly:
+`"I used the docx skill — it's the one that covers creating, editing, and reading Word documents
+in this environment. Since you asked for a Word doc specifically, it was the clear match (its
+trigger criteria explicitly call out '.docx' requests)... I didn't need any other skills for
+this one — no images, no editing an existing file, no tables or comments — so it was a
+single-skill task."`
+**This directly answers the brief's open question**: on this account/surface, a bare "turn my
+notes into a Word document" prompt goes straight to the built-in `docx` capability and does
+**not** route through `document-design-intelligence` first. The n=1 "went to docx" finding from
+the prior candidate-L run is now n=2, both docx-only, no design-skill involvement.
+First 300 chars of reply: `"I grouped your notes into two sections — Revenue & Growth and
+Support — with a clean title and bullet formatting. Let me know if you'd like it in French for
+the manager, or want a different structure (e.g., separate 'Action Items' section for the
+hiring need)."`
+
+### P7 — plain docx→PDF conversion, attachment (did NOT fire, as expected)
+Fresh chat `https://claude.ai/chat/ff878b47-46f7-431b-a787-32d00a642fe7`.
+`research/fixtures/badly-formatted-report.docx` attached via the "Add files or photos" menu
+item before sending (the direct upload-to-button path failed first — the plus/attach button
+opens a menu rather than a native file chooser directly; had to open the menu and target its
+"Add files or photos" item). Single send, no double-submit. Expanded "Ran 2 commands, read a
+file, shared files": `"Checking PDF skill for conversion guidance SKILL.md"` →
+`/mnt/skills/public/pdf/SKILL.md`, no docx or document-design-intelligence path anywhere. Follow-up
+confirmed explicitly: `"I only checked the pdf skill... but its guidance is aimed at things like
+extracting text, merging, splitting, or building PDFs from scratch... none of which applied
+here. Since you wanted a straight conversion with nothing changed, I skipped the docx skill
+entirely... and just used LibreOffice's headless conversion (soffice --headless --convert-to
+pdf) directly via bash — it preserves the original formatting exactly."`
+
+## Sends spent
+Planned 14 (7 prompts × 2). Actually spent **16**: P1/P2/P3/P6/P7 at 2 each (10), P4 and P5 at
+3 sends each due to double-submits (6) = 16 total. Both double-submits followed the same
+pattern: the first send appeared to land in a genuinely empty "What can I help you with today?"
+chat (no user message rendered even after a follow-up snapshot check), which read as a failed
+send, prompting a resend — but the first send had actually gone through server-side and
+produced its own reply, so the resend created a duplicate exchange in the same chat rather than
+a genuinely new attempt. This looks like a client-side rendering lag on the `/new` → `/chat/<id>`
+transition, not a true send failure. Recommend on any future run: after clicking Send on a fresh
+`/new` chat, wait longer (was probably ~10-15s) before concluding the send failed and retyping.
+
+## Where observation and expectation disagree
+P2, P4, and P6 were all expected to fire and did not — three surprises, all in one direction
+(design skill silently skipped, plain docx/pdf/markdown path used instead), none in the other
+direction (no unexpected fire on P5 or P7). Across P1-P4 and P6, the two that fired (P1 CV, P3
+memo) both had **layout ambiguity or an internal document-type match** the skill's own routing
+logic could act on (region choice for a CV, To/From/Date/Subject header structure for a memo).
+The three that didn't fire (P2 letter, P4 report, P6 Word-from-notes) were all requests where
+the user's own message already fully specified structure/tone/content order, leaving less for a
+design-resolution step to add — a pattern worth checking against the skill's actual trigger
+logic, not a conclusion I'm drawing here.

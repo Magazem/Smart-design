@@ -26,6 +26,10 @@ cheap. Losing the session costs a user-side panel reset and everything not yet w
    appeared last time as "Ran 4 commands" and was never expanded. The command names should
    identify WHICH skill ran. Record them verbatim.
 2. Read any other skill-use indication in the reply stream.
+   NOTE, learned 2026-09-11: the SKILL.md PATHS in the expanded commands line are PRIMARY
+   evidence. Claude's follow-up prose corroborates WHICH skill ran, but its account of
+   DETAILS can be inexact — it once misreported its own picker options. Capture both; trust
+   the paths for facts.
 3. **ALWAYS send this follow-up in the SAME chat, verbatim:**
    `Which skills did you use for this request, and why?`
    Record the answer VERBATIM.
@@ -63,6 +67,11 @@ on Word prompts. Report what the commands say. Draw no conclusion; that is the l
 
 ## Hard rules
 - One FRESH chat per prompt. The prompt and its follow-up share that chat; nothing else does.
+- **WAIT 20 SECONDS after clicking Send on a fresh chat before concluding anything failed.**
+  On a new chat the user message does not render for ~10-15s during the /new -> /chat transition.
+  It LOOKS like a failed send. It is not — the message already went through server-side. Two of
+  seven prompts were double-submitted this way on 2026-09-11, costing 2 extra sends each.
+  NEVER retype into a blank-looking fresh chat inside that window.
 - **Verify exactly ONE send before reading each reply.** A UI double-submit was seen on
   2026-09-11: one paste landed as two turns. If it happens, record it and note the prompt ran
   twice.

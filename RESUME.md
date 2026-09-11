@@ -483,6 +483,16 @@ v0.1.0-era symptom "that document type is not in my library" must never recur fo
 family; auto-firing is a separate, later concern.
 
 ## v0.3 BACKLOG -- everything deferred, in one place
+- **TOP ITEM (lead ruling 2026-09-11): CONSIDER REVERTING CANDIDATE L.** Activation 11 fired
+  2/2 under H and has now gone docx-only 2/2 under L. L was a pure SALIENCE/ORDERING reorder
+  that was NEVER shown to help anything; this is the first evidence it may HURT.
+  DECISION PROCEDURE, do not skip steps: (1) one more CLEAN run of activation 11 under L; (2)
+  if it still fails, one run with L REVERTED. Decide on that, not on the n=2 alone.
+- **TEST THE FILE-ROUTING MECHANISM** (see "THE CLEAN RUN, 2026-09-11" for the evidence).
+  Claude's own account says naming a format routes to docx on ITS trigger criteria, and
+  implying no file means no document skill is considered at all. If that holds, the lever is
+  the deferral sentence's interaction with a NAMED FORMAT, which no candidate has targeted.
+  This satisfies the standing rule's requirement for a fresh Claude-sourced mechanism.
 - characterSpacing in the docx handoff reads "Letter Spacing pt", a column that exists in NO
   table. Decide: remove the handoff section, or author the column.
 - HEADING VARIANTS for non-CV families. The 81 CV heading rows carry 2-3 wordings per language;
@@ -606,6 +616,12 @@ plan browser runs by prompt count without checking this first.
 **UI DOUBLE-SUBMIT.** The tester observed one prompt landing as TWO turns. Before reading any
 result, verify that exactly ONE send occurred. A double-send silently doubles quota spend and
 can produce two differing answers for what looks like one trial.
+- **DOUBLE-SUBMIT: WAIT 20 SECONDS.** Two of seven prompts double-submitted on 2026-09-11,
+  costing 16 sends instead of 14. Cause: on a fresh /new chat the user message does not render
+  for ~10-15 seconds during the /new -> /chat/<id> transition, so the send LOOKS failed and the
+  tester retypes -- but the first send already went through server-side. RULE: after clicking
+  Send on a fresh chat, WAIT AT LEAST 20 SECONDS and re-check before concluding anything
+  failed. Never retype on a blank-looking chat inside that window.
 
 **WHAT THE SMOKE TEST PROVED**
 - Login: PASS. Skill listed: PASS -- description shown matches the candidate-L wording
@@ -754,6 +770,66 @@ unrecoverable from the tester's side and needs a fresh panel from the user.
 RULE: do not reload, and do not navigate away from a chat mid-trial. If a reply is obscured by
 an overlay or a limit banner, scroll or screenshot it. Losing part of one reply is cheap;
 losing the session costs a user-side panel reset and everything not yet recorded.
+
+## *** THE CLEAN RUN, 2026-09-11: RESULTS AND THE MECHANISM IT FINALLY GAVE US ***
+Full record: research/48-browser-spotcheck.md, "RE-RUN v2". Custom instructions PROVEN empty
+(the textbox carried no value attribute while sibling fields did). NOT confounded. All 7 scored
+by SKILL.md path in the expanded commands line PLUS Claude's own follow-up answer.
+
+    P1 CV          FIRED          P5 summarise   no fire (correct)
+    P2 FR letter   no fire        P6 notes->Word no fire, went docx
+    P3 EN memo     FIRED          P7 convert     no fire (correct)
+    P4 FR report   no fire
+
+### THREE THINGS THIS SETTLES
+
+**1. THE HANDOFF DESIGN WORKS. First live proof.** P3's command chain is
+`/mnt/skills/plugins/document-design-intelligence/SKILL.md` THEN `/mnt/skills/public/docx/SKILL.md`
+-- resolve, then build -- exactly what SKILL.md promises. Claude's own account: DDI "resolved
+the right structure (To/From/Date/Subject/Body ordering), layout, typography and color palette",
+then handed to docx "to write the script that generates the Word file, then followed its
+verification step". The two-stage handoff is not theoretical. It ran.
+
+**2. THE docx/pptx OPEN QUESTION IS CLOSED. They ARE skills.** They live at
+`/mnt/skills/public/docx/SKILL.md` and `/mnt/skills/public/pdf/SKILL.md`, loaded from inside the
+code-execution capability. Absent from the Settings list, present in the filesystem. The
+deferral sentence in our description targets something real. DO NOT rewrite it on the
+"capability not a skill" reading -- that reading is now DISPROVED.
+
+**3. EN PROSE IS NOT DEAD; FR PROSE STILL IS.** The EN memo FIRED for the first time ever, on a
+clean account. So the custom instructions explain at least part of the historical EN failures.
+The FR letter and FR report BOTH failed clean -- the French limitation stands on its own and is
+not an artefact of the instructions.
+
+### *** THE MECHANISM, FROM CLAUDE'S OWN ACCOUNT -- this is what the standing rule demanded ***
+The STANDING RULE above forbids new description candidates without a fresh mechanism statement
+from Claude. This run produced two, quoted verbatim from the follow-ups:
+
+- P6 (notes -> Word, went docx): *"Since you asked for a Word doc specifically, it was the clear
+  match (its trigger criteria explicitly call out '.docx' requests)."*
+- P4 (FR report, no skill at all, emitted Markdown): *"I chose Markdown over Word specifically
+  because you didn't ask for a Word file or signal you needed a formal downloadable document."*
+
+**THE HYPOTHESIS THEY SUPPORT.** Routing appears to turn on the FILE, not the genre:
+  (a) User NAMES a format ("a Word document") -> docx wins on its own trigger criteria, and our
+      "creation is still our job even as Word" clause does NOT beat it. P6, n=2 under L.
+  (b) User implies NO file -> Claude answers in chat or emits Markdown and no document skill is
+      considered at all. P4.
+  (c) A file is implied but no format named, AND there is a design decision to resolve -> we
+      fire. P1 (which CV region?) and P3 (memo header structure).
+This is a testable mechanism sourced from Claude, not from our theorising. It is the first such
+statement since the one that produced candidates H and L.
+
+### CAUTION ON THE DETECTION METHOD, learned this run
+P1's follow-up claimed the picker offered "UK, Gulf/GCC and France". THE SCREEN SHOWED
+"UK/International, France, US". **Claude's self-report of its own tool output was inexact.**
+Trust the SKILL.md PATHS in the expanded commands line as primary evidence of WHICH skill ran;
+treat the follow-up prose as corroboration of the same, and do NOT rely on it for DETAILS.
+Both were captured this run only because the brief demanded both. Keep demanding both.
+
+### ACTIVATION 11 UNDER CANDIDATE L -- now n=2 docx-only
+Fired 2/2 under H. Has now gone docx-only 2/2 under L. **L is a pure reorder that was never
+shown to help anything, and this is the first evidence it may HURT.** See the v0.3 list.
 ## THE LESSON OF 2026-09-10: A GREEN GATE DOES NOT MEAN THE OUTPUT SAYS ANYTHING
 Coverage removed the `report-print-print-h1` row and re-ran everything. **The gate STILL PASSED**
 -- `OK: validated 14 table(s)` -- because the remaining rows were perfectly well-formed. Only the
