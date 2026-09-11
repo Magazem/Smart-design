@@ -608,10 +608,25 @@ class TestPngHandoffBuilder(unittest.TestCase):
 
     def test_infographic_empty_reasoning_columns_degrade_to_not_present_not_omission(self):
         """The headers for font-face/font sizes/sections/palette must all
-        still print even though `infographic-scaffold`'s Style/Palette/
-        Typeface Key are empty (D4) -- proving the builder didn't just skip
-        these blocks the way the pre-fix code skipped the whole format."""
-        sections = self._sections(self._png_handoff("infographic"))
+        still print even when the resolved payload carries none of that data
+        -- proving the builder didn't just skip these blocks the way the
+        pre-fix code skipped the whole format.
+
+        A synthetic empty payload, not a live doctype: this used to resolve
+        `infographic`, the one doctype whose `infographic-scaffold` row had
+        empty Style/Palette/Typeface Key (D4). `infographic` shipped as a real
+        family since (research/59-infographic-content.md) and now resolves
+        real values there, which is what broke this test -- pinning a
+        degrade-path test to a doctype staying broken forever was itself a
+        latent bug. Empty-resolved is already the established pattern for
+        this (see TestHandoffPageFlow's pptx not-applicable test)."""
+        empty = {"status": "resolved", "resolved": {}}
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "resolved.json"
+            path.write_text(json.dumps(empty), encoding="utf-8")
+            proc = _run(["handoff", "--json", str(path), "--format", "png"])
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        sections = self._sections(proc.stdout)
         for prefix in ("font-face ", "font sizes ", "sections", "palette "):
             with self.subTest(section=prefix):
                 _, values = self._section_values(sections, prefix)
