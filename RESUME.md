@@ -190,6 +190,14 @@ SKILL.md began with the build stamp instead of `---` and 9 members carried CRLF.
 that a file is PRESENT is not checking that it is VALID.
 
 ## ACTIVATION TEST, run 2026-09-09 by the user on the rebuilt ZIP -- prompts 1-5 only
+> **CONFOUNDED — RETIRED AS EVIDENCE, 2026-09-11 (lead ruling). Kept, labelled, not deleted.**
+> Every reading in this table is SHAPE-SCORED: "asked about format", "asked for client
+> details", "asked the user to upload". The account's custom instructions were ON throughout
+> and tell Claude to ask before acting on anything ambiguous, and to keep answers short. So the
+> asking these rows scored was plausibly the INSTRUCTION, not the routing. Do not cite these
+> PASS/FAIL verdicts as evidence for or against any description candidate.
+> Still valid here: the raw observations (what Claude said, what it produced). Only the
+> VERDICTS are retired.
 Result 1 pass, 4 fail. The tag is BLOCKED until the revised prompts are re-run.
 
 | # | Prompt intent | Outcome | Reading |
@@ -255,6 +263,10 @@ and "Alternate B" blocks further down are retained-for-reference history -- do n
 to match current wording.
 
 ## ACTIVATION RUN, prompts 6-13, on the ruling F ZIP
+> **PARTLY CONFOUNDED, 2026-09-11 (lead ruling).** Where a PASS here was scored on the SHAPE of
+> a reply, it is RETIRED as evidence -- the account's clarify-first and brevity instructions
+> were active. Where it was scored on Claude NAMING the skill it used, it STANDS. Prompt 11's
+> pass stands. Prompt 12 was already inconclusive and now has a named cause.
 6 PASS, 7 PASS, 8 PASS, 9 PASS, 10 PASS, 11 PASS, 13 PASS. Prompt 4 not yet re-reported.
 Prompt 12 INCONCLUSIVE, and that is a test defect of the same family as the others.
 
@@ -564,6 +576,11 @@ Treating a CV non-fire as normal would hide a real regression.
 SUPERSEDED IN PART 2026-09-11 -- see "BROWSER ACCEPTANCE TESTING" below: the 2026-09-09 PASS
 verified OUTPUT, not INVOCATION. Read this section as "prompt 1 reliably produces a CV", not
 "prompt 1 reliably fires the skill". Give it inline content per ruling G before scoring it.
+FURTHER, 2026-09-11: the 2026-09-09 row this section rests on is now RETIRED AS CONFOUNDED
+(shape-scored, instructions active). What replaces it is BETTER: the 2026-09-11 browser run
+showed "Ran 4 commands" and a CV-region picker whose options are rows in our own
+cv-regions.csv. That is invocation evidence, not shape. Prompt 1 very probably fires; confirm
+it by expanding the commands line on the re-run.
 WHY IT FIRES IS UNKNOWN, and that is settled (ruled 2026-09-11): the artefact-vs-prose theory
 is dead as an EXPLANATION because German prose genres fired. Cite the OBSERVATION -- CVs,
 invoices, forms and German prompts fire; EN/FR letters, memos, reports and proposals often do
@@ -678,6 +695,21 @@ What it DOES undermine: every rubric that scored on the SHAPE of a reply.
 BEFORE the next scored run, decide with the user whether to test with these instructions
 temporarily off. It is their account and their setting -- ASK, never change it.
 
+
+### WHICH OLD RESULTS SURVIVE THE CONFOUND (lead ruling, 2026-09-11)
+Apply this test to any historical result before citing it.
+
+**RETIRED as evidence** -- anything SCORED ON THE SHAPE of a reply: "asked about format",
+"asked for details", "produced X", "gave design reasoning", "answered generically". The
+account's clarify-first and brevity instructions were active and produce exactly these shapes
+independently of routing. Keep the rows, keep the observations, LABEL them, do not delete them,
+do not cite their verdicts.
+
+**STANDS** -- anything established by CLAUDE NAMING THE SKILL IT USED. The custom instructions
+change how Claude WRITES; they do not change what it REPORTS having invoked. Specifically:
+the v0.1.0 13/13 "did you trigger any skill" answers; the G+H re-run fires; the prompt 11 text
+pass; the probe-1 fire. **The description-candidate refutation chain STANDS** for the same
+reason -- it was built on invocation, not on prose shape.
 ### STANDING PRECONDITION FOR EVERY BROWSER RUN (ruled by lead, 2026-09-11)
 1. Step 0 of every browser brief READS the account's "Instructions for Claude" and the report
    QUOTES their exact text. No exceptions, no summarising.
