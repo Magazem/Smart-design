@@ -527,8 +527,11 @@ L stays: it states intent, costs nothing, and prompt 13 still passes.
 ### THE FULL REFUTATION CHAIN -- every theory tried and killed, in order
 1. NOUNS. Dead. "memo" and "rapport" were IN the description; both families failed.
 2. TRIGGER PHRASES. Dead. invoice and form have NO create-verb phrase and both fire.
-3. ARTEFACT vs PROSE GENRE. Dead. The German whitepaper and German memo both fired -- prose
-   genres in German. Candidate J was built on this and vetoed before application.
+3. ARTEFACT vs PROSE GENRE. Dead AS AN EXPLANATION. The German whitepaper and German memo both
+   fired -- prose genres in German. Candidate J was built on this and vetoed before application.
+   The OBSERVATION survives and may be cited (ruled 2026-09-11): CVs, invoices, forms and German
+   prompts fire; EN/FR letters, memos, reports and proposals often do not. The mechanism is
+   UNKNOWN -- do not offer artefact-vs-prose as the reason.
 4. LANGUAGE AS ROOT CAUSE. Superseded. It is a correlate; Claude's own account gave the
    mechanism instead.
 5. SALIENCE / ORDERING. Applied as candidate L. Did NOT fix EN/FR prose genres.
@@ -540,13 +543,28 @@ from ASKING CLAUDE what it did, and it produced candidate H and then L. If you c
 fresh statement from Claude explaining a decision, there is nothing to write a candidate against.
 
 ### THE HONEST SHAPE OF IT, for the release notes
-German and ARTEFACT-type documents (invoice, form) fire reliably. English and French letters,
-memos and reports may be routed to the built-in docx skill or answered directly in chat. That is
-a limitation to STATE, not to hide behind more description text.
+CVs, invoices, forms and German prompts fire reliably. English and French letters, memos,
+reports and proposals may be routed to the built-in docx skill or answered directly in chat.
+That is a limitation to STATE, not to hide behind more description text. State it as the
+OBSERVED pattern; do not explain it as "artefact vs prose genre" (dead, ruled 2026-09-11).
 
 The user is running two workaround probes: an English memo with "Use the
 document-design-intelligence skill." appended, and an English memo with the built-in docx skill
 disabled. Their results decide the exact wording of the workaround line.
+
+
+## PROMPT 1 (ENGLISH CV) FIRES — do not inherit "EN prompts do not fire"
+Recorded 2026-09-11 by the sub-manager after a lead correction. The closure ruling at
+"FIVE CHANGES HAVE NOT MOVED..." is about EN/FR PROSE GENRES ONLY -- letter, memo, report,
+proposal. It is NOT a statement about English as a language.
+Activation prompt 1, "Can you make me a CV for a marketing coordinator role?", has PASSED in
+every run: see the 2026-09-09 activation table above (row 1, PASS) and every v0.2 round.
+When writing a brief or reading a result, the expected outcome for the CV prompt is a FIRE.
+Treating a CV non-fire as normal would hide a real regression.
+WHY IT FIRES IS UNKNOWN, and that is settled (ruled 2026-09-11): the artefact-vs-prose theory
+is dead as an EXPLANATION because German prose genres fired. Cite the OBSERVATION -- CVs,
+invoices, forms and German prompts fire; EN/FR letters, memos, reports and proposals often do
+not -- and never the theory. The refutation chain and the fire/no-fire section both say this now.
 
 ## THE LESSON OF 2026-09-10: A GREEN GATE DOES NOT MEAN THE OUTPUT SAYS ANYTHING
 Coverage removed the `report-print-print-h1` row and re-ran everything. **The gate STILL PASSED**
@@ -655,10 +673,13 @@ Final tally on the G+H archive, every prompt with its noun present in the descri
 1. NOUNS. Dead. "memo" and "rapport" are IN the description and both families failed.
 2. TRIGGER PHRASES. Dead. invoice and form have NO create-verb phrase and both fire. This is
    what refuted candidate I, and my own premise for it.
-3. ARTEFACT vs PROSE GENRE. Dead, and it was the best theory we had. It predicted that prose
-   genres would not fire. The GERMAN WHITEPAPER FIRED and the GERMAN MEMO FIRED -- both prose
-   genres. Candidate J was built on this and was VETOED before application. The draft stays in
-   research/38 as history; do not resurrect it without new evidence.
+3. ARTEFACT vs PROSE GENRE. Dead AS AN EXPLANATION, and it was the best theory we had. It
+   predicted that prose genres would not fire. The GERMAN WHITEPAPER FIRED and the GERMAN MEMO
+   FIRED -- both prose genres. Candidate J was built on this and was VETOED before application.
+   The draft stays in research/38 as history; do not resurrect it without new evidence.
+   WHAT SURVIVES (ruled 2026-09-11) is the OBSERVATION, not the mechanism: CVs, invoices, forms
+   and German prompts FIRE; EN/FR letters, memos, reports and proposals OFTEN DO NOT. Cite that
+   pattern freely. Do NOT cite "it is an artefact" or "it is a prose genre" as the REASON.
 
 ### WHAT I CHECKED ABOUT THE FRENCH NOUNS, and it clears them
 Asked whether the FR nouns are written in some way that matches worse than the DE ones:
@@ -683,18 +704,29 @@ report chats: "which skills did you consider, and why not this one?" We act on i
 as we did with the "clean Word file" clue that produced candidate H. DO NOT draft a language
 hypothesis before that answer arrives.
 
-## THE ACTIVATION DISCRIMINATOR: ARTEFACT vs PROSE GENRE (2026-09-10, 2-of-2 evidence)
+## THE ACTIVATION FIRE/NO-FIRE PATTERN (2026-09-10 evidence; theory SUPERSEDED 2026-09-11)
+**READ THE RULING AT THE TOP OF THIS SECTION FIRST.** The heading below used to read "THE
+ACTIVATION DISCRIMINATOR: ARTEFACT vs PROSE GENRE" and the bolded paragraph presented artefact-
+versus-prose as the MECHANISM. That explanation is DEAD -- the German whitepaper and the German
+memo both fired, and both are prose genres. Ruled 2026-09-11 by the lead: keep the OBSERVATION,
+drop the EXPLANATION.
+
+THE OBSERVATION, which is what the evidence supports and what you may cite:
+CVs, invoices, forms and German prompts FIRE. English and French letters, memos, reports and
+proposals OFTEN DO NOT. No mechanism is known for why.
+
 Measured on the G+H archive, same prompts run twice:
     DE invoice  2/2 FIRE       DE form     1/1 FIRE
     EN proposal 1/2            EN memo     0/2
     FR letter   0/2            FR report   0/2
 The three failures were RE-RUN and failed AGAIN. Deterministic non-fires, not routing noise.
 
-**An invoice and a form are ARTEFACTS Claude cannot produce as prose, so it reaches for a
+~~An invoice and a form are ARTEFACTS Claude cannot produce as prose, so it reaches for a
 document tool and finds us. A letter, a memo, a report and a proposal are GENRES CLAUDE WRITES
-NATIVELY IN CHAT -- it writes them and never considers a skill.**
+NATIVELY IN CHAT -- it writes them and never considers a skill.~~ **STRUCK 2026-09-11: refuted
+by the German prose genres firing. Retained struck-through so nobody re-derives it.**
 
-This explains what killed every earlier theory:
+The observation above still kills every earlier theory, independently of any mechanism:
 - NOUNS ARE NOT THE ISSUE. "memo" and "rapport" are both IN the description and both families
   failed anyway. Adding nouns cannot fix a family Claude never thinks to delegate.
 - TRIGGER PHRASES ARE NOT THE ISSUE EITHER. invoice and form have NO create-verb phrase and both
@@ -1044,9 +1076,16 @@ research/handover-coverage.md, research/handover-ddr.md, research/handover-packa
 - Packaging Analyst         01a07ade-92de-7d22-a88a-f878d878610a  (Sonnet) — keep; clear; step 5
 - Print Production Specialist 01a07b9d-086a-7851-8272-9275344e264d — domain exhausted; shut down
 - AionUi Butler             01a07a84-e27e-7b92-80e1-ad082022257e — idle; keep
+- Acceptance Tester         01a08f33-d70b-7d71-b6d8-9c67574e29d8 — BROWSER ACCESS to the
+  user's claude.ai account. Runs acceptance prompts in the real harness so routing results
+  are ground truth instead of hand-testing. Same rules as every worker: file-first briefs
+  (research/brief-tester.md), clear its context after EVERY task, never let it run git.
 
 ## COLD START, 2026-09-11: WHERE THE PROJECT ACTUALLY IS
-**v0.2.0 IS PUBLISHED.** Nothing is in flight. All four workers idle. Working tree clean.
+**v0.2.0 IS PUBLISHED.** v0.3 work has begun: a fifth teammate, the Acceptance Tester, now runs
+acceptance prompts in a real browser against claude.ai (see the teammate list above). As of
+2026-09-11 its first smoke test is BLOCKED on the AionUi browser panel not being attached -- a
+user action, not an agent one. The other four workers are idle.
 main is pushed through 31fa967; only the commit recording the release may be local.
 
 Two releases shipped: v0.1.0 (CV section guidance only) and v0.2.0 (all 15 families, page flow,
@@ -1057,6 +1096,9 @@ were applied and NONE moved English or French prose-genre activation. The refuta
 above -- nouns, trigger phrases, artefact-versus-genre and ordering are all dead. The workaround
 ships in the release notes and README: add "Use the document-design-intelligence skill." to the
 request. Read the closure ruling before touching the description.
+SCOPE OF THAT PROBLEM (2026-09-11): it is PROSE GENRES -- letter, memo, report, proposal --
+in EN/FR, not English as a whole. The CV prompt fires reliably. See "PROMPT 1 (ENGLISH CV)
+FIRES" above before you write any acceptance brief.
 
 Next work is the v0.3 backlog above. There is no critical path any more; pick from it.
 
