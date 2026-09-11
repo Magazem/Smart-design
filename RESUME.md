@@ -457,6 +457,14 @@ THE RELEASE BODY IS ONLY THE v0.2.0 SECTION. Verified on the published release: 
 "# v0.2.0", contains NO "# v0.1.0", and exactly one version heading. Ruling O worked in CI on its
 first run. The workaround line and the empty-handoff disclosure are both in the published body.
 
+## RULING 2026-09-11 (user, accepted by lead): v0.3 PRIORITY IS INVOKED QUALITY, NOT AUTO-FIRE
+100% auto-firing is a later-stage goal. The MVP bar: when the skill runs -- invoked by name
+or auto-fired -- the result must be good. v0.3 headline is an INVOKED-QUALITY acceptance pass:
+the 15 family prompts with "Use the document-design-intelligence skill." appended, scored on
+OUTPUT (sections present and ordered, handoff values applied, zero "not in my library"
+refusals). Fix what it exposes first. EN/FR prose-genre auto-fire stays deferred behind the
+documented workaround. Ordered list in research/PROJECT-MAP.md section 5.
+
 ## v0.3 BACKLOG -- everything deferred, in one place
 - characterSpacing in the docx handoff reads "Letter Spacing pt", a column that exists in NO
   table. Decide: remove the handoff section, or author the column.

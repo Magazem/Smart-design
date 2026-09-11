@@ -63,21 +63,25 @@ timeline
 - Refuse unverifiable attribution: if a source cannot be grep-verified in the
   library, tag the row CONVENTION.
 
-## 5. What is next (v0.3 candidates, none started)
+## 5. What is next (v0.3, ruled 2026-09-11)
 
-Ordered by user value:
+User's direction, accepted by the lead: 100% auto-firing is a later-stage goal.
+The MVP bar is that when the skill runs, invoked or not, the result is good.
+Ordered accordingly:
 
-1. **Routing for EN/FR prose genres.** Blocked on a new mechanism hypothesis
-   backed by Claude's own account; do not try more description wording.
-2. **Language signal in ranking** (cv-france on "fais-moi un cv") and the
-   **D3 tie** (BM25 length normalisation). Need real query data first.
-3. **Heading variants** for the 15 non-CV families (2–3 wordings per language,
-   as CVs already have).
-4. **Panel and slide layout order** — a real model gap; section order carries
-   the content arc only.
-5. **characterSpacing**: remove the handoff section or author the column.
-6. Small: manifest NOTES §1.4 wording; two make_brand_kit duplication sites;
-   acceptance set rebalanced so each family is tested in two languages.
+1. **Invoked-quality pass (headline).** Run the 15 family prompts with
+   "Use the document-design-intelligence skill." appended and score the OUTPUT:
+   sections present and in order, handoff values applied (page, fonts, sizes,
+   palette, page flow), and zero "that is not in my library" refusals. This is
+   the first acceptance set that measures results rather than firing.
+2. **Fix whatever that pass exposes** before anything below.
+3. **Heading variants** for the 15 non-CV families.
+4. **Language signal in ranking** and the **D3 tie**; need real query data.
+5. **Panel and slide layout order**; **characterSpacing** column or removal.
+6. Small: manifest NOTES §1.4; two make_brand_kit duplication sites; acceptance
+   set rebalanced to two languages per family.
+7. **Auto-firing for EN/FR prose genres**: deferred until a new mechanism
+   hypothesis exists; the documented workaround stands meanwhile.
 
 ## 6. Where things are
 
