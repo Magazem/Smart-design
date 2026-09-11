@@ -62,9 +62,9 @@ REVERTED at Revision 3 (09-library-schema.md lines 569-586, 2265-2278): the inte
 
 distinct Style Key from report-classic-serif -- a one-pager's density constraint is a different grammar from a running multi-page report, even though both bind report-typography
 
-### `infographic-scaffold` -- confidence 0.3
+### `infographic-scaffold` -- confidence 0.5
 
-no T3/T4/T5 payload authored for this class anywhere in the library yet (02-coverage-gaps.md's unbuilt-scaffold finding, confirmed still true); leaving Style/Palette/Typeface Key blank rather than inventing a resolved row for a class nothing else backs, matching the T1 author's own stated discipline on this doctype
+Style/Palette/Typeface Key now authored per research/59-infographic-content.md. Palette REUSED: brand-accent-print is the only T4 row with a Category Marker Roles token and a CTA-framed accent, already the palette behind print-marketing (poster, brochures); infographic's render target (png-social) is a rasterised screen image, not a press job, so brand-accent-print's contrast pairs (already gate-checked >=4.5:1 project-wide) carry over without a print-specific claim. Typeface and type scale NOT reused: the closest screen scale, deck-projection (carried by safe-sans-deck), has no role for an infographic's oversized stat number, so a new typeface row (safe-sans-infographic, Arial/Arial, same shape as the safe-sans-arial/safe-sans-deck pair) and a new scale_key (infographic-screen) were authored, using the Role enum's `lead` value for the stat number -- already used by ens-print at 12pt for standout/lead text, scaled up here to 108pt for an infographic's oversized stat callout; the size itself is CONVENTION, not sourced; Bringhurst covers print measure/leading only, per the standing sourcing rule. Style Key NOT reused from marketing-print-bold: its Checklist hard-codes fold-aware guidance that is wrong for a single canvas, so infographic-bold keeps its Rule/Corner/Table/Emphasis fields identical (same bold-fill family) but replaces the checklist with stat-callout and category-colour guidance tied to this row's own Anti-Pattern Tokens. Section Order (T10 infographic-canvas) reuses headline/key-points/call-to-action verbatim -- all three already carry en/fr/de headings rows, zero new headings authored.
 
 ### `invoice-tabular` -- confidence 0.5
 

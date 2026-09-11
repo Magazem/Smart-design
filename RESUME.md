@@ -1333,6 +1333,14 @@ accented term in the library unsearchable either way. The real cause -- BM25.tok
 splitting on [^a-z0-9]+ -- was fixed instead. When a passing number and a working product
 disagree, this project fixes the product. Cite this the next time a threshold is tempting.
 
+## BACKLOG ADDED 2026-09-11
+- **LETTER SPACING: author a sourced `Letter Spacing pt` column before re-adding
+  characterSpacing.** The docx `characterSpacing` key was REMOVED in v0.3 (lead ruling): it read
+  a column that exists in no table, so it always reported not present, and the mapping was
+  tagged UNSOURCED in ddi.py's own module note. The pptx `charSpacing` STAYS -- that one is
+  sourced (research/23 pptx:458) -- but it reads the same missing column, so it is permanently
+  empty too. Author the column with a real source, then re-add the docx key.
+
 ## STEP 9 BACKLOG (all AFTER v0.1.0)
 - BM25 LENGTH NORMALISATION: after diacritic folding, D3's three deck rows TIE on score and
   projection wins only because its row is 18 tokens against its siblings' 34 (b=0.75).
