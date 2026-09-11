@@ -142,10 +142,13 @@ def cmd_preflight(argv):
 # implemented below is one of the five research/24 section 3 "Resolver
 # vocabulary mismatches" call-outs, each sourced to a research/23 line
 # (Anthropic's own proprietary docx/pptx SKILL.md exports -- conventions
-# read, nothing copied); the two that research/23 does not source at all
-# (docx-js's half-point font-size unit, docx (npm) TextRun.characterSpacing)
-# are marked UNSOURCED below rather than credited to a citation that isn't
-# there.
+# read, nothing copied); the one that research/23 does not source at all
+# (docx-js's half-point font-size unit) is marked UNSOURCED below rather
+# than credited to a citation that isn't there. docx (npm) TextRun's
+# characterSpacing was the other UNSOURCED mapping and has been removed
+# from the docx handoff entirely (research/63-characterspacing-removal.md)
+# rather than kept and marked -- unlike the font-size unit, it read a
+# column no table carries, so it was permanently empty as well as unsourced.
 #
 # The real schema's table/column names now exist (data/schema-manifest.json)
 # even though several tables (palettes, type-scales, doctypes among them)
