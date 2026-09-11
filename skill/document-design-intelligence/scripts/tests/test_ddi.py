@@ -569,7 +569,7 @@ class TestPdfHandoffCarriesTypeScaleAndPalette(unittest.TestCase):
         self.assertTrue(
             values and any(v != ddi.NOT_PRESENT for v in values),
             f"quote-devis: pdf sections block is empty: {values}")
-        self.assertIn("issuer: From", stdout)
+        self.assertIn("issuer: From", values)
 
 
 class TestPngHandoffBuilder(unittest.TestCase):
@@ -684,6 +684,107 @@ class TestPngHandoffBuilder(unittest.TestCase):
         lines = ddi._build_png_lines(resolved)
         canvas_line = next(l for l in lines if l.strip().startswith("headless-chromium:"))
         self.assertIn("not found or unparsable", canvas_line)
+
+
+class TestHandoffBuilderParity(unittest.TestCase):
+    """research/brief-packaging-pdf-sections.md addition, ruled by the lead:
+    `_build_pdf_lines` (this task's fix) picked up `_sections_lines` a whole
+    release cycle after `_build_png_lines` did, and nobody noticed until the
+    acceptance gate ran on a pdf-only doctype. A per-builder test catches a
+    missed CALL for the builder it targets; nothing before this class checked
+    that every _FORMAT_BUILDERS entry stays in sync with every other one, so
+    the NEXT format-specific omission (a fifth builder someday, or a
+    regression re-dropping the pdf call this task just added) would again
+    ship silent.
+
+    The four builders legitimately differ in most of their content --
+    `@page` vs. DXA page math vs. slide layout vs. a px canvas are all
+    correct, format-specific blocks, and a test asserting identical headers
+    across formats would be WRONG. What must NOT differ is that each of
+    these four concepts gets a block at all: `sections`, `fonts`/`font-face`,
+    `font sizes`, and `palette` are read from the same four resolved tables
+    (`headings`+`structures`, `typefaces`, `type-scales`, `palette`) by
+    every one of the four builders today (`_build_docx_lines`,
+    `_build_pptx_lines`, `_build_pdf_lines`, `_build_png_lines` -- see each
+    function's own `_first_row`/`resolved.get` calls), so a format silently
+    skipping one of the four is a missed call site, not a legitimate format
+    difference. `page`/`page flow` and `render command` were deliberately
+    left OUT of the shared core: docx has no `render command` (it does not
+    self-render) and pptx's `page flow` is intentionally `NOT APPLICABLE`
+    text rather than a block with content -- both are real, correct
+    per-format differences, not omissions.
+
+    Each header must be present AND carry at least one line under it --
+    `(not present in this resolution)` counts as present, an empty block
+    (header with zero lines) does not, matching the "don't omit, degrade
+    explicitly" rule already enforced per-format elsewhere in this file
+    (e.g. TestPngHandoffBuilder's degrade test above).
+
+    Verified this test WOULD catch the defect this task fixed: with
+    `_build_pdf_lines`'s `lines.extend(_sections_lines(resolved))` call
+    temporarily removed, `test_all_four_builders_emit_the_shared_core`
+    failed on `format=pdf, concept=sections` with "no handoff section
+    starting..."; restoring the call made it pass again. Both checked by
+    hand before this test was added to the suite.
+    """
+
+    _sections = staticmethod(TestHandoffEndToEndOnRealData._sections)
+
+    #: Concept label -> ordered candidate header prefixes. Two formats use
+    #: `fonts:` (docx, pptx); the other two use `font-face` (pdf, png) --
+    #: both candidates are tried so the SAME concept check works across all
+    #: four without asserting they share identical wording.
+    SHARED_CORE = {
+        "sections": ("sections ",),
+        "fonts": ("fonts:", "font-face"),
+        "font sizes": ("font sizes ",),
+        "palette": ("palette ",),
+    }
+
+    #: Read from `_FORMAT_BUILDERS` itself, not a hardcoded tuple -- a
+    #: hardcoded list would not catch a FIFTH builder someday skipping the
+    #: shared core, since a new `_FORMAT_BUILDERS` entry with no matching
+    #: tuple update would just never get exercised here.
+    FORMATS = tuple(ddi._FORMAT_BUILDERS)
+
+    #: report-long-toc: already the fixture TestHandoffEndToEndOnRealData
+    #: uses for docx/pptx: its resolved payload (page/typeface/type-scale/
+    #: palette/headings/structures rows) is format-agnostic, so requesting
+    #: pdf or png handoff for it exercises those builders' shared-core reads
+    #: exactly as it would for any doctype -- confirmed above to emit all
+    #: four concepts cleanly on all four formats before this test was written.
+    DOCTYPE = "report-long-toc"
+
+    def _handoff(self, fmt):
+        resolved = _run(["resolve", "--doctype", self.DOCTYPE, "--json"])
+        self.assertEqual(resolved.returncode, 0, resolved.stderr)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "resolved.json"
+            path.write_text(resolved.stdout, encoding="utf-8")
+            proc = _run(["handoff", "--json", str(path), "--format", fmt])
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        return proc.stdout
+
+    def _find(self, sections, candidates):
+        for header, values in sections.items():
+            if any(header.startswith(c) for c in candidates):
+                return header, values
+        return None, None
+
+    def test_all_four_builders_emit_the_shared_core(self):
+        for fmt in self.FORMATS:
+            sections = self._sections(self._handoff(fmt))
+            for concept, candidates in self.SHARED_CORE.items():
+                with self.subTest(format=fmt, concept=concept):
+                    header, values = self._find(sections, candidates)
+                    self.assertIsNotNone(
+                        header,
+                        f"format={fmt}: no section header starting with any of "
+                        f"{candidates!r} for concept {concept!r}; got {list(sections)}")
+                    self.assertTrue(
+                        values,
+                        f"format={fmt}: {concept!r} section {header!r} header "
+                        f"printed but carries no lines at all")
 
 
 if __name__ == "__main__":
