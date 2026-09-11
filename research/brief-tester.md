@@ -9,6 +9,13 @@ ONE deliverable: `research/47-browser-smoke.md`. Expect ~10 minutes. Then stop.
 - No git. Ever. The orchestrator owns git.
 - Do not "fix" anything you find. Record it and stop.
 
+## PREREQUISITE — browser attachment (read if your browser tools fail)
+If a browser call returns "The in-app browser is not currently attached. Open the browser
+panel in AionUi so a page is available to control", that is NOT a login problem and NOT a
+dead capability. The panel binds PER CONVERSATION: it must be opened inside THIS
+conversation, not the main window or the lead's. You cannot do this yourself.
+Report it once to the orchestrator and STOP. Do not retry in a loop.
+
 ## WHAT "SUCCESS" MEANS HERE — read this before you start
 Success = each step below **completed and was recorded**. Record what you observe; do not
 bend it toward any expectation.

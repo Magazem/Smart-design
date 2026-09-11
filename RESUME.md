@@ -1075,11 +1075,22 @@ research/handover-coverage.md, research/handover-ddr.md, research/handover-packa
 - Mechanism Analyst         01a07ade-7e18-76c3-8fdc-a17bcc956541  (Sonnet) — keep; clear; step 4
 - Packaging Analyst         01a07ade-92de-7d22-a88a-f878d878610a  (Sonnet) — keep; clear; step 5
 - Print Production Specialist 01a07b9d-086a-7851-8272-9275344e264d — domain exhausted; shut down
-- AionUi Butler             01a07a84-e27e-7b92-80e1-ad082022257e — idle; keep
+- AionUi Butler             01a07a84-e27e-7b92-80e1-ad082022257e — REMOVED FROM THE TEAM by the
+  user on 2026-09-09, deliberately. NOT on the team_members roster; messages to it FAIL. No
+  replacement is needed or wanted. Do not respawn it. If you need AionUi configuration work,
+  raise it with the lead.
 - Acceptance Tester         01a08f33-d70b-7d71-b6d8-9c67574e29d8 — BROWSER ACCESS to the
   user's claude.ai account. Runs acceptance prompts in the real harness so routing results
   are ground truth instead of hand-testing. Same rules as every worker: file-first briefs
   (research/brief-tester.md), clear its context after EVERY task, never let it run git.
+  BROWSER ATTACHMENT — the gotcha that cost an hour on 2026-09-11: its browser tools fail with
+  "The in-app browser is not currently attached" until the user opens the browser panel INSIDE
+  THE ACCEPTANCE TESTER'S OWN CONVERSATION. The panel binds PER CONVERSATION. Opening it in the
+  main window or the lead's window does NOT attach it, and produces the identical error, which
+  reads like a dead capability but is not.
+  Corollary, also learned the hard way: team_describe_assistant lists SKILLS, not TOOLS. An empty
+  skill list is NOT evidence an assistant lacks browser tools. The error text coming FROM a
+  browser tool is proof the tool exists.
 
 ## COLD START, 2026-09-11: WHERE THE PROJECT ACTUALLY IS
 **v0.2.0 IS PUBLISHED.** v0.3 work has begun: a fifth teammate, the Acceptance Tester, now runs
