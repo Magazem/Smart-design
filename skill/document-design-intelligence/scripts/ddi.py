@@ -228,7 +228,6 @@ HANDOFF_VOCAB = {
     # schema grows one; absent from every table today, so this always
     # degrades to NOT_PRESENT under the correctly-named key below.
     "letter_spacing_pt_column": "Letter Spacing pt",
-    "docx_letter_spacing_key": "characterSpacing",  # UNSOURCED, see module note above
     "pptx_letter_spacing_key": "charSpacing",  # research/23 pptx:458
     "palette_table": "palettes",
     "palette_role_columns": ["Primary", "Secondary", "Accent", "Background", "Foreground"],
@@ -518,11 +517,6 @@ def _build_docx_lines(resolved):
         lines.append(f"    {NOT_PRESENT}")
 
     lines.extend(_sections_lines(resolved))
-
-    spacing_pt = _letter_spacing_pt(typeface_row, scale_rows)
-    lines.append(f"  {v['docx_letter_spacing_key']} (DXA -- docx (npm) TextRun option; "
-                 f"UNSOURCED from research/23, see module docstring):")
-    lines.append(f"    {_pt_to_dxa(spacing_pt)}" if spacing_pt is not None else f"    {NOT_PRESENT}")
 
     palette_row = _first_row(resolved, v["palette_table"])
     lines.append("  palette (hex as stored -- docx-js color-argument format not documented "

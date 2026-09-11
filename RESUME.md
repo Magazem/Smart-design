@@ -1340,6 +1340,10 @@ disagree, this project fixes the product. Cite this the next time a threshold is
   tagged UNSOURCED in ddi.py's own module note. The pptx `charSpacing` STAYS -- that one is
   sourced (research/23 pptx:458) -- but it reads the same missing column, so it is permanently
   empty too. Author the column with a real source, then re-add the docx key.
+  **RULED 2026-09-11: pptx charSpacing KEEPS being emitted.** A sourced key reading a missing
+  column is exactly what the "(not present in this resolution)" line exists to say -- it is
+  honest as emitted. The docx one went because it was unsourced AS WELL AS unfillable. The
+  distinction is the source, not the emptiness.
 
 ## STEP 9 BACKLOG (all AFTER v0.1.0)
 - BM25 LENGTH NORMALISATION: after diacritic folding, D3's three deck rows TIE on score and
