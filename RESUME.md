@@ -464,6 +464,11 @@ the 15 family prompts with "Use the document-design-intelligence skill." appende
 OUTPUT (sections present and ordered, handoff values applied, zero "not in my library"
 refusals). Fix what it exposes first. EN/FR prose-genre auto-fire stays deferred behind the
 documented workaround. Ordered list in research/PROJECT-MAP.md section 5.
+STANDING RULE for every new format from now on: a format is DONE only when it is fully in the
+library (doctype row, structure with headings in all three languages, type scale, page format,
+handoff values reaching the renderer) and produces a good result when the skill runs. The
+v0.1.0-era symptom "that document type is not in my library" must never recur for a shipped
+family; auto-firing is a separate, later concern.
 
 ## v0.3 BACKLOG -- everything deferred, in one place
 - characterSpacing in the docx handoff reads "Letter Spacing pt", a column that exists in NO
