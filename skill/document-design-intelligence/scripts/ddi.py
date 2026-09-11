@@ -7,7 +7,7 @@ remember four separate scripts and their flags:
     ddi.py check                                            validate the data
     ddi.py resolve --query "<text>" [--brand <slug>] [--json]   resolve one request
     ddi.py preflight <file> [--json]                        verify a rendered file
-    ddi.py handoff --json <resolved.json> --format docx|pptx|pdf   render-handoff block
+    ddi.py handoff --json <resolved.json> --format docx|pptx|pdf|png   render-handoff block
 
 Plus:
     ddi.py version    prints VERSION + SKILL.md's build stamp
@@ -75,7 +75,7 @@ WORKFLOW_STEPS = (
     '1. ddi.py check                                          -- validate the data',
     '2. ddi.py resolve --query "<text>" [--brand <slug>] [--json]  -- resolve one request',
     "3. ddi.py preflight <file> [--json]                      -- verify a rendered file",
-    "4. ddi.py handoff --json <resolved.json> --format docx|pptx|pdf  -- render-handoff block",
+    "4. ddi.py handoff --json <resolved.json> --format docx|pptx|pdf|png  -- render-handoff block",
 )
 
 
@@ -134,10 +134,11 @@ def cmd_preflight(argv):
 # handoff -- new here, not a passthrough. Reads a resolve.py --json result
 # and reshapes it into the render-handoff block a model hands to whichever
 # built-in docx/pptx skill does the actual rendering, or uses itself for the
-# native pdf path -- speaking THAT TARGET'S vocabulary (docx-js's DXA/
-# half-points/HeadingLevel, pptxgenjs's un-prefixed hex/charSpacing/
-# LAYOUT_16x9, or this project's own @page/font-face/engine-invocation
-# shape for pdf), not our schema's mm/pt/#RRGGBB as stored. Every mismatch
+# native pdf and png paths -- speaking THAT TARGET'S vocabulary (docx-js's
+# DXA/half-points/HeadingLevel, pptxgenjs's un-prefixed hex/charSpacing/
+# LAYOUT_16x9, this project's own @page/font-face/engine-invocation shape
+# for pdf, or its px/'#'hex/window-size CSS-screenshot shape for png),
+# not our schema's mm/pt/#RRGGBB as stored. Every mismatch
 # implemented below is one of the five research/24 section 3 "Resolver
 # vocabulary mismatches" call-outs, each sourced to a research/23 line
 # (Anthropic's own proprietary docx/pptx SKILL.md exports -- conventions
@@ -172,6 +173,21 @@ PT_TO_HALF_POINTS = 2
 #: is set; not a print page format (research/24 section 3 item 2).
 PPTX_DEFAULT_LAYOUT_NAME = "LAYOUT_16x9"
 PPTX_DEFAULT_LAYOUT_IN = (10, 5.625)
+
+#: CSS Values and Units (W3C): 1in = 96px = 72pt, so 1pt = 96/72 px. UNSOURCED
+#: from research/23 (a headless-Chromium screenshot pipeline is not one of its
+#: exported docx/pptx excerpts) -- this is the CSS specification's own fixed
+#: ratio, used because png-social's canvas is px-native (a screenshot, not a
+#: printed page), so handing it pt the way _build_pdf_lines does would be the
+#: wrong unit for this target, not just an unconverted one.
+PT_TO_PX = 96 / 72
+
+#: png-social's Engine Invocation carries the screenshot's pixel dimensions as
+#: a `--window-size=W,H` flag (its only source -- research/brief-packaging-
+#: deck-and-png.md PART B says not to invent one). Parsed, not assumed: a
+#: render row whose invocation lacks this flag, or has it malformed, must say
+#: so rather than silently emitting nothing or a fabricated size.
+WINDOW_SIZE_RE = re.compile(r"--window-size=(\d+),(\d+)")
 
 #: render-targets."Print Tier Max" enum order (data/schema-manifest.json)
 #: -- index used to test "tier > 1" (pdfx4-rgb or better) for @page bleed.
@@ -270,6 +286,26 @@ def _pt_to_dxa(pt_value):
         return round(float(pt_value) * PT_TO_DXA)
     except (TypeError, ValueError):
         return None
+
+
+def _px_from_pt(pt_value):
+    try:
+        return round(float(pt_value) * PT_TO_PX, 1)
+    except (TypeError, ValueError):
+        return None
+
+
+def _parse_window_size(invocation):
+    """(width_px, height_px) parsed from a png render target's Engine
+    Invocation, or None if the `--window-size=W,H` flag is absent or its
+    value doesn't match -- callers must say so explicitly rather than
+    guessing a canvas size."""
+    if not invocation:
+        return None
+    m = WINDOW_SIZE_RE.search(invocation)
+    if not m:
+        return None
+    return int(m.group(1)), int(m.group(2))
 
 
 def _strip_hex(value):
@@ -680,10 +716,104 @@ def _build_pdf_lines(resolved):
     return lines
 
 
+def _build_png_lines(resolved):
+    # research/brief-packaging-deck-and-png.md PART B: `infographic`'s only
+    # render target is png-social (Format=png), and `_FORMAT_BUILDERS` had no
+    # entry for it at all -- not missing wording, no handoff path whatsoever.
+    # CSS/pixel idiom (px, '#'-prefixed hex) because the render pipeline is a
+    # headless-Chromium SCREENSHOT of a fixed-size window, not a paginated
+    # document: no docx DXA/half-points, no pdf mm `@page`. png-social's
+    # `Supports Paged Media` is n/a and `Print Tier Max` is none, so bleed,
+    # crop marks and paged-media constructs never apply to this format and
+    # are called out as NOT APPLICABLE below rather than silently absent.
+    v = HANDOFF_VOCAB
+    lines = []
+
+    render_rows = [r for r in resolved.get(v["render_target_table"], [])
+                   if r.get(v["render_target_format_column"]) == "png"]
+
+    lines.append("  canvas (CSS px -- parsed from the render target's own Engine "
+                 "Invocation --window-size flag; a screenshot has no @page):")
+    if render_rows:
+        for row in render_rows:
+            engine = row.get(v["render_target_engine_column"], "")
+            invocation = row.get(v["render_target_invocation_column"], "")
+            size = _parse_window_size(invocation)
+            if size:
+                lines.append(f"    {engine}: {size[0]}px x {size[1]}px")
+            else:
+                lines.append(f"    {engine}: --window-size not found or unparsable in "
+                             f"Engine Invocation ({invocation or NOT_PRESENT})")
+    else:
+        lines.append(f"    {NOT_PRESENT}")
+
+    typeface_row = _first_row(resolved, v["typeface_table"])
+    lines.append("  font-face (CSS idiom, embed vs. safe-stack per render target's Font Rule):")
+    if typeface_row and render_rows:
+        for row in render_rows:
+            engine = row.get(v["render_target_engine_column"], "")
+            rule = row.get(v["render_target_font_rule_column"], "")
+            if rule == "embed":
+                families = " / ".join(
+                    typeface_row.get(c, "") for c in v["typeface_family_columns"] if typeface_row.get(c, ""))
+                lines.append(f"    {engine} ({rule}): {families or NOT_PRESENT}")
+            else:
+                fallback = typeface_row.get(v["typeface_fallback_column"], "")
+                lines.append(f"    {engine} ({rule}): {fallback or NOT_PRESENT}")
+    else:
+        lines.append(f"    {NOT_PRESENT}")
+
+    scale_rows = resolved.get(v["type_scale_table"], [])
+    lines.append("  font sizes (CSS px -- 1pt = 96/72px; the canvas above is already "
+                 "px-native, so px is the right unit here, not pt):")
+    if scale_rows:
+        for row in scale_rows:
+            role = row.get(v["type_scale_role_column"], "")
+            size_pt = row.get(v["type_scale_size_column"], "")
+            size_px = _px_from_pt(size_pt)
+            lines.append(f"    {role}: {size_pt}pt  ->  {size_px}px")
+    else:
+        lines.append(f"    {NOT_PRESENT}")
+
+    lines.extend(_sections_lines(resolved))
+
+    palette_row = _first_row(resolved, v["palette_table"])
+    lines.append("  palette (CSS hex colour, '#' kept):")
+    if palette_row:
+        shown = False
+        for role in v["palette_role_columns"]:
+            value = palette_row.get(role, "")
+            if value:
+                lines.append(f"    {role}: {value}")
+                shown = True
+        if not shown:
+            lines.append(f"    {NOT_PRESENT}")
+    else:
+        lines.append(f"    {NOT_PRESENT}")
+
+    lines.append("  paged media (bleed / crop marks / @page): NOT APPLICABLE -- "
+                 "png-social's Supports Paged Media is n/a and Print Tier Max is none; "
+                 "a screenshot has no pages")
+
+    lines.append("  render command:")
+    if render_rows:
+        for row in render_rows:
+            engine = row.get(v["render_target_engine_column"], "")
+            path = row.get(v["render_target_engine_path_column"], "")
+            invocation = row.get(v["render_target_invocation_column"], "")
+            command = f"{path} {invocation}".strip()
+            lines.append(f"    {engine}: {command}")
+    else:
+        lines.append(f"    {NOT_PRESENT}")
+
+    return lines
+
+
 _FORMAT_BUILDERS = {
     "docx": _build_docx_lines,
     "pptx": _build_pptx_lines,
     "pdf": _build_pdf_lines,
+    "png": _build_png_lines,
 }
 
 
@@ -696,7 +826,7 @@ def _build_handoff_lines(resolved_payload, target_format):
 
 
 def cmd_handoff(argv):
-    """`ddi.py handoff --json <resolved.json> --format docx|pptx|pdf`
+    """`ddi.py handoff --json <resolved.json> --format docx|pptx|pdf|png`
 
     Reads a file previously produced by `ddi.py resolve --json > resolved.json`
     and prints the render-handoff block: target format, page format +
@@ -714,7 +844,7 @@ def cmd_handoff(argv):
     parser = argparse.ArgumentParser(prog="ddi.py handoff")
     parser.add_argument("--json", dest="json_path", required=True,
                          help="path to a resolve.py --json result")
-    parser.add_argument("--format", required=True, choices=("docx", "pptx", "pdf"))
+    parser.add_argument("--format", required=True, choices=("docx", "pptx", "pdf", "png"))
     args = parser.parse_args(argv)
 
     try:

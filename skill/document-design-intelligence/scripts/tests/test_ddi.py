@@ -554,5 +554,104 @@ class TestPdfHandoffCarriesTypeScaleAndPalette(unittest.TestCase):
         self.assertTrue(palette_lines and all(l != ddi.NOT_PRESENT for l in palette_lines), palette_lines)
 
 
+class TestPngHandoffBuilder(unittest.TestCase):
+    """research/brief-packaging-deck-and-png.md PART B: `_FORMAT_BUILDERS`
+    (ddi.py:683 at the time) covered docx/pptx/pdf only. `infographic`'s ONLY
+    render target is `png-social` (Format=png), so that family had NO
+    handoff path at all -- not missing wording, no builder. `infographic` is
+    the only shipped doctype whose `Render Target Keys` includes `png-social`
+    (data/base/doctypes.csv), so it is also the only doctype these tests can
+    exercise against real data.
+
+    `infographic`'s `doc-reasoning` row (`infographic-scaffold`) has empty
+    Style/Palette/Typeface Key (a separate, already-tracked defect --
+    research/51-invoked-quality.md D4). That means `font-face`, `font sizes`,
+    `sections` and `palette` legitimately have nothing to show for this
+    doctype today; what matters here is that each HEADER still prints with
+    `ddi.NOT_PRESENT` rather than the block being silently absent -- that is
+    exactly the failure shape D4/D2 already named ("a missing block is
+    invisible; an empty one is a fact"). `canvas` and `render command` ARE
+    real data for `infographic` (png-social's own Engine Invocation) and are
+    checked for actual content, not just presence.
+    """
+
+    _sections = staticmethod(TestHandoffEndToEndOnRealData._sections)
+    _section_values = TestHandoffEndToEndOnRealData._section_values
+
+    def _png_handoff(self, doctype):
+        resolved = _run(["resolve", "--doctype", doctype, "--json"])
+        self.assertEqual(resolved.returncode, 0, resolved.stderr)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "resolved.json"
+            path.write_text(resolved.stdout, encoding="utf-8")
+            proc = _run(["handoff", "--json", str(path), "--format", "png"])
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        return proc.stdout
+
+    def test_infographic_canvas_and_render_command_are_real_px_data(self):
+        """png-social's Engine Invocation is the only source for the
+        screenshot's pixel dimensions (the brief: do not invent one) --
+        1080x1350 parsed straight off its `--window-size` flag, and the
+        render command line must carry the invocation verbatim."""
+        stdout = self._png_handoff("infographic")
+        sections = self._sections(stdout)
+        _, canvas_lines = self._section_values(sections, "canvas ")
+        self.assertEqual(canvas_lines, ["headless-chromium: 1080px x 1350px"], canvas_lines)
+        _, command_lines = self._section_values(sections, "render command")
+        self.assertTrue(
+            command_lines and "--window-size=1080,1350" in command_lines[0], command_lines)
+
+    def test_infographic_paged_media_is_explicitly_not_applicable(self):
+        """png-social's Supports Paged Media is n/a and Print Tier Max is
+        none -- bleed/crop-marks/@page must be called out as NOT APPLICABLE,
+        not simply absent, per the same "don't omit the block" rule."""
+        self.assertIn("NOT APPLICABLE", self._png_handoff("infographic"))
+
+    def test_infographic_empty_reasoning_columns_degrade_to_not_present_not_omission(self):
+        """The headers for font-face/font sizes/sections/palette must all
+        still print even though `infographic-scaffold`'s Style/Palette/
+        Typeface Key are empty (D4) -- proving the builder didn't just skip
+        these blocks the way the pre-fix code skipped the whole format."""
+        sections = self._sections(self._png_handoff("infographic"))
+        for prefix in ("font-face ", "font sizes ", "sections", "palette "):
+            with self.subTest(section=prefix):
+                _, values = self._section_values(sections, prefix)
+                self.assertTrue(values, f"section {prefix!r} header printed but body is empty")
+                self.assertTrue(all(v == ddi.NOT_PRESENT for v in values), values)
+
+    def test_cli_format_choices_include_png(self):
+        """`--format` used to reject `png` outright (choices was docx/pptx/pdf
+        only); this is the CLI half of the same gap."""
+        resolved = _run(["resolve", "--doctype", "infographic", "--json"])
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "resolved.json"
+            path.write_text(resolved.stdout, encoding="utf-8")
+            proc = _run(["handoff", "--json", str(path), "--format", "png"])
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+
+    def test_parse_window_size_says_so_when_absent_or_malformed(self):
+        """Unit-level, since no shipped render-targets row is malformed on
+        purpose: `_parse_window_size` must return None (not a guessed size)
+        for a missing flag and for a value that doesn't match `W,H`, and
+        `_build_png_lines` must turn that into an explicit message rather
+        than a bare NOT_PRESENT that reads like "no render target" instead
+        of "this render target's invocation didn't parse"."""
+        self.assertIsNone(ddi._parse_window_size(""))
+        self.assertIsNone(ddi._parse_window_size("--headless --no-sandbox"))
+        self.assertIsNone(ddi._parse_window_size("--window-size=1080"))
+        self.assertEqual(ddi._parse_window_size("--window-size=1080,1350 %i"), (1080, 1350))
+
+        resolved = {
+            "render-targets": [{
+                "key": "png-broken", "Format": "png", "Engine": "headless-chromium",
+                "Engine Invocation": "--headless --screenshot=%o %i",
+                "Font Rule": "embed",
+            }],
+        }
+        lines = ddi._build_png_lines(resolved)
+        canvas_line = next(l for l in lines if l.strip().startswith("headless-chromium:"))
+        self.assertIn("not found or unparsable", canvas_line)
+
+
 if __name__ == "__main__":
     unittest.main()

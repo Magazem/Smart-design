@@ -16,7 +16,7 @@ Run `ddi.py`'s subcommands in this order:
 1. `ddi.py check` — validate the data
 2. `ddi.py resolve --query "<text>" [--brand <slug>] [--json]` — resolve one request
 3. `ddi.py preflight <file> [--json]` — verify a rendered file
-4. `ddi.py handoff --json <resolved.json> --format docx|pptx|pdf` — render-handoff block
+4. `ddi.py handoff --json <resolved.json> --format docx|pptx|pdf|png` — render-handoff block
 
 Do not skip step 2 and go straight to free-form generation — that is the activation
 failure this skill exists to prevent.
