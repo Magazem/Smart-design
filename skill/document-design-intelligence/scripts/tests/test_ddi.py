@@ -215,10 +215,6 @@ class TestUnknownCommand(unittest.TestCase):
         self.assertEqual(code, 2)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class TestHandoffEndToEndOnRealData(unittest.TestCase):
     """RULING M: the handoff block is what the docx skill is HANDED. It shipped
     all through v0.1.0 with no page size, no fonts and no palette, because the
@@ -366,3 +362,7 @@ class TestHandoffEndToEndOnRealData(unittest.TestCase):
                     self.assertGreater(
                         float(sizes[role]), 0,
                         f"{doctype}: TOC heading level {role} has no positive size")
+
+
+if __name__ == "__main__":
+    unittest.main()

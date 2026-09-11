@@ -16,10 +16,9 @@ one exception: this skill renders PDFs natively (HTML through headless
 Chromium, with WeasyPrint as an optional fallback), since that's its primary
 output path, not a handoff. See `research/24-builtin-alignment.md` for why.
 
-**Status**: scaffolding only. The retrieval library, resolver, and renderers
-are not built yet — see `research/09-library-schema.md` and
-`research/15-distribution-model.md` for their design before relying on this
-repo as a working skill.
+**Status**: v0.2.0. The retrieval library, resolver, and renderers are built
+and tested — see `RELEASE-NOTES.md` for exact scope and known limitations
+before relying on this skill for a specific document family or language.
 
 ## Install
 
@@ -34,7 +33,8 @@ Claude" explains where to turn it on if you're not sure.)
 2. In claude.ai, go to **Settings → Customize → Skills → Add**, and choose the
    file you just downloaded. That's it — the skill is installed and Claude will
    use it automatically whenever you ask for a document, deck, CV, brochure, or
-   report.
+   report. If it doesn't activate on its own, add "Use the
+   document-design-intelligence skill." to your request.
 
 ## Give it your brand (optional, one-time)
 
