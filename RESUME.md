@@ -439,6 +439,27 @@ DDR rather than forced into a section list. Not v0.2.
   from research/09-library-schema.md Revision 4, which does not describe it either.
 - Heading variants for non-CV families.
 
+## THE WORKAROUND THAT ACTUALLY WORKS (probes, 2026-09-11)
+PROBE 1: English memo with "Use the document-design-intelligence skill." appended -> **FIRED.**
+PROBE 2: English memo with the built-in docx skill disabled -> **NOT RUNNABLE.** claude.ai
+offers no per-skill toggle for the built-in docx skill. Dropped, not failed -- nobody should
+re-attempt it looking for a result.
+
+So the skill works. It is the ROUTING that does not, and naming the skill in the request
+bypasses the routing entirely. That is the honest shape of this defect: not "the skill is
+unreliable" but "Claude does not always choose it, and you can tell it to."
+
+SHIPPED WORDING, bound by the lead into the v0.2.0 release notes and README:
+  Limitation: With the built-in docx/pptx skills present, letters, memos and reports in English
+  and French may be routed to docx or answered in chat without this skill; invoices, forms and
+  German prompts fire reliably.
+  Workaround: Add "Use the document-design-intelligence skill." to the request; this fired in
+  every test.
+The French report is listed explicitly as a known non-fire.
+
+Both lines go in the SAME paragraph. A limitation without its workaround makes a user think the
+tool is broken; the workaround is the more useful half and must not be a footnote.
+
 ## DESCRIPTION ITERATION IS CLOSED FOR v0.2. DO NOT OPEN ANOTHER CANDIDATE.
 FIVE description changes were applied across 2026-09-09/10 -- F, G, H, lettre, L. Final results
 on the L archive:

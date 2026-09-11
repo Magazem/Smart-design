@@ -3,7 +3,7 @@
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
 DO NOT touch git. Do not tag. Do not push. Do not edit VERSION — it stays 0.0.1-dev and CI
 writes it from the tag.
-DO NOT START without the go-ahead from the orchestrator.
+DISPATCHED. Proceed.
 
 ## Counts, taken from disk by me — use these, not your memory
     constraints   47 rows      type-scales   20 rows
@@ -58,13 +58,27 @@ discipline is keeping sourced and conventional apart.
 - Non-CV heading sections carry one wording per language, with no variants.
 - characterSpacing in the docx handoff reads a column that exists in no table, so it always
   reports not present. Removing the section or authoring the column is a v0.3 decision.
-- IF the user's final run still shows the French report not firing, say so: a request Claude can
-  answer as a chat-native markdown summary may not reach this skill.
-  ASK THE ORCHESTRATOR for that result before writing this line. Do not guess it either way.
+- THE ACTIVATION LIMITATION. The result is in, so write it. Use this wording, which the lead
+  bound after five description changes failed to move it:
+
+    With the built-in docx/pptx skills present, letters, memos and reports in English and French
+    may be routed to docx or answered in chat without this skill; invoices, forms and German
+    prompts fire reliably.
+
+  And IN THE SAME PARAGRAPH, the workaround, which is the useful half:
+
+    Add "Use the document-design-intelligence skill." to the request; this fired in every test.
+
+  List the French report explicitly as a known non-fire. Do not soften any of this: five
+  description changes (F, G, H, lettre, L) did not move it, and a user who hits it deserves the
+  workaround rather than a discovery process.
 
 ### 3. SKILL.md and README
-Check whether either still says anything untrue after all of this. Report "no change needed" if
-that is the answer — do not invent an edit.
+README gains the SAME one-line workaround under usage: add "Use the
+document-design-intelligence skill." to the request if it does not activate on its own. One line,
+where a user looking for how to use the thing will actually meet it.
+Then check whether SKILL.md or the rest of README still says anything untrue after all of this.
+Report "no change needed" if that is the answer — do not invent an edit.
 
 ### 4. Final rebuild, with every byte check
 1. SKILL.md member first bytes exactly `---\n`; exactly ONE version stamp, after the frontmatter.
