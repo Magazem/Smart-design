@@ -1,19 +1,63 @@
 # BRIEF — Acceptance Tester — ROUTING SPOT-CHECK (browser, claude.ai)
 
-DISPATCHED 2026-09-11 under a user ruling. ONE deliverable: `research/48-browser-spotcheck.md`.
-SEVEN prompts, two sends each (prompt + follow-up) = 14 sends. The user has confirmed the
-quota is fine. Do not ration sends; do not skip the follow-up to save one.
+## *** RE-RUN, v2. HELD — DO NOT DISPATCH ***
+Revised 2026-09-11 after the first attempt died mid-P1. Released by the orchestrator only.
+Blocked on both:
+1. The user has answered on the custom instructions (see Step 0) — and, if they agree to
+   switch them off for the test session, has done so.
+2. The user has opened a FRESH browser panel inside the Acceptance Tester's own conversation.
+   The previous panel is unrecoverable.
 
-## THE DETECTION METHOD — this is how you score, do not improvise
-Two parts, BOTH on every prompt:
-1. Read claude.ai's own skill-use indication in the reply stream, if shown.
-2. **ALWAYS send this follow-up in the SAME chat, before scoring, verbatim:**
+ONE deliverable: `research/48-browser-spotcheck.md`. It already exists and holds the first
+attempt plus verified findings. **APPEND a new dated section. Do not overwrite it.**
+
+SEVEN prompts, two sends each = 14 sends. Quota confirmed fine by the user. Do not ration
+sends and never skip a follow-up to save one.
+
+## READ FIRST — the three things that broke or nearly broke the last attempt
+
+### 1. NEVER RELOAD THE PAGE. This is what killed the last run.
+A reload to "get a cleaner read" timed out and destroyed the accessibility tree and the JS
+context. Everything that types or clicks died; screenshots kept working, so it still LOOKED
+connected. The session could not be recovered from your side.
+Do not reload. Do not navigate away from a chat mid-trial. If an overlay or a weekly-limit
+banner covers part of a reply, scroll or screenshot around it. Losing part of one reply is
+cheap. Losing the session costs a user-side panel reset and everything not yet written down.
+
+### 2. THE DETECTION METHOD — three parts now, use ALL THREE
+1. **Expand the "Ran N commands ›" line** above the reply and READ THE COMMAND NAMES. It
+   appeared last time as "Ran 4 commands" and was never expanded. The command names should
+   identify WHICH skill ran. Record them verbatim.
+2. Read any other skill-use indication in the reply stream.
+3. **ALWAYS send this follow-up in the SAME chat, verbatim:**
    `Which skills did you use for this request, and why?`
-   Record its answer VERBATIM. Claude answers this accurately — it names docx when it used
-   docx, and names document-design-intelligence when it used that.
+   Record the answer VERBATIM.
+A prompt without the follow-up is UNSCORED. That rule stands and it cost us the whole last run.
 
-A prompt with no follow-up is **UNSCORED**, not a fail. That is exactly how the 2026-09-11
-smoke test was wasted. Never skip it, even when the reply seems obvious.
+### 3. WATCH FOR OUR OWN VOCABULARY IN THE REPLY — it is invocation evidence
+Last time Claude offered CV regions "UK style / France style / Gulf/GCC style". Those are rows
+in this skill's own `cv-regions.csv`. A generalist does not propose "Gulf/GCC" unprompted.
+If a reply offers options, section names or categories that look like a fixed library
+vocabulary rather than free improvisation, QUOTE THEM. That is evidence, and you are better
+placed to spot it than anyone reading the transcript later.
+
+## Step 0 — settings check. Does NOT block. Record and continue.
+Record VERBATIM, quoting exactly, never summarising:
+- The account's **"Instructions for Claude"** text in full.
+- **Memory** on/off.
+- Which skills are enabled.
+
+**LABELLING RULE (standing, ruled by the lead):** if a clarify-first or brevity instruction is
+ACTIVE during the run, label the whole run **CONFOUNDED** at the top of your report and in the
+file. A confounded run is reported but NOT scored. Say so plainly rather than scoring anyway.
+Do NOT change the setting yourself. Do not ask the user to. That is the lead's channel.
+
+## One extra job on P6, and it settles an open question
+P6 asks for a Word document. When you expand its "Ran N commands" line, look specifically for
+whether anything docx-related or skill-named appears, and quote exactly what you see.
+Open question this settles: the account lists no `docx` or `pptx` skill, only a built-in
+file-creation capability, so we do not know whether a separate docx skill exists and takes over
+on Word prompts. Report what the commands say. Draw no conclusion; that is the lead's to make.
 
 ## Hard rules
 - One FRESH chat per prompt. The prompt and its follow-up share that chat; nothing else does.
@@ -22,16 +66,11 @@ smoke test was wasted. Never skip it, even when the reply seems obvious.
   twice.
 - Touch nothing else in the account. Change no settings. Delete nothing.
 - Login screen, 2FA or captcha: STOP and report. Never enter credentials.
+- NEVER RELOAD or navigate away mid-trial (see above).
 - Browser not attached? The panel must be opened inside THIS conversation. Report once and
   stop; do not loop.
 - No git. Report to the orchestrator and stop.
 
-## Step 0 — settings check. Does NOT block; record and continue.
-Open Settings and record verbatim any **Memory**, custom instructions, personal preferences or
-style settings that are ON. A 2026-09-11 reply cited "per your clarification rule", which
-suggests an account-level instruction to ask before inventing content. If such text exists it
-may explain replies below. Record it and CONTINUE — do not stop, do not disable anything.
-Also record which skills are enabled: document-design-intelligence, docx, pptx, UI/UX Pro Max.
 
 ## The seven prompts
 Paste each verbatim into its own fresh chat, then send the follow-up in that same chat.
@@ -85,6 +124,7 @@ Just convert this .docx file to a PDF, don't change anything.
 ```
 
 ## Record per prompt, as SEPARATE fields, never merged
+- **Commands line:** the expanded "Ran N commands" contents, VERBATIM. Say if none appeared.
 - **Indicator seen:** yes / no / could-not-tell, plus where you looked.
 - **Claude's own answer:** the reply to the follow-up, VERBATIM, naming any skills it names.
 - **Verdict:** fired / did not fire / unscored. Mark UNSCORED if the follow-up was not asked
@@ -92,7 +132,9 @@ Just convert this .docx file to a PDF, don't change anything.
 - **First 300 characters of the original reply, VERBATIM** — copied exactly, not summarised.
   The last run paraphrased this. Do not.
 
-## Step 3 — write `research/48-browser-spotcheck.md`
+## Step 3 — APPEND to `research/48-browser-spotcheck.md`
+**That file already exists** and holds the first attempt plus verified findings. Append a new
+dated section for this run. DO NOT overwrite or delete what is there.
 The table above, one row per prompt. Then: Step 0 settings findings, sends actually spent, any
 double-submits, and anything you could not determine.
 
@@ -101,5 +143,5 @@ Note which prompts were expected to fire (1, 2, 3, 4, 6) and which were expected
 toward the expectation — a surprise here is the most valuable thing you can bring back.
 
 ## Report
-A few lines to the orchestrator: sends spent, per-prompt verdict in one word each, any
+A few lines to the orchestrator: CONFOUNDED or not, sends spent, per-prompt verdict in one word each, any
 surprise against expectation, Step 0 confounds. Then STOP.

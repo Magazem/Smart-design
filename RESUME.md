@@ -678,6 +678,16 @@ What it DOES undermine: every rubric that scored on the SHAPE of a reply.
 BEFORE the next scored run, decide with the user whether to test with these instructions
 temporarily off. It is their account and their setting -- ASK, never change it.
 
+### STANDING PRECONDITION FOR EVERY BROWSER RUN (ruled by lead, 2026-09-11)
+1. Step 0 of every browser brief READS the account's "Instructions for Claude" and the report
+   QUOTES their exact text. No exceptions, no summarising.
+2. A run made while a clarify-first or brevity instruction is ACTIVE is labelled **CONFOUNDED**
+   and is NOT SCORED. It may still be run and reported; it may not be treated as evidence.
+3. RECOMMENDED TO THE USER: switch the custom instructions OFF for test sessions only. The
+   skill targets DEFAULT-BEHAVIOUR users, so a default-behaviour account is the correct test
+   environment. It is the user's account and the user's setting -- ASK, never change it, and
+   never ask the tester to change it.
+
 ## "Ran N commands" IS THE UI HALF OF THE DETECTION METHOD (found 2026-09-11)
 A collapsed "Ran 4 commands >" line appeared directly above a reply, meaning scripts executed.
 Expand it to read the command names and it should identify WHICH skill ran. Use it on every
@@ -701,6 +711,17 @@ DO NOT ACT ON THIS YET. Absent from a settings UI is not absent from the system,
 testing recorded activation 11 "went to docx", and research/24-builtin-alignment.md was built
 on reading Anthropic's real docx/pptx SKILL.md files. Settle it by expanding a "Ran N commands"
 line on a Word-output prompt before touching the description.
+
+## BROWSER OPERATIONAL RULE: NEVER RELOAD THE PAGE (learned 2026-09-11)
+The spot-check died because the tester reloaded the chat page to get a cleaner read. The reload
+timed out and took the accessibility tree and the JS execution context with it: every
+take_snapshot / evaluate_script / press_key call afterwards failed with "Frame with the given
+frameId is not found". Screenshots and page listing kept working, so it LOOKS connected, but
+nothing can be typed or clicked and there is no coordinate-click fallback. The session is
+unrecoverable from the tester's side and needs a fresh panel from the user.
+RULE: do not reload, and do not navigate away from a chat mid-trial. If a reply is obscured by
+an overlay or a limit banner, scroll or screenshot it. Losing part of one reply is cheap;
+losing the session costs a user-side panel reset and everything not yet recorded.
 ## THE LESSON OF 2026-09-10: A GREEN GATE DOES NOT MEAN THE OUTPUT SAYS ANYTHING
 Coverage removed the `report-print-print-h1` row and re-ran everything. **The gate STILL PASSED**
 -- `OK: validated 14 table(s)` -- because the remaining rows were perfectly well-formed. Only the
