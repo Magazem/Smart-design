@@ -640,6 +640,16 @@ tester never asked.
 user's weekly quota like any other. A six-send ceiling is therefore THREE PROMPTS, not six:
 each prompt costs one send for the prompt and one for the follow-up. Plan browser sessions in
 PAIRS of sends, never in prompts.
+
+**USER RULING 2026-09-11, SUPERSEDING THE SIX-SEND CEILING ABOVE.** The quota is NOT a
+concern: the 75% came from the user's other work, 25% remained, and it resets in under 18
+hours. The spot-check was dispatched at SEVEN prompts x 2 sends = 14 sends. Keep the cost
+awareness -- check the remaining limit before a large run -- but do not ration sends against
+the six-send figure; that ceiling is withdrawn.
+Also ruled: prompt 1 asking for content was EXPECTED, and the fix is to append
+" Use placeholder data." to the prompt rather than to treat the ask as a failure.
+The follow-up question is now fixed wording: "Which skills did you use for this request,
+and why?"
 ## THE LESSON OF 2026-09-10: A GREEN GATE DOES NOT MEAN THE OUTPUT SAYS ANYTHING
 Coverage removed the `report-print-print-h1` row and re-ran everything. **The gate STILL PASSED**
 -- `OK: validated 14 table(s)` -- because the remaining rows were perfectly well-formed. Only the
