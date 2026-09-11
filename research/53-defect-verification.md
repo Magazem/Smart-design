@@ -151,3 +151,45 @@ RESUME.md records of the published asset: "Zero CR bytes." The published `ddi.py
 CR bytes. That earlier claim may have been scoped to `SKILL.md` rather than the whole archive,
 or it may be wrong. **I am not asserting it is wrong** — I checked one member, not the archive.
 Worth a recheck by whoever owns the packaging claims before it is relied on again.
+
+---
+
+# CORRECTION, same day — MY CR FIGURE WAS WRONG. RESUME.md WAS RIGHT.
+
+The ADDENDUM above raised a "loose thread": that RESUME.md records the published asset as having
+"Zero CR bytes" while the published `ddi.py` contains 1209. **That figure is wrong and the loose
+thread does not exist.** The Packaging Analyst challenged it while working the fix; I rechecked
+and it is right and I was wrong.
+
+Recounted by reading every member straight out of the archive with `zipfile`:
+
+    PUBLISHED ARCHIVE, 39 members
+    total CR bytes across ALL members: 0
+    members containing CR: NONE
+    published ddi.py: 28302 bytes, 0 CR, 691 lines
+
+**RESUME.md's "Zero CR bytes" is CORRECT, verified across the whole archive rather than one
+member.** `build_zip.py` already normalises line endings on every build, so no code change was
+needed either.
+
+## WHERE MY NUMBER CAME FROM — the method was the fault
+I counted with `od -c | grep -o '\r' | wc -l`. That does not count CR bytes; it counts
+occurrences of the two-character sequence `\r` in `od`'s *rendered text*, which is not the same
+thing. It produced 1209 for a file containing zero.
+
+The analyst also caught that my own figures were **internally impossible**: I reported 1899 CR
+bytes for a 690-line file in the same paragraph where I said the difference matched the line
+count. A file with 690 lines cannot hold 1899 line-ending CRs. I did not notice; the check that
+caught it was reading my own numbers against each other.
+
+**The lesson is the one this project already has, applied to me:** I used an indirect proxy and
+reported it as a measurement. The same failure shape as reading a byte count as a character
+count earlier the same day. Count the actual bytes — `data.count(b"\r")` — and state the method.
+
+## WHAT THIS INVALIDATES
+- The "loose thread for the lead" in the ADDENDUM above: **withdrawn.**
+- The CR sub-item on the Packaging task: it was a false alarm. Packaging correctly verified the
+  whole archive, found zero, and changed no code. That was the right outcome reached despite the
+  brief, not because of it.
+- The local working copy DOES carry CRLF where the published asset has LF. That part stands and
+  is just git's normal working-tree behaviour on Windows. It was never a packaging defect.

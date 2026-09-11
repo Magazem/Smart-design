@@ -8,6 +8,7 @@ test_resolve.py, test_preflight.py) -- these tests check the ROUTING
 logic again.
 """
 import json
+import re
 import subprocess
 import sys
 import tempfile
@@ -409,6 +410,12 @@ class TestDroppedColumnsReachResolvedOutput(unittest.TestCase):
         self.assertEqual(proc.returncode, 0, proc.stderr)
         return json.loads(proc.stdout)["resolved"]
 
+    #: Duplicated from TestHandoffEndToEndOnRealData rather than subclassed --
+    #: subclassing it would also inherit and re-run every one of ITS test_*
+    #: methods under this class name, which is not what's wanted here.
+    _sections = staticmethod(TestHandoffEndToEndOnRealData._sections)
+    _section_values = TestHandoffEndToEndOnRealData._section_values
+
     def test_every_authored_column_reaches_the_resolved_json(self):
         resolved = self._resolved()
         for table, columns in self.EXPECTED_COLUMNS.items():
@@ -440,6 +447,18 @@ class TestDroppedColumnsReachResolvedOutput(unittest.TestCase):
             with self.subTest(wording=wording):
                 self.assertIn(wording, texts)
 
+    #: A CV family (2-3 wordings per canonical_section, per research/50) and a
+    #: non-CV family (single wording per section, per RESUME.md's v0.3 backlog
+    #: note that non-CV headings carry only one variant) -- the same
+    #: two-doctype-not-one precedent TestHandoffEndToEndOnRealData already
+    #: applies above, so a fix that only works where multiple wordings compete
+    #: for "primary" is caught here.
+    HANDOFF_SECTIONS_DOCTYPES = {
+        "cv-uk": {"experience": "Experience", "contact": "Contact"},
+        "report-long-toc": {"introduction": "Introduction",
+                            "bibliography": "References"},
+    }
+
     def test_handoff_docx_sections_carry_primary_heading_wording(self):
         """research/54 part 3: `display_columns` alone (the two tests above)
         puts wording into the resolved JSON, but `ddi.py`'s HANDOFF_VOCAB named
@@ -447,16 +466,92 @@ class TestDroppedColumnsReachResolvedOutput(unittest.TestCase):
         thing actually handed to a renderer -- printed nothing from either
         table. This runs the full resolve -> handoff pipeline exactly as a
         model invoking this skill would, and checks the rendered `sections`
-        block, not the intermediate JSON."""
-        resolved = _run(["resolve", "--doctype", "cv-uk", "--json"])
+        block, not the intermediate JSON, on both a CV family and a non-CV
+        family (report-long-toc's 10 sections each carry exactly one
+        authored wording, not 2-3 like a CV section, so this also proves the
+        fix doesn't depend on "primary" having competition to pick from)."""
+        for doctype, expected in self.HANDOFF_SECTIONS_DOCTYPES.items():
+            with self.subTest(doctype=doctype):
+                resolved = _run(["resolve", "--doctype", doctype, "--json"])
+                self.assertEqual(resolved.returncode, 0, resolved.stderr)
+                with tempfile.TemporaryDirectory() as tmp:
+                    path = Path(tmp) / "resolved.json"
+                    path.write_text(resolved.stdout, encoding="utf-8")
+                    proc = _run(["handoff", "--json", str(path), "--format", "docx"])
+                self.assertEqual(proc.returncode, 0, proc.stderr)
+                sections = self._sections(proc.stdout)
+                _, values = self._section_values(sections, "sections ")
+                self.assertTrue(
+                    all(v != ddi.NOT_PRESENT for v in values if v),
+                    f"{doctype}: sections block has a {ddi.NOT_PRESENT} entry: {values}")
+                for section, text in expected.items():
+                    with self.subTest(section=section):
+                        self.assertIn(f"{section}: {text}", proc.stdout)
+
+
+class TestPdfHandoffCarriesTypeScaleAndPalette(unittest.TestCase):
+    """research/brief-packaging-display-columns.md PART 4: `_build_pdf_lines`
+    read only page_format_table, render_target_table and typeface_table --
+    never type_scale_table or palette_table, even though docx and pptx both
+    do. The failure shape was worse than a blank value: the `font sizes`,
+    `heading elements` and `palette` HEADERS themselves never printed, not
+    just their content, because the section is entirely absent from the
+    function rather than present-and-empty. A missing block is invisible in
+    a way `(not present in this resolution)` is not -- that invisibility is
+    exactly what let this ship. `invoice-tabular`'s ONLY render target is
+    pdf, so for that family there was no other handoff path that could ever
+    have delivered a size or a colour.
+
+    what this test would say if the feature produced NOTHING AT ALL:
+    `_section_values` (reused from TestHandoffEndToEndOnRealData) calls
+    `self.fail()` outright if no section header matching the prefix is found
+    at all -- so a still-missing block fails immediately, before ever
+    reaching the content assertions below it.
+    """
+
+    _sections = staticmethod(TestHandoffEndToEndOnRealData._sections)
+    _section_values = TestHandoffEndToEndOnRealData._section_values
+
+    def _pdf_handoff(self, doctype):
+        resolved = _run(["resolve", "--doctype", doctype, "--json"])
         self.assertEqual(resolved.returncode, 0, resolved.stderr)
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "resolved.json"
             path.write_text(resolved.stdout, encoding="utf-8")
-            proc = _run(["handoff", "--json", str(path), "--format", "docx"])
+            proc = _run(["handoff", "--json", str(path), "--format", "pdf"])
         self.assertEqual(proc.returncode, 0, proc.stderr)
-        self.assertIn("experience: Experience", proc.stdout)
-        self.assertIn("contact: Contact", proc.stdout)
+        return proc.stdout
+
+    def test_invoice_tabular_pdf_only_family_gets_sizes_and_palette(self):
+        """`invoice-tabular` has no h1/h2/h3 in its type scale (`form-print`
+        is body/legal only), so `heading elements` legitimately reads
+        NOT_PRESENT here -- that column is checked on `poster` below instead.
+        `font sizes` and `palette` are real data for this family and must
+        show it."""
+        stdout = self._pdf_handoff("invoice-tabular")
+        sections = self._sections(stdout)
+        _, size_lines = self._section_values(sections, "font sizes ")
+        self.assertTrue(size_lines and all("pt" in l for l in size_lines), size_lines)
+        _, palette_lines = self._section_values(sections, "palette ")
+        self.assertTrue(
+            palette_lines and all(re.match(r"^[A-Za-z ]+: #[0-9A-Fa-f]{6}$", l) for l in palette_lines),
+            palette_lines)
+
+    def test_poster_pdf_gets_sizes_headings_and_palette(self):
+        """`poster` (pdf-weasyprint-pdfx4 / pdf-chromium, `report-print` scale)
+        carries h1/h2/h3, so this is the doctype that proves the
+        `heading elements` block specifically, not just that it degrades to
+        NOT_PRESENT gracefully."""
+        stdout = self._pdf_handoff("poster")
+        sections = self._sections(stdout)
+        _, size_lines = self._section_values(sections, "font sizes ")
+        self.assertTrue(size_lines and all(l != ddi.NOT_PRESENT for l in size_lines), size_lines)
+        _, heading_lines = self._section_values(sections, "heading elements")
+        self.assertEqual(
+            sorted(l.split()[0] for l in heading_lines), ["h1", "h2", "h3"], heading_lines)
+        self.assertIn("h1  ->  <h1>", stdout)
+        _, palette_lines = self._section_values(sections, "palette ")
+        self.assertTrue(palette_lines and all(l != ddi.NOT_PRESENT for l in palette_lines), palette_lines)
 
 
 if __name__ == "__main__":

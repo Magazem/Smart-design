@@ -622,6 +622,47 @@ def _build_pdf_lines(resolved):
     else:
         lines.append(f"    {NOT_PRESENT}")
 
+    # research/brief-packaging-display-columns.md PART 4: this builder read only
+    # page_format_table, render_target_table and typeface_table -- never
+    # type_scale_table or palette_table, both of which docx and pptx DO read.
+    # invoice-tabular's only render target is pdf, so for that family there was
+    # no other path that could ever deliver a size or a colour. CSS idiom below
+    # (plain pt, '#'-prefixed hex, semantic <hN>), not docx's DXA/half-point
+    # conversions -- this pipeline is native HTML -> Chromium/WeasyPrint, not OOXML.
+    scale_rows = resolved.get(v["type_scale_table"], [])
+    lines.append("  font sizes (CSS pt -- native unit for an HTML/Chromium/WeasyPrint "
+                 "pipeline, no conversion needed):")
+    if scale_rows:
+        for row in scale_rows:
+            role = row.get(v["type_scale_role_column"], "")
+            size_pt = row.get(v["type_scale_size_column"], "")
+            lines.append(f"    {role}: {size_pt}pt")
+    else:
+        lines.append(f"    {NOT_PRESENT}")
+
+    heading_roles = _heading_roles(scale_rows)
+    lines.append("  heading elements (semantic HTML, one <hN> per type-scale h<n> role):")
+    if heading_roles:
+        for role in heading_roles:
+            lines.append(f"    {role}  ->  <h{role[1:]}>")
+    else:
+        lines.append(f"    {NOT_PRESENT}")
+
+    palette_row = _first_row(resolved, v["palette_table"])
+    lines.append("  palette (CSS hex colour, '#' kept -- unlike pptx, CSS requires the "
+                 "leading '#'):")
+    if palette_row:
+        shown = False
+        for role in v["palette_role_columns"]:
+            value = palette_row.get(role, "")
+            if value:
+                lines.append(f"    {role}: {value}")
+                shown = True
+        if not shown:
+            lines.append(f"    {NOT_PRESENT}")
+    else:
+        lines.append(f"    {NOT_PRESENT}")
+
     lines.append("  render command:")
     if render_rows:
         for row in render_rows:
