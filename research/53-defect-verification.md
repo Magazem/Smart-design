@@ -88,3 +88,66 @@ It is not covered by any known limitation in RELEASE-NOTES.md.
 
 On the evidence this belongs ahead of description and activation work on the v0.3 critical
 path. That call is the lead's and the user's, not mine.
+
+---
+
+# ADDENDUM — verified against the PUBLISHED v0.2.0 ASSET, not a local build
+
+The check above ran against the local `skill/dist/document-design-intelligence-0.0.1-dev.zip`,
+which is what the Coverage analyst exercised. Matching six reference values (five row counts and
+the description) is **necessary but not sufficient**: none of those six would catch a difference
+in `resolve.py`, `ddi.py` or the manifest, and the defect is precisely in manifest and resolver
+behaviour. So the local run could not, on its own, establish that the SHIPPED product is
+affected. I downloaded the real asset and re-ran everything.
+
+    gh release download v0.2.0 --repo Magazem/Smart-design --pattern "*.zip"
+    # document-design-intelligence-0.2.0.zip, 143209 bytes, VERSION reads 0.2.0
+
+## THE DEFECT REPRODUCES EXACTLY ON THE PUBLISHED ASSET
+
+| check | published v0.2.0 |
+|---|---|
+| `resolved.headings` entries for cv-uk | 63 |
+| union of keys across all entries | `['key']` — nothing else |
+| docx handoff matches for the authored wordings | 0 |
+| plain-text path | `headings/contact-en-1` … bare ids |
+| manifest `headings.display_columns` | ABSENT |
+| manifest `headings.searchable_columns` | `[]` |
+| manifest `headings.foreign_keys` | `[]` |
+
+Hidden-column census on the published manifest — identical to the local figures, including both
+corrections:
+
+    headings:     4 cols, 0 shown, 4 hidden -> canonical_section, Heading Text, Language, Is Primary
+    structures:   8 cols, 2 shown, 6 hidden -> Heading Language, Heading Depth Max, TOC Depth,
+                                               Front Matter Numbering, Caption Position, Cross-Ref Style
+    constraints:  7 cols, 3 shown, 4 hidden -> Applies To, Check, Threshold, Severity
+    type-scales:  5 cols, 3 shown, 2 hidden -> scale_key, Leading Ratio
+
+**The severity stands. This is a P0 in the shipped product, not an artefact of a dev build.**
+
+## THE PLAIN-TEXT PATH IS ALSO AFFECTED — so "unreachable by ANY path" is exact
+`resolve.py` has two display call sites (lines 548 and 577). I checked both. The plain-text path
+prints `headings/contact-en-1` and so on, bare ids, same as the JSON path. The claim does not
+overstate.
+
+## THE PROVENANCE GAP IS CLOSED — the two md5 differences are cosmetic
+`data/schema-manifest.json` and `scripts/ddi.py` had different md5s between the published asset
+and the local build, which is what made this check necessary. Both turn out to be non-semantic:
+
+- **schema-manifest.json** — `diff` after `json.tool` normalisation is EMPTY. The difference is
+  key order or whitespace only.
+- **ddi.py** — byte-identical after stripping CR. Both md5 to `09317cf262d3d8f6e914d9411556949e`.
+  The local copy carries 1899 CR bytes against the published 1209, a difference of exactly 690,
+  matching the 690 lines in the file. The local working copy has CRLF where the published has LF
+  on those lines.
+- `scripts/resolve.py` and `data/base/headings.csv` were already md5-identical.
+
+So the Coverage analyst's local results were sound. They just could not be shown to be sound
+from the six values it checked, and the two files that differed were the two that mattered most.
+
+## ONE LOOSE THREAD FOR THE LEAD, not a blocker
+RESUME.md records of the published asset: "Zero CR bytes." The published `ddi.py` contains 1209
+CR bytes. That earlier claim may have been scoped to `SKILL.md` rather than the whole archive,
+or it may be wrong. **I am not asserting it is wrong** — I checked one member, not the archive.
+Worth a recheck by whoever owns the packaging claims before it is relied on again.
