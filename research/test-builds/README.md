@@ -96,3 +96,35 @@ line gaining `png`.
 `VERSION` reads `0.0.1-dev` and SKILL.md's stamp matches it. **CI writes both from the git tag**,
 so the released artefact differs from this one in those two places and nowhere else. Anything the
 quality pass finds here holds for the release; anything it says about the version string does not.
+
+
+---
+
+## REBUILD after the ship-blocker fix (2026-09-11)
+146987 bytes, md5 `4bc58aaf053b90e6762d59221be490fa`, 39 members, zero CR bytes.
+Supersedes the earlier candidate; `v03-extracted/` is this one.
+
+### The gate's own acceptance condition, re-run on the artefact
+The v0.3 gate returned DO NOT SHIP on one defect and pre-registered exactly what would clear it:
+fix it, then re-run the three pdf-only families asserting `issuer: From` appears in the pdf
+block. Run from inside the extracted tree with an absolute `--data-dir`:
+
+    quote-devis          sections block present -> issuer: From / bill-to: Bill To / invoice-details: ...
+    invoice-tabular      sections block present -> issuer: From / bill-to: Bill To / invoice-details: ...
+    brochure-trifold-a4  sections block present -> headline: Headline / introduction: Introduction / key-points: ...
+
+**Condition met.** Note it was stated BEFORE the fix existed, which is what makes clearing it
+mean something -- the pre-registered-falsifier rule applied to an acceptance gate rather than an
+experiment.
+
+### Shared-core parity, measured on the artefact rather than in the suite
+Every builder emits all four core blocks:
+
+    docx  cv-uk                  sections 1  fonts 1  sizes 1  palette 1
+    pptx  slide-deck-projection  sections 1  fonts 1  sizes 1  palette 1
+    pdf   quote-devis            sections 1  fonts 1  sizes 1  palette 1
+    png   infographic            sections 1  fonts 1  sizes 1  palette 1
+
+The artefact's own source files were not modified by testing. Running the scripts does leave
+`__pycache__` directories under `scripts/`; those are removed after each run and are not part of
+the archive.

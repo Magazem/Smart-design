@@ -672,6 +672,8 @@ def _build_pdf_lines(resolved):
     else:
         lines.append(f"    {NOT_PRESENT}")
 
+    lines.extend(_sections_lines(resolved))
+
     palette_row = _first_row(resolved, v["palette_table"])
     lines.append("  palette (CSS hex colour, '#' kept -- unlike pptx, CSS requires the "
                  "leading '#'):")
