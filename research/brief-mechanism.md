@@ -1,54 +1,50 @@
-# BRIEF — Mechanism — apply candidate L (USER APPROVED, proceed)
+# BRIEF — Mechanism — RULING O: the release body would carry both versions
 
 Repo root: C:\Users\ysuliman\Documents\Ai plugin
-DO NOT touch git. The user has APPROVED — the hold is lifted, proceed.
-Reassigned to you because Coverage is busy on ruling M and YOU wrote the two-marker fix.
-No collision: L touches SKILL.md, activation.md and the coverage test; M touches
-build-manifest.py, the manifest and the ddi tests.
+DO NOT touch git. Do not tag. Do not push.
 
-## What is being applied
-Candidate L, from research/38-description-candidate.md. It is a PURE REORDER: the priority
-claim moves from seventh position to FIRST. I rebuilt it from the live description and diffed at
-token level — the only change across all 972 characters is `above` becoming `below`.
+## Why — a real pre-tag blocker, found by the lead
+.github/workflows/release.yml line 46 sets `body_path: RELEASE-NOTES.md`. That file now holds:
 
-New first sentence:
-  Creating any document type below is still this skill's job even as Word or PowerPoint; defer
-  to that format's own skill only when the user names it for a plain conversion or edit with no
-  design ask.
+    line  1:  # v0.2.0
+    line 55:  # v0.1.0
 
-Length stays 972. If you measure anything else, STOP and report.
+So the GitHub release body for v0.2.0 would include the ENTIRE v0.1.0 section underneath it.
+This worked by accident in v0.1.0, when the file held exactly one version.
 
-## THE TEST CHANGE IS PART OF THIS, NOT A FOLLOW-UP
-You proved this by running the real test, and it is the reason L cannot ship alone:
-- Moving that sentence to the front puts NEGATIVE_SCOPE_MARKER at INDEX 0. The positive region
-  collapses to an empty string and ALL THIRTY doctypes read as unreachable.
-- Renaming the marker alone does NOT fix it. It leaks "PowerPoint" into the positive region and
-  falsely credits slide-deck-projection — the exact bug that test exists to catch.
-The fix is a genuine two-marker change to scripts/tests/test_description_coverage.py:
-NEGATIVE_HEAD_MARKER plus NEGATIVE_SCOPE_MARKER. YOU wrote and verified it. Your working version is in
-research/38-description-candidate.md under Candidate L, section L.2, and
-research/38-verify-candidate-l.py reproduces all four scenarios. Use it as you wrote it.
+## Deliverable (ONE)
+### 1. release.yml
+After the existing "Set version from tag" step at line 26 — which already computes
+`VERSION="${GITHUB_REF_NAME#v}"` and writes it to `$GITHUB_OUTPUT` — add a step that extracts
+ONLY the section for that version into a temp file, and point `body_path` at it.
 
-Apply it as written. Keep the hard AssertionError guard on BOTH markers — a marker
-that silently fails to match is how this test nearly went quiet twice.
+Extraction rule: from the line `# v$VERSION` up to, but NOT including, the next line beginning
+`# v`, or end of file if there is none.
 
-## Also coupled
-references/activation.md's fenced "as shipped" block: copy the new description in verbatim, one
-line. test_description_mirror.py enforces it, so a miss fails the suite rather than drifting.
-The "972" prose figures do NOT change — the length is identical.
+**FAIL THE JOB LOUDLY IF THE SECTION IS MISSING.** An empty or absent section must stop the
+release, not publish a blank body. That is the whole point: a silent empty body is exactly the
+class of defect we spent yesterday finding — the command succeeds and says nothing.
 
-## Verify — paste actual output
-1. Description measures exactly 972 and STARTS with "Creating any document type below".
-2. Token-level diff against the previous description: the ONLY difference is above/below.
-3. `python3 -m pytest scripts/tests/test_description_coverage.py -q` — 6 passed, run on its own.
-4. `python3 -m pytest scripts/tests/test_description_mirror.py -q` — 2 passed, on its own.
-5. NEGATIVE CONTROL, and I will repeat it: with L applied and your two-marker fix in place,
-   confirm the coverage test still FAILS when a noun is removed from the description. A test
-   that passes because its region is wrong is exactly what we are guarding against. Paste it.
-6. Full suite: baseline 148 passed plus 8 subtests.
+`generate_release_notes: true` stays as it is; it appends the commit list underneath.
+
+The job runs in bash on ubuntu-latest. No Windows quoting, no PowerShell.
+
+### 2. research/37-release-checklist.md
+Add the check to the pre-flight section: confirm the extracted body contains the version being
+tagged and does NOT contain the previous one. Someone reading the checklist before a tag should
+be able to run it by hand.
+
+## Verify — paste BOTH outputs in your report
+Run your extraction locally over the real RELEASE-NOTES.md, twice:
+1. For 0.2.0 — must start at "# v0.2.0" and STOP before "# v0.1.0".
+2. For 0.1.0 — must start at "# v0.1.0" and run to EOF.
+Paste both. I want to see the boundary behave in both directions, because an off-by-one that
+drops the last line of the final section would be invisible in the first test alone.
+3. Show what happens for a version that does NOT exist, e.g. 9.9.9 — it must fail loudly.
 
 Python: C:\Users\ysuliman\AppData\Local\Microsoft\WindowsApps\python3.exe
+(for any local checking; the workflow itself must be shell)
 
 ## Report
-Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 10 lines: the measured
-length, checks 2 and 5 verbatim, and the four test results.
+Message the orchestrator (01a080c5-2001-78b3-bbbe-afaae15edafa), max 10 lines: the new workflow
+step verbatim, the three outputs, and the checklist line you added.
