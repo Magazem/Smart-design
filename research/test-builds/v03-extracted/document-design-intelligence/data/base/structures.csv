@@ -1,0 +1,19 @@
+structure_key,Display Name,Section Order,Heading Language,Heading Depth Max,TOC Depth,Front Matter Numbering,Caption Position,Cross-Ref Style
+brochure-3panel,Brochure -- tri-fold 3-panel,headline;introduction;key-points;call-to-action;contact,en,1,0,none,fig=below;table=above,numbered
+brochure-gatefold,Brochure -- gate-fold,headline;introduction;key-points;call-to-action;contact,en,1,0,none,fig=below;table=above,numbered
+cover-letter-standard,Cover letter -- standard,sender;recipient;date;salutation;body;closing,en,0,0,none,fig=below;table=above,numbered
+cv-academic,CV -- academic / scientific,contact;summary;education;publications;experience;projects;certifications;skills;languages;references,en,2,0,none,fig=below;table=above,numbered
+cv-experienced,CV -- experienced hire,contact;summary;experience;education;skills;certifications;projects;publications,en,2,0,none,fig=below;table=above,numbered
+deck-standard,Slide deck -- standard,cover;agenda;problem-statement;proposed-solution;findings;call-to-action;contact,en,1,0,none,fig=below;table=above,numbered
+flyer-single-sheet,Flyer -- single sheet,headline;key-points;call-to-action;contact,en,1,0,none,fig=below;table=above,numbered
+form-standard,Form -- standard,header;instructions;fields;signature;date,en,1,0,none,fig=below;table=above,numbered
+infographic-canvas,Infographic -- single canvas,headline;key-points;call-to-action,en,1,0,none,fig=below;table=above,numbered
+invoice-standard,Invoice -- standard,issuer;bill-to;invoice-details;line-items;totals;tax;payment-terms,en,1,0,none,fig=below;table=above,numbered
+letter-standard,Letter -- formal business,sender;recipient;date;salutation;body;closing,en,0,0,none,fig=below;table=above,numbered
+memo-standard,Memo -- internal,to;from;date;subject;body,en,1,0,none,fig=below;table=above,numbered
+one-pager-standard,One-pager -- standard,headline;key-points;call-to-action;contact,en,2,0,none,fig=below;table=above,numbered
+poster-single-canvas,Poster -- single canvas,headline;call-to-action,en,1,0,none,fig=below;table=above,numbered
+proposal-standard,Proposal -- narrative,cover;executive-summary;problem-statement;proposed-solution;scope-of-work;timeline;pricing;terms;closing,en,3,0,none,fig=below;table=above,numbered
+report-long-toc,Report -- long-form with TOC,cover;table-of-contents;executive-summary;introduction;methodology;findings;conclusion;recommendations;appendices;bibliography,en,3,2,roman,fig=below;table=above,numbered
+report-short,Report -- short,executive-summary;introduction;findings;conclusion;recommendations;bibliography,en,2,0,none,fig=below;table=above,numbered
+whitepaper-standard,Whitepaper -- standard,cover;executive-summary;introduction;problem-statement;solution-approach;findings;conclusion;bibliography,en,3,0,none,fig=below;table=above,numbered

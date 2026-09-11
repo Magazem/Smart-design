@@ -1,0 +1,205 @@
+heading_key,canonical_section,Heading Text,Language,Is Primary
+experience-en-1,experience,Experience,en,yes
+experience-en-2,experience,Work Experience,en,no
+experience-en-3,experience,Employment History,en,no
+experience-en-4,experience,Professional Experience,en,no
+experience-en-5,experience,Career History,en,no
+education-en-1,education,Education,en,yes
+education-en-2,education,Education and Training,en,no
+education-en-3,education,Academic Background,en,no
+skills-en-1,skills,Skills,en,yes
+skills-en-2,skills,Core Competencies,en,no
+skills-en-3,skills,Technical Skills,en,no
+skills-en-4,skills,Key Skills,en,no
+summary-en-1,summary,Summary,en,yes
+summary-en-2,summary,Professional Summary,en,no
+summary-en-3,summary,Profile,en,no
+summary-en-4,summary,Career Objective,en,no
+summary-en-5,summary,Personal Statement,en,no
+certifications-en-1,certifications,Certifications,en,yes
+certifications-en-2,certifications,Licenses and Certifications,en,no
+certifications-en-3,certifications,Certifications and Licenses,en,no
+projects-en-1,projects,Projects,en,yes
+projects-en-2,projects,Key Projects,en,no
+projects-en-3,projects,Selected Projects,en,no
+publications-en-1,publications,Publications,en,yes
+publications-en-2,publications,Selected Publications,en,no
+languages-en-1,languages,Languages,en,yes
+languages-en-2,languages,Language Skills,en,no
+contact-en-1,contact,Contact,en,yes
+contact-en-2,contact,Contact Information,en,no
+contact-en-3,contact,Personal Details,en,no
+contact-en-4,contact,Personal Information,en,no
+references-en-1,references,References,en,yes
+references-en-2,references,Professional References,en,no
+volunteering-en-1,volunteering,Volunteer Experience,en,yes
+volunteering-en-2,volunteering,Volunteering,en,no
+volunteering-en-3,volunteering,Community Involvement,en,no
+volunteering-en-4,volunteering,Volunteer Work,en,no
+experience-fr-1,experience,Expérience professionnelle,fr,yes
+experience-fr-2,experience,Expérience,fr,no
+education-fr-1,education,Formation,fr,yes
+education-fr-2,education,Formation et diplômes,fr,no
+education-fr-3,education,Études,fr,no
+skills-fr-1,skills,Compétences,fr,yes
+skills-fr-2,skills,Compétences techniques,fr,no
+summary-fr-1,summary,Profil,fr,yes
+summary-fr-2,summary,Accroche,fr,no
+summary-fr-3,summary,Objectif,fr,no
+certifications-fr-1,certifications,Certifications,fr,yes
+certifications-fr-2,certifications,Certifications professionnelles,fr,no
+projects-fr-1,projects,Projets,fr,yes
+publications-fr-1,publications,Publications,fr,yes
+languages-fr-1,languages,Langues,fr,yes
+contact-fr-1,contact,Coordonnées,fr,yes
+contact-fr-2,contact,Contact,fr,no
+contact-fr-3,contact,État civil,fr,no
+references-fr-1,references,Références,fr,yes
+volunteering-fr-1,volunteering,Bénévolat,fr,yes
+volunteering-fr-2,volunteering,Engagement associatif,fr,no
+volunteering-fr-3,volunteering,Expérience associative,fr,no
+experience-de-1,experience,Berufserfahrung,de,yes
+experience-de-2,experience,Beruflicher Werdegang,de,no
+education-de-1,education,Ausbildung,de,yes
+education-de-2,education,Bildungsweg,de,no
+skills-de-1,skills,Kenntnisse,de,yes
+skills-de-2,skills,Fähigkeiten,de,no
+skills-de-3,skills,Kompetenzen,de,no
+summary-de-1,summary,Profil,de,yes
+summary-de-2,summary,Kurzprofil,de,no
+summary-de-3,summary,Persönliches Profil,de,no
+certifications-de-1,certifications,Zertifikate,de,yes
+certifications-de-2,certifications,Zertifizierungen,de,no
+projects-de-1,projects,Projekte,de,yes
+publications-de-1,publications,Publikationen,de,yes
+languages-de-1,languages,Sprachkenntnisse,de,yes
+languages-de-2,languages,Sprachen,de,no
+contact-de-1,contact,Kontakt,de,yes
+contact-de-2,contact,Persönliche Daten,de,no
+contact-de-3,contact,Kontaktdaten,de,no
+references-de-1,references,Referenzen,de,yes
+volunteering-de-1,volunteering,Ehrenamtliches Engagement,de,yes
+volunteering-de-2,volunteering,Ehrenamt,de,no
+issuer-en-1,issuer,From,en,yes
+issuer-fr-1,issuer,Émetteur,fr,yes
+issuer-de-1,issuer,Rechnungssteller,de,yes
+bill-to-en-1,bill-to,Bill To,en,yes
+bill-to-fr-1,bill-to,Facturé à,fr,yes
+bill-to-de-1,bill-to,Rechnungsempfänger,de,yes
+invoice-details-en-1,invoice-details,Invoice Details,en,yes
+invoice-details-fr-1,invoice-details,Détails de la facture,fr,yes
+invoice-details-de-1,invoice-details,Rechnungsdetails,de,yes
+line-items-en-1,line-items,Line Items,en,yes
+line-items-fr-1,line-items,Détail des prestations,fr,yes
+line-items-de-1,line-items,Positionen,de,yes
+totals-en-1,totals,Total,en,yes
+totals-fr-1,totals,Total,fr,yes
+totals-de-1,totals,Gesamtbetrag,de,yes
+tax-en-1,tax,Tax,en,yes
+tax-fr-1,tax,Taxes,fr,yes
+tax-de-1,tax,Steuern,de,yes
+payment-terms-en-1,payment-terms,Payment Terms,en,yes
+payment-terms-fr-1,payment-terms,Conditions de paiement,fr,yes
+payment-terms-de-1,payment-terms,Zahlungsbedingungen,de,yes
+sender-en-1,sender,Sender,en,yes
+sender-fr-1,sender,Expéditeur,fr,yes
+sender-de-1,sender,Absender,de,yes
+recipient-en-1,recipient,Recipient,en,yes
+recipient-fr-1,recipient,Destinataire,fr,yes
+recipient-de-1,recipient,Empfänger,de,yes
+date-en-1,date,Date,en,yes
+date-fr-1,date,Date,fr,yes
+date-de-1,date,Datum,de,yes
+salutation-en-1,salutation,Salutation,en,yes
+salutation-fr-1,salutation,Formule d'appel,fr,yes
+salutation-de-1,salutation,Anrede,de,yes
+body-en-1,body,Body,en,yes
+body-fr-1,body,Corps du texte,fr,yes
+body-de-1,body,Brieftext,de,yes
+closing-en-1,closing,Closing,en,yes
+closing-fr-1,closing,Formule de politesse,fr,yes
+closing-de-1,closing,Grußformel,de,yes
+to-en-1,to,To,en,yes
+to-fr-1,to,À,fr,yes
+to-de-1,to,An,de,yes
+from-en-1,from,From,en,yes
+from-fr-1,from,De,fr,yes
+from-de-1,from,Von,de,yes
+subject-en-1,subject,Subject,en,yes
+subject-fr-1,subject,Objet,fr,yes
+subject-de-1,subject,Betreff,de,yes
+header-en-1,header,Form Header,en,yes
+header-fr-1,header,En-tête du formulaire,fr,yes
+header-de-1,header,Formularkopf,de,yes
+instructions-en-1,instructions,Instructions,en,yes
+instructions-fr-1,instructions,Instructions,fr,yes
+instructions-de-1,instructions,Anweisungen,de,yes
+fields-en-1,fields,Form Fields,en,yes
+fields-fr-1,fields,Champs du formulaire,fr,yes
+fields-de-1,fields,Formularfelder,de,yes
+signature-en-1,signature,Signature,en,yes
+signature-fr-1,signature,Signature,fr,yes
+signature-de-1,signature,Unterschrift,de,yes
+cover-en-1,cover,Cover Page,en,yes
+cover-fr-1,cover,Page de couverture,fr,yes
+cover-de-1,cover,Deckblatt,de,yes
+executive-summary-en-1,executive-summary,Executive Summary,en,yes
+executive-summary-fr-1,executive-summary,Résumé exécutif,fr,yes
+executive-summary-de-1,executive-summary,Zusammenfassung,de,yes
+problem-statement-en-1,problem-statement,Problem Statement,en,yes
+problem-statement-fr-1,problem-statement,Énoncé du problème,fr,yes
+problem-statement-de-1,problem-statement,Problemstellung,de,yes
+proposed-solution-en-1,proposed-solution,Proposed Solution,en,yes
+proposed-solution-fr-1,proposed-solution,Solution proposée,fr,yes
+proposed-solution-de-1,proposed-solution,Lösungsvorschlag,de,yes
+scope-of-work-en-1,scope-of-work,Scope of Work,en,yes
+scope-of-work-fr-1,scope-of-work,Périmètre des travaux,fr,yes
+scope-of-work-de-1,scope-of-work,Leistungsumfang,de,yes
+timeline-en-1,timeline,Timeline,en,yes
+timeline-fr-1,timeline,Calendrier,fr,yes
+timeline-de-1,timeline,Zeitplan,de,yes
+pricing-en-1,pricing,Pricing,en,yes
+pricing-fr-1,pricing,Tarification,fr,yes
+pricing-de-1,pricing,Preisgestaltung,de,yes
+terms-en-1,terms,Terms and Conditions,en,yes
+terms-fr-1,terms,Conditions générales,fr,yes
+terms-de-1,terms,Allgemeine Geschäftsbedingungen,de,yes
+table-of-contents-en-1,table-of-contents,Table of Contents,en,yes
+table-of-contents-fr-1,table-of-contents,Table des matières,fr,yes
+table-of-contents-de-1,table-of-contents,Inhaltsverzeichnis,de,yes
+introduction-en-1,introduction,Introduction,en,yes
+introduction-fr-1,introduction,Introduction,fr,yes
+introduction-de-1,introduction,Einleitung,de,yes
+methodology-en-1,methodology,Methodology,en,yes
+methodology-fr-1,methodology,Méthodologie,fr,yes
+methodology-de-1,methodology,Methodik,de,yes
+findings-en-1,findings,Findings,en,yes
+findings-fr-1,findings,Résultats,fr,yes
+findings-de-1,findings,Ergebnisse,de,yes
+conclusion-en-1,conclusion,Conclusion,en,yes
+conclusion-fr-1,conclusion,Conclusion,fr,yes
+conclusion-de-1,conclusion,Schlussfolgerung,de,yes
+recommendations-en-1,recommendations,Recommendations,en,yes
+recommendations-fr-1,recommendations,Recommandations,fr,yes
+recommendations-de-1,recommendations,Empfehlungen,de,yes
+appendices-en-1,appendices,Appendices,en,yes
+appendices-fr-1,appendices,Annexes,fr,yes
+appendices-de-1,appendices,Anhänge,de,yes
+bibliography-en-1,bibliography,References,en,yes
+bibliography-fr-1,bibliography,Bibliographie,fr,yes
+bibliography-de-1,bibliography,Literaturverzeichnis,de,yes
+solution-approach-en-1,solution-approach,Solution Approach,en,yes
+solution-approach-fr-1,solution-approach,Approche proposée,fr,yes
+solution-approach-de-1,solution-approach,Lösungsansatz,de,yes
+headline-en-1,headline,Headline,en,yes
+headline-fr-1,headline,Accroche,fr,yes
+headline-de-1,headline,Kernbotschaft,de,yes
+key-points-en-1,key-points,Key Points,en,yes
+key-points-fr-1,key-points,Points clés,fr,yes
+key-points-de-1,key-points,Kernpunkte,de,yes
+call-to-action-en-1,call-to-action,Call to Action,en,yes
+call-to-action-fr-1,call-to-action,Appel à l'action,fr,yes
+call-to-action-de-1,call-to-action,Handlungsaufruf,de,yes
+agenda-en-1,agenda,Agenda,en,yes
+agenda-fr-1,agenda,Agenda,fr,yes
+agenda-de-1,agenda,Agenda,de,yes

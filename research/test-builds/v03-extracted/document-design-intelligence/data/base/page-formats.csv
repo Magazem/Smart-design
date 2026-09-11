@@ -1,0 +1,23 @@
+page_format_key,Display Name,Keywords,Trim W mm,Trim H mm,Bleed mm,Safe Margin mm,Margin Top mm,Margin Bottom mm,Margin Inside mm,Margin Outside mm,Measure mm,Columns,Running Head,Folio Style,Fold Type,Panels mm,Stock gsm,Print Mode,Min DPI Raster,Min DPI Line Art
+a4-professional,A4 — print-shop format,"a4, iso216, flyer, brochure, print",210,297,3,5,5,5,5,5,200,1,none,none,none,,,professional,300,600
+a5-professional,A5 — print-shop format,"a5, iso216, booklet, flyer, print",148,210,3,5,5,5,5,5,138,1,none,none,none,,,professional,300,600
+a3-professional,A3 — print-shop format,"a3, iso216, poster, print",297,420,3,6,6,6,6,6,285,1,none,none,none,,,professional,300,600
+letter-professional,US Letter — print-shop format,"letter, us, canada, flyer, print",215.9,279.4,3,5,5,5,5,5,205.9,1,none,none,none,,,professional,300,600
+dl-professional,DL — print-shop leaflet / envelope insert,"dl, iso269, envelope, insert, leaflet",110,220,3,5,5,5,5,5,100,1,none,none,none,,,professional,300,600
+a4-trifold,A4 — tri-fold brochure,"a4, trifold, tri-fold, brochure, leaflet, fold",210,297,3,5,5,5,5,5,88,1,none,none,tri-fold,99.5;99.5;98.0,120,professional,300,600
+letter-gatefold,US Letter — gate-fold brochure,"letter, gatefold, gate-fold, brochure, fold",215.9,279.4,3,5,5,5,5,5,43.18,1,none,none,gate-fold,53.175;54.775;54.775;53.175,120,professional,300,600
+letter-zfold,US Letter — Z-fold brochure,"letter, zfold, z-fold, brochure, fold",279.4,215.9,3,5,5,5,5,5,83.13,1,none,none,z-fold,93.13;93.13;93.14,120,professional,300,600
+business-card-eu,Business card — EU/ISO,"business card, card, eu, standard",85,55,3,5,5,5,5,5,75,1,none,none,none,,400,professional,300,600
+poster-a2,Poster A2,"a2, iso216, poster, large format",420,594,5,6,6,6,6,6,408,1,none,none,none,,,professional,150,600
+poster-a1,Poster A1,"a1, iso216, poster, large format",594,841,5,6,6,6,6,6,582,1,none,none,none,,,professional,150,600
+a4-cv-single-col,"A4 — CV / resume, single column","a4, cv, resume, curriculum vitae, ats, job application, single column",210,297,0,0,25,25,25,25,160,1,none,none,none,,,office,150,600
+a4-letter-standard,A4 — business letter / memo,"a4, letter, cover letter, memo, correspondence, office",210,297,0,0,25,25,25,25,160,1,none,none,none,,,office,150,600
+a4-form-standard,A4 — fillable form,"a4, form, quote, devis, invoice, hand-filled, photocopy",210,297,0,0,15,15,20,20,170,1,none,none,none,,,photocopy,150,600
+a4-report-standard,A4 — report / whitepaper / proposal,"a4, report, whitepaper, proposal, long-form, toc",210,297,0,0,25,25,30,20,160,1,centered,roman-front-arabic-body,none,,,office,150,600
+a4-one-pager,A4 — one-pager,"a4, one pager, one-pager, summary, brief",210,297,0,0,18,18,18,18,174,1,none,none,none,,,office,150,600
+letter-trifold,US Letter — tri-fold brochure,"letter, trifold, tri-fold, brochure, leaflet, fold",215.9,279.4,3,5,5,5,5,5,82.08,1,none,none,tri-fold,93.66;93.66;92.08,120,professional,300,600
+letter-flyer,US Letter — flyer,"letter, us, flyer, single sheet, print",215.9,279.4,3,5,5,5,5,5,205.9,1,none,none,none,,,professional,300,600
+a4-flyer,A4 — flyer,"a4, iso216, flyer, single sheet, print",210,297,3,5,5,5,5,5,200,1,none,none,none,,,professional,300,600
+a3-poster,A3 — poster,"a3, iso216, poster, print",297,420,3,6,6,6,6,6,285,1,none,none,none,,,professional,300,600
+widescreen-16-9,Widescreen 16:9 — slide deck,"widescreen, 16:9, slide, deck, presentation, powerpoint, pptx",338.67,190.5,0,0,10,10,17,17,304.67,1,none,none,none,,,office,150,600
+px-infographic-portrait,Portrait infographic (screen),"infographic, portrait, png, screen, social, data visual",285.75,357.19,0,0,18,18,14,14,257.75,1,none,none,none,,,office,150,600

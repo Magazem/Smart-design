@@ -59,3 +59,40 @@ apply-to-repo change, not to the test artefact.
 Both descriptions open with the same words, so "first words match" does NOT distinguish them.
 **Candidate M is installed if the shown description contains `'.docx'/'.pptx'`.** v0.2.0 as
 published does not contain that string anywhere.
+
+---
+
+## `v03-candidate.zip` and `v03-extracted/` — the v0.3 build under test
+
+Built 2026-09-11 by `scripts/build_zip.py` from a green tree. 147016 bytes,
+md5 `1cb0b8c9388567708d855b3c6f570fb6`, 39 members, **zero CR bytes across the whole archive**.
+
+`v03-extracted/` is that ZIP unpacked. **The invoked-quality pass runs against the EXTRACTED
+ARTEFACT, never the working tree.** That is the lesson of 2026-09-11: six matching reference
+values did not prove a dev build matched the release, because none of them would catch a
+difference in `resolve.py`, `ddi.py` or the manifest — which is exactly where every defect lived.
+
+### Verified against the published v0.2.0, member by member
+Same 39 members, no additions or removals. **Twelve differ, and every one is expected:**
+
+    SKILL.md                      description + png in the workflow line + version stamp
+    VERSION                       0.0.1-dev (CI rewrites this from the tag)
+    data/base/doc-reasoning.csv   infographic style/palette/typeface pointers
+    data/base/doc-styles.csv      infographic-bold
+    data/base/doctypes.csv        infographic constraint set + structure key
+    data/base/structures.csv      infographic-canvas
+    data/base/type-scales.csv     infographic-screen
+    data/base/typefaces.csv       safe-sans-deck, safe-sans-infographic
+    data/rationale/doc-reasoning.md
+    data/schema-manifest.json     display_columns on 8 tables, was 6
+    references/activation.md      the mirrored description + its length caption
+    scripts/ddi.py                headings/structures handoff, pdf blocks, png builder,
+                                  characterSpacing removed
+
+SKILL.md's only three differing lines are the description, the build stamp, and the workflow
+line gaining `png`.
+
+### THE ONE DIFFERENCE FROM WHAT WILL SHIP
+`VERSION` reads `0.0.1-dev` and SKILL.md's stamp matches it. **CI writes both from the git tag**,
+so the released artefact differs from this one in those two places and nowhere else. Anything the
+quality pass finds here holds for the release; anything it says about the version string does not.

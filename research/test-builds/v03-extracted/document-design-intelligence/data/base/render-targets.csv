@@ -1,0 +1,9 @@
+render_key,Format,Engine,Engine Path,Engine Min Version,Engine Invocation,Font Rule,Supports Paged Media,Supports Bleed,Supports CMYK,Print Tier Max,Editable By Recipient,Availability,Fallback Render Key
+pdf-chromium,pdf,headless-chromium,/opt/google/chrome/chrome,,--headless --no-sandbox --disable-gpu --print-to-pdf=%o --no-pdf-header-footer %i,embed,yes,no,no,submittable-rgb,no,preinstalled,pdf-weasyprint
+pdf-weasyprint,pdf,weasyprint,weasyprint (module),0.41,,embed,yes,yes,no,submittable-rgb,no,pip,pdf-wkhtmltopdf
+pdf-weasyprint-pdfx4,pdf,weasyprint,weasyprint (module),67.0,--pdf-variant=pdf/x-4 --output-intent=srgb,embed,yes,yes,yes,pdfx4-rgb,no,pip,pdf-weasyprint
+pdf-wkhtmltopdf,pdf,wkhtmltopdf,wkhtmltopdf,,,embed,yes,no,no,submittable-rgb,no,unverified,
+docx-office,docx,python-docx,docx (module),,,safe-stack,n/a,n/a,n/a,none,yes,preinstalled,
+pptx-office,pptx,python-pptx,pptx (module),,,embed,n/a,n/a,n/a,none,yes,preinstalled,
+png-social,png,headless-chromium,/opt/google/chrome/chrome,,"--headless --no-sandbox --disable-gpu --screenshot=%o --window-size=1080,1350 %i",embed,n/a,n/a,n/a,none,no,preinstalled,
+html-static,html,stdlib-template,python (stdlib),,,inline-webfont,yes,n/a,n/a,none,yes,preinstalled,
