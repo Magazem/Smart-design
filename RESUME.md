@@ -600,11 +600,11 @@ can produce two differing answers for what looks like one trial.
   instead of producing anything design-framed. With no content in the prompt, asking for it is
   correct generalist behaviour and proves nothing either way -- the same test defect this file
   already names for prompts 3, 4, 5 and 12.
-- **NO SKILL-INVOCATION INDICATOR HAS EVER BEEN OBSERVED IN THE BROWSER.** We still do not know
-  whether claude.ai exposes one. Every "PASS" this project has recorded was inferred from the
-  SHAPE of the reply, never from a UI indicator. Until one is found and described, browser
-  results cannot distinguish "the skill fired" from "Claude answered well as a generalist".
-  Finding and documenting that indicator is a PREREQUISITE for any scored browser run.
+- THE SMOKE TEST WAS NEVER SCORABLE, because the tester did not ask the follow-up question.
+  See "THE BROWSER DETECTION METHOD" below: the method is the UI indication PLUS asking "did
+  you trigger any skill?" in the same chat. Without the follow-up a trial is UNSCORED, not a
+  fail. (This bullet previously claimed no detection method existed. That was my error,
+  corrected by the lead 2026-09-11.)
 - CONFOUND, spotted by the tester and not yet investigated: one reply said "per your
   clarification rule", which points at an account-level Memory or custom-instruction setting
   forcing Claude to ask before inventing content. If such a setting is active it changes
@@ -624,6 +624,22 @@ but fold into the next brief): the verbatim first 300 characters of the reply we
 rather than quoted; WHERE the tester looked for an invocation indicator was not described; and
 whether docx and pptx were enabled in that chat was not recorded. The last one matters -- the
 handoff tests are meaningless if those two skills are off.
+
+## THE BROWSER DETECTION METHOD (recorded 2026-09-11 by lead correction)
+I wrongly recorded that no detection method exists. One DOES, and it is what produced every
+manual result in this file. Two parts, use BOTH:
+1. Read claude.ai's own skill-use indication in the reply stream, if it is shown.
+2. **ALWAYS ASK THE FOLLOW-UP IN THE SAME CHAT BEFORE SCORING: "did you trigger any skill?"**
+   Claude has answered this ACCURATELY every time it was asked -- it named docx when it used
+   docx, and named document-design-intelligence when it used DDI.
+Step 2 is not optional and is not a fallback. A trial that was never asked the follow-up is
+UNSCORED, not a fail. That is exactly what made the 2026-09-11 smoke test inconclusive: the
+tester never asked.
+
+**COST CONSEQUENCE, and it halves every browser run.** The follow-up is a SEND. It spends the
+user's weekly quota like any other. A six-send ceiling is therefore THREE PROMPTS, not six:
+each prompt costs one send for the prompt and one for the follow-up. Plan browser sessions in
+PAIRS of sends, never in prompts.
 ## THE LESSON OF 2026-09-10: A GREEN GATE DOES NOT MEAN THE OUTPUT SAYS ANYTHING
 Coverage removed the `report-print-print-h1` row and re-ran everything. **The gate STILL PASSED**
 -- `OK: validated 14 table(s)` -- because the remaining rows were perfectly well-formed. Only the
