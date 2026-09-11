@@ -1244,14 +1244,27 @@ DEFERRED, waiting on real query data, not on us: BM25 length normalisation and t
 split behaviour.
 
 ## DESCRIPTION LENGTH -- the one measured number
-The SKILL.md frontmatter description measures **831 characters**, as of the candidate F edit
-applied 2026-09-09. Verified with Python len() on the quoted value. The cap is 1023 (the
-claude.ai UI enforces "under 1024"). Headroom: 192 characters.
-It measured 823 before candidate F. Candidate B, if it is ever applied, would take it to 993.
+The SKILL.md frontmatter description measures **972 characters**, as of candidate L applied
+2026-09-10 (commit f23fb03). The cap is 1023 (the claude.ai UI enforces "under 1024").
+**Headroom: 51 characters.**
+Confirmed 2026-09-11 by two independent measurements: the orchestrator decoding the file as
+UTF-8 and taking .NET String.Length, and the Mechanism Analyst applying the coverage test's own
+regex plus Python len(). Both returned 972. Pre-L (f23fb03^) measures 972 as well -- the only
+token difference across the whole string is "above" becoming "below".
 
-The repo previously quoted 667 (references/activation.md) and 825 (skill/dist/POST-UPLOAD-TESTS.md).
-Both are stale and are being corrected to 823. The 825 figure differs by exactly the 2-character
-"validated" -> "sourced" edit, which the activation.md quoted block had not picked up.
+**MEASURE CHARACTERS, NOT BYTES. The trap that produced a wrong number on 2026-09-11:** the
+description holds three two-byte characters -- the é in dépliant, the é in présentation, the ü
+in Broschüre -- so a byte count reads 975 and overstates the length by exactly 3. On this
+machine `python` does not run (uv trampoline: "entity not found") and **`wc -m` is not UTF-8
+aware in this shell and silently returns the byte count.** Use the coverage test's regex with
+Python len(), or PowerShell:
+    $raw = [System.IO.File]::ReadAllText($path, [System.Text.Encoding]::UTF8)
+    [regex]::Match($raw, '(?m)^description:\s*"(.*)"\s*$').Groups[1].Value.Length
+
+HISTORY, superseded and kept only so old figures are recognisable: 823 before candidate F, 831
+after it, 667 in references/activation.md and 825 in skill/dist/POST-UPLOAD-TESTS.md. Every one
+of those predates candidate L. **The "831 characters, headroom 192" that stood here until
+2026-09-11 was stale by two candidates and should not be quoted again.**
 If you change the description, re-measure and update this line. Do not quote it anywhere else.
 
 ## PRECEDENT, 2026-09-09: refusing the green tick
