@@ -561,11 +561,69 @@ Activation prompt 1, "Can you make me a CV for a marketing coordinator role?", h
 every run: see the 2026-09-09 activation table above (row 1, PASS) and every v0.2 round.
 When writing a brief or reading a result, the expected outcome for the CV prompt is a FIRE.
 Treating a CV non-fire as normal would hide a real regression.
+SUPERSEDED IN PART 2026-09-11 -- see "BROWSER ACCEPTANCE TESTING" below: the 2026-09-09 PASS
+verified OUTPUT, not INVOCATION. Read this section as "prompt 1 reliably produces a CV", not
+"prompt 1 reliably fires the skill". Give it inline content per ruling G before scoring it.
 WHY IT FIRES IS UNKNOWN, and that is settled (ruled 2026-09-11): the artefact-vs-prose theory
 is dead as an EXPLANATION because German prose genres fired. Cite the OBSERVATION -- CVs,
 invoices, forms and German prompts fire; EN/FR letters, memos, reports and proposals often do
 not -- and never the theory. The refutation chain and the fire/no-fire section both say this now.
 
+
+## BROWSER ACCEPTANCE TESTING: WHAT IT COSTS AND WHAT IT IS FOR (ruled 2026-09-11)
+Source: research/47-browser-smoke.md, the first live browser run.
+
+**THE QUOTA CONSTRAINT, which decides the whole testing strategy.** The user's claude.ai
+account reported "You've used 75% of your weekly limit" after TWO sends. The planned 13
+prompts x 3 repeats = 39 sends would exhaust the user's plan several times over. Do not
+plan browser runs by prompt count without checking this first.
+
+**RULING (lead, 2026-09-11):**
+- The BROWSER tester is for SMALL ROUTING SPOT-CHECKS ONLY. Max ~6 prompts per session.
+  Run only after the weekly limit resets, unless the user says otherwise.
+- The target set is the previously FAILED cases plus one control: EN memo, FR letter,
+  FR report, activation 11, plus a control known to behave.
+- The API HARNESS (separate billing) is the scalable path for the invoked-quality pass and
+  for ALL regression runs. Anything that needs many runs goes there, not through the browser.
+
+**UI DOUBLE-SUBMIT.** The tester observed one prompt landing as TWO turns. Before reading any
+result, verify that exactly ONE send occurred. A double-send silently doubles quota spend and
+can produce two differing answers for what looks like one trial.
+
+**WHAT THE SMOKE TEST PROVED**
+- Login: PASS. Skill listed: PASS -- description shown matches the candidate-L wording
+  recorded as shipped in v0.2.0, so the installed build is the expected one.
+- The browser harness WORKS, once the panel is opened inside the tester's own conversation.
+
+**WHAT IT DID NOT PROVE, and this is the important part**
+- Prompt 1 was INCONCLUSIVE, not a fire and not a regression. Claude asked for real CV content
+  instead of producing anything design-framed. With no content in the prompt, asking for it is
+  correct generalist behaviour and proves nothing either way -- the same test defect this file
+  already names for prompts 3, 4, 5 and 12.
+- **NO SKILL-INVOCATION INDICATOR HAS EVER BEEN OBSERVED IN THE BROWSER.** We still do not know
+  whether claude.ai exposes one. Every "PASS" this project has recorded was inferred from the
+  SHAPE of the reply, never from a UI indicator. Until one is found and described, browser
+  results cannot distinguish "the skill fired" from "Claude answered well as a generalist".
+  Finding and documenting that indicator is a PREREQUISITE for any scored browser run.
+- CONFOUND, spotted by the tester and not yet investigated: one reply said "per your
+  clarification rule", which points at an account-level Memory or custom-instruction setting
+  forcing Claude to ask before inventing content. If such a setting is active it changes
+  behaviour on EVERY browser trial and none of them are clean ground truth. CHECK THE ACCOUNT'S
+  MEMORY AND CUSTOM INSTRUCTIONS BEFORE THE NEXT BROWSER RUN.
+
+**CORRECTION TO "PROMPT 1 (ENGLISH CV) FIRES" ABOVE.** That section overstates the evidence and
+I wrote it. The 2026-09-09 PASS reads "asked about format, produced an ATS-friendly French CV"
+-- output was produced, but invocation was NEVER verified by an indicator. That is the same
+ask-before-invoke shape ruled a test defect elsewhere in this file. Ruling G fixed prompt 12 by
+giving it inline content; THE SAME FIX WAS NEVER APPLIED TO PROMPT 1. Read that section as
+"prompt 1 reliably produces a CV", NOT as "prompt 1 reliably fires the skill". Before prompt 1
+is used to judge anything, give it inline content per ruling G.
+
+**GAPS IN THE SMOKE-TEST DELIVERABLE** (brief asked, file does not answer; not worth a re-run,
+but fold into the next brief): the verbatim first 300 characters of the reply were paraphrased
+rather than quoted; WHERE the tester looked for an invocation indicator was not described; and
+whether docx and pptx were enabled in that chat was not recorded. The last one matters -- the
+handoff tests are meaningless if those two skills are off.
 ## THE LESSON OF 2026-09-10: A GREEN GATE DOES NOT MEAN THE OUTPUT SAYS ANYTHING
 Coverage removed the `report-print-print-h1` row and re-ran everything. **The gate STILL PASSED**
 -- `OK: validated 14 table(s)` -- because the remaining rows were perfectly well-formed. Only the
