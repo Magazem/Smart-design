@@ -1499,106 +1499,131 @@ research/handover-coverage.md, research/handover-ddr.md, research/handover-packa
   skill list is NOT evidence an assistant lacks browser tools. The error text coming FROM a
   browser tool is proof the tool exists.
 
-## COLD START, 2026-09-11 (evening): WHERE THE PROJECT ACTUALLY IS
-**v0.2.0 IS PUBLISHED. NOTHING IS IN FLIGHT. No task is open. All workers idle.**
-Two releases shipped: v0.1.0 (CV section guidance only) and v0.2.0 (all 15 families, page flow,
-the docx handoff fix). Gate 424 rows over 14 tables, 159 tests plus 32 subtests.
+## *** COLD START — 2026-09-11 END OF DAY. READ THIS FIRST, IT IS THE WHOLE HANDOVER. ***
 
-### V0.3 STARTS HERE. Do these three, in this order.
-**1. SETTLE CANDIDATE L. -- DONE 2026-09-11. L STAYS.** Clean run: activation 11 is docx-only
-   under L, skill confirmed ENABLED, confound proven empty, invocation-scored. The "fired 2/2
-   under H" baseline turned out to have NO PRIMARY RECORD, so the case against L never existed.
-   L is neutral-and-unfalsified; the revert was SKIPPED by ruling. See the candidate L ruling
-   section below and research/55-candidate-L-verdict.md. Do not reopen this.
+**v0.3.0 IS TAGGED AND PUSHED. NOTHING IS IN FLIGHT. NO TASK IS OPEN.**
+Built artefact: 146987 bytes, md5 `4bc58aaf053b90e6762d59221be490fa`, 39 members, zero CR bytes.
+The tag points at the commit titled "Hand over v0.3.0 for a fresh lead on another machine".
+CI writes `VERSION` and SKILL.md's stamp from the tag, so the published asset differs from the
+local build in those two places and nowhere else.
 
-**2. DRAFT THE FILE-NOT-GENRE CANDIDATE. -- DONE 2026-09-11. This is CANDIDATE M.**
-   research/50-candidate-M-draft.md. It edits the DEFERRAL SENTENCE, not the trigger list:
-   "even as Word or PowerPoint" -> "even for '.docx'/'.pptx' requests naming Word or PowerPoint".
-   1005 chars, cap 1023, headroom 18. Sourced from P6, where Claude named the competing skill's
-   literal '.docx' token as the deciding signal. Falsifiable by re-running activation 11 VERBATIM.
-   A first draft that inserted a Triggers example was REJECTED as refutation-chain item 2 rebuilt.
-   **REFUTED 2026-09-11 -- DOCX-ONLY, identical to L.** Tested clean: build verified installed,
-   skill enabled, confound empty, prompt re-run VERBATIM. Killed by its own pre-registered
-   falsification test. See refutation chain item 6 and research/60-candidate-M-refuted.md.
-   DO NOT APPLY M TO THE REPO.
-   If applied to the REPO, it needs a paired NEGATIVE_HEAD_MARKER edit; the shipped ZIP has no
-   tests, so the test artefact needed none.
-**3. THE INVOKED-QUALITY PASS. -- DONE 2026-09-11.** research/51-invoked-quality.md, 7 defects
-   ranked, ZERO "not in my library" refusals across 6 families / 11 prompts. It found the P0
-   below, which the lead then put at the TOP of the v0.3 critical path.
+### THE FIRST THING TO KNOW BEFORE ANY BROWSER TEST
+**The user's claude.ai account holds PUBLISHED v0.2.0, tester-verified.** It does NOT hold
+v0.3.0. **The user must upload v0.3.0 before any browser result means anything.**
+Only the user can change the account — ask, never change it, and never ask a tester to.
 
-### *** THE v0.3 CRITICAL PATH NOW STARTS HERE: THE DROPPED-COLUMNS P0 ***
-v0.2.0's headline -- 204 heading rows in three languages -- REACHES NO OUTPUT PATH. Resolved
-entries carry the union of keys ["key"] and nothing else; the docx handoff for a UK CV contains
-ZERO authored wordings; the plain-text path prints bare ids too. CONFIRMED ON THE PUBLISHED
-ASSET, not a dev build (research/53-defect-verification.md). Ruled ahead of ALL description and
-activation work. In progress with Packaging; THREE parts, not two -- see that brief, because
-ddi.py's HANDOFF_VOCAB has no headings/structures entry at all and parts 1-2 alone would give a
-green test and an unchanged Word document.
+**HOW TO TELL WHICH BUILD IS INSTALLED.** Descriptions open with identical words, so
+first-words matching PROVES NOTHING. Read the shown description and look for distinguishing
+strings. v0.2.0 says `even as Word or PowerPoint` and contains no `.docx`/`.pptx` tokens.
+Candidate M, refuted, contained them — if you ever see those, the wrong build is installed.
 
-### WHAT CHANGED ON 2026-09-11 — read before you touch activation
-The day's work was browser acceptance testing, and it overturned things.
-- **The account's custom instructions were a CONFOUND.** They told Claude to ask before acting
-  on anything ambiguous and to keep answers short. Results SCORED ON THE SHAPE of a reply are
-  RETIRED (labelled in place, not deleted). Results where CLAUDE NAMED THE SKILL IT USED STAND,
-  including the whole description-candidate refutation chain. See "WHICH OLD RESULTS SURVIVE".
-  The user switched them off for one clean run and has been asked to restore them.
-- **THE HANDOFF DESIGN WORKS.** Observed live: our SKILL.md then /mnt/skills/public/docx/SKILL.md.
-- **docx and pdf ARE real skills** at /mnt/skills/public/, loaded inside the code-execution
-  capability. Absent from the Settings list is NOT absent from the system.
-- **EN prose is not dead.** The EN memo FIRED for the first time on a clean account. FRENCH
-  prose still failed 0/2 clean, so the French limitation stands on its own.
-- **Detection method:** the SKILL.md paths in the expanded "Ran N commands" line are PRIMARY
-  evidence. The follow-up question "Which skills did you use for this request, and why?"
-  corroborates WHICH skill, but Claude's prose about DETAILS can be inexact. Capture both.
+### WHAT v0.3.0 SHIPPED
+One defect, found three times in one day, in three places: **a value resolved correctly and then
+dropped at the last step.**
+- 204 heading rows reached NO output path. Now reach docx, pptx, pdf and plain text.
+- constraints / structures / type-scales dropped payload columns. Fixed for those four tables.
+- the pdf handoff had NO sizes, heading levels or palette. Added.
+- the pdf handoff had NO sections block — this BLOCKED the tag and was caught by the gate.
+- a projected deck got the CV's PRINT type scale. Now has its own, via a new safe-sans-deck row.
+- png had no handoff builder at all; `infographic` was a shell. Both real now.
+- `characterSpacing` removed from docx (unsourced AND unfillable). pptx `charSpacing` STAYS —
+  it is sourced; the distinction is the source, not the emptiness.
+- **The release notes DISCLOSE that v0.2.0 announced two things it did not deliver.**
 
-THE ONE THING A NEWCOMER MUST NOT REDO: the activation/routing problem. Five description
-changes were applied and none moved EN/FR prose-genre activation. Nouns, trigger phrases,
-artefact-versus-genre and ordering are all dead — see the refutation chain. The workaround
-ships in the release notes and README: add "Use the document-design-intelligence skill." to the
-request. **The file-not-genre mechanism above is the ONLY live lead. Everything else is closed.**
-SCOPE: the problem is PROSE GENRES (letter, report, proposal) in FRENCH. The EN memo now fires
-and CV prompts fire reliably.
+### v0.4 BACKLOG — start here. Full detail in the v0.4 section above and research/64.
+1. **CENSUS ALL TABLES.** v0.3 fixed the four tables a brief named; the census found EIGHT MORE
+   with the same dropped-column defect, including `cv-regions` at 2 of 14 columns ON THE CV
+   CONTROL FAMILY, hiding the `Seniority Band` that is the only thing separating its two rows.
+   **This is the first job.**
+2. **Task 01a0906b — the pdf path omits page flow.** Not a missing call: the five constraints are
+   docx_property mappings with no CSS equivalent here, and unlike pptx, pdf DOES paginate.
+   Needs a docx-property-to-CSS table.
+3. Tri-fold brochures carry no fold and no panel widths to any output.
+4. All 18 structures hard-code `Heading Language: en`, so **126 of 204 heading rows are
+   unselectable** and a French devis gets English sections.
+5. `ddi.py version` can never report a stamp — the build writes it after the frontmatter and
+   ddi.py tests line 1.
 
-### *** WHAT IS INSTALLED IN THE ACCOUNT (updated 2026-09-11) ***
-**PUBLISHED v0.2.0 IS INSTALLED. TESTER-VERIFIED 2026-09-11.** Candidate M was uploaded for its
-trial, refuted, and replaced. The tester read the installed description read-only and confirmed
-it reads "even as Word or PowerPoint" with NO '.docx'/'.pptx' tokens, and that the skill is
-ENABLED (hover-only). Record: research/56-candidate-M-trial.md, "RESTORE CHECK, 2026-09-11".
+### THE FOUR STANDING RULES ADDED 2026-09-11 — all four were earned, none are style points
+1. **PRE-REGISTER THE FALSIFIER.** State in writing, BEFORE the run, the exact prompt that would
+   kill the experiment. Candidate M died in one browser run because of this. Its first draft was
+   rejected because its test needed a REWORDED prompt. A candidate whose test needs a friendlier
+   prompt is not a candidate. This also applies to acceptance gates: the v0.3 gate pre-registered
+   what would clear its DO-NOT-SHIP, which is why a targeted re-run settled it.
+2. **CENSUS THE SURFACE BEFORE FIXING THE INSTANCE.** Ask across FORMATS (does every builder do
+   this?) and across TABLES (is this one row or the whole column?). **A brief names examples. A
+   brief is not the scope of a defect.**
+3. **COUNT CHARACTERS, NOT BYTES — and count the thing, not a rendering of it.** `python` is
+   BROKEN on the old machine (uv trampoline error); `python3` works. `wc -m` silently returns
+   BYTES. Two wrong numbers were reported in one day from proxies: about 975 characters from a
+   byte count, and 1209 carriage returns from counting rendered escapes in `od -c` output when
+   the true count was ZERO.
+4. **DISCLOSE A FALSE RELEASE CLAIM IN PLACE.** v0.2.0's notes announced 204 heading rows and a
+   plain-text fix that never reached the output. v0.3.0 says so under Fixed, naming the version.
+   A silent correction leaves readers believing they had a feature they never had.
 
-**THE ONE-LINE CHECK, cheap and read-only:** published v0.2.0's description does **NOT** contain
-`'.docx'/'.pptx'` anywhere. Candidate M's does. First-words matching proves NOTHING -- both open
-with the identical "Creating any document type below is still this skill's job". So:
-  contains '.docx'/'.pptx'  -> M is still installed
-  does not contain it       -> published v0.2.0, as expected
+### THE DESCRIPTION — the most rule-bound string in this project
+**1010 of 1023 characters. HEADROOM IS 13.** The next family needing a noun CANNOT simply be
+appended; something must come out.
+- `references/activation.md` MIRRORS it and a test asserts BYTE-FOR-BYTE equality. Editing the
+  description means updating that fenced block AND its length caption in the same change.
+- Two test markers must survive: `NEGATIVE_HEAD_MARKER` (the deferral sentence verbatim) and
+  `NEGATIVE_SCOPE_MARKER` ("Not for web or app UI/UX design").
+- **THE DESCRIPTION LEVER IS EXHAUSTED FOR NAMED-FORMAT PROMPTS.** Six candidates — F, G, H,
+  lettre, L, M — none moved routing when the user names a format. M was the first built on a
+  mechanism from Claude's OWN account and it still failed, which makes it a stronger result, not
+  a weaker one. **Do not open a seventh without a NEW mechanism statement from Claude. P6's
+  statement is SPENT.** The workaround ships and works: add
+  "Use the document-design-intelligence skill." to the request.
+- Widening the noun list when a release adds a family is REQUIRED, and is a different thing from
+  a routing candidate. Nouns are dead as a ROUTING fix, not as coverage.
 
-Do this before scoring any browser result, every time. Reference copy of the published asset:
-research/test-builds/_published-v0.2.0-reference.zip, md5 9e9f30fb08c663686bde842c41dd2c42.
-Only the USER can change the account.
+### BROWSER TESTING — five failure modes, all met in one day
+1. **Per-conversation binding.** "not currently attached" — the panel must be opened inside the
+   TESTER'S OWN conversation. Any other panel gives an identical error.
+2. **Stale frame.** "No frame with given id found" WITH a page still listed as selected. Needs
+   CLOSE-AND-REOPEN, not open. Opening an already-open panel does nothing.
+3. **Never reload or navigate mid-trial** — it destroys the accessibility tree while screenshots
+   keep working, so it still looks connected. **This rule does NOT bind before a trial starts:**
+   with nothing sent there is no tree to protect, and a tester sitting blocked costs a round trip.
+4. **Wait 20 seconds after Send** before concluding anything; retyping double-submits.
+5. **Chrome DevTools is a DEAD END.** It is a SEPARATE, UNAUTHENTICATED browser context — it
+   redirects to the login page and then draws a Cloudflare captcha. Adding it does NOT fix a
+   panel problem. A captcha is an absolute STOP: never interact with it.
 
-## BROWSER TESTING — the three rules that cost us a session each
-1. **NEVER RELOAD or navigate away mid-trial.** A reload destroyed the accessibility tree and
-   killed a whole run; screenshots kept working so it still looked connected.
-2. **WAIT 20 SECONDS** after Send on a fresh chat before concluding it failed. The message does
-   not render for 10-15s and retyping double-submits.
-3. **The browser panel binds PER CONVERSATION** — the user must open it inside the tester's own
-   conversation. Any other panel gives an identical "not attached" error.
+Also: a run under ACTIVE custom instructions is UNSCORABLE BY RULE. Step 0 of every browser brief
+proves the box is empty — an empty textbox carries NO value attribute while sibling fields do.
+Detection: the SKILL.md paths in the expanded "Ran N commands" line are PRIMARY evidence; the
+"which skills did you use" follow-up corroborates WHICH skill but is inexact about DETAILS.
 
-## LEAD RESUME — for a fresh Workflow Orchestrator LEAD context (read this first)
-You are the team LEAD. Your context was cleared on purpose. Do NOT rebuild history.
-**As of 2026-09-11 (evening) there is NO work in flight.** v0.2.0 is published and verified.
-The day was spent on browser acceptance testing; read the COLD START section directly above for
-what it overturned and for the three v0.3 starting items. If you have
-just woken with no user request, the correct action is to ask the user what they want next, not
-to start something from the backlog.
-- The execution loop is run by a SUB-MANAGER teammate: "Workflow Orchestrator",
-  slot 01a080c5-2001-78b3-bbbe-afaae15edafa. It creates tasks, briefs workers, verifies
-  deliverables, and reports milestones to you (<=10 lines).
-- YOUR job is thin: (1) when the sub-manager messages "CLEAR <slot_id>", call
-  team_clear_agent_context on that slot and reply "cleared"; (2) shutdowns and spawns
-  (lead-only); (3) decisions the sub-manager escalates; (4) relay milestones to the user
-  in a few sentences. Do not read long worker reports; the sub-manager does.
-- Print Production Specialist was SHUT DOWN 2026-09-08 (scope complete).
-- Standing rules and the critical path are above in this file. Rulings live in
-  research/05-SYNTHESIS.md (long; consult only for a specific question).
-- If the sub-manager goes quiet for >30 min, message it "status?" — nothing more.
+### HOW THE WORK IS RUN
+- A sub-manager teammate runs the execution loop: creates tasks, writes FILE-FIRST briefs,
+  verifies deliverables, owns ALL git. **Workers never run git.** Dirty files being swept into
+  its commits is expected.
+- The lead's job is thin: clear contexts on "CLEAR <slot>", spawn and shut down, rule on
+  escalations, relay milestones to the user.
+- **`team_clear_agent_context` FAILS while a worker has a queued turn.** Ask when they are idle.
+- **Briefs must be SELF-CONTAINED files.** Long worker contexts cause delivery-limit pauses, and
+  every worker was paused at least once today.
+- **Verify deliverables, do not accept reports.** Several times today a report was wrong or
+  incomplete in a way that mattered, and once a worker correctly challenged the orchestrator's
+  own figure and was right.
+- Generated files are edited via their GENERATOR — `data/schema-manifest.json` comes from
+  `research/build-manifest.py`, `data/base/*.csv` from `research/load-base.py`. A hand-added key
+  is wiped on the next run. Regenerate and diff EMPTY to prove nothing was hand-edited.
+- **Refuse unverifiable attribution.** Tag CONVENTION rather than borrow a source that does not
+  cover the case. Bringhurst is cited here ONLY for measure and leading, never pagination;
+  Butterick and DIN 5008 are cited NOWHERE in this library.
+
+### THE TEAM ROSTER — **THIS MACHINE ONLY. A new machine gets new slot ids; re-derive them.**
+Workflow Orchestrator (sub-manager), Mechanism Analyst, Document Design Researcher,
+Packaging Analyst, Coverage and Gap Analyst (opus), Acceptance Tester (browser access).
+The AionUi Butler was REMOVED by the user on 2026-09-09 deliberately. Do not respawn it.
+Print Production Specialist was shut down 2026-09-08, scope complete.
+**The sticky-board skill is DISABLED for model invocation in skillOverrides** — nothing was filed
+there this session. Every finding is in `research/` and in git instead.
+
+### THE ONE THING A NEWCOMER MUST NOT REDO
+The activation and routing problem. See the description section above. It is closed, the
+workaround ships, and v0.3's headline is that the output is GOOD when the skill runs — not that
+it auto-fires.
