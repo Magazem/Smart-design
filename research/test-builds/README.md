@@ -128,3 +128,21 @@ Every builder emits all four core blocks:
 The artefact's own source files were not modified by testing. Running the scripts does leave
 `__pycache__` directories under `scripts/`; those are removed after each run and are not part of
 the archive.
+
+
+---
+
+## `_published-v0.3.0.zip` — THE SHIPPED RELEASE, downloaded back and verified
+146981 bytes, md5 `c0c3f954bdb6f614440a4cb8649eda1b`, 39 members, **zero CR bytes**.
+Tag `v0.3.0` at `177d364b077a4425995eb065acc3f09edb6e34c2`. CI run 34601045569, success in 14s.
+
+Verified on the PUBLISHED asset, not the local build:
+- `VERSION` reads `0.3.0` and SKILL.md's stamp reads `0.3.0` — CI wrote both from the tag,
+  which is the only place the local build differed.
+- description 1010 characters, and it names `infographic`, `infographie` and `Infografik`.
+- **the ship-blocker is fixed IN THE SHIPPED ARTEFACT**: `quote-devis` --format pdf emits
+  `issuer: From / bill-to: Bill To / invoice-details: ...`.
+- the release body contains exactly one version heading and it is `# v0.3.0` — ruling O held.
+
+The lesson of this directory, one more time: the local build and the published asset are not the
+same file, and the difference is only ever knowable by downloading the asset and running it.
