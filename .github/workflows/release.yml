@@ -30,6 +30,28 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "$VERSION" > skill/document-design-intelligence/VERSION
 
+      # RELEASE-NOTES.md accumulates one "# vX.Y.Z" section per release, so
+      # body_path can't point at the whole file — that would ship every prior
+      # version's notes underneath the current one. Extract only the section
+      # for this tag and fail the job if it's missing or empty rather than
+      # publishing a blank body.
+      - name: Extract release notes for this version
+        id: notes
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          HEADER="# v$VERSION"
+          NOTES_FILE="$RUNNER_TEMP/release-notes-section.md"
+          awk -v header="$HEADER" '
+            $0 == header { printing=1 }
+            printing && /^# v/ && $0 != header { exit }
+            printing { print }
+          ' RELEASE-NOTES.md > "$NOTES_FILE"
+          if [ ! -s "$NOTES_FILE" ] || [ "$(head -n1 "$NOTES_FILE")" != "$HEADER" ]; then
+            echo "::error::No release notes section found for '$HEADER' in RELEASE-NOTES.md — refusing to publish an empty or missing release body."
+            exit 1
+          fi
+          echo "path=$NOTES_FILE" >> "$GITHUB_OUTPUT"
+
       # Single build entry point for both CI and local dev — see the script's
       # own docstring. Validates data (research/09-library-schema.md §4,
       # items 1-4), stamps the version into SKILL.md, and zips with the
@@ -43,5 +65,5 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: skill/dist/document-design-intelligence-${{ steps.version.outputs.version }}.zip
-          body_path: RELEASE-NOTES.md
+          body_path: ${{ steps.notes.outputs.path }}
           generate_release_notes: true

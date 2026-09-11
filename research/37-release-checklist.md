@@ -21,6 +21,23 @@ All three must pass clean (128+ tests passing, 14 tables OK, ZIP built with no
 constraint-check failures) before you tag. If any of them fail, stop — do not tag
 a red tree.
 
+Confirm the release body the workflow will publish is correct — `RELEASE-NOTES.md`
+holds every past version stacked in one file, and the release job extracts only the
+`# vX.Y.Z` section matching the tag. From the repo root, with `VERSION` set to the
+version you're about to tag:
+
+```
+awk -v header="# v$VERSION" '
+  $0 == header { printing=1 }
+  printing && /^# v/ && $0 != header { exit }
+  printing { print }
+' RELEASE-NOTES.md
+```
+
+The output must start with `# v$VERSION` and must NOT contain any other `# v` section
+header. If the output is empty, the workflow will fail the job rather than publish a
+blank body — add the section to `RELEASE-NOTES.md` before tagging.
+
 ## 2. Commit anything outstanding
 
 Confirm `git status` is clean (everything you want in the release is already
