@@ -364,5 +364,100 @@ class TestHandoffEndToEndOnRealData(unittest.TestCase):
                         f"{doctype}: TOC heading level {role} has no positive size")
 
 
+class TestDroppedColumnsReachResolvedOutput(unittest.TestCase):
+    """research/54: `headings` and `structures` declared NO `display_columns` at
+    all, so `resolve.py`'s `_display_columns` fell through to an empty default
+    -- every resolved row was a bare `{"key": "contact-en-1"}`, union of keys
+    across all of them exactly `["key"]`. `constraints` and `type-scales` DID
+    declare `display_columns`, but the list was incomplete (missing Applies To/
+    Check/Threshold/Severity, and scale_key/Leading Ratio respectively). Both
+    are wrong for a different reason and both are checked here.
+
+    what this test would say if the feature produced NOTHING AT ALL: every
+    `assertIn`/`assertTrue` below reads a NAMED column out of a resolved row
+    dict. A resolved row with only `{"key": ...}` fails `column in row` for
+    every one of them, and an empty-string value on a column this data
+    genuinely populates fails the non-blank check too -- so "nothing reached
+    the output" is not a passing state here, unlike a test that only checks
+    exit 0, row counts, or that the manifest declares a key (all of which
+    passed throughout v0.2.0 while the handoff printed nothing).
+    """
+
+    #: Every non-key column each table is authored with (research/build-manifest.py
+    #: "columns", minus key_column) -- fixed here independently of the manifest,
+    #: so a future edit that silently drops one back out of `display_columns`
+    #: is still caught, rather than this test trivially agreeing with whatever
+    #: the manifest currently says.
+    EXPECTED_COLUMNS = {
+        "headings": ("canonical_section", "Heading Text", "Language", "Is Primary"),
+        "structures": ("Display Name", "Section Order", "Heading Language",
+                       "Heading Depth Max", "TOC Depth", "Front Matter Numbering",
+                       "Caption Position", "Cross-Ref Style"),
+        "constraints": ("Set Key", "Applies To", "Check", "Element Scope",
+                        "Parameter", "Threshold", "Severity"),
+        "type-scales": ("scale_key", "Medium", "Role", "Size pt", "Leading Ratio"),
+    }
+    #: `constraints."Element Scope"` is a real enum value of "" (schema allows
+    #: it, and every constraint attached to cv-uk happens to be doc-level, not
+    #: element-scoped) -- blank here is authored data, not a dropped column, so
+    #: it is exempted from the "some row has content" half of the check. Every
+    #: other column in EXPECTED_COLUMNS is genuinely populated for cv-uk.
+    ALLOWED_ALL_BLANK = {("constraints", "Element Scope")}
+
+    def _resolved(self, doctype="cv-uk"):
+        proc = _run(["resolve", "--doctype", doctype, "--json"])
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        return json.loads(proc.stdout)["resolved"]
+
+    def test_every_authored_column_reaches_the_resolved_json(self):
+        resolved = self._resolved()
+        for table, columns in self.EXPECTED_COLUMNS.items():
+            rows = resolved.get(table, [])
+            self.assertTrue(rows, f"{table}: no rows resolved for cv-uk at all")
+            for column in columns:
+                with self.subTest(table=table, column=column):
+                    self.assertTrue(
+                        all(column in row for row in rows),
+                        f"{table}.{column} is absent from at least one resolved row -- "
+                        f"sample row: {rows[0]!r}")
+                    if (table, column) not in self.ALLOWED_ALL_BLANK:
+                        non_blank = [row[column] for row in rows if row.get(column)]
+                        self.assertTrue(
+                            non_blank,
+                            f"{table}.{column} is present but BLANK on every resolved "
+                            f"row -- sample row: {rows[0]!r}")
+
+    def test_headings_carry_the_actual_authored_wording_not_bare_ids(self):
+        """The exact failure shape research/53 verified against the published
+        v0.2.0 asset: `resolved.headings` entries carried a `key` and nothing
+        else. Checking "some content exists" would not catch a partial
+        regression that drops `Heading Text` specifically while keeping other
+        columns; naming the real authored wordings does."""
+        rows = self._resolved()["headings"]
+        texts = {row.get("Heading Text") for row in rows}
+        for wording in ("Experience", "Work Experience", "Employment History",
+                        "Professional Summary"):
+            with self.subTest(wording=wording):
+                self.assertIn(wording, texts)
+
+    def test_handoff_docx_sections_carry_primary_heading_wording(self):
+        """research/54 part 3: `display_columns` alone (the two tests above)
+        puts wording into the resolved JSON, but `ddi.py`'s HANDOFF_VOCAB named
+        neither `structures` nor `headings`, so the docx/pptx handoff -- the
+        thing actually handed to a renderer -- printed nothing from either
+        table. This runs the full resolve -> handoff pipeline exactly as a
+        model invoking this skill would, and checks the rendered `sections`
+        block, not the intermediate JSON."""
+        resolved = _run(["resolve", "--doctype", "cv-uk", "--json"])
+        self.assertEqual(resolved.returncode, 0, resolved.stderr)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "resolved.json"
+            path.write_text(resolved.stdout, encoding="utf-8")
+            proc = _run(["handoff", "--json", str(path), "--format", "docx"])
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        self.assertIn("experience: Experience", proc.stdout)
+        self.assertIn("contact: Contact", proc.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()

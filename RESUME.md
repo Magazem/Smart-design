@@ -540,7 +540,8 @@ FIVE description changes were applied across 2026-09-09/10 -- F, G, H, lettre, L
 on the L archive:
     FR letter    FAIL      EN memo      FAIL      FR report    FAIL (no trigger)
     activation 10 PASS     activation 13 PASS     activation 11 FAIL (went to docx)
-Activation 11 had fired 2/2 under H, before L. That flip is n=1, NOTED AND NOT ACTED ON.
+Activation 11 was SAID to have fired 2/2 under H, before L. **That claim has no primary record
+and must not be cited** -- see the candidate L ruling above. SETTLED 2026-09-11: L stays.
 
 **FIVE CHANGES HAVE NOT MOVED ENGLISH OR FRENCH PROSE-GENRE ACTIVATION.** Routing against the
 built-in docx skill is CLAUDE'S DECISION, not something we can force with description text.
@@ -828,8 +829,9 @@ treat the follow-up prose as corroboration of the same, and do NOT rely on it fo
 Both were captured this run only because the brief demanded both. Keep demanding both.
 
 ### ACTIVATION 11 UNDER CANDIDATE L -- now n=2 docx-only
-Fired 2/2 under H. Has now gone docx-only 2/2 under L. **L is a pure reorder that was never
-shown to help anything, and this is the first evidence it may HURT.** See the v0.3 list.
+SUPERSEDED 2026-09-11 -- see the candidate L ruling. The "fired 2/2 under H" baseline has no
+primary record and cannot be cited. L is neutral-and-unfalsified and STAYS; the revert was
+skipped by ruling. Activation 11 is docx-only under L on a clean, invocation-scored run.
 ## THE LESSON OF 2026-09-10: A GREEN GATE DOES NOT MEAN THE OUTPUT SAYS ANYTHING
 Coverage removed the `report-print-print-h1` row and re-ran everything. **The gate STILL PASSED**
 -- `OK: validated 14 table(s)` -- because the remaining rows were perfectly well-formed. Only the
@@ -1243,6 +1245,32 @@ C. DDR fills the remaining families. Packaging updates the SKILL.md and README l
 DEFERRED, waiting on real query data, not on us: BM25 length normalisation and the tokenizer
 split behaviour.
 
+## *** RULING 2026-09-11: CANDIDATE L IS NEUTRAL-AND-UNFALSIFIED. THE CASE AGAINST IT HAD NO BASELINE. ***
+Full record: research/55-candidate-L-verdict.md. Run: research/49-candidate-L-settle.md.
+
+**THE CLEAN RUN.** Activation 11 under L is DOCX-ONLY, on a run where all three preconditions
+were verified read-only first: confound re-proven empty, skill confirmed ENABLED (the USER
+enabled it; the tester never touched the toggle), installed build confirmed to be L. The only
+SKILL.md path in the trace is /mnt/skills/public/docx/SKILL.md; the follow-up names only "the
+docx skill"; a real .docx was produced. Invocation-scored, unconfounded.
+**The disabled-skill worry is DEAD for this result.** The skill was on and it still did not fire.
+
+**THE BASELINE DOES NOT EXIST.** The case against L was "fired 2/2 under H, docx-only under L".
+Those H runs are NOT RECORDED ANYWHERE in research/. The claim appears only as an assertion --
+no chat URL, no commands-line capture, no follow-up quote, no date, no scoring method. The
+docx-only results ARE properly recorded (48-browser-spotcheck.md:285, in full).
+We cannot apply the confound test to the H runs because **we do not know how they were scored.**
+An unscorable baseline cannot carry a verdict -- the same rule that makes us refuse an authority
+we cannot grep-verify. **That rule binds our own record too.**
+
+**THEREFORE:** L is NOT shown to have caused anything. It is neutral-and-unfalsified and it
+STAYS. The revert was SKIPPED by ruling -- it would not have restored a behaviour we have no
+record of. Claude's own account already explains the docx-only outcome without reference to L:
+a format was named, docx won on its own literal trigger criteria. **That predicts docx-only
+under ANY of our descriptions**, which is exactly what candidate M is built to test.
+
+**DO NOT cite "fired 2/2 under H" again.** If you find the primary record, add it here.
+
 ## DESCRIPTION LENGTH -- the one measured number
 The SKILL.md frontmatter description measures **972 characters**, as of candidate L applied
 2026-09-10 (commit f23fb03). The cap is 1023 (the claude.ai UI enforces "under 1024").
@@ -1375,16 +1403,33 @@ Two releases shipped: v0.1.0 (CV section guidance only) and v0.2.0 (all 15 famil
 the docx handoff fix). Gate 424 rows over 14 tables, 159 tests plus 32 subtests.
 
 ### V0.3 STARTS HERE. Do these three, in this order.
-**1. SETTLE CANDIDATE L.** Activation 11 (rough notes -> Word) fired 2/2 under description
-   candidate H and has gone docx-only 2/2 under L. L was a pure reorder never shown to help.
-   Procedure, do not skip a step: (a) ONE clean browser run of activation 11 under L; (b) if it
-   still fails, ONE run with L REVERTED. Decide from that, not from the existing n=2.
-**2. DRAFT A CANDIDATE TARGETING THE FILE-NOT-GENRE MECHANISM. DRAFT ONLY — do not apply it.**
-   See "THE CLEAN RUN, 2026-09-11" above for the evidence and the two verbatim Claude quotes.
-   This is the FIRST candidate permitted under the standing rule since L, because the mechanism
-   came from Claude's own account rather than our theorising.
-**3. THE INVOKED-QUALITY PASS** on the published v0.2.0 asset. Per the 2026-09-11 user ruling,
-   v0.3's headline is that the output is GOOD when invoked, not that it auto-fires.
+**1. SETTLE CANDIDATE L. -- DONE 2026-09-11. L STAYS.** Clean run: activation 11 is docx-only
+   under L, skill confirmed ENABLED, confound proven empty, invocation-scored. The "fired 2/2
+   under H" baseline turned out to have NO PRIMARY RECORD, so the case against L never existed.
+   L is neutral-and-unfalsified; the revert was SKIPPED by ruling. See the candidate L ruling
+   section below and research/55-candidate-L-verdict.md. Do not reopen this.
+
+**2. DRAFT THE FILE-NOT-GENRE CANDIDATE. -- DONE 2026-09-11. This is CANDIDATE M.**
+   research/50-candidate-M-draft.md. It edits the DEFERRAL SENTENCE, not the trigger list:
+   "even as Word or PowerPoint" -> "even for '.docx'/'.pptx' requests naming Word or PowerPoint".
+   1005 chars, cap 1023, headroom 18. Sourced from P6, where Claude named the competing skill's
+   literal '.docx' token as the deciding signal. Falsifiable by re-running activation 11 VERBATIM.
+   A first draft that inserted a Triggers example was REJECTED as refutation-chain item 2 rebuilt.
+   TEST ZIP BUILT AND BYTE-VERIFIED: research/test-builds/, see that README. AWAITING USER UPLOAD.
+   If applied to the REPO, it needs a paired NEGATIVE_HEAD_MARKER edit; the shipped ZIP has no
+   tests, so the test artefact needed none.
+**3. THE INVOKED-QUALITY PASS. -- DONE 2026-09-11.** research/51-invoked-quality.md, 7 defects
+   ranked, ZERO "not in my library" refusals across 6 families / 11 prompts. It found the P0
+   below, which the lead then put at the TOP of the v0.3 critical path.
+
+### *** THE v0.3 CRITICAL PATH NOW STARTS HERE: THE DROPPED-COLUMNS P0 ***
+v0.2.0's headline -- 204 heading rows in three languages -- REACHES NO OUTPUT PATH. Resolved
+entries carry the union of keys ["key"] and nothing else; the docx handoff for a UK CV contains
+ZERO authored wordings; the plain-text path prints bare ids too. CONFIRMED ON THE PUBLISHED
+ASSET, not a dev build (research/53-defect-verification.md). Ruled ahead of ALL description and
+activation work. In progress with Packaging; THREE parts, not two -- see that brief, because
+ddi.py's HANDOFF_VOCAB has no headings/structures entry at all and parts 1-2 alone would give a
+green test and an unchanged Word document.
 
 ### WHAT CHANGED ON 2026-09-11 — read before you touch activation
 The day's work was browser acceptance testing, and it overturned things.
