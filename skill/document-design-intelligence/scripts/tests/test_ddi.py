@@ -227,8 +227,7 @@ class TestHandoffEndToEndOnRealData(unittest.TestCase):
     real data/, on TWO doctypes, and asserts those sections carry CONTENT. A
     test that only checked exit 0 would have passed for the whole of v0.1.0 --
     that is the gap this closes. `TOC heading levels` is asserted too, as of
-    RULING N -- see TOC_HEADING_ROLES. `characterSpacing` is still deliberately
-    NOT asserted: see the docstring on the test below it.
+    RULING N -- see TOC_HEADING_ROLES.
     """
 
     DOCTYPES = ("report-long-toc", "cv-generic")

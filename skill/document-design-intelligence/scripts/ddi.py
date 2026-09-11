@@ -160,8 +160,6 @@ def cmd_preflight(argv):
 #: 1 inch = 1440 DXA (research/23 docx:25) = 25.4 mm -> 1440/25.4 DXA per mm,
 #: written to 4 dp per the task's own citation of this constant.
 MM_TO_DXA = 56.6929
-#: 1 pt = 1/72 inch = 1440/72 DXA (research/23 docx:25, same citation).
-PT_TO_DXA = 20
 #: UNSOURCED in research/23's exported docx SKILL.md (no font-size example
 #: appears in the excerpt) -- this is OOXML's own convention (the `sz`
 #: attribute, and the `docx` npm package's `size` RunOptions field, are
@@ -276,13 +274,6 @@ def _mm_to_dxa(mm_value):
 def _pt_to_half_points(pt_value):
     try:
         return round(float(pt_value) * PT_TO_HALF_POINTS, 1)
-    except (TypeError, ValueError):
-        return None
-
-
-def _pt_to_dxa(pt_value):
-    try:
-        return round(float(pt_value) * PT_TO_DXA)
     except (TypeError, ValueError):
         return None
 

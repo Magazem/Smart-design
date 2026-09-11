@@ -134,3 +134,26 @@ trigger criteria again and did not engage with ours, the same pattern as P6 unde
 No workaround sentence was added, no retry was performed, only one chat was used throughout (the
 same chat opened fresh for Step 1 was reused for Step 2). No reload or navigation away occurred
 from the moment the Step 1 prompt was sent through the end of the trial.
+
+## Post-hoc check — published build restored to v0.2.0 (read-only, no chat/prompt/trial)
+
+Navigated to Settings → Skills → "Your skills" → "Created by you". The
+`document-design-intelligence` row's description now reads, verbatim (UI-truncated at the same
+point as prior checks):
+
+> "Creating any document type below is still this skill's job even as Word or PowerPoint; defer
+> to that format's own skill only when the user names it for a plain conversion or edit with no
+> design ask. Creates and fixes print/office documents: CVs, resumes, cover letters, brochures,
+> flyers, posters, reports, whitepapers, slide decks, presentations, forms, letters, quotes,
+> offers; also note interne, fiche, courrier, lettre, affiche, dépliant, présentation,
+> formulaire, Lebenslauf, Angebot, Bericht, i"
+
+Checked for the literal substrings `.docx` and `.pptx` in this text: **absent**. The deferral
+sentence reads "even as Word or PowerPoint" — Candidate M's tokens (`even for '.docx'/'.pptx'
+requests naming Word or PowerPoint`, confirmed present earlier in this same file) are gone.
+
+Row timestamp: "in 1m" (edited within the last minute).
+
+**Verdict: RESTORED.** The published build's description no longer contains `.docx`/`.pptx`,
+confirming it is v0.2.0 (or textually equivalent to it), not Candidate M. Read-only check —
+no chat opened, no prompt sent, no trial run.
