@@ -1501,9 +1501,10 @@ SCOPE: the problem is PROSE GENRES (letter, report, proposal) in FRENCH. The EN 
 and CV prompts fire reliably.
 
 ### *** WHAT IS INSTALLED IN THE ACCOUNT (updated 2026-09-11) ***
-**The user reports the published v0.2.0 build is RESTORED.** Candidate M was uploaded for its
-trial, refuted, and then replaced. **USER-REPORTED, NOT TESTER-VERIFIED** -- treat it as probable,
-not established, until someone reads the installed description.
+**PUBLISHED v0.2.0 IS INSTALLED. TESTER-VERIFIED 2026-09-11.** Candidate M was uploaded for its
+trial, refuted, and replaced. The tester read the installed description read-only and confirmed
+it reads "even as Word or PowerPoint" with NO '.docx'/'.pptx' tokens, and that the skill is
+ENABLED (hover-only). Record: research/56-candidate-M-trial.md, "RESTORE CHECK, 2026-09-11".
 
 **THE ONE-LINE CHECK, cheap and read-only:** published v0.2.0's description does **NOT** contain
 `'.docx'/'.pptx'` anywhere. Candidate M's does. First-words matching proves NOTHING -- both open

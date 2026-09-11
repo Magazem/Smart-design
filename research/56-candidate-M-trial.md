@@ -157,3 +157,35 @@ Row timestamp: "in 1m" (edited within the last minute).
 **Verdict: RESTORED.** The published build's description no longer contains `.docx`/`.pptx`,
 confirming it is v0.2.0 (or textually equivalent to it), not Candidate M. Read-only check —
 no chat opened, no prompt sent, no trial run.
+
+## RESTORE CHECK, 2026-09-11
+
+Re-verification requested by the lead after the check above (same finding independently
+confirmed, no reload — same settings/skills view was still open, re-snapshotted in place).
+
+**1. Listed and enabled — hover only, confirmed.** `document-design-intelligence` is listed
+under "Created by you". Hovered the row (no click on the toggle, no click on "View"); the
+hover-revealed control read:
+
+```
+button "Turn off document-design-intelligence"
+```
+
+"Turn off" implies current state = enabled. No toggle or View click was made.
+
+**2. Description, verbatim (UI-truncated at the same point as before):**
+
+> "Creating any document type below is still this skill's job even as Word or PowerPoint; defer
+> to that format's own skill only when the user names it for a plain conversion or edit with no
+> design ask. Creates and fixes print/office documents: CVs, resumes, cover letters, brochures,
+> flyers, posters, reports, whitepapers, slide decks, presentations, forms, letters, quotes,
+> offers; also note interne, fiche, courrier, lettre, affiche, dépliant, présentation,
+> formulaire, Lebenslauf, Angebot, Bericht, i"
+
+The literal substrings `.docx` and `.pptx` are absent. The deferral sentence reads "even as Word
+or PowerPoint" — Candidate M's tokens (`even for '.docx'/'.pptx' requests naming Word or
+PowerPoint`) are not present.
+
+**3. Verdict: PUBLISHED.**
+
+No fresh chat, no prompt, no follow-up, no Send — read-only.
