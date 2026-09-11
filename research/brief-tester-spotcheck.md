@@ -1,15 +1,12 @@
 # BRIEF — Acceptance Tester — ROUTING SPOT-CHECK (browser, claude.ai)
 
-## *** RE-RUN, v2. HELD — DO NOT DISPATCH ***
-Revised 2026-09-11 after the first attempt died mid-P1. Released by the orchestrator only.
-Blocked on both:
-1. The user has answered on the custom instructions (see Step 0) — and, if they agree to
-   switch them off for the test session, has done so.
-2. The user has opened a FRESH browser panel inside the Acceptance Tester's own conversation.
-   The previous panel is unrecoverable.
+## RE-RUN, v2 — RELEASED 2026-09-11. Run it.
+The first attempt died mid-P1. Both hold conditions are now met by the user:
+- A FRESH browser panel is open in your own conversation.
+- **The account's custom instructions have been switched OFF** for this test session.
 
-ONE deliverable: `research/48-browser-spotcheck.md`. It already exists and holds the first
-attempt plus verified findings. **APPEND a new dated section. Do not overwrite it.**
+ONE deliverable: append to `research/48-browser-spotcheck.md`. It already exists and holds the
+first attempt plus verified findings. **APPEND a new dated section. Do not overwrite it.**
 
 SEVEN prompts, two sends each = 14 sends. Quota confirmed fine by the user. Do not ration
 sends and never skip a follow-up to save one.
@@ -43,14 +40,19 @@ placed to spot it than anyone reading the transcript later.
 
 ## Step 0 — settings check. Does NOT block. Record and continue.
 Record VERBATIM, quoting exactly, never summarising:
-- The account's **"Instructions for Claude"** text in full.
+- The account's **"Instructions for Claude"** field. The user has switched it OFF for this
+  session, so **your report must PROVE it is empty** — quote the field as you find it, or state
+  plainly that it is blank and say where you looked. "It's off" on your word is not enough;
+  this is the control that makes the whole run scorable.
+  **If you find instruction text still present, say so immediately and label the run
+  CONFOUNDED** — then still run it, but report it as unscored.
 - **Memory** on/off.
 - Which skills are enabled.
 
-**LABELLING RULE (standing, ruled by the lead):** if a clarify-first or brevity instruction is
-ACTIVE during the run, label the whole run **CONFOUNDED** at the top of your report and in the
-file. A confounded run is reported but NOT scored. Say so plainly rather than scoring anyway.
-Do NOT change the setting yourself. Do not ask the user to. That is the lead's channel.
+**LABELLING RULE (standing, ruled by the lead):** a run made while a clarify-first or brevity
+instruction is ACTIVE is labelled **CONFOUNDED** at the top of your report and in the file, and
+is reported but NOT scored. Say so plainly rather than scoring anyway.
+Do NOT change any setting yourself, in either direction. Not yours to touch.
 
 ## One extra job on P6, and it settles an open question
 P6 asks for a Word document. When you expand its "Ran N commands" line, look specifically for
