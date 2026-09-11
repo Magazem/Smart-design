@@ -439,6 +439,46 @@ DDR rather than forced into a section list. Not v0.2.
   from research/09-library-schema.md Revision 4, which does not describe it either.
 - Heading variants for non-CV families.
 
+## v0.2.0 IS PUBLISHED AND VERIFIED -- 2026-09-11
+Tag v0.2.0 at 31fa967. Release workflow succeeded in 16s.
+https://github.com/Magazem/Smart-design/releases/tag/v0.2.0
+Asset document-design-intelligence-0.2.0.zip, 143209 bytes, 39 members.
+
+I DOWNLOADED THE PUBLISHED ASSET and verified its bytes, not the local build:
+  SKILL.md starts b'---
+'; exactly one stamp reading "version: 0.2.0"; VERSION member 0.2.0,
+  so CI wrote both from the tag as designed. Zero CR bytes. Description 972 and starting with
+  "Creating any document type below", so candidate L shipped. display_columns on 6 tables, so
+  the docx handoff fix shipped. Row counts all as built: constraints 47, type-scales 20,
+  headings 204, structures 17, doctypes 30. Mirror byte-identical. The plain-text sentence is in
+  the body. No .docx members, no brand leak. Manifest md5 070195f13a226c35bf7743c7466ba50d.
+
+THE RELEASE BODY IS ONLY THE v0.2.0 SECTION. Verified on the published release: it starts with
+"# v0.2.0", contains NO "# v0.1.0", and exactly one version heading. Ruling O worked in CI on its
+first run. The workaround line and the empty-handoff disclosure are both in the published body.
+
+## v0.3 BACKLOG -- everything deferred, in one place
+- characterSpacing in the docx handoff reads "Letter Spacing pt", a column that exists in NO
+  table. Decide: remove the handoff section, or author the column.
+- HEADING VARIANTS for non-CV families. The 81 CV heading rows carry 2-3 wordings per language;
+  the 123 non-CV rows carry one. Nothing reads Is Primary today, so this is model-facing only.
+- LANGUAGE SIGNAL IN RANKING. cv-france does not lead on a French query. Same family as D3.
+- D3: "erstelle eine praesentation" resolves confidently instead of abstaining. The real fix is
+  BM25 length normalisation and it needs real query data. DO NOT lower b.
+- PANEL AND SLIDE LAYOUT ORDER. Panel count, slide count and folded-panel adjacency are modelled
+  nowhere. Section Order carries the content arc only.
+- FR-REPORT ROUTING, and the whole EN/FR prose-genre routing problem. See the closure ruling
+  above: NO further description candidates without a new mechanism hypothesis backed by Claude's
+  own account.
+- manifest NOTES section 1.4 still claims the four list-FK columns are "not declared twice" and
+  that build-manifest asserts it. That assertion was inverted at Revision 4 and list_columns now
+  holds 12 columns. Flagged inline with a blockquote, not rewritten.
+- test_ddi.py main-guard placement: DONE in the pre-tag commit, drop this line if you see it.
+- make_brand_kit.py lines 498 and 560: the same single-word duplication fixed at line 590, live
+  today but ungated because Keywords is declared only on doctypes.
+- brochure-3panel / brochure-gatefold and the other two identical-order pairs: INTENTIONAL, do
+  not "differentiate" them. Listed here only so nobody files it as a bug.
+
 ## THE WORKAROUND THAT ACTUALLY WORKS (probes, 2026-09-11)
 PROBE 1: English memo with "Use the document-design-intelligence skill." appended -> **FIRED.**
 PROBE 2: English memo with the built-in docx skill disabled -> **NOT RUNNABLE.** claude.ai
@@ -992,8 +1032,26 @@ research/handover-coverage.md, research/handover-ddr.md, research/handover-packa
 - Print Production Specialist 01a07b9d-086a-7851-8272-9275344e264d — domain exhausted; shut down
 - AionUi Butler             01a07a84-e27e-7b92-80e1-ad082022257e — idle; keep
 
+## COLD START, 2026-09-11: WHERE THE PROJECT ACTUALLY IS
+**v0.2.0 IS PUBLISHED.** Nothing is in flight. All four workers idle. Working tree clean.
+main is pushed through 31fa967; only the commit recording the release may be local.
+
+Two releases shipped: v0.1.0 (CV section guidance only) and v0.2.0 (all 15 families, page flow,
+the docx handoff fix). Gate 424 rows over 14 tables, 159 tests plus 32 subtests.
+
+THE ONE THING A NEWCOMER MUST NOT REDO: the activation/routing problem. Five description changes
+were applied and NONE moved English or French prose-genre activation. The refutation chain is
+above -- nouns, trigger phrases, artefact-versus-genre and ordering are all dead. The workaround
+ships in the release notes and README: add "Use the document-design-intelligence skill." to the
+request. Read the closure ruling before touching the description.
+
+Next work is the v0.3 backlog above. There is no critical path any more; pick from it.
+
 ## LEAD RESUME — for a fresh Workflow Orchestrator LEAD context (read this first)
 You are the team LEAD. Your context was cleared on purpose. Do NOT rebuild history.
+**As of 2026-09-11 there is NO work in flight.** v0.2.0 is published and verified. If you have
+just woken with no user request, the correct action is to ask the user what they want next, not
+to start something from the backlog.
 - The execution loop is run by a SUB-MANAGER teammate: "Workflow Orchestrator",
   slot 01a080c5-2001-78b3-bbbe-afaae15edafa. It creates tasks, briefs workers, verifies
   deliverables, and reports milestones to you (<=10 lines).
