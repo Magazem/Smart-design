@@ -28,6 +28,9 @@ House style, matched from v0.1.0 and v0.2.0: `# v0.X.0` heading, then `## Added`
   apply to a screenshot.
 - Heading wording, section by section, now reaches the Word, PowerPoint, PDF and plain-text
   outputs.
+- The description now names the infographic family in English, French and German. A release
+  that adds a family and does not name it leaves the family unreachable however good its data
+  is, which is what happened in v0.2.0.
 
 ## Fixed
 
@@ -89,7 +92,9 @@ House style, matched from v0.1.0 and v0.2.0: `# v0.X.0` heading, then `## Added`
 2. ~~Decide the characterSpacing question~~ DONE, ruled: the Word key is removed, the sourced
    PowerPoint one stays.
 3. ~~Confirm the infographic limitation is gone~~ DONE, verified against real handoff output.
-3b. ADD to Added once it lands: the description now names infographic in three languages.
+3b. ~~ADD the description-noun line to Added~~ DONE.
+4. HEADROOM IS NOW 13 CHARACTERS (1010 of 1023). The next family that needs a noun cannot
+   simply be appended. Flag this before any future family ships.
 4. Re-read every Added and Fixed line against actual handoff output. **The failure this release
    discloses was a notes claim nobody checked against the output.** Do not repeat it in the
    notes that disclose it.

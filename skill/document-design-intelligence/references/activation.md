@@ -20,10 +20,10 @@ now that the cap is confirmed at 1,024.
 ## The description as shipped
 
 ```
-Creating any document type below is still this skill's job even as Word or PowerPoint; defer to that format's own skill only when the user names it for a plain conversion or edit with no design ask. Creates and fixes print/office documents: CVs, resumes, cover letters, brochures, flyers, posters, reports, whitepapers, slide decks, presentations, forms, letters, quotes, offers; also note interne, fiche, courrier, lettre, affiche, dépliant, présentation, formulaire, Lebenslauf, Angebot, Bericht, invoice, memo, proposal, one-pager, facture, devis, rapport, Rechnung, Formular, Broschüre. Triggers: make me a CV, write a note interne, turn this into a brochure, I need slides for Monday, format this report, fais-moi une fiche, erstelle ein Angebot; appearance fixes: looks like AI, looks generic, make it look professional, fix the layout. Applies sourced layout, typography, color, print, and ATS rules. Not for web or app UI/UX design (use UI/UX Pro Max for screens).
+Creating any document type below is still this skill's job even as Word or PowerPoint; defer to that format's own skill only when the user names it for a plain conversion or edit with no design ask. Creates and fixes print/office documents: CVs, resumes, cover letters, brochures, flyers, posters, reports, whitepapers, slide decks, presentations, forms, letters, quotes, offers, infographic; also note interne, fiche, courrier, lettre, affiche, dépliant, présentation, formulaire, Lebenslauf, Angebot, Bericht, invoice, memo, proposal, one-pager, facture, devis, rapport, Rechnung, Formular, Broschüre, infographie, Infografik. Triggers: make me a CV, write a note interne, turn this into a brochure, I need slides for Monday, format this report, fais-moi une fiche, erstelle ein Angebot; appearance fixes: looks like AI, looks generic, make it look professional, fix the layout. Applies sourced layout, typography, color, print, and ATS rules. Not for web or app UI/UX design (use UI/UX Pro Max for screens).
 ```
 
-**Length: 972 characters** (well under the confirmed 1,024-character ceiling —
+**Length: 1010 characters** (well under the confirmed 1,024-character ceiling —
 resolved above; no truncation risk in practice). Grew from 667 (the original
 starting number) to 972 across candidates F, G, and H, not from a single
 addition — see `research/24-builtin-alignment.md` item 1 and the candidate-H
