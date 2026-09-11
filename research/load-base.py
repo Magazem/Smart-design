@@ -208,8 +208,15 @@ for r in src:
     fb = r["Safe Stack Fallback"].strip()
     r["Safe Stack Availability"] = "os-bundled" if fb in OS_BUNDLED else "office-bundled"
     rows.append(r)
-CHANGES.append("T5: +Safe Stack Availability on all 8 rows (os-bundled for the six "
-               "OS-bundled families; none of the 8 resolve to an Office-only fallback)")
+CHANGES.append("T5: +Safe Stack Availability on all %d rows (os-bundled for every row here "
+               "since all fall back to an OS-bundled family; none resolve to an "
+               "Office-only fallback)" % len(rows))
+CHANGES.append("T5: +safe-sans-deck (Arial, Scale Key deck-projection) -- v0.3 D3 "
+               "(research/51-invoked-quality.md): deck-generic pointed at safe-sans-arial, "
+               "whose Scale Key is cv-print, so a projected deck resolved the CV's 11pt print "
+               "scale instead of the deck-projection scale research/30 already authored. "
+               "safe-sans-deck is the T5 row research/30-notes.md said was still PROPOSED; "
+               "safe-sans-arial itself is unchanged, so cv-* doctypes are unaffected.")
 write("typefaces", rows)
 
 # ------------------------------------------------------------- T7 page-formats
