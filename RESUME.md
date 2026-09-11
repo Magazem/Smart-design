@@ -1356,30 +1356,60 @@ research/handover-coverage.md, research/handover-ddr.md, research/handover-packa
   skill list is NOT evidence an assistant lacks browser tools. The error text coming FROM a
   browser tool is proof the tool exists.
 
-## COLD START, 2026-09-11: WHERE THE PROJECT ACTUALLY IS
-**v0.2.0 IS PUBLISHED.** v0.3 work has begun: a fifth teammate, the Acceptance Tester, now runs
-acceptance prompts in a real browser against claude.ai (see the teammate list above). As of
-2026-09-11 its first smoke test is BLOCKED on the AionUi browser panel not being attached -- a
-user action, not an agent one. The other four workers are idle.
-main is pushed through 31fa967; only the commit recording the release may be local.
-
+## COLD START, 2026-09-11 (evening): WHERE THE PROJECT ACTUALLY IS
+**v0.2.0 IS PUBLISHED. NOTHING IS IN FLIGHT. No task is open. All workers idle.**
 Two releases shipped: v0.1.0 (CV section guidance only) and v0.2.0 (all 15 families, page flow,
 the docx handoff fix). Gate 424 rows over 14 tables, 159 tests plus 32 subtests.
 
-THE ONE THING A NEWCOMER MUST NOT REDO: the activation/routing problem. Five description changes
-were applied and NONE moved English or French prose-genre activation. The refutation chain is
-above -- nouns, trigger phrases, artefact-versus-genre and ordering are all dead. The workaround
-ships in the release notes and README: add "Use the document-design-intelligence skill." to the
-request. Read the closure ruling before touching the description.
-SCOPE OF THAT PROBLEM (2026-09-11): it is PROSE GENRES -- letter, memo, report, proposal --
-in EN/FR, not English as a whole. The CV prompt fires reliably. See "PROMPT 1 (ENGLISH CV)
-FIRES" above before you write any acceptance brief.
+### V0.3 STARTS HERE. Do these three, in this order.
+**1. SETTLE CANDIDATE L.** Activation 11 (rough notes -> Word) fired 2/2 under description
+   candidate H and has gone docx-only 2/2 under L. L was a pure reorder never shown to help.
+   Procedure, do not skip a step: (a) ONE clean browser run of activation 11 under L; (b) if it
+   still fails, ONE run with L REVERTED. Decide from that, not from the existing n=2.
+**2. DRAFT A CANDIDATE TARGETING THE FILE-NOT-GENRE MECHANISM. DRAFT ONLY — do not apply it.**
+   See "THE CLEAN RUN, 2026-09-11" above for the evidence and the two verbatim Claude quotes.
+   This is the FIRST candidate permitted under the standing rule since L, because the mechanism
+   came from Claude's own account rather than our theorising.
+**3. THE INVOKED-QUALITY PASS** on the published v0.2.0 asset. Per the 2026-09-11 user ruling,
+   v0.3's headline is that the output is GOOD when invoked, not that it auto-fires.
 
-Next work is the v0.3 backlog above. There is no critical path any more; pick from it.
+### WHAT CHANGED ON 2026-09-11 — read before you touch activation
+The day's work was browser acceptance testing, and it overturned things.
+- **The account's custom instructions were a CONFOUND.** They told Claude to ask before acting
+  on anything ambiguous and to keep answers short. Results SCORED ON THE SHAPE of a reply are
+  RETIRED (labelled in place, not deleted). Results where CLAUDE NAMED THE SKILL IT USED STAND,
+  including the whole description-candidate refutation chain. See "WHICH OLD RESULTS SURVIVE".
+  The user switched them off for one clean run and has been asked to restore them.
+- **THE HANDOFF DESIGN WORKS.** Observed live: our SKILL.md then /mnt/skills/public/docx/SKILL.md.
+- **docx and pdf ARE real skills** at /mnt/skills/public/, loaded inside the code-execution
+  capability. Absent from the Settings list is NOT absent from the system.
+- **EN prose is not dead.** The EN memo FIRED for the first time on a clean account. FRENCH
+  prose still failed 0/2 clean, so the French limitation stands on its own.
+- **Detection method:** the SKILL.md paths in the expanded "Ran N commands" line are PRIMARY
+  evidence. The follow-up question "Which skills did you use for this request, and why?"
+  corroborates WHICH skill, but Claude's prose about DETAILS can be inexact. Capture both.
+
+THE ONE THING A NEWCOMER MUST NOT REDO: the activation/routing problem. Five description
+changes were applied and none moved EN/FR prose-genre activation. Nouns, trigger phrases,
+artefact-versus-genre and ordering are all dead — see the refutation chain. The workaround
+ships in the release notes and README: add "Use the document-design-intelligence skill." to the
+request. **The file-not-genre mechanism above is the ONLY live lead. Everything else is closed.**
+SCOPE: the problem is PROSE GENRES (letter, report, proposal) in FRENCH. The EN memo now fires
+and CV prompts fire reliably.
+
+### BROWSER TESTING — the three rules that cost us a session each
+1. **NEVER RELOAD or navigate away mid-trial.** A reload destroyed the accessibility tree and
+   killed a whole run; screenshots kept working so it still looked connected.
+2. **WAIT 20 SECONDS** after Send on a fresh chat before concluding it failed. The message does
+   not render for 10-15s and retyping double-submits.
+3. **The browser panel binds PER CONVERSATION** — the user must open it inside the tester's own
+   conversation. Any other panel gives an identical "not attached" error.
 
 ## LEAD RESUME — for a fresh Workflow Orchestrator LEAD context (read this first)
 You are the team LEAD. Your context was cleared on purpose. Do NOT rebuild history.
-**As of 2026-09-11 there is NO work in flight.** v0.2.0 is published and verified. If you have
+**As of 2026-09-11 (evening) there is NO work in flight.** v0.2.0 is published and verified.
+The day was spent on browser acceptance testing; read the COLD START section directly above for
+what it overturned and for the three v0.3 starting items. If you have
 just woken with no user request, the correct action is to ask the user what they want next, not
 to start something from the backlog.
 - The execution loop is run by a SUB-MANAGER teammate: "Workflow Orchestrator",
