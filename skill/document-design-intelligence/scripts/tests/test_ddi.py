@@ -552,6 +552,25 @@ class TestPdfHandoffCarriesTypeScaleAndPalette(unittest.TestCase):
         _, palette_lines = self._section_values(sections, "palette ")
         self.assertTrue(palette_lines and all(l != ddi.NOT_PRESENT for l in palette_lines), palette_lines)
 
+    def test_quote_devis_pdf_gets_a_sections_block(self):
+        """research/brief-packaging-pdf-sections.md: `_build_pdf_lines` never
+        called `_sections_lines` at all (unlike the docx/pptx/png builders),
+        so pdf's `sections` header did not print, not just its content -- the
+        same "missing block, not empty block" shape as the type-scale/palette
+        gap this class already covers above. `quote-devis`'s ONLY render
+        target is pdf-chromium, so for this family (and the other 8 pdf-only
+        doctypes) the handoff's heading wording reached NO renderer at all.
+        `_section_values` fails outright if the `sections` header is absent,
+        so a still-missing block fails here before the wording check below
+        ever runs."""
+        stdout = self._pdf_handoff("quote-devis")
+        sections = self._sections(stdout)
+        _, values = self._section_values(sections, "sections ")
+        self.assertTrue(
+            values and any(v != ddi.NOT_PRESENT for v in values),
+            f"quote-devis: pdf sections block is empty: {values}")
+        self.assertIn("issuer: From", stdout)
+
 
 class TestPngHandoffBuilder(unittest.TestCase):
     """research/brief-packaging-deck-and-png.md PART B: `_FORMAT_BUILDERS`

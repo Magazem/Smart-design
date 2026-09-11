@@ -1333,6 +1333,44 @@ accented term in the library unsearchable either way. The real cause -- BM25.tok
 splitting on [^a-z0-9]+ -- was fixed instead. When a passing number and a working product
 disagree, this project fixes the product. Cite this the next time a threshold is tempting.
 
+## *** v0.4 BACKLOG -- THE NEXT COLD START STARTS HERE (set 2026-09-11) ***
+Source: research/64-v03-acceptance.md, the v0.3 acceptance gate run against the BUILT ARTEFACT.
+Ranked by that pass. Everything here was MEASURED, not theorised.
+
+**P1 -- EIGHT MORE TABLES STILL DROP PAYLOAD COLUMNS.** v0.3 fixed the four that were briefed
+(headings, structures, constraints, type-scales) and the census then found the same defect
+elsewhere. `cv-regions` shows 2 of 14 columns ON THE CV CONTROL FAMILY, hiding Max Pages, Photo,
+Visa Status, Language Expectation and the `Seniority Band` that is THE ONLY THING distinguishing
+its two returned rows. Also doc-styles 4/15, doc-reasoning 6/10, typefaces 8/15, palettes 8/20,
+page-formats 10/21, render-targets 8/14, doctypes 9/11. Full census in the report.
+**The v0.3 fix was scoped to what was named in a brief. The defect was never scoped that way.**
+
+**P1 -- A TRI-FOLD BROCHURE CARRIES NO FOLD AND NO PANEL WIDTHS.** `a4-trifold` authors
+`Fold Type: tri-fold`, `Panels mm: 99.5;99.5;98.0`, `Measure mm: 88`. None reach any output
+path. A renderer following the handoff lays out one continuous A4 page that folds THROUGH ITS
+OWN BODY TEXT.
+
+**P2 -- ALL 18 STRUCTURES HARD-CODE `Heading Language: en`.** So a French devis gets an invoice's
+sections in ENGLISH, and **126 of the 204 heading rows are unselectable by any request.** The
+three-language heading set is two-thirds unreachable. This is the same shape as the v0.3 P0 --
+authored, gated, shipped, unreachable -- one layer up.
+
+**P2 -- `ddi.py version` CAN NEVER REPORT A STAMP.** build_zip.py writes the stamp AFTER the
+frontmatter by design; ddi.py:869 tests line 1. A behaviour defect, not a version-string value.
+
+**P2 -- the pdf path omits page flow** where constraints resolved (D-J). Check whether v0.3's
+blocker fix already covered it.
+
+**P3 and the rest: D-F, D-G, D-H, D-I in the report.**
+
+### THE LESSON v0.3 SHOULD LEAVE BEHIND
+The P0, the pdf gap and the pdf-sections blocker were ALL THE SAME DEFECT -- a value resolved
+correctly and then dropped at the last step -- found three times in one day, in three places,
+because each fix was scoped to what a brief happened to name. **When you find a dropped-value
+defect, CENSUS THE WHOLE SURFACE before fixing the instance.** The builder-parity test added in
+v0.3 is the structural answer for formats; the column census above is the same question for
+tables and is NOT yet answered.
+
 ## BACKLOG ADDED 2026-09-11
 - **LETTER SPACING: author a sourced `Letter Spacing pt` column before re-adding
   characterSpacing.** The docx `characterSpacing` key was REMOVED in v0.3 (lead ruling): it read
