@@ -103,3 +103,52 @@ find either way.
 
 Report to me in a few lines: parts fixed, handoff carries wording yes/no, pytest green yes/no,
 CR finding. Then STOP.
+
+---
+
+# PART 4 — ADDED 2026-09-11 BY LEAD RULING: THE pdf HANDOFF IS MISSING THREE WHOLE BLOCKS
+
+Folded into this task because it is the same file, the same defect shape, and you are already
+inside `ddi.py` for part 3. Filed as D2, P1 in `research/51-invoked-quality.md`.
+
+## THE DEFECT
+`_build_pdf_lines` (`scripts/ddi.py`, starts line 579) emits **no point sizes, no heading levels
+and no palette.** Not "(not present in this resolution)" — **there is no block for them at all.**
+That is worse than an empty value, because an empty value is visible and a missing block is not.
+
+I confirmed the mechanism directly. `_build_pdf_lines` reads exactly three vocabulary entries:
+
+    page_format_table, render_target_table, typeface_table
+
+It never touches `type_scale_table` or `palette_table`. **The docx and pptx builders both do.**
+So the pdf path silently drops the type scale and the palette that the resolver already
+resolved and handed it.
+
+## WHY IT IS A P1 AND NOT A NICE-TO-HAVE
+It hits `invoice-tabular`, `quote-devis` and `infographic`. **`invoice`'s ONLY render target is
+pdf**, so for that family there is no other path that could deliver sizes or colour. The
+information is resolved, correct, and thrown away at the last step.
+
+This is ruling M's exact shape — the docx handoff shipped with no page size, fonts or palette
+since v0.1.0 — reappearing on the one format two of the six tested families use exclusively.
+
+## WHAT TO DO
+Give the pdf builder the blocks it is missing, in the idiom the pdf builder already uses (it
+emits CSS-ish `@page`/`font-face` constructs, not DXA or half-points — do NOT copy docx's unit
+conversions into it). Decide and state what the correct pdf-side expression of a type scale and
+a palette is. If a block genuinely does not apply to the pdf pipeline, emit the ruled
+`(not present in this resolution)` sentence rather than omitting the block — **a missing block
+is exactly the failure mode that let this hide.**
+
+## PROVE IT THE SAME WAY
+Paste actual before/after output for a pdf-only family:
+
+    python3 scripts/resolve.py --doctype invoice-tabular --json > /some/path.json
+    python3 scripts/ddi.py handoff --json /some/path.json --format pdf
+
+Show sizes and palette values appearing where there was no block. Same test standard as the rest
+of this brief: ask what your test would say if the feature produced nothing at all.
+
+## ORDERING
+Parts 1-3 first — they are the P0 and the critical path. Part 4 after, in the same task. If
+part 4 would delay parts 1-3 landing, tell me and I will split it rather than hold the P0.
