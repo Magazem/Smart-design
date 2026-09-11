@@ -558,6 +558,25 @@ L stays: it states intent, costs nothing, and prompt 13 still passes.
 4. LANGUAGE AS ROOT CAUSE. Superseded. It is a correlate; Claude's own account gave the
    mechanism instead.
 5. SALIENCE / ORDERING. Applied as candidate L. Did NOT fix EN/FR prose genres.
+6. TOKEN PARITY WITH THE COMPETING SKILL. **DEAD, 2026-09-11.** Candidate M put the literal
+   '.docx'/'.pptx' tokens into our own deferral sentence, at the point the priority claim is
+   made, because P6 is Claude naming that exact token as its deciding signal. Activation 11 was
+   re-run VERBATIM on a clean, enabled, unconfounded account with the M build verified installed.
+   **DOCX-ONLY. Identical to L.** Full record: research/60-candidate-M-refuted.md.
+   This was the FIRST candidate built on a mechanism from Claude's own account rather than our
+   theorising, and it still failed. That makes it a STRONGER result than the previous five, not
+   a weaker one -- the standing rule's bar was met and the lever still does not exist.
+   It was killed by its OWN falsification test, written down BEFORE the run. Pre-registering the
+   falsifier is what made one browser run decisive. Keep doing that.
+
+### *** THE DESCRIPTION LEVER IS EXHAUSTED FOR THE NAMED-FORMAT CASE (2026-09-11) ***
+SIX candidates -- F, G, H, lettre, L, M -- have been applied or tested. **NONE has moved routing
+for a prompt that names a format.** Claude's own account (P4, P6) says routing turns on the FILE
+and the NAMED FORMAT, decided before our description is weighed. M tested the one remaining
+reading of that account and it is refuted. **P6's mechanism statement is SPENT.**
+Auto-firing stays deferred behind the documented workaround: add
+"Use the document-design-intelligence skill." to the request. That is the v0.3 ruling and this
+result confirms it.
 
 ### STANDING RULE
 **NO FURTHER DESCRIPTION CANDIDATES WITHOUT A NEW MECHANISM HYPOTHESIS BACKED BY CLAUDE'S OWN
@@ -1415,7 +1434,10 @@ the docx handoff fix). Gate 424 rows over 14 tables, 159 tests plus 32 subtests.
    1005 chars, cap 1023, headroom 18. Sourced from P6, where Claude named the competing skill's
    literal '.docx' token as the deciding signal. Falsifiable by re-running activation 11 VERBATIM.
    A first draft that inserted a Triggers example was REJECTED as refutation-chain item 2 rebuilt.
-   TEST ZIP BUILT AND BYTE-VERIFIED: research/test-builds/, see that README. AWAITING USER UPLOAD.
+   **REFUTED 2026-09-11 -- DOCX-ONLY, identical to L.** Tested clean: build verified installed,
+   skill enabled, confound empty, prompt re-run VERBATIM. Killed by its own pre-registered
+   falsification test. See refutation chain item 6 and research/60-candidate-M-refuted.md.
+   DO NOT APPLY M TO THE REPO.
    If applied to the REPO, it needs a paired NEGATIVE_HEAD_MARKER edit; the shipped ZIP has no
    tests, so the test artefact needed none.
 **3. THE INVOKED-QUALITY PASS. -- DONE 2026-09-11.** research/51-invoked-quality.md, 7 defects
@@ -1455,7 +1477,15 @@ request. **The file-not-genre mechanism above is the ONLY live lead. Everything 
 SCOPE: the problem is PROSE GENRES (letter, report, proposal) in FRENCH. The EN memo now fires
 and CV prompts fire reliably.
 
-### BROWSER TESTING — the three rules that cost us a session each
+### *** THE ACCOUNT DOES NOT HOLD THE PUBLISHED BUILD (as of 2026-09-11) ***
+The user's claude.ai account has **CANDIDATE M installed, not v0.2.0.** M is refuted and will
+not be applied to the repo, so the account carries a build that exists nowhere in the release
+history. **Any browser test that reads "the installed description" will read M** unless this is
+corrected. Either restore the published asset or re-verify what is installed before scoring
+anything. Reference copy: research/test-builds/_published-v0.2.0-reference.zip,
+md5 9e9f30fb08c663686bde842c41dd2c42. Only the USER can change the account.
+
+## BROWSER TESTING — the three rules that cost us a session each
 1. **NEVER RELOAD or navigate away mid-trial.** A reload destroyed the accessibility tree and
    killed a whole run; screenshots kept working so it still looked connected.
 2. **WAIT 20 SECONDS** after Send on a fresh chat before concluding it failed. The message does
