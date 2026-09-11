@@ -656,6 +656,51 @@ Also ruled: prompt 1 asking for content was EXPECTED, and the fix is to append
 " Use placeholder data." to the prompt rather than to treat the ask as a failure.
 The follow-up question is now fixed wording: "Which skills did you use for this request,
 and why?"
+
+## THE ACCOUNT'S CUSTOM INSTRUCTIONS ARE A PROJECT-WIDE CONFOUND (found 2026-09-11)
+Full text quoted in research/48-browser-spotcheck.md Step 0. The user's claude.ai account
+carries "Instructions for Claude" including:
+  "If anything is unclear or ambiguous, ask me to clarify before doing anything. Never run on
+   assumptions."
+  "Keep answers short and to the point unless I explicitly ask for detail."
+  "stick to it and don't go beyond what's asked"
+
+**CONSEQUENCE, and it reaches backwards.** Every activation result whose FAIL reading was
+"Claude asked for details first" -- prompts 2, 3, 4, 5, 12 and the 2026-09-11 smoke test --
+may be THIS INSTRUCTION, not a routing failure. The ask-before-invoke pattern this file has
+called a "test defect" five separate times now has a named cause, and it is not the skill.
+The brevity clauses separately suppress the elaborated design reasoning that several rubrics
+use as their PASS signal.
+
+What this does NOT touch: fire/no-fire results established by skill INVOCATION (the follow-up
+question, or a "Ran N commands" line). Those stand.
+What it DOES undermine: every rubric that scored on the SHAPE of a reply.
+BEFORE the next scored run, decide with the user whether to test with these instructions
+temporarily off. It is their account and their setting -- ASK, never change it.
+
+## "Ran N commands" IS THE UI HALF OF THE DETECTION METHOD (found 2026-09-11)
+A collapsed "Ran 4 commands >" line appeared directly above a reply, meaning scripts executed.
+Expand it to read the command names and it should identify WHICH skill ran. Use it on every
+trial alongside the follow-up question.
+
+## P1 EVIDENCE: THE PICKER OPTIONS ARE OUR OWN DATA (found 2026-09-11)
+On the CV prompt, Claude offered "UK style", "France style", "Gulf/GCC style". Those map
+one-to-one onto cv-regions.csv's uk-*, france-* and gulf-gcc-* keys. A generalist does not
+propose "Gulf/GCC" unprompted as one of three CV regions. Strong evidence the skill fired.
+GENERAL LESSON, worth more than the datapoint: when a reply offers options drawn from the
+library's own vocabulary, that is invocation evidence. Watch for it.
+
+## OPEN QUESTION: IS THERE A USER-VISIBLE docx/pptx SKILL? (raised 2026-09-11, UNRESOLVED)
+The account's skills list shows NO docx or pptx entries. Word/PowerPoint creation appears as
+the built-in capability "Cloud code execution and file creation".
+IF the deferral target is a capability rather than a listed skill, then (a) SKILL.md's opening
+deferral sentence -- about 180 of its 972 characters -- aims at something that may not exist as
+a skill, and (b) activation tests 11, 12 and 13 are premised on "docx activates as top-level
+skill", which may be impossible on this surface.
+DO NOT ACT ON THIS YET. Absent from a settings UI is not absent from the system, earlier
+testing recorded activation 11 "went to docx", and research/24-builtin-alignment.md was built
+on reading Anthropic's real docx/pptx SKILL.md files. Settle it by expanding a "Ran N commands"
+line on a Word-output prompt before touching the description.
 ## THE LESSON OF 2026-09-10: A GREEN GATE DOES NOT MEAN THE OUTPUT SAYS ANYTHING
 Coverage removed the `report-print-print-h1` row and re-ran everything. **The gate STILL PASSED**
 -- `OK: validated 14 table(s)` -- because the remaining rows were perfectly well-formed. Only the
