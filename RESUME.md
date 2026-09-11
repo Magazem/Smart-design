@@ -578,6 +578,17 @@ Auto-firing stays deferred behind the documented workaround: add
 "Use the document-design-intelligence skill." to the request. That is the v0.3 ruling and this
 result confirms it.
 
+### *** STANDING PRACTICE, 2026-09-11: PRE-REGISTER THE FALSIFIER ***
+Ruled by the lead after candidate M. **Every experiment states, IN WRITING AND BEFORE THE RUN,
+the exact prompt that would kill it and what result counts as a kill.**
+M was refuted by one browser run because its §7 said: re-run activation 11 VERBATIM; if it still
+routes to docx with Claude citing the competing skill's criteria, token parity is dead. That is
+what happened, on that prompt, unchanged.
+M's FIRST draft was rejected partly because its test required a REWORDED prompt. Had it shipped,
+the run would have been unscorable and the day would have taught us nothing.
+**A candidate whose test needs a friendlier prompt is not a candidate.** A test written after
+seeing the result is not a test.
+
 ### STANDING RULE
 **NO FURTHER DESCRIPTION CANDIDATES WITHOUT A NEW MECHANISM HYPOTHESIS BACKED BY CLAUDE'S OWN
 ACCOUNT.** Not by our theorising, not by another tally. The one genuinely new fact all day came
