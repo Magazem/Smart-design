@@ -1,0 +1,1325 @@
+=== STAGE 1: CSV columns -> resolved (resolve.py _display_columns) ===
+table            resolved  of  match64  gap columns (non-key, never resolved)
+constraints             8   8      n/a  
+cv-regions              2  14       OK  Date of Birth, Education Before Experience, Evidence Class, Format, Language Expectation, Marital Status, Max Pages, Nationality, Photo, Seniority Band, Visa Status, region_key
+doc-reasoning           6  10       OK  Anti-Pattern Tokens, Doc Conditions, Palette Bias Terms, Severity, Typeface Bias Terms
+doc-styles              4  15       OK  Brand Scope, Checklist, Corner Radius mm, Emphasis Mechanism, Field Style, Not For, Rule Brand pt, Rule Hair pt, Rule Strong pt, Table Fills, Table Rules
+doctypes                9  11       OK  Artifact Class, Brand Scope
+figures                 4  19      n/a  A11y Fallback, Accessibility Grade, Accessibility Notes, Anti-Patterns, Caption Must State, Caption Required, Data Volume Threshold, Greyscale Safe, Label Strategy, Print Palette Roles, Print Series Max, Secondary Options, Static Fallback, When NOT to Use, When to Use
+font-substitutes        1   7      n/a  Licence, Lineage, Metric Identical, Substitute Family, Weights Covered, proprietary_family
+headings                5   5      n/a  
+page-formats           10  21       OK  Columns, Fold Type, Folio Style, Measure mm, Min DPI Line Art, Min DPI Raster, Panels mm, Print Mode, Running Head, Safe Margin mm, Stock gsm
+palettes                8  20       OK  Brand Scope, Category Marker Roles, Fill-Only Roles, Muted, On Accent, On Muted, On Primary, On Secondary, Rule Brand, Rule Hair, Rule Strong, Text-Safe Roles
+render-targets          8  14       OK  Availability, Editable By Recipient, Engine Min Version, Supports Bleed, Supports CMYK, Supports Paged Media
+structures              9   9      n/a  
+type-scales             6   6      n/a  
+typefaces               8  15       OK  Brand Scope, Category Contrast, Embedding Licence, Family Count, Has Tabular Figures, Mono Family, Safe Stack Availability
+
+30 doctypes total; 12/14 tables reached by at least one doctype's FK walk (stage 2 needs a reachable row; stage 1 does not)
+UNREACHABLE (resolve.py-level, not a handoff drop): figures, font-substitutes
+
+=== STAGE 2: resolved -> emitted (per path builder + constraints/preflight) ===
+table           path  doc_key              resolved  emitted  gap  gap columns
+constraints     docx  cv-us                       7        2    5  Applies To, Check, Element Scope, Severity, Threshold
+constraints     pptx  cv-us                       7        2    5  Applies To, Check, Element Scope, Severity, Threshold
+constraints     pdf   cv-us                       7        1    6  Applies To, Check, Element Scope, Parameter, Severity, Threshold
+constraints     png   cv-us                       7        1    6  Applies To, Check, Element Scope, Parameter, Severity, Threshold
+cv-regions      docx  cv-us                       1        0    1  Section Order
+cv-regions      pptx  cv-us                       1        0    1  Section Order
+cv-regions      pdf   cv-us                       1        0    1  Section Order
+cv-regions      png   cv-us                       1        0    1  Section Order
+doc-reasoning   docx  cv-us                       5        0    5  Palette Key, Style Bias Terms, Style Key, Typeface Key, doc_category
+doc-reasoning   pptx  cv-us                       5        0    5  Palette Key, Style Bias Terms, Style Key, Typeface Key, doc_category
+doc-reasoning   pdf   cv-us                       5        0    5  Palette Key, Style Bias Terms, Style Key, Typeface Key, doc_category
+doc-reasoning   png   cv-us                       5        0    5  Palette Key, Style Bias Terms, Style Key, Typeface Key, doc_category
+doc-styles      docx  cv-us                       3        0    3  Best For, Display Name, Keywords
+doc-styles      pptx  cv-us                       3        0    3  Best For, Display Name, Keywords
+doc-styles      pdf   cv-us                       3        0    3  Best For, Display Name, Keywords
+doc-styles      png   cv-us                       3        0    3  Best For, Display Name, Keywords
+doctypes        docx  cv-us                       8        0    8  Constraint Set Keys, Display Name, Keywords, Page Format Key, Reasoning Key, Region Key, Render Target Keys, Structure Key
+doctypes        pptx  cv-us                       8        0    8  Constraint Set Keys, Display Name, Keywords, Page Format Key, Reasoning Key, Region Key, Render Target Keys, Structure Key
+doctypes        pdf   cv-us                       8        0    8  Constraint Set Keys, Display Name, Keywords, Page Format Key, Reasoning Key, Region Key, Render Target Keys, Structure Key
+doctypes        png   cv-us                       8        0    8  Constraint Set Keys, Display Name, Keywords, Page Format Key, Reasoning Key, Region Key, Render Target Keys, Structure Key
+headings        docx  cv-us                       4        4    0  
+headings        pptx  cv-us                       4        4    0  
+headings        pdf   cv-us                       4        4    0  
+headings        png   cv-us                       4        4    0  
+page-formats    docx  cv-us                       9        6    3  Bleed mm, Display Name, Keywords
+page-formats    pptx  cv-us                       9        0    9  Bleed mm, Display Name, Keywords, Margin Bottom mm, Margin Inside mm, Margin Outside mm, Margin Top mm, Trim H mm, Trim W mm
+page-formats    pdf   cv-us                       9        6    3  Bleed mm, Display Name, Keywords
+page-formats    png   cv-us                       9        0    9  Bleed mm, Display Name, Keywords, Margin Bottom mm, Margin Inside mm, Margin Outside mm, Margin Top mm, Trim H mm, Trim W mm
+palettes        docx  cv-us                       7        5    2  Display Name, Keywords
+palettes        pptx  cv-us                       7        5    2  Display Name, Keywords
+palettes        pdf   cv-us                       7        5    2  Display Name, Keywords
+palettes        png   cv-us                       7        5    2  Display Name, Keywords
+render-targets  docx  cv-us                       7        0    7  Engine, Engine Invocation, Engine Path, Fallback Render Key, Font Rule, Format, Print Tier Max
+render-targets  pptx  cv-us                       7        0    7  Engine, Engine Invocation, Engine Path, Fallback Render Key, Font Rule, Format, Print Tier Max
+render-targets  pdf   cv-us                       7        6    1  Fallback Render Key
+render-targets  png   cv-us                       7        1    6  Engine, Engine Invocation, Engine Path, Fallback Render Key, Font Rule, Print Tier Max
+structures      docx  cv-us                       8        2    6  Caption Position, Cross-Ref Style, Display Name, Front Matter Numbering, Heading Depth Max, TOC Depth
+structures      pptx  cv-us                       8        2    6  Caption Position, Cross-Ref Style, Display Name, Front Matter Numbering, Heading Depth Max, TOC Depth
+structures      pdf   cv-us                       8        2    6  Caption Position, Cross-Ref Style, Display Name, Front Matter Numbering, Heading Depth Max, TOC Depth
+structures      png   cv-us                       8        2    6  Caption Position, Cross-Ref Style, Display Name, Front Matter Numbering, Heading Depth Max, TOC Depth
+type-scales     docx  cv-us                       5        2    3  Leading Ratio, Medium, scale_key
+type-scales     pptx  cv-us                       5        2    3  Leading Ratio, Medium, scale_key
+type-scales     pdf   cv-us                       5        2    3  Leading Ratio, Medium, scale_key
+type-scales     png   cv-us                       5        2    3  Leading Ratio, Medium, scale_key
+typefaces       docx  cv-us                       7        3    4  Best For, Display Name, Keywords, Scale Key
+typefaces       pptx  cv-us                       7        3    4  Best For, Display Name, Keywords, Scale Key
+typefaces       pdf   cv-us                       7        2    5  Best For, Display Name, Keywords, Safe Stack Fallback, Scale Key
+typefaces       png   cv-us                       7        0    7  Best For, Body Family, Display Name, Heading Family, Keywords, Safe Stack Fallback, Scale Key
+
+--- machine-readable ---
+{
+  "stage1": {
+    "doctypes": {
+      "denominator": 11,
+      "numerator": 9,
+      "resolved_columns": [
+        "Constraint Set Keys",
+        "Display Name",
+        "Keywords",
+        "Page Format Key",
+        "Reasoning Key",
+        "Region Key",
+        "Render Target Keys",
+        "Structure Key"
+      ],
+      "gap_columns": [
+        "Artifact Class",
+        "Brand Scope"
+      ]
+    },
+    "doc-reasoning": {
+      "denominator": 10,
+      "numerator": 6,
+      "resolved_columns": [
+        "Palette Key",
+        "Style Bias Terms",
+        "Style Key",
+        "Typeface Key",
+        "doc_category"
+      ],
+      "gap_columns": [
+        "Anti-Pattern Tokens",
+        "Doc Conditions",
+        "Palette Bias Terms",
+        "Severity",
+        "Typeface Bias Terms"
+      ]
+    },
+    "doc-styles": {
+      "denominator": 15,
+      "numerator": 4,
+      "resolved_columns": [
+        "Best For",
+        "Display Name",
+        "Keywords"
+      ],
+      "gap_columns": [
+        "Brand Scope",
+        "Checklist",
+        "Corner Radius mm",
+        "Emphasis Mechanism",
+        "Field Style",
+        "Not For",
+        "Rule Brand pt",
+        "Rule Hair pt",
+        "Rule Strong pt",
+        "Table Fills",
+        "Table Rules"
+      ]
+    },
+    "palettes": {
+      "denominator": 20,
+      "numerator": 8,
+      "resolved_columns": [
+        "Accent",
+        "Background",
+        "Display Name",
+        "Foreground",
+        "Keywords",
+        "Primary",
+        "Secondary"
+      ],
+      "gap_columns": [
+        "Brand Scope",
+        "Category Marker Roles",
+        "Fill-Only Roles",
+        "Muted",
+        "On Accent",
+        "On Muted",
+        "On Primary",
+        "On Secondary",
+        "Rule Brand",
+        "Rule Hair",
+        "Rule Strong",
+        "Text-Safe Roles"
+      ]
+    },
+    "typefaces": {
+      "denominator": 15,
+      "numerator": 8,
+      "resolved_columns": [
+        "Best For",
+        "Body Family",
+        "Display Name",
+        "Heading Family",
+        "Keywords",
+        "Safe Stack Fallback",
+        "Scale Key"
+      ],
+      "gap_columns": [
+        "Brand Scope",
+        "Category Contrast",
+        "Embedding Licence",
+        "Family Count",
+        "Has Tabular Figures",
+        "Mono Family",
+        "Safe Stack Availability"
+      ]
+    },
+    "type-scales": {
+      "denominator": 6,
+      "numerator": 6,
+      "resolved_columns": [
+        "Leading Ratio",
+        "Medium",
+        "Role",
+        "Size pt",
+        "scale_key"
+      ],
+      "gap_columns": []
+    },
+    "page-formats": {
+      "denominator": 21,
+      "numerator": 10,
+      "resolved_columns": [
+        "Bleed mm",
+        "Display Name",
+        "Keywords",
+        "Margin Bottom mm",
+        "Margin Inside mm",
+        "Margin Outside mm",
+        "Margin Top mm",
+        "Trim H mm",
+        "Trim W mm"
+      ],
+      "gap_columns": [
+        "Columns",
+        "Fold Type",
+        "Folio Style",
+        "Measure mm",
+        "Min DPI Line Art",
+        "Min DPI Raster",
+        "Panels mm",
+        "Print Mode",
+        "Running Head",
+        "Safe Margin mm",
+        "Stock gsm"
+      ]
+    },
+    "render-targets": {
+      "denominator": 14,
+      "numerator": 8,
+      "resolved_columns": [
+        "Engine",
+        "Engine Invocation",
+        "Engine Path",
+        "Fallback Render Key",
+        "Font Rule",
+        "Format",
+        "Print Tier Max"
+      ],
+      "gap_columns": [
+        "Availability",
+        "Editable By Recipient",
+        "Engine Min Version",
+        "Supports Bleed",
+        "Supports CMYK",
+        "Supports Paged Media"
+      ]
+    },
+    "constraints": {
+      "denominator": 8,
+      "numerator": 8,
+      "resolved_columns": [
+        "Applies To",
+        "Check",
+        "Element Scope",
+        "Parameter",
+        "Set Key",
+        "Severity",
+        "Threshold"
+      ],
+      "gap_columns": []
+    },
+    "structures": {
+      "denominator": 9,
+      "numerator": 9,
+      "resolved_columns": [
+        "Caption Position",
+        "Cross-Ref Style",
+        "Display Name",
+        "Front Matter Numbering",
+        "Heading Depth Max",
+        "Heading Language",
+        "Section Order",
+        "TOC Depth"
+      ],
+      "gap_columns": []
+    },
+    "figures": {
+      "denominator": 19,
+      "numerator": 4,
+      "resolved_columns": [
+        "Best Chart Type",
+        "Data Type",
+        "Keywords"
+      ],
+      "gap_columns": [
+        "A11y Fallback",
+        "Accessibility Grade",
+        "Accessibility Notes",
+        "Anti-Patterns",
+        "Caption Must State",
+        "Caption Required",
+        "Data Volume Threshold",
+        "Greyscale Safe",
+        "Label Strategy",
+        "Print Palette Roles",
+        "Print Series Max",
+        "Secondary Options",
+        "Static Fallback",
+        "When NOT to Use",
+        "When to Use"
+      ]
+    },
+    "cv-regions": {
+      "denominator": 14,
+      "numerator": 2,
+      "resolved_columns": [
+        "Section Order"
+      ],
+      "gap_columns": [
+        "Date of Birth",
+        "Education Before Experience",
+        "Evidence Class",
+        "Format",
+        "Language Expectation",
+        "Marital Status",
+        "Max Pages",
+        "Nationality",
+        "Photo",
+        "Seniority Band",
+        "Visa Status",
+        "region_key"
+      ]
+    },
+    "headings": {
+      "denominator": 5,
+      "numerator": 5,
+      "resolved_columns": [
+        "Heading Text",
+        "Is Primary",
+        "Language",
+        "canonical_section"
+      ],
+      "gap_columns": []
+    },
+    "font-substitutes": {
+      "denominator": 7,
+      "numerator": 1,
+      "resolved_columns": [],
+      "gap_columns": [
+        "Licence",
+        "Lineage",
+        "Metric Identical",
+        "Substitute Family",
+        "Weights Covered",
+        "proprietary_family"
+      ]
+    }
+  },
+  "stage2_unreachable_tables": [
+    "figures",
+    "font-substitutes"
+  ],
+  "stage2_results": {
+    "constraints|docx": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Applies To",
+        "Check",
+        "Element Scope",
+        "Parameter",
+        "Set Key",
+        "Severity",
+        "Threshold"
+      ],
+      "emitted": [
+        "Parameter",
+        "Set Key"
+      ],
+      "gap": [
+        "Applies To",
+        "Check",
+        "Element Scope",
+        "Severity",
+        "Threshold"
+      ]
+    },
+    "constraints|pptx": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Applies To",
+        "Check",
+        "Element Scope",
+        "Parameter",
+        "Set Key",
+        "Severity",
+        "Threshold"
+      ],
+      "emitted": [
+        "Parameter",
+        "Set Key"
+      ],
+      "gap": [
+        "Applies To",
+        "Check",
+        "Element Scope",
+        "Severity",
+        "Threshold"
+      ]
+    },
+    "constraints|pdf": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Applies To",
+        "Check",
+        "Element Scope",
+        "Parameter",
+        "Set Key",
+        "Severity",
+        "Threshold"
+      ],
+      "emitted": [
+        "Set Key"
+      ],
+      "gap": [
+        "Applies To",
+        "Check",
+        "Element Scope",
+        "Parameter",
+        "Severity",
+        "Threshold"
+      ]
+    },
+    "constraints|png": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Applies To",
+        "Check",
+        "Element Scope",
+        "Parameter",
+        "Set Key",
+        "Severity",
+        "Threshold"
+      ],
+      "emitted": [
+        "Set Key"
+      ],
+      "gap": [
+        "Applies To",
+        "Check",
+        "Element Scope",
+        "Parameter",
+        "Severity",
+        "Threshold"
+      ]
+    },
+    "cv-regions|docx": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Section Order"
+      ],
+      "emitted": [],
+      "gap": [
+        "Section Order"
+      ]
+    },
+    "cv-regions|pptx": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Section Order"
+      ],
+      "emitted": [],
+      "gap": [
+        "Section Order"
+      ]
+    },
+    "cv-regions|pdf": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Section Order"
+      ],
+      "emitted": [],
+      "gap": [
+        "Section Order"
+      ]
+    },
+    "cv-regions|png": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Section Order"
+      ],
+      "emitted": [],
+      "gap": [
+        "Section Order"
+      ]
+    },
+    "doc-reasoning|docx": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Palette Key",
+        "Style Bias Terms",
+        "Style Key",
+        "Typeface Key",
+        "doc_category"
+      ],
+      "emitted": [],
+      "gap": [
+        "Palette Key",
+        "Style Bias Terms",
+        "Style Key",
+        "Typeface Key",
+        "doc_category"
+      ]
+    },
+    "doc-reasoning|pptx": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Palette Key",
+        "Style Bias Terms",
+        "Style Key",
+        "Typeface Key",
+        "doc_category"
+      ],
+      "emitted": [],
+      "gap": [
+        "Palette Key",
+        "Style Bias Terms",
+        "Style Key",
+        "Typeface Key",
+        "doc_category"
+      ]
+    },
+    "doc-reasoning|pdf": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Palette Key",
+        "Style Bias Terms",
+        "Style Key",
+        "Typeface Key",
+        "doc_category"
+      ],
+      "emitted": [],
+      "gap": [
+        "Palette Key",
+        "Style Bias Terms",
+        "Style Key",
+        "Typeface Key",
+        "doc_category"
+      ]
+    },
+    "doc-reasoning|png": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Palette Key",
+        "Style Bias Terms",
+        "Style Key",
+        "Typeface Key",
+        "doc_category"
+      ],
+      "emitted": [],
+      "gap": [
+        "Palette Key",
+        "Style Bias Terms",
+        "Style Key",
+        "Typeface Key",
+        "doc_category"
+      ]
+    },
+    "doc-styles|docx": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Best For",
+        "Display Name",
+        "Keywords"
+      ],
+      "emitted": [],
+      "gap": [
+        "Best For",
+        "Display Name",
+        "Keywords"
+      ]
+    },
+    "doc-styles|pptx": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Best For",
+        "Display Name",
+        "Keywords"
+      ],
+      "emitted": [],
+      "gap": [
+        "Best For",
+        "Display Name",
+        "Keywords"
+      ]
+    },
+    "doc-styles|pdf": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Best For",
+        "Display Name",
+        "Keywords"
+      ],
+      "emitted": [],
+      "gap": [
+        "Best For",
+        "Display Name",
+        "Keywords"
+      ]
+    },
+    "doc-styles|png": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Best For",
+        "Display Name",
+        "Keywords"
+      ],
+      "emitted": [],
+      "gap": [
+        "Best For",
+        "Display Name",
+        "Keywords"
+      ]
+    },
+    "doctypes|docx": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Constraint Set Keys",
+        "Display Name",
+        "Keywords",
+        "Page Format Key",
+        "Reasoning Key",
+        "Region Key",
+        "Render Target Keys",
+        "Structure Key"
+      ],
+      "emitted": [],
+      "gap": [
+        "Constraint Set Keys",
+        "Display Name",
+        "Keywords",
+        "Page Format Key",
+        "Reasoning Key",
+        "Region Key",
+        "Render Target Keys",
+        "Structure Key"
+      ]
+    },
+    "doctypes|pptx": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Constraint Set Keys",
+        "Display Name",
+        "Keywords",
+        "Page Format Key",
+        "Reasoning Key",
+        "Region Key",
+        "Render Target Keys",
+        "Structure Key"
+      ],
+      "emitted": [],
+      "gap": [
+        "Constraint Set Keys",
+        "Display Name",
+        "Keywords",
+        "Page Format Key",
+        "Reasoning Key",
+        "Region Key",
+        "Render Target Keys",
+        "Structure Key"
+      ]
+    },
+    "doctypes|pdf": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Constraint Set Keys",
+        "Display Name",
+        "Keywords",
+        "Page Format Key",
+        "Reasoning Key",
+        "Region Key",
+        "Render Target Keys",
+        "Structure Key"
+      ],
+      "emitted": [],
+      "gap": [
+        "Constraint Set Keys",
+        "Display Name",
+        "Keywords",
+        "Page Format Key",
+        "Reasoning Key",
+        "Region Key",
+        "Render Target Keys",
+        "Structure Key"
+      ]
+    },
+    "doctypes|png": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Constraint Set Keys",
+        "Display Name",
+        "Keywords",
+        "Page Format Key",
+        "Reasoning Key",
+        "Region Key",
+        "Render Target Keys",
+        "Structure Key"
+      ],
+      "emitted": [],
+      "gap": [
+        "Constraint Set Keys",
+        "Display Name",
+        "Keywords",
+        "Page Format Key",
+        "Reasoning Key",
+        "Region Key",
+        "Render Target Keys",
+        "Structure Key"
+      ]
+    },
+    "headings|docx": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Heading Text",
+        "Is Primary",
+        "Language",
+        "canonical_section"
+      ],
+      "emitted": [
+        "Heading Text",
+        "Is Primary",
+        "Language",
+        "canonical_section"
+      ],
+      "gap": []
+    },
+    "headings|pptx": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Heading Text",
+        "Is Primary",
+        "Language",
+        "canonical_section"
+      ],
+      "emitted": [
+        "Heading Text",
+        "Is Primary",
+        "Language",
+        "canonical_section"
+      ],
+      "gap": []
+    },
+    "headings|pdf": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Heading Text",
+        "Is Primary",
+        "Language",
+        "canonical_section"
+      ],
+      "emitted": [
+        "Heading Text",
+        "Is Primary",
+        "Language",
+        "canonical_section"
+      ],
+      "gap": []
+    },
+    "headings|png": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Heading Text",
+        "Is Primary",
+        "Language",
+        "canonical_section"
+      ],
+      "emitted": [
+        "Heading Text",
+        "Is Primary",
+        "Language",
+        "canonical_section"
+      ],
+      "gap": []
+    },
+    "page-formats|docx": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Bleed mm",
+        "Display Name",
+        "Keywords",
+        "Margin Bottom mm",
+        "Margin Inside mm",
+        "Margin Outside mm",
+        "Margin Top mm",
+        "Trim H mm",
+        "Trim W mm"
+      ],
+      "emitted": [
+        "Margin Bottom mm",
+        "Margin Inside mm",
+        "Margin Outside mm",
+        "Margin Top mm",
+        "Trim H mm",
+        "Trim W mm"
+      ],
+      "gap": [
+        "Bleed mm",
+        "Display Name",
+        "Keywords"
+      ]
+    },
+    "page-formats|pptx": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Bleed mm",
+        "Display Name",
+        "Keywords",
+        "Margin Bottom mm",
+        "Margin Inside mm",
+        "Margin Outside mm",
+        "Margin Top mm",
+        "Trim H mm",
+        "Trim W mm"
+      ],
+      "emitted": [],
+      "gap": [
+        "Bleed mm",
+        "Display Name",
+        "Keywords",
+        "Margin Bottom mm",
+        "Margin Inside mm",
+        "Margin Outside mm",
+        "Margin Top mm",
+        "Trim H mm",
+        "Trim W mm"
+      ]
+    },
+    "page-formats|pdf": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Bleed mm",
+        "Display Name",
+        "Keywords",
+        "Margin Bottom mm",
+        "Margin Inside mm",
+        "Margin Outside mm",
+        "Margin Top mm",
+        "Trim H mm",
+        "Trim W mm"
+      ],
+      "emitted": [
+        "Margin Bottom mm",
+        "Margin Inside mm",
+        "Margin Outside mm",
+        "Margin Top mm",
+        "Trim H mm",
+        "Trim W mm"
+      ],
+      "gap": [
+        "Bleed mm",
+        "Display Name",
+        "Keywords"
+      ]
+    },
+    "page-formats|png": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Bleed mm",
+        "Display Name",
+        "Keywords",
+        "Margin Bottom mm",
+        "Margin Inside mm",
+        "Margin Outside mm",
+        "Margin Top mm",
+        "Trim H mm",
+        "Trim W mm"
+      ],
+      "emitted": [],
+      "gap": [
+        "Bleed mm",
+        "Display Name",
+        "Keywords",
+        "Margin Bottom mm",
+        "Margin Inside mm",
+        "Margin Outside mm",
+        "Margin Top mm",
+        "Trim H mm",
+        "Trim W mm"
+      ]
+    },
+    "palettes|docx": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Accent",
+        "Background",
+        "Display Name",
+        "Foreground",
+        "Keywords",
+        "Primary",
+        "Secondary"
+      ],
+      "emitted": [
+        "Accent",
+        "Background",
+        "Foreground",
+        "Primary",
+        "Secondary"
+      ],
+      "gap": [
+        "Display Name",
+        "Keywords"
+      ]
+    },
+    "palettes|pptx": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Accent",
+        "Background",
+        "Display Name",
+        "Foreground",
+        "Keywords",
+        "Primary",
+        "Secondary"
+      ],
+      "emitted": [
+        "Accent",
+        "Background",
+        "Foreground",
+        "Primary",
+        "Secondary"
+      ],
+      "gap": [
+        "Display Name",
+        "Keywords"
+      ]
+    },
+    "palettes|pdf": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Accent",
+        "Background",
+        "Display Name",
+        "Foreground",
+        "Keywords",
+        "Primary",
+        "Secondary"
+      ],
+      "emitted": [
+        "Accent",
+        "Background",
+        "Foreground",
+        "Primary",
+        "Secondary"
+      ],
+      "gap": [
+        "Display Name",
+        "Keywords"
+      ]
+    },
+    "palettes|png": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Accent",
+        "Background",
+        "Display Name",
+        "Foreground",
+        "Keywords",
+        "Primary",
+        "Secondary"
+      ],
+      "emitted": [
+        "Accent",
+        "Background",
+        "Foreground",
+        "Primary",
+        "Secondary"
+      ],
+      "gap": [
+        "Display Name",
+        "Keywords"
+      ]
+    },
+    "render-targets|docx": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Engine",
+        "Engine Invocation",
+        "Engine Path",
+        "Fallback Render Key",
+        "Font Rule",
+        "Format",
+        "Print Tier Max"
+      ],
+      "emitted": [],
+      "gap": [
+        "Engine",
+        "Engine Invocation",
+        "Engine Path",
+        "Fallback Render Key",
+        "Font Rule",
+        "Format",
+        "Print Tier Max"
+      ]
+    },
+    "render-targets|pptx": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Engine",
+        "Engine Invocation",
+        "Engine Path",
+        "Fallback Render Key",
+        "Font Rule",
+        "Format",
+        "Print Tier Max"
+      ],
+      "emitted": [],
+      "gap": [
+        "Engine",
+        "Engine Invocation",
+        "Engine Path",
+        "Fallback Render Key",
+        "Font Rule",
+        "Format",
+        "Print Tier Max"
+      ]
+    },
+    "render-targets|pdf": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Engine",
+        "Engine Invocation",
+        "Engine Path",
+        "Fallback Render Key",
+        "Font Rule",
+        "Format",
+        "Print Tier Max"
+      ],
+      "emitted": [
+        "Engine",
+        "Engine Invocation",
+        "Engine Path",
+        "Font Rule",
+        "Format",
+        "Print Tier Max"
+      ],
+      "gap": [
+        "Fallback Render Key"
+      ]
+    },
+    "render-targets|png": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Engine",
+        "Engine Invocation",
+        "Engine Path",
+        "Fallback Render Key",
+        "Font Rule",
+        "Format",
+        "Print Tier Max"
+      ],
+      "emitted": [
+        "Format"
+      ],
+      "gap": [
+        "Engine",
+        "Engine Invocation",
+        "Engine Path",
+        "Fallback Render Key",
+        "Font Rule",
+        "Print Tier Max"
+      ]
+    },
+    "structures|docx": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Caption Position",
+        "Cross-Ref Style",
+        "Display Name",
+        "Front Matter Numbering",
+        "Heading Depth Max",
+        "Heading Language",
+        "Section Order",
+        "TOC Depth"
+      ],
+      "emitted": [
+        "Heading Language",
+        "Section Order"
+      ],
+      "gap": [
+        "Caption Position",
+        "Cross-Ref Style",
+        "Display Name",
+        "Front Matter Numbering",
+        "Heading Depth Max",
+        "TOC Depth"
+      ]
+    },
+    "structures|pptx": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Caption Position",
+        "Cross-Ref Style",
+        "Display Name",
+        "Front Matter Numbering",
+        "Heading Depth Max",
+        "Heading Language",
+        "Section Order",
+        "TOC Depth"
+      ],
+      "emitted": [
+        "Heading Language",
+        "Section Order"
+      ],
+      "gap": [
+        "Caption Position",
+        "Cross-Ref Style",
+        "Display Name",
+        "Front Matter Numbering",
+        "Heading Depth Max",
+        "TOC Depth"
+      ]
+    },
+    "structures|pdf": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Caption Position",
+        "Cross-Ref Style",
+        "Display Name",
+        "Front Matter Numbering",
+        "Heading Depth Max",
+        "Heading Language",
+        "Section Order",
+        "TOC Depth"
+      ],
+      "emitted": [
+        "Heading Language",
+        "Section Order"
+      ],
+      "gap": [
+        "Caption Position",
+        "Cross-Ref Style",
+        "Display Name",
+        "Front Matter Numbering",
+        "Heading Depth Max",
+        "TOC Depth"
+      ]
+    },
+    "structures|png": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Caption Position",
+        "Cross-Ref Style",
+        "Display Name",
+        "Front Matter Numbering",
+        "Heading Depth Max",
+        "Heading Language",
+        "Section Order",
+        "TOC Depth"
+      ],
+      "emitted": [
+        "Heading Language",
+        "Section Order"
+      ],
+      "gap": [
+        "Caption Position",
+        "Cross-Ref Style",
+        "Display Name",
+        "Front Matter Numbering",
+        "Heading Depth Max",
+        "TOC Depth"
+      ]
+    },
+    "type-scales|docx": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Leading Ratio",
+        "Medium",
+        "Role",
+        "Size pt",
+        "scale_key"
+      ],
+      "emitted": [
+        "Role",
+        "Size pt"
+      ],
+      "gap": [
+        "Leading Ratio",
+        "Medium",
+        "scale_key"
+      ]
+    },
+    "type-scales|pptx": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Leading Ratio",
+        "Medium",
+        "Role",
+        "Size pt",
+        "scale_key"
+      ],
+      "emitted": [
+        "Role",
+        "Size pt"
+      ],
+      "gap": [
+        "Leading Ratio",
+        "Medium",
+        "scale_key"
+      ]
+    },
+    "type-scales|pdf": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Leading Ratio",
+        "Medium",
+        "Role",
+        "Size pt",
+        "scale_key"
+      ],
+      "emitted": [
+        "Role",
+        "Size pt"
+      ],
+      "gap": [
+        "Leading Ratio",
+        "Medium",
+        "scale_key"
+      ]
+    },
+    "type-scales|png": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Leading Ratio",
+        "Medium",
+        "Role",
+        "Size pt",
+        "scale_key"
+      ],
+      "emitted": [
+        "Role",
+        "Size pt"
+      ],
+      "gap": [
+        "Leading Ratio",
+        "Medium",
+        "scale_key"
+      ]
+    },
+    "typefaces|docx": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Best For",
+        "Body Family",
+        "Display Name",
+        "Heading Family",
+        "Keywords",
+        "Safe Stack Fallback",
+        "Scale Key"
+      ],
+      "emitted": [
+        "Body Family",
+        "Heading Family",
+        "Safe Stack Fallback"
+      ],
+      "gap": [
+        "Best For",
+        "Display Name",
+        "Keywords",
+        "Scale Key"
+      ]
+    },
+    "typefaces|pptx": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Best For",
+        "Body Family",
+        "Display Name",
+        "Heading Family",
+        "Keywords",
+        "Safe Stack Fallback",
+        "Scale Key"
+      ],
+      "emitted": [
+        "Body Family",
+        "Heading Family",
+        "Safe Stack Fallback"
+      ],
+      "gap": [
+        "Best For",
+        "Display Name",
+        "Keywords",
+        "Scale Key"
+      ]
+    },
+    "typefaces|pdf": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Best For",
+        "Body Family",
+        "Display Name",
+        "Heading Family",
+        "Keywords",
+        "Safe Stack Fallback",
+        "Scale Key"
+      ],
+      "emitted": [
+        "Body Family",
+        "Heading Family"
+      ],
+      "gap": [
+        "Best For",
+        "Display Name",
+        "Keywords",
+        "Safe Stack Fallback",
+        "Scale Key"
+      ]
+    },
+    "typefaces|png": {
+      "doc_key": "cv-us",
+      "resolved": [
+        "Best For",
+        "Body Family",
+        "Display Name",
+        "Heading Family",
+        "Keywords",
+        "Safe Stack Fallback",
+        "Scale Key"
+      ],
+      "emitted": [],
+      "gap": [
+        "Best For",
+        "Body Family",
+        "Display Name",
+        "Heading Family",
+        "Keywords",
+        "Safe Stack Fallback",
+        "Scale Key"
+      ]
+    }
+  }
+}

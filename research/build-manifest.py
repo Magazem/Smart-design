@@ -31,16 +31,16 @@ YNA = ["yes", "no", "n/a"]
 tables = {}
 
 #: `display_columns` -- the columns a resolved row of this table SHOWS (resolve.py
-#: `_display_columns`). Declaring it OVERRIDES the default outright, so each list below is
-#: a SUPERSET: today's default (searchable columns, then this table's own FK source
-#: columns, in that order) PLUS every column `ddi.py handoff` reads out of that table.
-#: Written here and never by hand in data/schema-manifest.json -- that file is generated,
-#: and a hand-added key is wiped by the next run of this script. Eight tables get one; they
-#: are exactly the eight `ddi.py`'s HANDOFF_VOCAB names (research/54 part 3 added `structures`
-#: and `headings` -- HANDOFF_VOCAB referenced neither, so the section order and the heading
-#: wording it names never reached a renderer). Without it a handoff block resolves the right
-#: rows and then prints nothing from them, which is how v0.1.0 shipped with no page size, no
-#: fonts and no palette, and how v0.2.0 shipped with no heading wording.
+#: `_display_columns`). Per Manager D7, the policy is include-all: every table exposes
+#: every one of its own CSV columns (its key column excepted, since that is renamed to
+#: `"key"` rather than dropped). `display_columns` is set for every table in the loop
+#: below, right after all tables are defined, rather than hand-authored per table --
+#: research/66's census found the old hand-authored-superset approach (a list written for
+#: only the tables a handoff builder happened to read) silently dropped columns for six
+#: other tables (`cv-regions`, `doc-reasoning`, `doc-styles`, `doctypes` had no declaration
+#: at all; `typefaces`, `palettes`, `page-formats`, `render-targets` had one that was never
+#: extended). Any future exclusion must be declared in `DISPLAY_EXCLUSIONS` below with a
+#: reason string -- none is expected today.
 
 tables["doctypes"] = {
     "filename": "doctypes.csv",
@@ -134,8 +134,6 @@ tables["palettes"] = {
                      "Category Marker Roles": ";"},
     "distinct_token_columns": {"Text-Safe Roles": ";", "Fill-Only Roles": ";",
                                "Category Marker Roles": ";"},
-    "display_columns": ["Display Name", "Keywords", "Primary", "Secondary", "Accent",
-                        "Background", "Foreground"],
     "searchable_columns": ["Display Name", "Keywords"],
     "typed_json_columns": [],
     "derived": [
@@ -166,8 +164,6 @@ tables["typefaces"] = {
         "Has Tabular Figures": ["yes", "unknown"],
     },
     "foreign_keys": {"Scale Key": group("type-scales", "scale_key")},
-    "display_columns": ["Display Name", "Keywords", "Best For", "Scale Key",
-                        "Heading Family", "Body Family", "Safe Stack Fallback"],
     "searchable_columns": ["Display Name", "Keywords", "Best For"],
     "typed_json_columns": [],
     "derived": [],
@@ -183,7 +179,6 @@ tables["type-scales"] = {
         "Role": ["legal", "label", "caption", "body", "body-dense", "lead", "h3", "h2", "h1"],
     },
     "foreign_keys": {},
-    "display_columns": ["scale_key", "Medium", "Role", "Size pt", "Leading Ratio"],
     "searchable_columns": [],
     "typed_json_columns": [],
     "derived": [],
@@ -210,9 +205,6 @@ tables["page-formats"] = {
     # `a4-trifold` is `99.5;99.5;98.0` and `letter-gatefold` is
     # `53.175;54.775;54.775;53.175`. A blanket "no repeated token in any list column"
     # rule would fail four correct rows here, which is why the check is opt-in.
-    "display_columns": ["Display Name", "Keywords", "Trim W mm", "Trim H mm",
-                        "Margin Top mm", "Margin Bottom mm", "Margin Inside mm",
-                        "Margin Outside mm", "Bleed mm"],
     "searchable_columns": ["Display Name", "Keywords"],
     "typed_json_columns": [],
     "derived": [],
@@ -236,8 +228,6 @@ tables["render-targets"] = {
         "Availability": ["preinstalled", "pip", "unverified"],
     },
     "foreign_keys": {"Fallback Render Key": "render-targets.render_key"},
-    "display_columns": ["Fallback Render Key", "Format", "Engine", "Engine Path",
-                        "Engine Invocation", "Font Rule", "Print Tier Max"],
     "searchable_columns": [],
     "typed_json_columns": [],
     "derived": [],
@@ -264,8 +254,6 @@ tables["constraints"] = {
         "Threshold": {"pattern": "^[a-z][a-z-]*:[A-Za-z][A-Za-z0-9 -]*$",
                       "must_resolve": True},
     },
-    "display_columns": ["Set Key", "Applies To", "Check", "Element Scope", "Parameter",
-                        "Threshold", "Severity"],
     "searchable_columns": [],
     "typed_json_columns": [],
     "derived": [],
@@ -285,9 +273,6 @@ tables["structures"] = {
     "foreign_keys": {"Section Order": group("headings", "canonical_section", is_list=True)},
     "list_columns": {"Section Order": ";"},
     "distinct_token_columns": {"Section Order": ";"},
-    "display_columns": ["Display Name", "Section Order", "Heading Language",
-                        "Heading Depth Max", "TOC Depth", "Front Matter Numbering",
-                        "Caption Position", "Cross-Ref Style"],
     "searchable_columns": ["Display Name"],
     "typed_json_columns": [],
     "derived": [],
@@ -368,7 +353,6 @@ tables["headings"] = {
     "key_column": "heading_key",
     "enums": {"Language": ["en", "fr", "de"], "Is Primary": YN},
     "foreign_keys": {},
-    "display_columns": ["canonical_section", "Heading Text", "Language", "Is Primary"],
     "searchable_columns": [],
     "typed_json_columns": [],
     "derived": [],
@@ -391,6 +375,19 @@ tables["font-substitutes"] = {
     "typed_json_columns": [],
     "derived": [],
 }
+
+#: DISPLAY_EXCLUSIONS -- table -> {column: reason}. The only place a column may be kept
+#: out of `display_columns` (Manager D7's include-all policy). Read by
+#: scripts/tests/test_column_parity.py (via `ast`, not import) to know which raw CSV
+#: columns a table's resolved row is deliberately not showing. Empty today -- no
+#: exclusion is expected; every column of every table (figures and font-substitutes
+#: included, Brand Scope included) reaches resolve.py's resolved JSON.
+DISPLAY_EXCLUSIONS = {}
+
+for _name, _t in tables.items():
+    _excluded = DISPLAY_EXCLUSIONS.get(_name, {})
+    _t["display_columns"] = [c for c in _t["columns"]
+                              if c != _t["key_column"] and c not in _excluded]
 
 manifest = {"schemaVersion": 1, "tables": tables}
 

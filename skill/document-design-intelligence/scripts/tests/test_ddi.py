@@ -787,5 +787,51 @@ class TestHandoffBuilderParity(unittest.TestCase):
                         f"printed but carries no lines at all")
 
 
+class TestCvRegionRowCoverage(unittest.TestCase):
+    """research/64 D-B: cv-uk resolves TWO cv-regions rows (`uk-early`,
+    `uk-experienced`) with DIFFERENT Section Orders, but `_cv_region_lines`
+    used `_first_row` and printed only the first row's Seniority Band --
+    silently dropping `uk-experienced` and its Section Order entirely. "a
+    consumer receives two alternative section orders and nothing that says
+    which one applies" (the complaint) is not fixed by picking one row and
+    calling it done; every resolved cv-regions row must reach the handoff,
+    each with its OWN Section Order, on all four format paths."""
+
+    DOCTYPE = "cv-uk"
+    FORMATS = tuple(ddi._FORMAT_BUILDERS)
+
+    #: cv-uk's two authored cv-regions rows (data/base/cv-regions.csv), each
+    #: with a genuinely different Section Order -- confirmed by resolving
+    #: cv-uk directly before writing this test.
+    EXPECTED_ROWS = {
+        "early": "contact;summary;education;experience;skills",
+        "experienced": "contact;summary;experience;education;skills",
+    }
+
+    def _handoff(self, fmt):
+        resolved = _run(["resolve", "--doctype", self.DOCTYPE, "--json"])
+        self.assertEqual(resolved.returncode, 0, resolved.stderr)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "resolved.json"
+            path.write_text(resolved.stdout, encoding="utf-8")
+            proc = _run(["handoff", "--json", str(path), "--format", fmt])
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        return proc.stdout
+
+    def test_every_resolved_cv_region_row_and_its_own_section_order_appears(self):
+        for fmt in self.FORMATS:
+            output = self._handoff(fmt)
+            for band, section_order in self.EXPECTED_ROWS.items():
+                with self.subTest(format=fmt, band=band):
+                    self.assertIn(
+                        band, output,
+                        f"format={fmt}: Seniority Band {band!r} missing from "
+                        f"handoff -- a resolved cv-regions row was dropped")
+                    self.assertIn(
+                        section_order, output,
+                        f"format={fmt}: Section Order {section_order!r} (for "
+                        f"band {band!r}) missing from handoff")
+
+
 if __name__ == "__main__":
     unittest.main()

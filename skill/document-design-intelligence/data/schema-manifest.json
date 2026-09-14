@@ -60,7 +60,19 @@
         "Keywords"
       ],
       "typed_json_columns": [],
-      "derived": []
+      "derived": [],
+      "display_columns": [
+        "Display Name",
+        "Keywords",
+        "Artifact Class",
+        "Brand Scope",
+        "Reasoning Key",
+        "Page Format Key",
+        "Render Target Keys",
+        "Constraint Set Keys",
+        "Structure Key",
+        "Region Key"
+      ]
     },
     "doc-reasoning": {
       "filename": "doc-reasoning.csv",
@@ -99,7 +111,18 @@
         "Style Bias Terms"
       ],
       "typed_json_columns": [],
-      "derived": []
+      "derived": [],
+      "display_columns": [
+        "Style Key",
+        "Palette Key",
+        "Typeface Key",
+        "Style Bias Terms",
+        "Palette Bias Terms",
+        "Typeface Bias Terms",
+        "Doc Conditions",
+        "Anti-Pattern Tokens",
+        "Severity"
+      ]
     },
     "doc-styles": {
       "filename": "doc-styles.csv",
@@ -156,7 +179,23 @@
         "Best For"
       ],
       "typed_json_columns": [],
-      "derived": []
+      "derived": [],
+      "display_columns": [
+        "Display Name",
+        "Keywords",
+        "Best For",
+        "Not For",
+        "Brand Scope",
+        "Rule Hair pt",
+        "Rule Strong pt",
+        "Rule Brand pt",
+        "Corner Radius mm",
+        "Table Rules",
+        "Table Fills",
+        "Emphasis Mechanism",
+        "Field Style",
+        "Checklist"
+      ]
     },
     "palettes": {
       "filename": "palettes.csv",
@@ -195,15 +234,6 @@
         "Fill-Only Roles": ";",
         "Category Marker Roles": ";"
       },
-      "display_columns": [
-        "Display Name",
-        "Keywords",
-        "Primary",
-        "Secondary",
-        "Accent",
-        "Background",
-        "Foreground"
-      ],
       "searchable_columns": [
         "Display Name",
         "Keywords"
@@ -240,6 +270,27 @@
           "against_column": "Muted",
           "min_ratio": 4.5
         }
+      ],
+      "display_columns": [
+        "Display Name",
+        "Keywords",
+        "Brand Scope",
+        "Primary",
+        "On Primary",
+        "Secondary",
+        "On Secondary",
+        "Accent",
+        "On Accent",
+        "Background",
+        "Foreground",
+        "Muted",
+        "On Muted",
+        "Rule Hair",
+        "Rule Strong",
+        "Rule Brand",
+        "Text-Safe Roles",
+        "Fill-Only Roles",
+        "Category Marker Roles"
       ]
     },
     "typefaces": {
@@ -293,22 +344,29 @@
           "group": true
         }
       },
-      "display_columns": [
-        "Display Name",
-        "Keywords",
-        "Best For",
-        "Scale Key",
-        "Heading Family",
-        "Body Family",
-        "Safe Stack Fallback"
-      ],
       "searchable_columns": [
         "Display Name",
         "Keywords",
         "Best For"
       ],
       "typed_json_columns": [],
-      "derived": []
+      "derived": [],
+      "display_columns": [
+        "Display Name",
+        "Keywords",
+        "Best For",
+        "Brand Scope",
+        "Heading Family",
+        "Body Family",
+        "Mono Family",
+        "Category Contrast",
+        "Family Count",
+        "Safe Stack Fallback",
+        "Safe Stack Availability",
+        "Embedding Licence",
+        "Has Tabular Figures",
+        "Scale Key"
+      ]
     },
     "type-scales": {
       "filename": "type-scales.csv",
@@ -340,16 +398,16 @@
         ]
       },
       "foreign_keys": {},
+      "searchable_columns": [],
+      "typed_json_columns": [],
+      "derived": [],
       "display_columns": [
         "scale_key",
         "Medium",
         "Role",
         "Size pt",
         "Leading Ratio"
-      ],
-      "searchable_columns": [],
-      "typed_json_columns": [],
-      "derived": []
+      ]
     },
     "page-formats": {
       "filename": "page-formats.csv",
@@ -405,23 +463,34 @@
       "list_columns": {
         "Panels mm": ";"
       },
-      "display_columns": [
-        "Display Name",
-        "Keywords",
-        "Trim W mm",
-        "Trim H mm",
-        "Margin Top mm",
-        "Margin Bottom mm",
-        "Margin Inside mm",
-        "Margin Outside mm",
-        "Bleed mm"
-      ],
       "searchable_columns": [
         "Display Name",
         "Keywords"
       ],
       "typed_json_columns": [],
-      "derived": []
+      "derived": [],
+      "display_columns": [
+        "Display Name",
+        "Keywords",
+        "Trim W mm",
+        "Trim H mm",
+        "Bleed mm",
+        "Safe Margin mm",
+        "Margin Top mm",
+        "Margin Bottom mm",
+        "Margin Inside mm",
+        "Margin Outside mm",
+        "Measure mm",
+        "Columns",
+        "Running Head",
+        "Folio Style",
+        "Fold Type",
+        "Panels mm",
+        "Stock gsm",
+        "Print Mode",
+        "Min DPI Raster",
+        "Min DPI Line Art"
+      ]
     },
     "render-targets": {
       "filename": "render-targets.csv",
@@ -489,18 +558,24 @@
       "foreign_keys": {
         "Fallback Render Key": "render-targets.render_key"
       },
+      "searchable_columns": [],
+      "typed_json_columns": [],
+      "derived": [],
       "display_columns": [
-        "Fallback Render Key",
         "Format",
         "Engine",
         "Engine Path",
+        "Engine Min Version",
         "Engine Invocation",
         "Font Rule",
-        "Print Tier Max"
-      ],
-      "searchable_columns": [],
-      "typed_json_columns": [],
-      "derived": []
+        "Supports Paged Media",
+        "Supports Bleed",
+        "Supports CMYK",
+        "Print Tier Max",
+        "Editable By Recipient",
+        "Availability",
+        "Fallback Render Key"
+      ]
     },
     "constraints": {
       "filename": "constraints.csv",
@@ -536,6 +611,9 @@
           "must_resolve": true
         }
       },
+      "searchable_columns": [],
+      "typed_json_columns": [],
+      "derived": [],
       "display_columns": [
         "Set Key",
         "Applies To",
@@ -544,10 +622,7 @@
         "Parameter",
         "Threshold",
         "Severity"
-      ],
-      "searchable_columns": [],
-      "typed_json_columns": [],
-      "derived": []
+      ]
     },
     "structures": {
       "filename": "structures.csv",
@@ -592,6 +667,11 @@
       "distinct_token_columns": {
         "Section Order": ";"
       },
+      "searchable_columns": [
+        "Display Name"
+      ],
+      "typed_json_columns": [],
+      "derived": [],
       "display_columns": [
         "Display Name",
         "Section Order",
@@ -601,12 +681,7 @@
         "Front Matter Numbering",
         "Caption Position",
         "Cross-Ref Style"
-      ],
-      "searchable_columns": [
-        "Display Name"
-      ],
-      "typed_json_columns": [],
-      "derived": []
+      ]
     },
     "figures": {
       "filename": "figures.csv",
@@ -666,7 +741,27 @@
         "Best Chart Type"
       ],
       "typed_json_columns": [],
-      "derived": []
+      "derived": [],
+      "display_columns": [
+        "Data Type",
+        "Keywords",
+        "Best Chart Type",
+        "Secondary Options",
+        "When to Use",
+        "When NOT to Use",
+        "Data Volume Threshold",
+        "Accessibility Grade",
+        "A11y Fallback",
+        "Accessibility Notes",
+        "Label Strategy",
+        "Static Fallback",
+        "Print Series Max",
+        "Greyscale Safe",
+        "Print Palette Roles",
+        "Caption Required",
+        "Caption Must State",
+        "Anti-Patterns"
+      ]
     },
     "cv-regions": {
       "filename": "cv-regions.csv",
@@ -758,7 +853,22 @@
       },
       "searchable_columns": [],
       "typed_json_columns": [],
-      "derived": []
+      "derived": [],
+      "display_columns": [
+        "region_key",
+        "Seniority Band",
+        "Max Pages",
+        "Photo",
+        "Date of Birth",
+        "Nationality",
+        "Marital Status",
+        "Visa Status",
+        "Section Order",
+        "Education Before Experience",
+        "Format",
+        "Language Expectation",
+        "Evidence Class"
+      ]
     },
     "headings": {
       "filename": "headings.csv",
@@ -782,15 +892,15 @@
         ]
       },
       "foreign_keys": {},
+      "searchable_columns": [],
+      "typed_json_columns": [],
+      "derived": [],
       "display_columns": [
         "canonical_section",
         "Heading Text",
         "Language",
         "Is Primary"
-      ],
-      "searchable_columns": [],
-      "typed_json_columns": [],
-      "derived": []
+      ]
     },
     "font-substitutes": {
       "filename": "font-substitutes.csv",
@@ -832,7 +942,15 @@
       },
       "searchable_columns": [],
       "typed_json_columns": [],
-      "derived": []
+      "derived": [],
+      "display_columns": [
+        "proprietary_family",
+        "Substitute Family",
+        "Lineage",
+        "Licence",
+        "Metric Identical",
+        "Weights Covered"
+      ]
     }
   }
 }

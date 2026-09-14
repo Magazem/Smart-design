@@ -259,6 +259,328 @@ HANDOFF_VOCAB = {
     "headings_text_column": "Heading Text",
     "headings_language_column": "Language",
     "headings_is_primary_column": "Is Primary",
+    # research/66: `doc-styles` had zero HANDOFF_VOCAB entries in any builder --
+    # its design columns never reached a renderer even after (a) put them in the
+    # resolved JSON. `Best For`/`Not For`/`Brand Scope`/`Display Name`/`Keywords`
+    # are deliberately not read here; they are identity/guidance text, not a
+    # renderable value (see HANDOFF_EXCLUSIONS below).
+    "doc_style_table": "doc-styles",
+    "doc_style_rule_hair_column": "Rule Hair pt",
+    "doc_style_rule_strong_column": "Rule Strong pt",
+    "doc_style_rule_brand_column": "Rule Brand pt",
+    "doc_style_corner_radius_column": "Corner Radius mm",
+    "doc_style_table_rules_column": "Table Rules",
+    "doc_style_table_fills_column": "Table Fills",
+    "doc_style_emphasis_column": "Emphasis Mechanism",
+    "doc_style_field_style_column": "Field Style",
+    "doc_style_checklist_column": "Checklist",
+    # research/66 census's own flagship example of a stage-1 DEFECT: the only
+    # column distinguishing `uk-early` from `uk-experienced` never reached a
+    # renderer even after the stage-1 fix put it in the resolved JSON.
+    "cv_region_table": "cv-regions",
+    "cv_region_seniority_band_column": "Seniority Band",
+    "cv_region_section_order_column": "Section Order",
+}
+
+#: HANDOFF_EXCLUSIONS -- table -> {path: {column: reason}}. research/66 stage 2 found
+#: every resolved column of a reachable table that a path's builder does not read; this
+#: makes that drop explicit and test-enforced (scripts/tests/test_column_parity.py) rather
+#: than silent. Exactly two reason kinds, per Manager D8:
+#: - "not applicable: <why>" -- the format/data cannot use this column (identity/search
+#:   metadata never meant for a renderer, an FK routing pointer whose real content reaches
+#:   the handoff through the table it points to, a construct the format has no equivalent
+#:   for, or a code branch the CURRENT data/base/render-targets.csv rows can never take).
+#: - "not yet wired: backlog <item>" -- a genuine DEFECT-classified design value
+#:   (research/66 S2/S3/S4) that is not yet read by this path; wiring it in is future work,
+#:   out of W3's scope (task instructions: this phase only makes drops explicit).
+_IDENTITY = "not applicable: identity/search metadata, not a render value"
+_ROUTING = ("not applicable: identity/FK-routing metadata; this table's real content "
+            "reaches the handoff through the table(s) it points to")
+
+HANDOFF_EXCLUSIONS = {
+    "constraints": {
+        "docx": {"Applies To": "not yet wired: backlog data-dependent constraints columns (research/66 S3-4)",
+                 "Check": "not yet wired: backlog data-dependent constraints columns (research/66 S3-4)",
+                 "Severity": "not yet wired: backlog data-dependent constraints columns (research/66 S3-4)",
+                 "Threshold": "not yet wired: backlog data-dependent constraints columns (research/66 S3-4)"},
+        "pptx": {"Applies To": "not yet wired: backlog data-dependent constraints columns (research/66 S3-4)",
+                 "Check": "not yet wired: backlog data-dependent constraints columns (research/66 S3-4)",
+                 "Element Scope": "not yet wired: backlog data-dependent constraints columns (research/66 S3-4)",
+                 "Severity": "not yet wired: backlog data-dependent constraints columns (research/66 S3-4)",
+                 "Threshold": "not yet wired: backlog data-dependent constraints columns (research/66 S3-4)"},
+        "pdf": {"Applies To": "not yet wired: backlog data-dependent constraints columns (research/66 S3-4)",
+                "Check": "not yet wired: backlog data-dependent constraints columns (research/66 S3-4)",
+                "Element Scope": "not yet wired: backlog data-dependent constraints columns (research/66 S3-4)",
+                "Parameter": "not yet wired: backlog data-dependent constraints columns (research/66 S3-4)",
+                "Severity": "not yet wired: backlog data-dependent constraints columns (research/66 S3-4)",
+                "Threshold": "not yet wired: backlog data-dependent constraints columns (research/66 S3-4)"},
+        "png": {"Applies To": "not yet wired: backlog data-dependent constraints columns (research/66 S3-4)",
+                "Check": "not yet wired: backlog data-dependent constraints columns (research/66 S3-4)",
+                "Element Scope": "not yet wired: backlog data-dependent constraints columns (research/66 S3-4)",
+                "Parameter": "not yet wired: backlog data-dependent constraints columns (research/66 S3-4)",
+                "Severity": "not yet wired: backlog data-dependent constraints columns (research/66 S3-4)",
+                "Threshold": "not yet wired: backlog data-dependent constraints columns (research/66 S3-4)"},
+    },
+    "cv-regions": {fmt: {
+        "region_key": _ROUTING,
+        "Max Pages": "not yet wired: backlog cv-regions design columns (research/66 S2 DEFECT)",
+        "Photo": "not yet wired: backlog cv-regions design columns (research/66 S2 DEFECT)",
+        "Date of Birth": "not yet wired: backlog cv-regions design columns (research/66 S2 DEFECT)",
+        "Nationality": "not yet wired: backlog cv-regions design columns (research/66 S2 DEFECT)",
+        "Marital Status": "not yet wired: backlog cv-regions design columns (research/66 S2 DEFECT)",
+        "Visa Status": "not yet wired: backlog cv-regions design columns (research/66 S2 DEFECT)",
+        "Education Before Experience": "not yet wired: backlog cv-regions design columns (research/66 S2 DEFECT)",
+        "Format": "not yet wired: backlog cv-regions design columns (research/66 S2 DEFECT)",
+        "Language Expectation": "not yet wired: backlog cv-regions design columns (research/66 S2 DEFECT)",
+        "Evidence Class": "not yet wired: backlog cv-regions design columns (research/66 S2 DEFECT)",
+    } for fmt in ("docx", "pptx", "pdf", "png")},
+    "doc-reasoning": {fmt: {
+        "Palette Key": _ROUTING,
+        "Style Key": _ROUTING,
+        "Typeface Key": _ROUTING,
+        "Anti-Pattern Tokens": "not yet wired: backlog doc-reasoning columns (research/66 S2 DEFECT)",
+        "Doc Conditions": "not yet wired: backlog doc-reasoning columns (research/66 S2 DEFECT)",
+        "Palette Bias Terms": "not yet wired: backlog doc-reasoning columns (research/66 S2 DEFECT)",
+        "Severity": "not yet wired: backlog doc-reasoning columns (research/66 S2 DEFECT)",
+        "Style Bias Terms": "not yet wired: backlog doc-reasoning columns (research/66 S2 DEFECT)",
+        "Typeface Bias Terms": "not yet wired: backlog doc-reasoning columns (research/66 S2 DEFECT)",
+    } for fmt in ("docx", "pptx", "pdf", "png")},
+    "doc-styles": {fmt: {
+        "Best For": _IDENTITY,
+        "Not For": _IDENTITY,
+        "Brand Scope": _IDENTITY,
+        "Display Name": _IDENTITY,
+        "Keywords": _IDENTITY,
+    } for fmt in ("docx", "pptx", "pdf", "png")},
+    "doctypes": {fmt: {
+        "Artifact Class": _ROUTING,
+        "Brand Scope": _IDENTITY,
+        "Constraint Set Keys": _ROUTING,
+        "Display Name": _IDENTITY,
+        "Keywords": _IDENTITY,
+        "Page Format Key": _ROUTING,
+        "Reasoning Key": _ROUTING,
+        "Region Key": _ROUTING,
+        "Render Target Keys": _ROUTING,
+        "Structure Key": _ROUTING,
+    } for fmt in ("docx", "pptx", "pdf", "png")},
+    "page-formats": {
+        "docx": {
+            "Display Name": _IDENTITY, "Keywords": _IDENTITY,
+            "Bleed mm": "not applicable: OOXML has no bleed/crop-mark construct "
+                        "(render-targets.Supports Bleed declares bleed is per-render-target)",
+            "Columns": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Fold Type": "not yet wired: backlog Fold Type / Panels mm -> research/64 D-C",
+            "Folio Style": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Measure mm": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Min DPI Line Art": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Min DPI Raster": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Panels mm": "not yet wired: backlog Fold Type / Panels mm -> research/64 D-C",
+            "Print Mode": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Running Head": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Safe Margin mm": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Stock gsm": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+        },
+        "pptx": {
+            "Display Name": _IDENTITY, "Keywords": _IDENTITY,
+            "Bleed mm": "not applicable: pptx has no print page geometry (fixed slide layout, "
+                        "no page-formats row emitted -- research/24 section 3 item 2)",
+            "Margin Bottom mm": "not applicable: pptx has no print page geometry (fixed slide "
+                                "layout, no page-formats row emitted -- research/24 section 3 item 2)",
+            "Margin Inside mm": "not applicable: pptx has no print page geometry (fixed slide "
+                                "layout, no page-formats row emitted -- research/24 section 3 item 2)",
+            "Margin Outside mm": "not applicable: pptx has no print page geometry (fixed slide "
+                                 "layout, no page-formats row emitted -- research/24 section 3 item 2)",
+            "Margin Top mm": "not applicable: pptx has no print page geometry (fixed slide "
+                             "layout, no page-formats row emitted -- research/24 section 3 item 2)",
+            "Trim H mm": "not applicable: pptx has no print page geometry (fixed slide layout, "
+                        "no page-formats row emitted -- research/24 section 3 item 2)",
+            "Trim W mm": "not applicable: pptx has no print page geometry (fixed slide layout, "
+                        "no page-formats row emitted -- research/24 section 3 item 2)",
+            "Columns": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Fold Type": "not yet wired: backlog Fold Type / Panels mm -> research/64 D-C",
+            "Folio Style": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Measure mm": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Min DPI Line Art": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Min DPI Raster": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Panels mm": "not yet wired: backlog Fold Type / Panels mm -> research/64 D-C",
+            "Print Mode": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Running Head": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Safe Margin mm": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Stock gsm": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+        },
+        "pdf": {
+            "Display Name": _IDENTITY, "Keywords": _IDENTITY,
+            "Columns": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Fold Type": "not yet wired: backlog Fold Type / Panels mm -> research/64 D-C",
+            "Folio Style": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Measure mm": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Min DPI Line Art": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Min DPI Raster": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Panels mm": "not yet wired: backlog Fold Type / Panels mm -> research/64 D-C",
+            "Print Mode": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Running Head": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Safe Margin mm": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Stock gsm": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+        },
+        "png": {
+            "Display Name": _IDENTITY, "Keywords": _IDENTITY,
+            "Bleed mm": "not applicable: png-social is a screenshot canvas, not a print page "
+                       "(no page-formats row emitted)",
+            "Margin Bottom mm": "not applicable: png-social is a screenshot canvas, not a print "
+                               "page (no page-formats row emitted)",
+            "Margin Inside mm": "not applicable: png-social is a screenshot canvas, not a print "
+                               "page (no page-formats row emitted)",
+            "Margin Outside mm": "not applicable: png-social is a screenshot canvas, not a print "
+                                "page (no page-formats row emitted)",
+            "Margin Top mm": "not applicable: png-social is a screenshot canvas, not a print "
+                            "page (no page-formats row emitted)",
+            "Trim H mm": "not applicable: png-social is a screenshot canvas, not a print page "
+                        "(no page-formats row emitted)",
+            "Trim W mm": "not applicable: png-social is a screenshot canvas, not a print page "
+                        "(no page-formats row emitted)",
+            "Columns": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Fold Type": "not yet wired: backlog Fold Type / Panels mm -> research/64 D-C",
+            "Folio Style": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Measure mm": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Min DPI Line Art": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Min DPI Raster": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Panels mm": "not yet wired: backlog Fold Type / Panels mm -> research/64 D-C",
+            "Print Mode": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Running Head": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Safe Margin mm": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+            "Stock gsm": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
+        },
+    },
+    "palettes": {fmt: {
+        "Display Name": _IDENTITY, "Keywords": _IDENTITY, "Brand Scope": _IDENTITY,
+        "Category Marker Roles": "not yet wired: backlog palettes columns (research/66 S2 DEFECT)",
+        "Fill-Only Roles": "not yet wired: backlog palettes columns (research/66 S2 DEFECT)",
+        "Text-Safe Roles": "not yet wired: backlog palettes columns (research/66 S2 DEFECT)",
+        "Muted": "not yet wired: backlog palettes columns (research/66 S2 DEFECT)",
+        "On Accent": "not yet wired: backlog palettes columns (research/66 S2 DEFECT)",
+        "On Muted": "not yet wired: backlog palettes columns (research/66 S2 DEFECT)",
+        "On Primary": "not yet wired: backlog palettes columns (research/66 S2 DEFECT)",
+        "On Secondary": "not yet wired: backlog palettes columns (research/66 S2 DEFECT)",
+        "Rule Brand": "not yet wired: backlog palettes columns (research/66 S2 DEFECT)",
+        "Rule Hair": "not yet wired: backlog palettes columns (research/66 S2 DEFECT)",
+        "Rule Strong": "not yet wired: backlog palettes columns (research/66 S2 DEFECT)",
+    } for fmt in ("docx", "pptx", "pdf", "png")},
+    "render-targets": {
+        "docx": {
+            "Availability": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Editable By Recipient": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Engine Invocation": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Engine Min Version": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Engine Path": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Fallback Render Key": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Print Tier Max": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Supports Bleed": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Supports CMYK": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Supports Paged Media": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+        },
+        "pptx": {
+            "Availability": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Editable By Recipient": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Engine Invocation": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Engine Min Version": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Engine Path": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Fallback Render Key": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Print Tier Max": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Supports Bleed": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Supports CMYK": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Supports Paged Media": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+        },
+        "pdf": {
+            "Availability": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Editable By Recipient": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Engine Min Version": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Fallback Render Key": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Supports Bleed": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Supports CMYK": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Supports Paged Media": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+        },
+        "png": {
+            "Availability": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Editable By Recipient": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Engine Min Version": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Fallback Render Key": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Print Tier Max": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Supports Bleed": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Supports CMYK": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+            "Supports Paged Media": "not yet wired: backlog render-targets columns not surfaced outside the render-command section (research/66 S3)",
+        },
+    },
+    "structures": {fmt: {
+        "Display Name": _IDENTITY,
+        "Caption Position": "not yet wired: backlog structures follow-up columns (research/66 S4)",
+        "Cross-Ref Style": "not yet wired: backlog structures follow-up columns (research/66 S4)",
+        "Front Matter Numbering": "not yet wired: backlog structures follow-up columns (research/66 S4)",
+        "Heading Depth Max": "not yet wired: backlog structures follow-up columns (research/66 S4)",
+        "TOC Depth": "not yet wired: backlog structures follow-up columns (research/66 S4)",
+    } for fmt in ("docx", "pptx", "pdf", "png")},
+    "type-scales": {fmt: {
+        "scale_key": _ROUTING,
+        "Medium": "not yet wired: backlog type-scales columns (research/66 S2 DEFECT)",
+        "Leading Ratio": "not yet wired: backlog type-scales columns (research/66 S2 DEFECT)",
+    } for fmt in ("docx", "pptx", "pdf", "png")},
+    "typefaces": {
+        "docx": {
+            "Best For": _IDENTITY, "Brand Scope": _IDENTITY, "Display Name": _IDENTITY, "Keywords": _IDENTITY,
+            "Scale Key": _ROUTING,
+            "Category Contrast": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
+            "Embedding Licence": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
+            "Family Count": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
+            "Has Tabular Figures": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
+            "Mono Family": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
+            "Safe Stack Availability": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
+            "Body Family": "not applicable: docx's only render target (docx-office) is "
+                          "safe-stack; the embed branch's family columns are unreachable "
+                          "with today's data",
+            "Heading Family": "not applicable: docx's only render target (docx-office) is "
+                             "safe-stack; the embed branch's family columns are unreachable "
+                             "with today's data",
+        },
+        "pptx": {
+            "Best For": _IDENTITY, "Brand Scope": _IDENTITY, "Display Name": _IDENTITY, "Keywords": _IDENTITY,
+            "Scale Key": _ROUTING,
+            "Category Contrast": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
+            "Embedding Licence": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
+            "Family Count": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
+            "Has Tabular Figures": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
+            "Mono Family": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
+            "Safe Stack Availability": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
+            "Safe Stack Fallback": "not applicable: pptx's only render target (pptx-office) is "
+                                  "embed; the safe-stack branch's fallback column is "
+                                  "unreachable with today's data",
+        },
+        "pdf": {
+            "Best For": _IDENTITY, "Brand Scope": _IDENTITY, "Display Name": _IDENTITY, "Keywords": _IDENTITY,
+            "Scale Key": _ROUTING,
+            "Category Contrast": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
+            "Embedding Licence": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
+            "Family Count": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
+            "Has Tabular Figures": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
+            "Mono Family": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
+            "Safe Stack Availability": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
+            "Safe Stack Fallback": "not applicable: pdf's render targets (pdf-chromium, "
+                                  "pdf-weasyprint, pdf-weasyprint-pdfx4, pdf-wkhtmltopdf) are "
+                                  "all embed; the safe-stack branch's fallback column is "
+                                  "unreachable with today's data",
+        },
+        "png": {
+            "Best For": _IDENTITY, "Brand Scope": _IDENTITY, "Display Name": _IDENTITY, "Keywords": _IDENTITY,
+            "Scale Key": _ROUTING,
+            "Category Contrast": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
+            "Embedding Licence": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
+            "Family Count": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
+            "Has Tabular Figures": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
+            "Mono Family": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
+            "Safe Stack Availability": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
+            "Safe Stack Fallback": "not applicable: png-social is embed; the safe-stack "
+                                  "branch's fallback column is unreachable with today's data",
+        },
+    },
 }
 
 
@@ -447,6 +769,57 @@ def _page_flow_pptx_lines(resolved):
     return lines
 
 
+def _cv_region_lines(resolved):
+    """cv-regions.Seniority Band -- research/66's flagship stage-1 DEFECT
+    example: the only column distinguishing `uk-early` from `uk-experienced`,
+    absent from every builder even after the stage-1 fix resolved it.
+
+    research/64 D-B: a doctype like cv-uk resolves MULTIPLE cv-regions rows
+    with different Section Orders -- `_first_row` printed only one band with
+    no way to tell which Section Order it selects, silently dropping the
+    other row entirely. Every resolved row is printed here, each with its
+    own Section Order, so a consumer always knows which order goes with
+    which band."""
+    v = HANDOFF_VOCAB
+    rows = resolved.get(v["cv_region_table"], [])
+    lines = ["  cv region (data/base/cv-regions.csv):"]
+    if not rows:
+        lines.append(f"    {NOT_PRESENT}")
+        return lines
+    band_column = v["cv_region_seniority_band_column"]
+    order_column = v["cv_region_section_order_column"]
+    for row in rows:
+        band = row.get(band_column, "")
+        order = row.get(order_column, "")
+        lines.append(f"    [{row.get('key', '')}] {band_column}: "
+                     f"{band if band else NOT_PRESENT}, {order_column}: "
+                     f"{order if order else NOT_PRESENT}")
+    return lines
+
+
+def _doc_style_lines(resolved):
+    """doc-styles's visual specification -- rules, fills, emphasis, field
+    style, checklist -- read the same way on every format (research/66: the
+    table has no format-specific content, unlike page-formats or
+    render-targets)."""
+    v = HANDOFF_VOCAB
+    row = _first_row(resolved, v["doc_style_table"])
+    lines = ["  doc style (rules/fills/emphasis -- data/base/doc-styles.csv):"]
+    if not row:
+        lines.append(f"    {NOT_PRESENT}")
+        return lines
+    for column in (
+        v["doc_style_rule_hair_column"], v["doc_style_rule_strong_column"],
+        v["doc_style_rule_brand_column"], v["doc_style_corner_radius_column"],
+        v["doc_style_table_rules_column"], v["doc_style_table_fills_column"],
+        v["doc_style_emphasis_column"], v["doc_style_field_style_column"],
+        v["doc_style_checklist_column"],
+    ):
+        value = row.get(column, "")
+        lines.append(f"    {column}: {value if value else NOT_PRESENT}")
+    return lines
+
+
 def _build_docx_lines(resolved):
     v = HANDOFF_VOCAB
     lines = []
@@ -468,25 +841,23 @@ def _build_docx_lines(resolved):
         lines.append(f"    {NOT_PRESENT}")
 
     typeface_row = _first_row(resolved, v["typeface_table"])
-    lines.append("  fonts:")
-    if typeface_row:
-        shown = False
-        for column in v["typeface_family_columns"]:
-            value = typeface_row.get(column, "")
-            if value:
-                lines.append(f"    {column}: {value}")
-                shown = True
-        fallback = typeface_row.get(v["typeface_fallback_column"], "")
-        if fallback:
-            lines.append(f"    {v['typeface_fallback_column']}: {fallback}")
-            shown = True
-        # A resolved typefaces row that surfaces none of these columns is the same
-        # state as no row at all, and must SAY so. Without this guard the section
-        # printed its header and then nothing -- which is how v0.1.0 shipped an
-        # empty `fonts:` that read as "no fonts needed" instead of "not resolved".
-        # `page` and `palette` already had this guard; `fonts` did not.
-        if not shown:
-            lines.append(f"    {NOT_PRESENT}")
+    render_rows = [r for r in resolved.get(v["render_target_table"], [])
+                   if r.get(v["render_target_format_column"]) == "docx"]
+    # research/66 D8: docx printed both the family columns AND the safe-stack
+    # fallback unconditionally -- pdf/png already branch on the render target's
+    # own Font Rule (embed vs. safe-stack); this matches that.
+    lines.append("  fonts: (embed vs. safe-stack per render target's Font Rule)")
+    if typeface_row and render_rows:
+        for row in render_rows:
+            engine = row.get(v["render_target_engine_column"], "")
+            rule = row.get(v["render_target_font_rule_column"], "")
+            if rule == "embed":
+                families = " / ".join(
+                    typeface_row.get(c, "") for c in v["typeface_family_columns"] if typeface_row.get(c, ""))
+                lines.append(f"    {engine} ({rule}): {families or NOT_PRESENT}")
+            else:
+                fallback = typeface_row.get(v["typeface_fallback_column"], "")
+                lines.append(f"    {engine} ({rule}): {fallback or NOT_PRESENT}")
     else:
         lines.append(f"    {NOT_PRESENT}")
 
@@ -527,6 +898,10 @@ def _build_docx_lines(resolved):
     else:
         lines.append(f"    {NOT_PRESENT}")
 
+    lines.extend(_cv_region_lines(resolved))
+
+    lines.extend(_doc_style_lines(resolved))
+
     lines.extend(_page_flow_docx_lines(resolved))
 
     return lines
@@ -541,25 +916,23 @@ def _build_pptx_lines(resolved):
     lines.append(f"    {PPTX_DEFAULT_LAYOUT_NAME}: {PPTX_DEFAULT_LAYOUT_IN[0]}in x {PPTX_DEFAULT_LAYOUT_IN[1]}in")
 
     typeface_row = _first_row(resolved, v["typeface_table"])
-    lines.append("  fonts:")
-    if typeface_row:
-        shown = False
-        for column in v["typeface_family_columns"]:
-            value = typeface_row.get(column, "")
-            if value:
-                lines.append(f"    {column}: {value}")
-                shown = True
-        fallback = typeface_row.get(v["typeface_fallback_column"], "")
-        if fallback:
-            lines.append(f"    {v['typeface_fallback_column']}: {fallback}")
-            shown = True
-        # A resolved typefaces row that surfaces none of these columns is the same
-        # state as no row at all, and must SAY so. Without this guard the section
-        # printed its header and then nothing -- which is how v0.1.0 shipped an
-        # empty `fonts:` that read as "no fonts needed" instead of "not resolved".
-        # `page` and `palette` already had this guard; `fonts` did not.
-        if not shown:
-            lines.append(f"    {NOT_PRESENT}")
+    render_rows = [r for r in resolved.get(v["render_target_table"], [])
+                   if r.get(v["render_target_format_column"]) == "pptx"]
+    # research/66 D8: pptx printed both the family columns AND the safe-stack
+    # fallback unconditionally -- pdf/png already branch on the render target's
+    # own Font Rule (embed vs. safe-stack); this matches that.
+    lines.append("  fonts: (embed vs. safe-stack per render target's Font Rule)")
+    if typeface_row and render_rows:
+        for row in render_rows:
+            engine = row.get(v["render_target_engine_column"], "")
+            rule = row.get(v["render_target_font_rule_column"], "")
+            if rule == "embed":
+                families = " / ".join(
+                    typeface_row.get(c, "") for c in v["typeface_family_columns"] if typeface_row.get(c, ""))
+                lines.append(f"    {engine} ({rule}): {families or NOT_PRESENT}")
+            else:
+                fallback = typeface_row.get(v["typeface_fallback_column"], "")
+                lines.append(f"    {engine} ({rule}): {fallback or NOT_PRESENT}")
     else:
         lines.append(f"    {NOT_PRESENT}")
 
@@ -594,6 +967,10 @@ def _build_pptx_lines(resolved):
             lines.append(f"    {NOT_PRESENT}")
     else:
         lines.append(f"    {NOT_PRESENT}")
+
+    lines.extend(_cv_region_lines(resolved))
+
+    lines.extend(_doc_style_lines(resolved))
 
     lines.extend(_page_flow_pptx_lines(resolved))
 
@@ -688,6 +1065,10 @@ def _build_pdf_lines(resolved):
             lines.append(f"    {NOT_PRESENT}")
     else:
         lines.append(f"    {NOT_PRESENT}")
+
+    lines.extend(_cv_region_lines(resolved))
+
+    lines.extend(_doc_style_lines(resolved))
 
     lines.append("  render command:")
     if render_rows:
@@ -784,6 +1165,10 @@ def _build_png_lines(resolved):
     lines.append("  paged media (bleed / crop marks / @page): NOT APPLICABLE -- "
                  "png-social's Supports Paged Media is n/a and Print Tier Max is none; "
                  "a screenshot has no pages")
+
+    lines.extend(_cv_region_lines(resolved))
+
+    lines.extend(_doc_style_lines(resolved))
 
     lines.append("  render command:")
     if render_rows:

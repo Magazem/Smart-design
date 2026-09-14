@@ -2,6 +2,7 @@
 Written 2026-09-08 by the Workflow Orchestrator after two session-limit incidents.
 Purpose: let a FRESH orchestrator (or the user) continue with a small context.
 Full history: research/05-SYNTHESIS.md (long). This file is the short version.
+**→ Cold reader: search for "*** COLD START" (around line 1503); everything above it is dated history.**
 
 ## What exists (all on disk, all verified)
 - research/00..30 — research, schema (09, Revision 4), authored tables, reviews.
@@ -1499,13 +1500,13 @@ research/handover-coverage.md, research/handover-ddr.md, research/handover-packa
   skill list is NOT evidence an assistant lacks browser tools. The error text coming FROM a
   browser tool is proof the tool exists.
 
-## *** COLD START — 2026-09-11 END OF DAY. READ THIS FIRST, IT IS THE WHOLE HANDOVER. ***
+## *** COLD START — 2026-09-14 v0.4 PHASE 1 COMPLETE. READ THIS FIRST, IT IS THE WHOLE HANDOVER. ***
 
-**v0.3.0 IS TAGGED AND PUSHED. NOTHING IS IN FLIGHT. NO TASK IS OPEN.**
-Built artefact: 146987 bytes, md5 `4bc58aaf053b90e6762d59221be490fa`, 39 members, zero CR bytes.
-The tag points at the commit titled "Hand over v0.3.0 for a fresh lead on another machine".
-CI writes `VERSION` and SKILL.md's stamp from the tag, so the published asset differs from the
-local build in those two places and nowhere else.
+**v0.4 PHASE 1 COMPLETE, committed on main, NOT tagged, NOT pushed. Next: phase 2 from the backlog below.**
+Last tagged release: v0.3.0. Built artefact: 146987 bytes, md5 `4bc58aaf053b90e6762d59221be490fa`, 39 members, zero CR bytes.
+The v0.3.0 tag points at the commit titled "Hand over v0.3.0 for a fresh lead on another machine".
+Current HEAD is ahead of v0.3.0 tag with v0.4 work. CI would write `VERSION` and SKILL.md's stamp from a future tag;
+current local build ahead of published asset.
 
 ### THE FIRST THING TO KNOW BEFORE ANY BROWSER TEST
 **The user's claude.ai account holds v0.3.0, USER-REPORTED on 2026-09-11 (end of day), NOT
@@ -1531,11 +1532,13 @@ dropped at the last step.**
   it is sourced; the distinction is the source, not the emptiness.
 - **The release notes DISCLOSE that v0.2.0 announced two things it did not deliver.**
 
+### WHAT v0.4 PHASE 1 ACCOMPLISHED
+**STAGE 1 CENSUS COMPLETE.** All 8 tables fixed (cv-regions 2→14, doc-styles 4→15, doc-reasoning 6→10, typefaces 8→15, palettes 8→20, page-formats 10→21, render-targets 8→14, doctypes 9→11). All 14 tables now have full display_columns. Parity test added at scripts/tests/test_column_parity.py. Census data in research/66-column-census.md. **STAGE 2 COMPLETE.** Font Rule branch implemented for docx/pptx; doc-styles wired; cv-regions emits every resolved row with its Section Order, on all 4 paths. Test counts: 174 passed, 160 subtests, 0 failed. **Committed on main, not tagged, not pushed.**
+HANDOFF_EXCLUSIONS in scripts/ddi.py records every resolved column a handoff path still does not emit, with a reason; later phases wire columns by removing entries, and the parity test fails on any undeclared drop.
+
 ### v0.4 BACKLOG — start here. Full detail in the v0.4 section above and research/64.
-1. **CENSUS ALL TABLES.** v0.3 fixed the four tables a brief named; the census found EIGHT MORE
-   with the same dropped-column defect, including `cv-regions` at 2 of 14 columns ON THE CV
-   CONTROL FAMILY, hiding the `Seniority Band` that is the only thing separating its two rows.
-   **This is the first job.**
+1. **CENSUS ALL TABLES. ✓ DONE.** v0.3 fixed the four tables a brief named; the census found EIGHT MORE
+   with the same dropped-column defect. All 8 tables fixed: cv-regions 2→14, doc-styles 4→15, doc-reasoning 6→10, typefaces 8→15, palettes 8→20, page-formats 10→21, render-targets 8→14, doctypes 9→11. All 14 tables now have full display_columns. Census data: research/66-column-census.md. Parity test: scripts/tests/test_column_parity.py. Test results: 174 passed, 160 subtests, 0 failed.
 2. **Task 01a0906b — the pdf path omits page flow.** Not a missing call: the five constraints are
    docx_property mappings with no CSS equivalent here, and unlike pptx, pdf DOES paginate.
    Needs a docx-property-to-CSS table.
@@ -1544,6 +1547,8 @@ dropped at the last step.**
    unselectable** and a French devis gets English sections.
 5. `ddi.py version` can never report a stamp — the build writes it after the frontmatter and
    ddi.py tests line 1.
+6. **Figures and font-substitutes unreachable by any FK.** Research/64 D-H class documents rows that exist in the data but are inaccessible through the documented foreign key relationships. These need to be either reachable or explicitly excluded.
+7. **Generalise the cv-regions row-coverage test to every group-FK table.** Currently cv-regions has per-row visibility testing; constraints, type-scales, headings, and cv-regions tables must all enforce that for each doctype resolving >1 row, every row must be visible in all 4 handoff outputs (docx, pptx, pdf, png). W3b's survey found cv-regions was the only live defect but this class needs a guard against regression.
 
 ### THE FOUR STANDING RULES ADDED 2026-09-11 — all four were earned, none are style points
 1. **PRE-REGISTER THE FALSIFIER.** State in writing, BEFORE the run, the exact prompt that would
