@@ -23,3 +23,11 @@ infographic-screen-screen-body,infographic-screen,screen,body,24,1.35
 infographic-screen-screen-caption,infographic-screen,screen,caption,14,1.20
 form-print-print-body,form-print,print,body,11,1.35
 form-print-print-legal,form-print,print,legal,8.5,1.20
+cv-major-third-print-label,cv-major-third,print,label,8.5,1.29
+cv-major-third-print-body,cv-major-third,print,body,10.5,1.24
+cv-major-third-print-h2,cv-major-third,print,h2,13,1.15
+cv-major-third-print-h1,cv-major-third,print,h1,20,1.10
+cv-editorial-fourth-print-label,cv-editorial-fourth,print,label,8,1.31
+cv-editorial-fourth-print-body,cv-editorial-fourth,print,body,10.5,1.29
+cv-editorial-fourth-print-h2,cv-editorial-fourth,print,h2,14,1.18
+cv-editorial-fourth-print-h1,cv-editorial-fourth,print,h1,25,1.12

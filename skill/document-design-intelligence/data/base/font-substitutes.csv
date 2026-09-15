@@ -14,3 +14,7 @@ consolas-none,Consolas,,none,none,,
 georgia-independent,Georgia,Gelasio,independent,OFL-1.1,yes,Regular;Bold;Italic;Bold Italic
 verdana-none,Verdana,,none,none,,
 trebuchet-ms-none,Trebuchet MS,,none,none,,
+source-serif-4-independent,Source Serif 4,Georgia,independent,none,no,Regular;Bold;Italic;Bold Italic
+pt-serif-independent,PT Serif,Times New Roman,independent,none,no,Regular;Bold;Italic;Bold Italic
+ibm-plex-sans-independent,IBM Plex Sans,Arial,independent,none,no,Regular;Bold;Italic;Bold Italic
+fraunces-independent,Fraunces,Georgia,independent,none,no,Regular;Bold;Italic;Bold Italic
