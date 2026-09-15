@@ -1,0 +1,52 @@
+{
+  "note": "Blind labels X/Y map to conditions old/new independently per doctype (randomised assignment below, not fixed X=old/Y=new). Judges see only the PNGs and X/Y labels for their assigned doctype order, never this file, the condition names, or other judges' output.",
+  "labels": {
+    "cv-uk": {
+      "X": {
+        "condition": "old",
+        "png": "old/cv-uk.png"
+      },
+      "Y": {
+        "condition": "new",
+        "png": "new/cv-uk.png"
+      }
+    },
+    "cv-dach": {
+      "X": {
+        "condition": "new",
+        "png": "new/cv-dach.png"
+      },
+      "Y": {
+        "condition": "old",
+        "png": "old/cv-dach.png"
+      }
+    },
+    "cv-generic": {
+      "X": {
+        "condition": "old",
+        "png": "old/cv-generic.png"
+      },
+      "Y": {
+        "condition": "new",
+        "png": "new/cv-generic.png"
+      }
+    }
+  },
+  "judge_doctype_order": {
+    "judge-1": [
+      "cv-dach",
+      "cv-uk",
+      "cv-generic"
+    ],
+    "judge-2": [
+      "cv-dach",
+      "cv-generic",
+      "cv-uk"
+    ],
+    "judge-3": [
+      "cv-generic",
+      "cv-uk",
+      "cv-dach"
+    ]
+  }
+}

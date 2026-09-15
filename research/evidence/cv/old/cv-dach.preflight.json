@@ -1,0 +1,73 @@
+{
+  "file_type": "docx",
+  "fonts": [
+    {
+      "name": "Symbol",
+      "embedded": false
+    },
+    {
+      "name": "Times New Roman",
+      "embedded": false
+    },
+    {
+      "name": "Cambria",
+      "embedded": false
+    },
+    {
+      "name": "\uff2d\uff33 \u660e\u671d",
+      "embedded": false
+    },
+    {
+      "name": "Calibri",
+      "embedded": false
+    },
+    {
+      "name": "\uff2d\uff33 \u30b4\u30b7\u30c3\u30af",
+      "embedded": false
+    },
+    {
+      "name": "Courier",
+      "embedded": false
+    },
+    {
+      "name": "Arial",
+      "embedded": false
+    }
+  ],
+  "structure": {
+    "multi_column_sections": 0,
+    "tables": 1,
+    "text_boxes": 0,
+    "contact_in_first_body_paragraph": false,
+    "contact_in_header": false,
+    "contact_only_in_header": false
+  },
+  "slop": {
+    "font_families": {
+      "count": 1,
+      "names": [
+        "Arial"
+      ]
+    },
+    "emoji_count": 0,
+    "table_cell_border_ratio": {
+      "bordered": 0,
+      "total": 12,
+      "ratio": 0.0
+    },
+    "bordered_block_ratio": {
+      "bordered": 0,
+      "total": 23,
+      "ratio": 0.0
+    },
+    "accent_colours": [
+      "111111",
+      "1A1A1A",
+      "4F81BD"
+    ],
+    "background_image_count": 0,
+    "sections": 1,
+    "objects_per_section": 12.0,
+    "words_per_section": 59.0
+  }
+}
