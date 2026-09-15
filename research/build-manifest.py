@@ -46,10 +46,19 @@ tables["doctypes"] = {
     "filename": "doctypes.csv",
     "columns": ["doc_key", "Display Name", "Keywords", "Artifact Class", "Brand Scope",
                 "Reasoning Key", "Page Format Key", "Render Target Keys",
-                "Constraint Set Keys", "Structure Key", "Region Key"],
+                "Constraint Set Keys", "Structure Key", "Region Key", "Default Language"],
     "key_column": "doc_key",
     "role": "entry",
-    "enums": {"Artifact Class": ["canvas", "flow", "hybrid"]},
+    # research/64 D-E: the language a doctype's document is normally authored in --
+    # read the same generic way resolve.py already reads `description_column`
+    # (resolve.py:653, `entry_spec.get("description_column", "Display Name")`).
+    # Fixes the DOCTYPE, not the shared `structures."Heading Language"` constant:
+    # several doctypes point at the same Structure Key (cv-experienced serves
+    # cv-us through cv-gulf-gcc), so the authored language is a property of the
+    # doctype, not of the section list it shares with six other doctypes.
+    "language_column": "Default Language",
+    "enums": {"Artifact Class": ["canvas", "flow", "hybrid"],
+              "Default Language": ["en", "fr", "de"]},
     "foreign_keys": {
         "Reasoning Key": "doc-reasoning.doc_category",
         "Page Format Key": "page-formats.page_format_key",
@@ -405,6 +414,8 @@ entry = [n for n, t in tables.items() if t.get("role") == "entry"]
 assert entry == ["doctypes"], entry
 for name, t in tables.items():
     assert t["key_column"] in t["columns"], name
+    if "language_column" in t:
+        assert t["language_column"] in t["columns"], (name, t["language_column"])
     for col in t["enums"]:
         assert col in t["columns"], (name, col)
     for col, ref in t["foreign_keys"].items():

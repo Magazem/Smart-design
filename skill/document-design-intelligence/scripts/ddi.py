@@ -332,7 +332,19 @@ HANDOFF_EXCLUSIONS = {
         "Visa Status": "not yet wired: backlog cv-regions design columns (research/66 S2 DEFECT)",
         "Education Before Experience": "not yet wired: backlog cv-regions design columns (research/66 S2 DEFECT)",
         "Format": "not yet wired: backlog cv-regions design columns (research/66 S2 DEFECT)",
-        "Language Expectation": "not yet wired: backlog cv-regions design columns (research/66 S2 DEFECT)",
+        # research/64 D-E (A7): distinct from `doctypes."Default Language"` (the
+        # RENDERED document's language, now wired via resolve.py's `language` block)
+        # -- this column is free-text regional advisory prose about the CV
+        # CONTENT's expected language ("English standard for multinational/
+        # private-sector roles; Arabic for government/local-market roles"), not a
+        # discrete renderable value. Same class as figures' four sentence-separator
+        # columns and build-manifest.py's own comment on this column (schema
+        # Revision 4 erratum). Not a backlog item -- no future wiring is expected.
+        "Language Expectation": "not applicable: free-text regional advisory prose about the "
+                                "CV CONTENT's expected language, not a discrete renderable "
+                                "value -- distinct from doctypes.'Default Language' (the "
+                                "rendered document's own language, wired via resolve.py's "
+                                "language block)",
         "Evidence Class": "not yet wired: backlog cv-regions design columns (research/66 S2 DEFECT)",
     } for fmt in ("docx", "pptx", "pdf", "png")},
     "doc-reasoning": {fmt: {
@@ -357,6 +369,13 @@ HANDOFF_EXCLUSIONS = {
         "Artifact Class": _ROUTING,
         "Brand Scope": _IDENTITY,
         "Constraint Set Keys": _ROUTING,
+        # research/64 D-E (A7): consumed by resolve.py's Stage 1 to build the
+        # top-level `language` block (value + source), before `_fk_walk` ever
+        # runs -- every handoff builder reads that block's argument, not this
+        # cell of the resolved "doctypes" row.
+        "Default Language": "not applicable: consumed by resolve.py to build the "
+                             "top-level `language` block (value+source); no handoff "
+                             "builder reads it as a doctypes table cell",
         "Display Name": _IDENTITY,
         "Keywords": _IDENTITY,
         "Page Format Key": _ROUTING,
@@ -665,39 +684,58 @@ def _heading_roles(scale_rows):
     return sorted(heading_roles, key=lambda r: int(r[1:]))
 
 
-def _section_headings(resolved):
-    """(Heading Language, [(canonical_section, primary Heading Text or None), ...])
+def _section_headings(resolved, language):
+    """(target_lang, source, [(canonical_section, text_or_None, fallback_note_or_None), ...])
     for the resolved structure row, in Section Order -- the section list AND the
     wording a renderer needs (research/54 part 3), not just the structural TOC
-    depth `_heading_roles` already gives. The language is read off the structure
-    row itself (`Heading Language`), the schema's existing per-structure selector;
-    nothing here invents a new one. A section with no primary heading in that
-    language returns None for that section rather than silently dropping it."""
+    depth `_heading_roles` already gives.
+
+    research/64 D-E (A7): `target_lang` is the document's ACTUAL language --
+    resolve.py's top-level `language` block (an override or the doctype's own
+    `Default Language`), not `structures."Heading Language"`. That column is now
+    only the FALLBACK: a section with no primary heading authored in the target
+    language falls back to it and the pair's third element carries the exact
+    "(no <lang> wording authored; <fallback-lang> used)" note (never silent). A
+    section missing a primary heading in BOTH languages still returns None with
+    no note -- that is an unrelated data gap, not a language fallback."""
     v = HANDOFF_VOCAB
     structure_row = _first_row(resolved, v["structure_table"])
     if not structure_row:
-        return None, []
-    lang = structure_row.get(v["structure_heading_language_column"], "")
+        return None, None, []
+    fallback_lang = structure_row.get(v["structure_heading_language_column"], "")
+    target_lang = language.get("value") or fallback_lang
+    source = language.get("source", "doctype-default")
     order = structure_row.get(v["structure_section_order_column"], "")
     sections = [s for s in order.split(";") if s]
     primary_text = {}
     for row in resolved.get(v["headings_table"], []):
-        if (row.get(v["headings_language_column"]) == lang
-                and row.get(v["headings_is_primary_column"]) == "yes"):
-            primary_text[row.get(v["headings_canonical_section_column"])] = \
-                row.get(v["headings_text_column"], "")
-    return lang, [(section, primary_text.get(section)) for section in sections]
+        if row.get(v["headings_is_primary_column"]) == "yes":
+            key = (row.get(v["headings_language_column"]), row.get(v["headings_canonical_section_column"]))
+            primary_text[key] = row.get(v["headings_text_column"], "")
+    pairs = []
+    for section in sections:
+        text = primary_text.get((target_lang, section))
+        note = None
+        if text is None and target_lang != fallback_lang:
+            text = primary_text.get((fallback_lang, section))
+            if text is not None:
+                note = f"(no {target_lang} wording authored; {fallback_lang} used)"
+        pairs.append((section, text, note))
+    return target_lang, source, pairs
 
 
-def _sections_lines(resolved):
-    lang, pairs = _section_headings(resolved)
-    lines = [f"  sections (Section Order, wording in Heading Language={lang}):"
-             if lang else "  sections:"]
+def _sections_lines(resolved, language):
+    target_lang, source, pairs = _section_headings(resolved, language)
+    lines = [f"  sections (Section Order, language={target_lang}, source={source}):"
+             if target_lang else "  sections:"]
     if not pairs:
         lines.append(f"    {NOT_PRESENT}")
         return lines
-    for section, text in pairs:
-        lines.append(f"    {section}: {text if text else NOT_PRESENT}")
+    for section, text, note in pairs:
+        line = f"    {section}: {text if text else NOT_PRESENT}"
+        if note:
+            line += f"  {note}"
+        lines.append(line)
     return lines
 
 
@@ -831,7 +869,7 @@ def _doc_style_lines(resolved):
     return lines
 
 
-def _build_docx_lines(resolved):
+def _build_docx_lines(resolved, language):
     v = HANDOFF_VOCAB
     lines = []
 
@@ -897,7 +935,7 @@ def _build_docx_lines(resolved):
     else:
         lines.append(f"    {NOT_PRESENT}")
 
-    lines.extend(_sections_lines(resolved))
+    lines.extend(_sections_lines(resolved, language))
 
     palette_row = _first_row(resolved, v["palette_table"])
     lines.append("  palette (hex as stored -- docx-js color-argument format not documented "
@@ -923,7 +961,7 @@ def _build_docx_lines(resolved):
     return lines
 
 
-def _build_pptx_lines(resolved):
+def _build_pptx_lines(resolved, language):
     v = HANDOFF_VOCAB
     lines = []
 
@@ -967,7 +1005,7 @@ def _build_pptx_lines(resolved):
     else:
         lines.append(f"    {NOT_PRESENT}")
 
-    lines.extend(_sections_lines(resolved))
+    lines.extend(_sections_lines(resolved, language))
 
     spacing_pt = _letter_spacing_pt(typeface_row, scale_rows)
     lines.append(f"  {v['pptx_letter_spacing_key']} (pt -- research/23 pptx:458, "
@@ -998,7 +1036,7 @@ def _build_pptx_lines(resolved):
     return lines
 
 
-def _build_pdf_lines(resolved):
+def _build_pdf_lines(resolved, language):
     v = HANDOFF_VOCAB
     lines = []
 
@@ -1070,7 +1108,7 @@ def _build_pdf_lines(resolved):
     else:
         lines.append(f"    {NOT_PRESENT}")
 
-    lines.extend(_sections_lines(resolved))
+    lines.extend(_sections_lines(resolved, language))
 
     palette_row = _first_row(resolved, v["palette_table"])
     lines.append("  palette (CSS hex colour, '#' kept -- unlike pptx, CSS requires the "
@@ -1108,7 +1146,7 @@ def _build_pdf_lines(resolved):
     return lines
 
 
-def _build_png_lines(resolved):
+def _build_png_lines(resolved, language):
     # research/brief-packaging-deck-and-png.md PART B: `infographic`'s only
     # render target is png-social (Format=png), and `_FORMAT_BUILDERS` had no
     # entry for it at all -- not missing wording, no handoff path whatsoever.
@@ -1167,7 +1205,7 @@ def _build_png_lines(resolved):
     else:
         lines.append(f"    {NOT_PRESENT}")
 
-    lines.extend(_sections_lines(resolved))
+    lines.extend(_sections_lines(resolved, language))
 
     palette_row = _first_row(resolved, v["palette_table"])
     lines.append("  palette (CSS hex colour, '#' kept):")
@@ -1215,8 +1253,9 @@ _FORMAT_BUILDERS = {
 
 def _build_handoff_lines(resolved_payload, target_format):
     resolved = resolved_payload.get("resolved", {})
+    language = resolved_payload.get("language", {})
     lines = [f"HANDOFF (format={target_format})"]
-    lines.extend(_FORMAT_BUILDERS[target_format](resolved))
+    lines.extend(_FORMAT_BUILDERS[target_format](resolved, language))
     lines.extend(_constraints_and_preflight_lines(resolved, target_format))
     return lines
 

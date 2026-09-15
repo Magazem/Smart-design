@@ -188,6 +188,7 @@ class TestStage2ResolvedToEmitted(unittest.TestCase):
         read_columns = {(t, f): set() for t in cls.all_table_names for f in FORMATS}
         for payload in payloads:
             resolved = payload.get("resolved", {})
+            language = payload.get("language", {})
             for table_name in cls.all_table_names:
                 if not resolved.get(table_name):
                     continue
@@ -197,7 +198,7 @@ class TestStage2ResolvedToEmitted(unittest.TestCase):
                     for tname, trows in resolved.items():
                         this_sink = sink if tname == table_name else set()
                         tracked[tname] = [TrackedRow(r, this_sink) for r in trows]
-                    ddi._FORMAT_BUILDERS[fmt](tracked)
+                    ddi._FORMAT_BUILDERS[fmt](tracked, language)
                     ddi._constraints_and_preflight_lines(tracked, fmt)
                     read_columns[(table_name, fmt)] |= sink
 

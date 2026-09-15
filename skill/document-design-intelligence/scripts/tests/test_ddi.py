@@ -498,16 +498,21 @@ class TestDocxSafeStackFallbackIsAHeadingBodyPair(unittest.TestCase):
     family, so python-docx had nothing to fall the BODY text back to and
     the whole rendered document collapsed onto the heading fallback
     (Georgia) everywhere. This runs the real resolve -> handoff pipeline on
-    the two doctypes that actually hit docx-office with a two-family
-    pairing (cv-uk -> source-serif-sans, cv-dach -> pt-serif-sans) and
-    checks BOTH families' fallbacks are named, separately, in the docx
-    handoff."""
+    the doctype(s) that actually hit docx-office with a two-family pairing
+    and checks BOTH families' fallbacks are named, separately, in the docx
+    handoff.
+
+    cv-dach (-> pt-serif-sans) dropped out of this list at research/72's
+    scoped decision to revert cv-dach's Reasoning Key to cv-ats-strict (a
+    single-family safe-sans-arial row): pt-serif-sans is unreachable from
+    any doctype now, so cv-uk is the only two-family docx-office case left
+    to exercise. Not part of A7 (heading language) -- a side effect of that
+    unrelated revert landing in the same regeneration."""
 
     #: (heading fallback, body fallback) -- data/base/typefaces.csv's
-    #: source-serif-sans and pt-serif-sans rows.
+    #: source-serif-sans row.
     EXPECTED = {
         "cv-uk": ("Georgia", "Arial"),
-        "cv-dach": ("Times New Roman", "Arial"),
     }
 
     def test_docx_handoff_names_heading_and_body_fallback_separately(self):
@@ -721,7 +726,7 @@ class TestPngHandoffBuilder(unittest.TestCase):
                 "Font Rule": "embed",
             }],
         }
-        lines = ddi._build_png_lines(resolved)
+        lines = ddi._build_png_lines(resolved, {})
         canvas_line = next(l for l in lines if l.strip().startswith("headless-chromium:"))
         self.assertIn("not found or unparsable", canvas_line)
 

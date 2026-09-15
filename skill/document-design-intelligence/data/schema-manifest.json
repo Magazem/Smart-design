@@ -14,15 +14,22 @@
         "Render Target Keys",
         "Constraint Set Keys",
         "Structure Key",
-        "Region Key"
+        "Region Key",
+        "Default Language"
       ],
       "key_column": "doc_key",
       "role": "entry",
+      "language_column": "Default Language",
       "enums": {
         "Artifact Class": [
           "canvas",
           "flow",
           "hybrid"
+        ],
+        "Default Language": [
+          "en",
+          "fr",
+          "de"
         ]
       },
       "foreign_keys": {
@@ -71,7 +78,8 @@
         "Render Target Keys",
         "Constraint Set Keys",
         "Structure Key",
-        "Region Key"
+        "Region Key",
+        "Default Language"
       ]
     },
     "doc-reasoning": {

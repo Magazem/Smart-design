@@ -540,7 +540,7 @@ def _field_value(row, column, spec, entry_key):
     return value
 
 
-def _resolution_payload(resolved, tables_spec, diag, entry_key):
+def _resolution_payload(resolved, tables_spec, diag, entry_key, language):
     out_tables = {}
     for table_name, rows in resolved.items():
         spec = tables_spec[table_name]
@@ -556,13 +556,27 @@ def _resolution_payload(resolved, tables_spec, diag, entry_key):
         "method": diag.get("method"),
         "pass": diag.get("pass"),
         "resolved": out_tables,
+        "language": language,
         "next_step": _PREFLIGHT_HINT,
     }
 
 
-def _print_resolved(resolved, tables_spec, diag, as_json, entry_key):
+def _resolve_language(entry_spec, entry_row, lang_override):
+    """{"value": en|fr|de, "source": "override"|"doctype-default"} -- `--lang`
+    always wins; otherwise the entry row's own `language_column` (manifest-
+    driven, same idiom as `description_column` above), defaulting to "en" if
+    that column is declared but happens to be blank on this row."""
+    if lang_override:
+        return {"value": lang_override, "source": "override"}
+    lang_column = entry_spec.get("language_column")
+    default_value = entry_row.get(lang_column, "") if lang_column else ""
+    return {"value": default_value or "en", "source": "doctype-default"}
+
+
+def _print_resolved(resolved, tables_spec, diag, as_json, entry_key, language):
     if as_json:
-        print(json.dumps(_resolution_payload(resolved, tables_spec, diag, entry_key), indent=2))
+        print(json.dumps(
+            _resolution_payload(resolved, tables_spec, diag, entry_key, language), indent=2))
         return
     header = f"RESOLVED  (method={diag.get('method')}"
     if diag.get("pass"):
@@ -571,6 +585,7 @@ def _print_resolved(resolved, tables_spec, diag, as_json, entry_key):
         header += f", top_score={diag['top_score']}"
     header += ")"
     print(header)
+    print(f"language: {language['value']} (source={language['source']})")
     for table_name, rows in resolved.items():
         spec = tables_spec[table_name]
         key_column = spec["key_column"]
@@ -617,6 +632,8 @@ def build_arg_parser():
     parser.add_argument("--brand", default=None, help="brand slug to prefer (two-pass resolution)")
     parser.add_argument("--doctype", default=None,
                          help="exact entry-table key -- resolves directly, no search")
+    parser.add_argument("--lang", default=None, choices=("en", "fr", "de"),
+                         help="override the resolved doctype's own Default Language")
     parser.add_argument("--data-dir", default=None,
                          help=f"data directory (default: {DEFAULT_DATA_DIR})")
     parser.add_argument("--json", action="store_true")
@@ -669,6 +686,8 @@ def main(argv=None):
         _print_abstain(args.query or args.doctype, diag, args.json)
         return 2
 
+    language = _resolve_language(entry_spec, entry_row, args.lang)
+
     rows_by_key = {
         name: {r.get(spec["key_column"], ""): r for r in all_rows[name]}
         for name, spec in tables.items() if spec.get("key_column")
@@ -684,7 +703,7 @@ def main(argv=None):
         print(f"[NO BRAND ROW] brand={args.brand} resolved only generic rows -- refusing to emit")
         return 3
 
-    _print_resolved(resolved, tables, diag, args.json, entry_row.get(key_column, ""))
+    _print_resolved(resolved, tables, diag, args.json, entry_row.get(key_column, ""), language)
     return 0
 
 

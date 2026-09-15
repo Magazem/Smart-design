@@ -603,6 +603,12 @@ def derive_doctype_rows(spec: dict) -> list[dict]:
             "Constraint Set Keys": ";".join(cat["constraint_hint"]),
             "Structure Key": STRUCTURE_KEY_HINT.get(doctype, ""),
             "Region Key": "",
+            # research/64 D-E (A7): this generic brand-kit builder parses no
+            # language signal at all out of a brand .md today -- "en" is the
+            # documented fallback for a doctype whose own Display Name carries
+            # no market/language signal (rationale/doctypes.md), and adding
+            # brand-markdown language parsing is out of this fix's scope.
+            "Default Language": "en",
         })
     return rows
 

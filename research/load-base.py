@@ -624,6 +624,51 @@ CHANGES.append("T1: %d draft rows -> %d generic (the 4 ENS doctypes are `Brand S
                "ens and reach the library through data/brand/ens/). Header already "
                "matched the manifest exactly" % (len(src), len(rows)))
 
+# research/64 D-E / RESUME backlog item 4: `structures.'Heading Language'` is a
+# per-structure constant of `en`, so a doctype normally authored in French or German
+# still handed over English section headings -- `Default Language` fixes the DOCTYPE
+# instead, since several doctypes share one Structure Key. CONVENTION, no external
+# authority: a doctype defaults to fr/de only when its own Display Name is authored
+# in that language, not because its multilingual Keywords cell contains a foreign
+# search term (nearly every CV doctype's Keywords carries all three languages'
+# request phrasing, so that could never discriminate).
+NON_EN_WHY = {
+    "cv-dach": "Display Name \"CV -- DACH (Lebenslauf)\" -- Lebenslauf is German",
+    "cv-france": "Display Name \"CV -- France\" authored for the French market; "
+                 "cv-france is the only CV doctype whose Display Name and Reasoning "
+                 "Key both name a single French-speaking market",
+    "ens-note-interne": "Display Name \"ENS -- Note interne\" is French; Brand Scope "
+                        "ens (Luxembourg ASBL, operates in French)",
+    "ens-formulaire": "Display Name \"ENS -- Formulaire\" is French; Brand Scope ens",
+    "ens-social": "Display Name \"ENS -- Post reseaux sociaux\" is French; Brand Scope ens",
+    "ens-slides": "Display Name \"ENS -- Presentation\" is French; Brand Scope ens",
+}
+RATIONALE.mkdir(parents=True, exist_ok=True)
+(RATIONALE / "doctypes.md").write_text(
+    "# rationale/doctypes.md\n\n"
+    "Written by `research/load-base.py`. **Do not hand-edit** -- the source is the\n"
+    "`Default Language` column of `research/26-t1-doctypes-draft.csv`.\n\n"
+    "Rule 2 (`09-library-schema.md:70`): rationale and provenance live in a sibling\n"
+    "`rationale/<table>.md`, not in a column.\n\n"
+    "## `Default Language` -- CONVENTION, no external authority (research/64 D-E)\n\n"
+    "Criterion: `fr`/`de` only when the doctype's OWN `Display Name` is authored in\n"
+    "that language. `quote-devis` and `invoice-tabular` stay `en` even though their\n"
+    "Keywords carry `devis`/`facture` -- those are alternate-language search tokens,\n"
+    "not a claim the rendered document is authored in French, and neither exists as a\n"
+    "separate French-only doctype row.\n\n"
+    "| `doc_key` | Default Language | why |\n"
+    "|---|---|---|\n"
+    + "".join("| `%s` | %s | %s |\n" % (r["doc_key"], r["Default Language"],
+                                        NON_EN_WHY.get(r["doc_key"], "no market/language "
+                                                       "signal in its own Display Name"))
+              for r in rows if r["Default Language"] != "en")
+    + "\nAll other %d doctypes default to `en` (no market/language signal of their own\n"
+      "Display Name)." % len([r for r in rows if r["Default Language"] == "en"]),
+    encoding="utf-8")
+CHANGES.append("T1: +Default Language (research/64 D-E) -- cv-dach=de, cv-france=fr, "
+               "the 4 ens-* doctypes=fr (French Display Names, Brand Scope=ens), the "
+               "other 28 doctypes=en. rationale/doctypes.md written")
+
 # ------------------------------------------------------------- T2 doc-reasoning
 # `Reasoning` and `Confidence` are DRAFT-ONLY columns -- the author's argument for the
 # row, and their own 0-1 rating of it. Rule 2 (09-library-schema.md:70) keeps provenance
