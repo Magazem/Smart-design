@@ -488,6 +488,46 @@ class TestDroppedColumnsReachResolvedOutput(unittest.TestCase):
                         self.assertIn(f"{section}: {text}", proc.stdout)
 
 
+class TestDocxSafeStackFallbackIsAHeadingBodyPair(unittest.TestCase):
+    """A4b: `typefaces` carried exactly one `Safe Stack Fallback` value per
+    row. For a two-family pairing (Heading Family != Body Family) the
+    docx-office safe-stack line printed only that ONE value -- e.g.
+    cv-uk's source-serif-sans row (heading Source Serif 4, body Source
+    Sans 3, Safe Stack Fallback=Georgia) printed
+    `python-docx (safe-stack): Georgia` with no signal at all for the body
+    family, so python-docx had nothing to fall the BODY text back to and
+    the whole rendered document collapsed onto the heading fallback
+    (Georgia) everywhere. This runs the real resolve -> handoff pipeline on
+    the two doctypes that actually hit docx-office with a two-family
+    pairing (cv-uk -> source-serif-sans, cv-dach -> pt-serif-sans) and
+    checks BOTH families' fallbacks are named, separately, in the docx
+    handoff."""
+
+    #: (heading fallback, body fallback) -- data/base/typefaces.csv's
+    #: source-serif-sans and pt-serif-sans rows.
+    EXPECTED = {
+        "cv-uk": ("Georgia", "Arial"),
+        "cv-dach": ("Times New Roman", "Arial"),
+    }
+
+    def test_docx_handoff_names_heading_and_body_fallback_separately(self):
+        for doctype, (heading_fallback, body_fallback) in self.EXPECTED.items():
+            with self.subTest(doctype=doctype):
+                resolved = _run(["resolve", "--doctype", doctype, "--json"])
+                self.assertEqual(resolved.returncode, 0, resolved.stderr)
+                with tempfile.TemporaryDirectory() as tmp:
+                    path = Path(tmp) / "resolved.json"
+                    path.write_text(resolved.stdout, encoding="utf-8")
+                    proc = _run(["handoff", "--json", str(path), "--format", "docx"])
+                self.assertEqual(proc.returncode, 0, proc.stderr)
+                self.assertIn(
+                    f"python-docx (safe-stack): headings {heading_fallback} / "
+                    f"body {body_fallback}",
+                    proc.stdout,
+                    proc.stdout,
+                )
+
+
 class TestPdfHandoffCarriesTypeScaleAndPalette(unittest.TestCase):
     """research/brief-packaging-display-columns.md PART 4: `_build_pdf_lines`
     read only page_format_table, render_target_table and typeface_table --

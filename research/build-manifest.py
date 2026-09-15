@@ -154,7 +154,8 @@ tables["typefaces"] = {
     "filename": "typefaces.csv",
     "columns": ["typeface_key", "Display Name", "Keywords", "Best For", "Brand Scope",
                 "Heading Family", "Body Family", "Mono Family", "Category Contrast",
-                "Family Count", "Safe Stack Fallback", "Safe Stack Availability",
+                "Family Count", "Safe Stack Fallback", "Safe Stack Body Fallback",
+                "Safe Stack Availability",
                 "Embedding Licence", "Has Tabular Figures", "Scale Key"],
     "key_column": "typeface_key",
     "enums": {
@@ -166,7 +167,16 @@ tables["typefaces"] = {
     "foreign_keys": {"Scale Key": group("type-scales", "scale_key")},
     "searchable_columns": ["Display Name", "Keywords", "Best For"],
     "typed_json_columns": [],
-    "derived": [],
+    # research/A4b: a single-family row (Family Count=1) has one real family,
+    # so its heading and body safe-stack fallbacks can only legitimately be
+    # the same string or the body cell left blank -- a single-family row
+    # authoring a DIFFERENT body fallback would be a silent lie about what
+    # font the body text falls back to.
+    "derived": [
+        {"check": "equal_or_blank_when", "column": "Safe Stack Body Fallback",
+         "against_column": "Safe Stack Fallback", "when_column": "Family Count",
+         "when_value": "1"},
+    ],
 }
 
 tables["type-scales"] = {

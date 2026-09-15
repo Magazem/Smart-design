@@ -307,6 +307,7 @@
         "Category Contrast",
         "Family Count",
         "Safe Stack Fallback",
+        "Safe Stack Body Fallback",
         "Safe Stack Availability",
         "Embedding Licence",
         "Has Tabular Figures",
@@ -350,7 +351,15 @@
         "Best For"
       ],
       "typed_json_columns": [],
-      "derived": [],
+      "derived": [
+        {
+          "check": "equal_or_blank_when",
+          "column": "Safe Stack Body Fallback",
+          "against_column": "Safe Stack Fallback",
+          "when_column": "Family Count",
+          "when_value": "1"
+        }
+      ],
       "display_columns": [
         "Display Name",
         "Keywords",
@@ -362,6 +371,7 @@
         "Category Contrast",
         "Family Count",
         "Safe Stack Fallback",
+        "Safe Stack Body Fallback",
         "Safe Stack Availability",
         "Embedding Licence",
         "Has Tabular Figures",

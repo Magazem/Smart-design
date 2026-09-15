@@ -147,7 +147,7 @@ found means a nonzero exit, this file never silently drops a check):
     fails, unless its column is listed in that table's
     `typed_json_columns` -- this is the schema's Rule 1 ("no cell may
     contain logic") made mechanical rather than a review-time convention.
-  - the one derived check implemented: `contrast_at_least` -- WCAG contrast
+  - two derived checks implemented: `contrast_at_least` -- WCAG contrast
     (via lib/color.py, the exact formula ported from this project's own
     upstream research) between two named columns must clear a minimum
     ratio. BLANK HANDLING, and it is deliberately not the same as an FK's:
@@ -158,6 +158,11 @@ found means a nonzero exit, this file never silently drops a check):
     omission. So a blank FK is skipped one cell at a time while a contrast
     rule is skipped only pairwise. Declared here and in research/09-library-
     schema.md T4 so neither behaviour is folklore.
+    `equal_or_blank_when` -- when `when_column` equals `when_value`, `column`
+    must be blank or equal `against_column` exactly. Used by
+    typefaces.Safe Stack Body Fallback (research/A4b): a single-family row
+    (Family Count=1) has one real family, so a filled-in body fallback that
+    disagrees with the heading fallback is an authoring bug, not a choice.
   - brand overlay merge: every `data/brand/<slug>/<table>.csv` present is
     loaded as additional rows for that table (only if the table declares a
     `Brand Scope` column -- its value is *set* to `<slug>` for every row
@@ -312,30 +317,49 @@ def _validate_rows(table_name, spec, rows, all_keys, all_rows, tables, problems)
                      "logic does not belong in a cell (schema Rule 1)", column=column)
 
         for rule in derived:
-            if rule.get("check") != "contrast_at_least":
-                continue  # only kind implemented, per the task brief
-            fg_col, bg_col = rule["column"], rule["against_column"]
-            fg, bg = record.get(fg_col, ""), record.get(bg_col, "")
-            if not fg and not bg:
-                # BOTH cells empty -> the row does not define this colour role at
-                # all, so there is no pair to rate. Same reading as the nullable-FK
-                # skip above: absent is not wrong. `palettes.mono-ink` ships
-                # `Accent`/`On Accent` blank deliberately and is the schema's own
-                # generic worked example (research/09-library-schema.md T4).
-                # Exactly ONE cell empty is NOT skipped -- a half-filled pair is an
-                # authoring bug (an ink with no ground, or a ground with no ink) and
-                # must still fail below. The asymmetry is declared in T4's
-                # "Blank cells" note and in this file's CHECKS list.
-                continue
-            try:
-                ratio = color.contrast_ratio(fg, bg)
-            except ValueError as exc:
-                _add(f"cannot compute contrast: {exc}", column=fg_col)
-                continue
-            min_ratio = rule.get("min_ratio", 4.5)
-            if ratio < min_ratio - 1e-9:
-                _add(f"contrast {ratio:.2f}:1 against {bg_col} '{bg}' is below "
-                     f"required {min_ratio}:1", column=fg_col)
+            check = rule.get("check")
+            if check == "contrast_at_least":
+                fg_col, bg_col = rule["column"], rule["against_column"]
+                fg, bg = record.get(fg_col, ""), record.get(bg_col, "")
+                if not fg and not bg:
+                    # BOTH cells empty -> the row does not define this colour role at
+                    # all, so there is no pair to rate. Same reading as the nullable-FK
+                    # skip above: absent is not wrong. `palettes.mono-ink` ships
+                    # `Accent`/`On Accent` blank deliberately and is the schema's own
+                    # generic worked example (research/09-library-schema.md T4).
+                    # Exactly ONE cell empty is NOT skipped -- a half-filled pair is an
+                    # authoring bug (an ink with no ground, or a ground with no ink) and
+                    # must still fail below. The asymmetry is declared in T4's
+                    # "Blank cells" note and in this file's CHECKS list.
+                    continue
+                try:
+                    ratio = color.contrast_ratio(fg, bg)
+                except ValueError as exc:
+                    _add(f"cannot compute contrast: {exc}", column=fg_col)
+                    continue
+                min_ratio = rule.get("min_ratio", 4.5)
+                if ratio < min_ratio - 1e-9:
+                    _add(f"contrast {ratio:.2f}:1 against {bg_col} '{bg}' is below "
+                         f"required {min_ratio}:1", column=fg_col)
+            elif check == "equal_or_blank_when":
+                # research/A4b: when `when_column` equals `when_value` (typefaces'
+                # Family Count=1, i.e. a single real family), `column` must either be
+                # blank or equal `against_column` -- a single-family row cannot
+                # legitimately author a DIFFERENT body fallback than its heading
+                # fallback, since both roles fall back to the same one family.
+                when_col, when_val = rule["when_column"], rule["when_value"]
+                if record.get(when_col, "") != when_val:
+                    continue
+                col, against_col = rule["column"], rule["against_column"]
+                value = record.get(col, "")
+                if not value:
+                    continue
+                against = record.get(against_col, "")
+                if value != against:
+                    _add(f"'{value}' must equal {against_col} '{against}' when "
+                         f"{when_col}={when_val!r} (or be left blank)", column=col)
+            else:
+                continue  # unknown check kind, ignored
 
 
 def _collect(data_dir):

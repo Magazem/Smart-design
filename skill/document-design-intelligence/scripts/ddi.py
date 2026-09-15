@@ -221,6 +221,7 @@ HANDOFF_VOCAB = {
     "typeface_table": "typefaces",
     "typeface_family_columns": ["Heading Family", "Body Family"],
     "typeface_fallback_column": "Safe Stack Fallback",
+    "typeface_body_fallback_column": "Safe Stack Body Fallback",
     "typeface_scale_group_column": "Scale Key",
     "type_scale_table": "type-scales",
     "type_scale_role_column": "Role",
@@ -553,6 +554,9 @@ HANDOFF_EXCLUSIONS = {
             "Safe Stack Fallback": "not applicable: pptx's only render target (pptx-office) is "
                                   "embed; the safe-stack branch's fallback column is "
                                   "unreachable with today's data",
+            "Safe Stack Body Fallback": "not applicable: pptx's only render target (pptx-office) "
+                                       "is embed; the safe-stack branch's fallback columns are "
+                                       "unreachable with today's data",
         },
         "pdf": {
             "Best For": _IDENTITY, "Brand Scope": _IDENTITY, "Display Name": _IDENTITY, "Keywords": _IDENTITY,
@@ -567,6 +571,10 @@ HANDOFF_EXCLUSIONS = {
                                   "pdf-weasyprint, pdf-weasyprint-pdfx4, pdf-wkhtmltopdf) are "
                                   "all embed; the safe-stack branch's fallback column is "
                                   "unreachable with today's data",
+            "Safe Stack Body Fallback": "not applicable: pdf's render targets (pdf-chromium, "
+                                       "pdf-weasyprint, pdf-weasyprint-pdfx4, pdf-wkhtmltopdf) are "
+                                       "all embed; the safe-stack branch's fallback columns are "
+                                       "unreachable with today's data",
         },
         "png": {
             "Best For": _IDENTITY, "Brand Scope": _IDENTITY, "Display Name": _IDENTITY, "Keywords": _IDENTITY,
@@ -579,6 +587,9 @@ HANDOFF_EXCLUSIONS = {
             "Safe Stack Availability": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
             "Safe Stack Fallback": "not applicable: png-social is embed; the safe-stack "
                                   "branch's fallback column is unreachable with today's data",
+            "Safe Stack Body Fallback": "not applicable: png-social is embed; the safe-stack "
+                                       "branch's fallback columns are unreachable with today's "
+                                       "data",
         },
     },
 }
@@ -856,8 +867,13 @@ def _build_docx_lines(resolved):
                     typeface_row.get(c, "") for c in v["typeface_family_columns"] if typeface_row.get(c, ""))
                 lines.append(f"    {engine} ({rule}): {families or NOT_PRESENT}")
             else:
-                fallback = typeface_row.get(v["typeface_fallback_column"], "")
-                lines.append(f"    {engine} ({rule}): {fallback or NOT_PRESENT}")
+                heading_fallback = typeface_row.get(v["typeface_fallback_column"], "")
+                body_fallback = typeface_row.get(v["typeface_body_fallback_column"], "")
+                if heading_fallback or body_fallback:
+                    lines.append(f"    {engine} ({rule}): headings {heading_fallback or NOT_PRESENT} "
+                                 f"/ body {body_fallback or heading_fallback or NOT_PRESENT}")
+                else:
+                    lines.append(f"    {engine} ({rule}): {NOT_PRESENT}")
     else:
         lines.append(f"    {NOT_PRESENT}")
 
@@ -931,8 +947,13 @@ def _build_pptx_lines(resolved):
                     typeface_row.get(c, "") for c in v["typeface_family_columns"] if typeface_row.get(c, ""))
                 lines.append(f"    {engine} ({rule}): {families or NOT_PRESENT}")
             else:
-                fallback = typeface_row.get(v["typeface_fallback_column"], "")
-                lines.append(f"    {engine} ({rule}): {fallback or NOT_PRESENT}")
+                heading_fallback = typeface_row.get(v["typeface_fallback_column"], "")
+                body_fallback = typeface_row.get(v["typeface_body_fallback_column"], "")
+                if heading_fallback or body_fallback:
+                    lines.append(f"    {engine} ({rule}): headings {heading_fallback or NOT_PRESENT} "
+                                 f"/ body {body_fallback or heading_fallback or NOT_PRESENT}")
+                else:
+                    lines.append(f"    {engine} ({rule}): {NOT_PRESENT}")
     else:
         lines.append(f"    {NOT_PRESENT}")
 
