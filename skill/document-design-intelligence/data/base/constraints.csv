@@ -33,6 +33,20 @@ report-figure-caption-keep-together,report-typography,artifact-class:flow,valida
 photocopy-safe-color,photocopy-safe,doctype:*,validate-text-safe-color,,roles=label|legal;metric=text_l_star,15,warn
 legal-text-min-size,legal-text,doctype:*,validate-type-floor,,medium=print;role=legal,8,warn
 legal-text-no-sustained-uppercase,legal-text,doctype:*,validate-text-case,,role=legal;max_uppercase_run_words,3,warn
+slop-font-family-count-docx,slop-mechanical,format:docx,validate-font-family-count,,distinct_families,3,fail
+slop-font-family-count-pptx,slop-mechanical,format:pptx,validate-font-family-count,,distinct_families,3,fail
+slop-no-emoji-docx,slop-mechanical,format:docx,validate-no-emoji,,emoji_count,0,fail
+slop-no-emoji-pptx,slop-mechanical,format:pptx,validate-no-emoji,,emoji_count,0,fail
+slop-cell-border-ratio-docx,slop-mechanical,format:docx,validate-cell-border-ratio,,border_ratio,0.5,warn
+slop-cell-border-ratio-pptx,slop-mechanical,format:pptx,validate-cell-border-ratio,,border_ratio,0.5,warn
+slop-cell-border-ratio-invoice,slop-mechanical,doctype:invoice-*,validate-cell-border-ratio,,border_ratio,0.5,fail
+slop-cell-border-ratio-quote,slop-mechanical,doctype:quote-*,validate-cell-border-ratio,,border_ratio,0.5,fail
+slop-cell-border-ratio-form,slop-mechanical,doctype:form-*,validate-cell-border-ratio,,border_ratio,0.5,fail
+slop-bordered-block-ratio-docx,slop-mechanical,format:docx,validate-bordered-block-ratio,,border_ratio,0.5,warn
+slop-bordered-block-ratio-pptx,slop-mechanical,format:pptx,validate-bordered-block-ratio,,border_ratio,0.5,warn
+slop-accent-colour-palette-docx,slop-mechanical,format:docx,validate-accent-colour-palette,,accent_hex,resolved-palette-only,warn
+slop-accent-colour-palette-pptx,slop-mechanical,format:pptx,validate-accent-colour-palette,,accent_hex,resolved-palette-only,warn
+slop-words-per-slide,slop-mechanical,doctype:slide-deck-*,validate-words-per-slide,,words_per_slide,36,warn
 pro-bleed-geometry,professional-print,format:pdf,validate-bleed,,bleed_mm,page-formats:Bleed mm,fail
 pro-trim-safe-margin,professional-print,format:pdf,validate-safe-margin,,safe_margin_mm,page-formats:Safe Margin mm,warn
 pro-fold-geometry,professional-print,format:pdf,validate-fold-geometry,,fold_geometry,present,fail

@@ -84,9 +84,25 @@ _R = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}"
 _PR = "{http://schemas.openxmlformats.org/package/2006/relationships}"
 _V = "{urn:schemas-microsoft-com:vml}"
 _P = "{http://schemas.openxmlformats.org/presentationml/2006/main}"
+_A = "{http://schemas.openxmlformats.org/drawingml/2006/main}"
 
 _PHONE_RE = re.compile(r"(?:\+?\d[\d\-.\s()]{7,}\d)")
 _PT_TO_MM = 25.4 / 72.0
+
+# research/68-slop-patterns.md "Detection" column, mechanical rows. Emoji/pictograph
+# ranges per the task brief: misc symbols & pictographs through supplemental symbols
+# and pictographs (U+1F300-1FAFF), the misc-symbols/dingbats block AI tools draw single
+# glyphs from (U+2600-27BF), and the variation selector that forces emoji presentation
+# (U+FE0F) on an otherwise-text-presentation codepoint.
+_EMOJI_RANGES = ((0x1F300, 0x1FAFF), (0x2600, 0x27BF), (0xFE0F, 0xFE0F))
+_EMOJI_RE = re.compile(
+    "[" + "".join(f"{chr(lo)}-{chr(hi)}" for lo, hi in _EMOJI_RANGES) + "]"
+)
+_HEX_COLOR_RE = re.compile(r"[0-9A-Fa-f]{6}")
+
+
+def _count_emoji(text):
+    return len(_EMOJI_RE.findall(text or ""))
 
 
 def _pt_to_mm(value):
@@ -302,11 +318,138 @@ def _docx_structure(zf):
     }
 
 
+# ============ DOCX -- research/68-slop-patterns.md mechanical facts ============
+
+def _docx_font_families(doc_root):
+    """Distinct font families actually set on a run (w:rFonts), not merely
+    listed in fontTable.xml -- a family can be referenced there and never
+    used, or used without a fontTable entry at all."""
+    families = set()
+    for rfonts in doc_root.findall(f".//{_W}rFonts"):
+        for attr in ("ascii", "hAnsi", "cs", "eastAsia"):
+            val = rfonts.get(f"{_W}{attr}")
+            if val:
+                families.add(val)
+    return families
+
+
+def _docx_all_borders_set(borders_el):
+    for side in ("top", "left", "bottom", "right"):
+        side_el = borders_el.find(f"{_W}{side}")
+        if side_el is None:
+            return False
+        val = side_el.get(f"{_W}val")
+        if not val or val in ("nil", "none"):
+            return False
+    return True
+
+
+def _docx_table_cell_border_ratio(doc_root):
+    cells = doc_root.findall(f".//{_W}tc")
+    total = len(cells)
+    bordered = 0
+    for tc in cells:
+        tc_pr = tc.find(f"{_W}tcPr")
+        borders = tc_pr.find(f"{_W}tcBorders") if tc_pr is not None else None
+        if borders is not None and _docx_all_borders_set(borders):
+            bordered += 1
+    return bordered, total
+
+
+def _docx_bordered_block_ratio(doc_root):
+    """Paragraphs with a visible border (w:pPr/w:pBorder), against all
+    paragraphs -- the "frames around everything" pattern applied to blocks
+    rather than table cells (see _docx_table_cell_border_ratio)."""
+    paragraphs = doc_root.findall(f".//{_W}p")
+    total = len(paragraphs)
+    bordered = 0
+    for p in paragraphs:
+        p_pr = p.find(f"{_W}pPr")
+        if p_pr is not None and p_pr.find(f"{_W}pBorder") is not None:
+            bordered += 1
+    return bordered, total
+
+
+def _docx_accent_colours(zf, doc_root):
+    colours = set()
+    for color_el in doc_root.findall(f".//{_W}color"):
+        val = (color_el.get(f"{_W}val") or "").strip()
+        if val.lower() != "auto" and _HEX_COLOR_RE.fullmatch(val):
+            colours.add(val.upper())
+    try:
+        theme_root = ET.fromstring(zf.read("word/theme/theme1.xml"))
+    except (KeyError, ET.ParseError):
+        theme_root = None
+    if theme_root is not None:
+        accent1 = theme_root.find(f".//{_A}clrScheme/{_A}accent1/{_A}srgbClr")
+        if accent1 is not None and accent1.get("val"):
+            colours.add(accent1.get("val").upper())
+    return sorted(colours)
+
+
+def _docx_background_image_count(zf, doc_root):
+    """0 or 1: DOCX has a single document-wide background (w:background),
+    not a per-page one -- present only if it resolves to a real image
+    relationship, matching how font embedding is resolved above."""
+    bg = doc_root.find(f"{_W}background")
+    if bg is None:
+        return 0
+    rid = bg.get(f"{_R}id")
+    if not rid:
+        return 0
+    rels = _parse_rels(zf, "word/_rels/document.xml.rels")
+    return 1 if _resolve_target("word", rels.get(rid)) in set(zf.namelist()) else 0
+
+
+def _docx_objects_and_words_per_section(doc_root):
+    """Per-section object count and words are approximate: docx has no
+    per-page layout fact available from the XML alone, so this divides the
+    body's paragraph+table count and word count across its w:sectPr count."""
+    body = doc_root.find(f"{_W}body")
+    if body is None:
+        return {"sections": 0, "objects_per_section": None, "words_per_section": None}
+    sections = len(doc_root.findall(f".//{_W}sectPr")) or 1
+    object_count = len(body.findall(f"{_W}p")) + len(body.findall(f"{_W}tbl"))
+    word_count = len(_text_of(body, _W).split())
+    return {
+        "sections": sections,
+        "objects_per_section": round(object_count / sections, 1),
+        "words_per_section": round(word_count / sections, 1),
+    }
+
+
+def _docx_slop_facts(zf, doc_root):
+    families = sorted(_docx_font_families(doc_root))
+    emoji_count = _count_emoji(_text_of(doc_root, _W))
+    cell_bordered, cell_total = _docx_table_cell_border_ratio(doc_root)
+    block_bordered, block_total = _docx_bordered_block_ratio(doc_root)
+    return {
+        "font_families": {"count": len(families), "names": families},
+        "emoji_count": emoji_count,
+        "table_cell_border_ratio": {
+            "bordered": cell_bordered, "total": cell_total,
+            "ratio": round(cell_bordered / cell_total, 3) if cell_total else None,
+        },
+        "bordered_block_ratio": {
+            "bordered": block_bordered, "total": block_total,
+            "ratio": round(block_bordered / block_total, 3) if block_total else None,
+        },
+        "accent_colours": _docx_accent_colours(zf, doc_root),
+        "background_image_count": _docx_background_image_count(zf, doc_root),
+        **_docx_objects_and_words_per_section(doc_root),
+    }
+
+
 def preflight_docx(path):
     with zipfile.ZipFile(path) as zf:
         fonts_out = _docx_fonts(zf)
         structure = _docx_structure(zf)
-    return {"file_type": "docx", "fonts": fonts_out, "structure": structure}
+        try:
+            doc_root = ET.fromstring(zf.read("word/document.xml"))
+        except (KeyError, ET.ParseError):
+            doc_root = None
+        slop = _docx_slop_facts(zf, doc_root) if doc_root is not None else None
+    return {"file_type": "docx", "fonts": fonts_out, "structure": structure, "slop": slop}
 
 
 # ============ PPTX ============
@@ -364,10 +507,145 @@ def _pptx_fonts(zf):
     ]
 
 
+# ============ PPTX -- research/68-slop-patterns.md mechanical facts ============
+
+def _pptx_slide_members(zf):
+    return sorted(m for m in zf.namelist() if re.match(r"ppt/slides/slide\d+\.xml$", m))
+
+
+def _pptx_slide_roots(zf):
+    for member in _pptx_slide_members(zf):
+        try:
+            yield ET.fromstring(zf.read(member))
+        except ET.ParseError:
+            continue
+
+
+def _pptx_font_families(zf):
+    """Distinct typefaces actually set on a run/default run (a:latin), not
+    merely referenced in the theme -- the "used" counterpart to _pptx_fonts,
+    which resolves embedding for typefaces referenced anywhere at all."""
+    families = set()
+    for root in _pptx_slide_roots(zf):
+        for latin in root.iter(f"{_A}latin"):
+            typeface = latin.get("typeface")
+            if typeface and typeface not in _IGNORED_THEME_PLACEHOLDERS:
+                families.add(typeface)
+    return families
+
+
+def _pptx_body_text(zf):
+    return "".join(
+        " ".join(t.text or "" for t in root.iter(f"{_A}t"))
+        for root in _pptx_slide_roots(zf)
+    )
+
+
+def _pptx_all_borders_set(tc_pr):
+    for tag in ("lnL", "lnR", "lnT", "lnB"):
+        ln = tc_pr.find(f"{_A}{tag}")
+        if ln is None or ln.find(f"{_A}noFill") is not None:
+            return False
+    return True
+
+
+def _pptx_table_cell_border_ratio(zf):
+    total = 0
+    bordered = 0
+    for root in _pptx_slide_roots(zf):
+        for tc in root.iter(f"{_A}tc"):
+            total += 1
+            tc_pr = tc.find(f"{_A}tcPr")
+            if tc_pr is not None and _pptx_all_borders_set(tc_pr):
+                bordered += 1
+    return bordered, total
+
+
+def _pptx_bordered_shape_ratio(zf):
+    """Shapes (p:sp) with a visible outline (a:ln, not a:noFill), against all
+    shapes -- the deck-level counterpart to _docx_bordered_block_ratio."""
+    total = 0
+    bordered = 0
+    for root in _pptx_slide_roots(zf):
+        for sp in root.iter(f"{_P}sp"):
+            total += 1
+            sp_pr = sp.find(f"{_P}spPr")
+            ln = sp_pr.find(f"{_A}ln") if sp_pr is not None else None
+            if ln is not None and ln.find(f"{_A}noFill") is None:
+                bordered += 1
+    return bordered, total
+
+
+def _pptx_accent_colours(zf):
+    colours = set()
+    for root in _pptx_slide_roots(zf):
+        for srgb in root.iter(f"{_A}srgbClr"):
+            val = (srgb.get("val") or "").strip()
+            if _HEX_COLOR_RE.fullmatch(val):
+                colours.add(val.upper())
+    try:
+        theme_root = ET.fromstring(zf.read("ppt/theme/theme1.xml"))
+    except (KeyError, ET.ParseError):
+        theme_root = None
+    if theme_root is not None:
+        accent1 = theme_root.find(f".//{_A}clrScheme/{_A}accent1/{_A}srgbClr")
+        if accent1 is not None and accent1.get("val"):
+            colours.add(accent1.get("val").upper())
+    return sorted(colours)
+
+
+def _pptx_background_image_slide_count(zf):
+    count = 0
+    for root in _pptx_slide_roots(zf):
+        bg = root.find(f"{_P}cSld/{_P}bg")
+        if bg is not None and bg.find(f".//{_A}blipFill") is not None:
+            count += 1
+    return count
+
+
+_SLIDE_OBJECT_TAGS = ("sp", "pic", "graphicFrame", "grpSp", "cxnSp")
+
+
+def _pptx_objects_and_words_per_slide(zf):
+    per_slide = []
+    for member, root in zip(_pptx_slide_members(zf), _pptx_slide_roots(zf)):
+        sp_tree = root.find(f"{_P}cSld/{_P}spTree")
+        object_count = (
+            sum(len(sp_tree.findall(f"{_P}{tag}")) for tag in _SLIDE_OBJECT_TAGS)
+            if sp_tree is not None else 0
+        )
+        words = len(" ".join(t.text or "" for t in root.iter(f"{_A}t")).split())
+        per_slide.append({"slide": member, "objects": object_count, "words": words})
+    return per_slide
+
+
+def _pptx_slop_facts(zf):
+    families = sorted(_pptx_font_families(zf))
+    emoji_count = _count_emoji(_pptx_body_text(zf))
+    cell_bordered, cell_total = _pptx_table_cell_border_ratio(zf)
+    shape_bordered, shape_total = _pptx_bordered_shape_ratio(zf)
+    return {
+        "font_families": {"count": len(families), "names": families},
+        "emoji_count": emoji_count,
+        "table_cell_border_ratio": {
+            "bordered": cell_bordered, "total": cell_total,
+            "ratio": round(cell_bordered / cell_total, 3) if cell_total else None,
+        },
+        "bordered_shape_ratio": {
+            "bordered": shape_bordered, "total": shape_total,
+            "ratio": round(shape_bordered / shape_total, 3) if shape_total else None,
+        },
+        "accent_colours": _pptx_accent_colours(zf),
+        "background_image_slide_count": _pptx_background_image_slide_count(zf),
+        "per_slide": _pptx_objects_and_words_per_slide(zf),
+    }
+
+
 def preflight_pptx(path):
     with zipfile.ZipFile(path) as zf:
         fonts_out = _pptx_fonts(zf)
-    return {"file_type": "pptx", "fonts": fonts_out}
+        slop = _pptx_slop_facts(zf)
+    return {"file_type": "pptx", "fonts": fonts_out, "slop": slop}
 
 
 # ============ output formatting ============
@@ -417,6 +695,35 @@ def _print_human_docx(result, path):
     print(f"    contact-like content in first body paragraph: {s['contact_in_first_body_paragraph']}")
     print(f"    contact-like content in a header part: {s['contact_in_header']}")
     print(f"    contact-like content only in a header part: {s['contact_only_in_header']}")
+    _print_human_slop(result.get("slop"))
+
+
+def _print_human_slop(slop):
+    print("  slop facts (facts only -- no severity):")
+    if slop is None:
+        print("    (unavailable -- main document part missing or unparseable)")
+        return
+    ff = slop["font_families"]
+    print(f"    font families used: {ff['count']} ({', '.join(ff['names']) or 'none'})")
+    print(f"    emoji/pictograph codepoints: {slop['emoji_count']}")
+    for key, label in (("table_cell_border_ratio", "table-cell border ratio"),
+                        ("bordered_block_ratio", "bordered-block ratio"),
+                        ("bordered_shape_ratio", "bordered-shape ratio")):
+        if key not in slop:
+            continue
+        r = slop[key]
+        ratio = f"{r['ratio']:.3f}" if r["ratio"] is not None else "n/a"
+        print(f"    {label}: {r['bordered']}/{r['total']} ({ratio})")
+    print(f"    accent colours: {', '.join(slop['accent_colours']) or 'none'}")
+    if "background_image_count" in slop:
+        print(f"    background image fills: {slop['background_image_count']}")
+        print(f"    sections: {slop['sections']}  "
+              f"objects/section (approx): {slop['objects_per_section']}  "
+              f"words/section (approx): {slop['words_per_section']}")
+    if "background_image_slide_count" in slop:
+        print(f"    background image fills (slides): {slop['background_image_slide_count']}")
+        for row in slop["per_slide"]:
+            print(f"    {row['slide']}: objects={row['objects']} words={row['words']}")
 
 
 def _print_human_pptx(result, path):
@@ -424,6 +731,7 @@ def _print_human_pptx(result, path):
     print("  fonts referenced:")
     for font in result["fonts"]:
         print(f"    {font['name']}: embedded={'yes' if font['embedded'] else 'no'}")
+    _print_human_slop(result.get("slop"))
 
 
 _PRINTERS = {"pdf": _print_human_pdf, "docx": _print_human_docx, "pptx": _print_human_pptx}
