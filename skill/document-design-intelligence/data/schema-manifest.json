@@ -156,7 +156,8 @@
         "Table Rules": [
           "hairline",
           "header-and-total",
-          "none"
+          "none",
+          "row-hairlines"
         ],
         "Table Fills": [
           "none",

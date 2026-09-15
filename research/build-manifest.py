@@ -116,7 +116,15 @@ tables["doc-styles"] = {
                 "Field Style", "Checklist"],
     "key_column": "style_key",
     "enums": {
-        "Table Rules": ["hairline", "header-and-total", "none"],
+        # `row-hairlines` added at A8: `hairline` alone was read by a renderer as
+        # "box every cell" for `cv-dach-tabular` (research/72's judges, verbatim,
+        # all three: fully boxed contact grid) despite the Checklist saying "row
+        # padding rather than cell borders" -- the enum value itself carried no
+        # semantic that ruled boxes out. `row-hairlines` states the DACH direction's
+        # actual rule explicitly: horizontal separators between rows only, no
+        # vertical rules, no cell boxes. `hairline` and `header-and-total` keep
+        # their existing meanings (schema-manifest-NOTES.md documents all four).
+        "Table Rules": ["hairline", "header-and-total", "none", "row-hairlines"],
         "Table Fills": ["none", "zebra", "header-only"],
         "Emphasis Mechanism": ["weight", "colour-text", "fill"],
         "Field Style": ["underline", "box", "none"],

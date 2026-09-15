@@ -194,6 +194,34 @@ WINDOW_SIZE_RE = re.compile(r"--window-size=(\d+),(\d+)")
 #: -- index used to test "tier > 1" (pdfx4-rgb or better) for @page bleed.
 PRINT_TIER_ORDER = ["none", "submittable-rgb", "pdfx4-rgb", "cmyk-press"]
 
+#: A8 (schema-manifest-NOTES.md section 9): `doc-styles.Table Rules` values
+#: whose plain enum token a renderer could misread need the rule spelled
+#: out. research/72's blind panel read `cv-dach-tabular`'s `hairline` table
+#: as fully boxed despite the Checklist saying otherwise -- the bare token
+#: carried no rule against cell borders. `row-hairlines` is the value this
+#: was renamed to; only it needs the explicit line, since `hairline` and
+#: `header-and-total` are not being misread and adding text for values that
+#: are not confused would just be noise.
+TABLE_RULES_INSTRUCTIONS = {
+    "row-hairlines": ("table rules: horizontal hairlines between rows only; "
+                       "no vertical rules; no cell borders"),
+}
+
+#: A8 (Manager ruling): research/72's judges 2 and 3 also flagged a
+#: "heading collision" -- a section heading crowding cv-dach-tabular's table
+#: with no space after it -- a defect the table-rules fix above does not
+#: touch. cv-dach-tabular's Checklist carries the rule as prose (research/70
+#: Direction 2 Spacing: body 10pt/13pt, "row padding = 1 leading unit"), but
+#: a bare Checklist dump buries a structural rule among other bullets, so it
+#: gets the same explicit-line treatment as TABLE_RULES_INSTRUCTIONS. Keyed
+#: by style_key, not by an enum column, because this is a rule specific to
+#: this one style's table/heading layout, not a value other styles share.
+STYLE_SPACING_INSTRUCTIONS = {
+    "cv-dach-tabular": ("space after every table and before every section "
+                         "heading: one body leading (13pt); headings never "
+                         "touch a table edge"),
+}
+
 #: FINAL wording (research/05-SYNTHESIS.md:977-979, superseding the
 #: research/14 draft's "conformance validated offline" -- research/28 found
 #: no open tool can validate PDF/X at all, in-sandbox or not). Never swap
@@ -866,6 +894,13 @@ def _doc_style_lines(resolved):
     ):
         value = row.get(column, "")
         lines.append(f"    {column}: {value if value else NOT_PRESENT}")
+        if column == v["doc_style_table_rules_column"]:
+            instruction = TABLE_RULES_INSTRUCTIONS.get(value)
+            if instruction:
+                lines.append(f"    {instruction}")
+    spacing_instruction = STYLE_SPACING_INSTRUCTIONS.get(row.get("key", ""))
+    if spacing_instruction:
+        lines.append(f"    {spacing_instruction}")
     return lines
 
 

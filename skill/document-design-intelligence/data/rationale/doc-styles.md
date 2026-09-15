@@ -19,12 +19,33 @@ mismatched fonts, bloated text, frames around everything) as actions.
 
 ### `cv-dach-tabular`
 
-`Table Rules=hairline`: the two-column label/content table (69: "margins 20mm, two-column
-table... photo 4.5x6cm top-right") uses row separation, not a bordered grid --
-`Table Fills=none` and the Checklist's "consistent row padding, not cell borders" line both
-restate 69's explicit avoidance of the Odoo-clone/frames-around-everything pattern that same
-section names for invoice-style grids. `Rule Brand pt=0`: no accent colour exists in this
+`Table Rules=row-hairlines` (A8, was `hairline` at A4): the two-column label/content table
+(69: "margins 20mm, two-column table... photo 4.5x6cm top-right") uses row separation, not a
+bordered grid -- but plain `hairline` carried no rule against boxing every cell, and
+research/72's blind panel (all three judges, verbatim) read the rendered table as "fully
+boxed"/a "gridded table" despite the Checklist already saying "row padding rather than cell
+borders": the enum value itself was silent on vertical rules and cell boxes, so a renderer
+had nothing to contradict a default all-borders table style. `row-hairlines` states 69's
+Whitespace rule directly -- horizontal separators between rows only, no vertical rules, no
+cell boxes -- closing the gap between the Checklist text and the machine-readable column a
+renderer actually reads. `Table Fills=none` and the Checklist's explicit "no vertical rules,
+no cell borders, no boxed grid" line both restate 69's avoidance of the
+Odoo-clone/frames-around-everything pattern that same section names for invoice-style grids.
+Label column width (~35mm) is now stated directly in the Checklist rather than only in this
+rationale, per 69's "two-column table (label column ~35mm, content column remainder)". Row
+padding is now stated in pt (13pt) rather than left qualitative, per 70's DACH Scale (body
+10pt/13pt) and Spacing ("row padding = 1 leading unit rather than cell borders" -- one
+leading unit = the body leading, 13pt). `Rule Brand pt=0`: no accent colour exists in this
 direction (70: "No accent colour; formality signalled by structure").
+
+A second Checklist line and handoff instruction were added at A8 by Manager ruling, on top
+of the judges' boxed-cell defect: research/72's judges 2 and 3 also named a "heading
+collision" -- a section heading crowding the table with no space after it -- a design defect
+independent of the table-rules fix. "Space after every table and before every section
+heading: one body leading (13pt); headings never touch a table edge" reuses the same 13pt
+body-leading value from 70's DACH Scale (not a new, separately-sourced number) applied to the
+gap after the table rather than the gap between rows -- a natural reuse of the same rhythm,
+not an independent citation.
 
 ### `cv-europass`
 

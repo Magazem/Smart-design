@@ -134,6 +134,65 @@ class TestHandoff(unittest.TestCase):
         self.assertNotEqual(proc.returncode, 0)
 
 
+class TestTableRulesInstructionLine(unittest.TestCase):
+    """A8: research/72's blind Opus panel (all three judges, verbatim) read
+    `cv-dach-tabular`'s table -- authored `Table Rules=hairline` plus a
+    Checklist line saying "row padding rather than cell borders" -- as a
+    "fully boxed contact grid" (cell-border ratio 1.0). The bare enum token
+    carried no rule against boxing every cell. `row-hairlines` is a new,
+    distinct enum value (schema-manifest-NOTES.md section 9) and the handoff
+    must spell out its meaning explicitly, not just print the token, so a
+    renderer cannot make the same mistake again."""
+
+    INSTRUCTION = ("table rules: horizontal hairlines between rows only; "
+                    "no vertical rules; no cell borders")
+
+    def _style_lines(self, table_rules):
+        resolved = {"doc-styles": [{
+            "key": "cv-dach-tabular", "Table Rules": table_rules,
+            "Table Fills": "none", "Emphasis Mechanism": "weight",
+            "Field Style": "none", "Checklist": "x",
+        }]}
+        return "\n".join(ddi._doc_style_lines(resolved))
+
+    def test_row_hairlines_prints_the_explicit_instruction(self):
+        self.assertIn(self.INSTRUCTION, self._style_lines("row-hairlines"))
+
+    def test_hairline_does_not_print_the_row_hairlines_instruction(self):
+        # `hairline` means a full ruled grid (NOTES.md section 9) -- it must
+        # not be silently upgraded to the no-boxes instruction.
+        self.assertNotIn(self.INSTRUCTION, self._style_lines("hairline"))
+
+
+class TestTableSpacingInstructionLine(unittest.TestCase):
+    """A8, Manager ruling: research/72's judges 2 and 3 also flagged a
+    "heading collision" -- the Experience heading crowding cv-dach-tabular's
+    table with no space after it -- a defect distinct from the boxed-cell
+    problem TableRulesInstructionLine covers. cv-dach-tabular's Checklist
+    carries the spacing rule as prose; the handoff must also print it as its
+    own explicit instruction line, the same treatment as the table-rules
+    line, so a renderer cannot bury it inside the Checklist dump."""
+
+    SPACING_INSTRUCTION = ("space after every table and before every section "
+                            "heading: one body leading (13pt); headings never "
+                            "touch a table edge")
+
+    def _style_lines(self, style_key):
+        resolved = {"doc-styles": [{
+            "key": style_key, "Table Rules": "row-hairlines",
+            "Table Fills": "none", "Emphasis Mechanism": "weight",
+            "Field Style": "none", "Checklist": "x",
+        }]}
+        return "\n".join(ddi._doc_style_lines(resolved))
+
+    def test_cv_dach_tabular_prints_the_spacing_instruction(self):
+        self.assertIn(self.SPACING_INSTRUCTION, self._style_lines("cv-dach-tabular"))
+
+    def test_other_styles_do_not_print_the_spacing_instruction(self):
+        # A per-style rule, not a value every row-hairlines user inherits.
+        self.assertNotIn(self.SPACING_INSTRUCTION, self._style_lines("some-other-style"))
+
+
 class TestHandoffPageFlow(unittest.TestCase):
     """Ruling K step 3 (research/brief-mechanism.md): page-flow constraints
     (keepNext/widowControl/cantSplit/tblHeader) must reach the docx handoff

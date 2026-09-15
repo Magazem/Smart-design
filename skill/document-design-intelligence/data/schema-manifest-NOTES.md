@@ -542,3 +542,44 @@ data/base` reports **zero** problems: `OK: validated 14 table(s), 291 row(s)`.
 every v1 doctype that has an honest generic match, and leaves it blank with a printed NOTE
 only for `social`, which has none (a canvas post has no document structure to name) — the
 same treatment already used for its `Reasoning Key` and `Page Format Key` gaps.
+
+## 9. `doc-styles.Table Rules` — the four enum values, semantics, A8
+
+`Table Rules` (`build-manifest.py`) has four values. Each states what a renderer draws on a
+table, not a vibe:
+
+- `none` — no table-level rule lines at all. No table in the direction, or the table has no
+  distinguishing rule treatment.
+- `hairline` — a hairline rule on every row boundary AND every column boundary: a full ruled
+  grid, but thin (`Rule Hair pt`), not boxed/filled. Used by `report-classic-serif`'s and
+  `cv-europass`'s tables, where a full grid is the intended reading (a proficiency grid, a
+  running-head rule system).
+- `header-and-total` — a rule under the header row and a rule above the total row only, no
+  other row or column rules. Used by line-item tables (`form-grid-underline`,
+  invoice/quote/form doctypes).
+- `row-hairlines` (added A8) — a horizontal hairline between rows ONLY: no vertical rules, no
+  cell boxes, no column grid. Distinct from `hairline` specifically because `hairline` alone
+  does not rule out a full grid, and a renderer defaulting to "draw table borders" reads
+  `hairline` as "box every cell." research/72's blind Opus panel (all three judges, verbatim)
+  read `cv-dach-tabular`'s rendered table — authored with `Table Rules=hairline` and a
+  Checklist line saying "row padding rather than cell borders" — as a "fully boxed contact
+  grid" / "gridded table" (cell-border ratio 1.0, 12/12 cells individually boxed in the
+  rendered docx). The Checklist's prose was never wrong; the machine-readable column a
+  renderer actually consumes (`ddi.py`'s `_doc_style_lines`, ultimately printed into the
+  handoff a renderer reads) carried no signal against boxing. `row-hairlines` closes that
+  gap: it is a distinct token from `hairline`, so a renderer cannot conflate "row separators
+  only" with "full grid" by reading the same enum value both directions were using.
+  `cv-dach-tabular` is the only row using it as of A8; ONE existing row (`cv-dach-tabular`)
+  moved from `hairline` to `row-hairlines`, `report-classic-serif` and `cv-europass` keep
+  `hairline` because they DO want the full grid.
+
+A renderer building a `docx` handoff sees this explicitly: `_doc_style_lines` (ddi.py) prints
+the raw `Table Rules` value AND, for `row-hairlines` specifically, an explicit instruction
+line spelling out "horizontal hairlines between rows only; no vertical rules; no cell
+borders" — see `ddi.py`'s `TABLE_RULES_INSTRUCTIONS` map — so a renderer does not have to
+infer the no-boxes rule from the bare token.
+
+A second, unrelated defect research/72's judges also named — a section heading with no space
+after `cv-dach-tabular`'s table ("heading collision") — gets the same explicit-line treatment
+via `ddi.py`'s `STYLE_SPACING_INSTRUCTIONS` map, keyed by `style_key` rather than by an enum
+value since it is a rule specific to this one style's layout, not a `Table Rules` semantic.
