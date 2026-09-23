@@ -152,3 +152,12 @@ This file is the live checklist. It is updated and committed after every milesto
   Report L3 re-check: admissible 12 -> 6 (C14 contrast measured on published PDFs), all singletons.
 - 2026-09-24 Repo Keeper: resolver named-family narrowing (306 passed); report L3 re-check + items csv; IIB extension ruling.
 - 2026-09-24 Repo Keeper: 82a-general (header + colour rules, 13 families) + 82a round-4 addendum.
+- research/82a-general.md (Opus) written: header + colour rules for 13 families. Fresh bg recoders launched (header+colour only):
+  invoice (invoice-recode-82ag.md), letter+cover-letter (*-recode-82ag.md), brochure/flyer/memo/form (+ their items csvs).
+  Poster/report/proposal wait for their GitHub corpora. Then per-family fresh second coder, seed "82a:<family>".
+  Round-1 invoice coders (bg invoice agent, Opus Reviewer) are excluded from invoice recode/second-coder roles.
+  Opus Reviewer -> R5 resolver code review (research/89).
+- Proposal MS: 7 Word docs, corroboration only (LO pool max 9); 20 pptx deferred as MSPD:001-020 deck pool.
+  Report MS: N=10 all admissible, 3 archetypes k=2. research/82a-clarifications-5.md (C25 declared-font reading,
+  C26 recode header/colour under 82a-general for all pre-82ag families).
+- 2026-09-24 Repo Keeper: proposal MS + report MS corpora; 82a round 5.
