@@ -151,3 +151,4 @@ This file is the live checklist. It is updated and committed after every milesto
 - Cover-letter (C22a): 12/15 admissible, 2 ranked archetypes + singletons. Letter: 32/34 admissible, 8 archetypes k>=2.
   Report L3 re-check: admissible 12 -> 6 (C14 contrast measured on published PDFs), all singletons.
 - 2026-09-24 Repo Keeper: resolver named-family narrowing (306 passed); report L3 re-check + items csv; IIB extension ruling.
+- 2026-09-24 Repo Keeper: 82a-general (header + colour rules, 13 families) + 82a round-4 addendum.

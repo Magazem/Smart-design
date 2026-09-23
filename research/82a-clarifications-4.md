@@ -21,3 +21,12 @@ C23 DIN 5008 in filling: design filling uses the archetype's MODAL variant value
     geometry (fetched secondary: Sematre/typst-letter-pro) is recorded as an authority provenance
     row and applies to German-language letter doctypes' PAGE FORMAT (address window, fold marks,
     margins), not to the design's letterhead variant.
+
+## Round 4 addendum (orchestrator, 2026-09-24)
+C22a C22 is read by INTENT: sender, recipient, date and reference blocks never make a column or sidebar
+     WHEREVER they sit (above or beside the salutation/first body lines). Only running body text columns
+     count. The coder's intent reading in cover-letter-corpus-l2.md CL.11 and letter-corpus-l2.md L.13 is
+     confirmed; the strictly geometric alternative is recorded there but not used.
+C24  Items csv (C11) may carry ONE extra column `pages` listing the page numbers a second coder must view
+     (e.g. report cover + first running-text page per C13). It holds page numbers only, never codes.
+     report-items.csv gains it from report-corpus-l3.md R.8.1.
