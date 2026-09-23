@@ -21,6 +21,15 @@ the existing base-library precedent `ofl-plex-superfamily` (IBM Plex Mono is lik
 secondary companion family, not gated by the 4-weight floor because it never carries
 heading/body text itself).
 
+**Orchestrator exemption (research/83 audit, item 3, 2026-09-23):** the adversarial audit
+found `lib-dm-serif-display-dm-sans` breaks filter (b) as written — `DM Serif Display` (1
+static weight, no `wght` axis) is that row's *Heading Family*, not an auxiliary role like
+`Fira Mono`. Ruling: display heading faces are exempt from the >=4-weight floor, because
+display faces ship in one weight by design (they exist for large-size editorial/cover
+headings, not for a running range of text weights), and the batch's own admissibility
+filter already allowed up to 4 display/editorial exceptions. The row is KEPT under this
+exemption; see fix 4 below for the corrected prose about its role.
+
 ## Top 60 by Google Fonts `popularity` (lower = more popular)
 
 | Rank | Family | Category | Static weights | Variable axes |
@@ -86,9 +95,9 @@ heading/body text itself).
 | 72 | Source Code Pro | Monospace | 8 | wght |
 | 73 | Cormorant Garamond | Serif | 5 | wght |
 
-(`rank 1` and `rank 6` are not shown above because the fetched payload's lowest observed
-value was 2 and the list is otherwise contiguous by rank as returned; no gap-filling was
-invented.)
+(The `popularity` field is not dense: values 1, 6, 11, 12, 13, 15, 18 — and others further
+down the list — are absent from the public payload; ranks are reported as returned, with no
+gap-filling invented.)
 
 ## Companion-family ranks used below top 60 (fetched individually by family name)
 
@@ -108,10 +117,12 @@ invented.)
 | 268 | Alegreya | Serif | 6 | wght |
 | 361 | Fira Mono | Monospace | 3 | - |
 
-`DM Serif Display` (1 static weight) and `Fira Mono` (3 weights) are the two exceptions
-noted above: both are kept only in an auxiliary role next to an admissible >=4-weight
-head/body family, per the precedent already set by the base library's own
-`ofl-plex-superfamily` row.
+`Fira Mono` (3 weights) is kept only in an auxiliary role (`Mono Family`) next to an
+admissible >=4-weight head/body family, per the precedent already set by the base
+library's own `ofl-plex-superfamily` row. `DM Serif Display` (1 static weight) is **not**
+auxiliary — it is `lib-dm-serif-display-dm-sans`'s Heading Family — and is kept under the
+separate display-heading exemption recorded above (research/83 audit item 3), not under
+the auxiliary-role precedent.
 
 ## Row-by-row sourcing (file A -> file B mapping)
 
@@ -128,16 +139,22 @@ one `authority` or `ranked` row citing the pairing itself:
 | lib-noto-serif-noto-sans | Wikipedia "Noto fonts" ("Noto Sans and Noto Serif contain Latin, Greek and Cyrillic glyphs") | authority | fetched |
 | lib-roboto-serif-roboto | fonts.withgoogle.com/roboto-serif ("latest addition to the Roboto superfamily...pairs well with the sans-serif versions of Roboto") | authority | fetched |
 | lib-merriweather-merriweather-sans | GitHub SorkinType/Merriweather-Sans README ("The Sans companion to the serifed Merriweather") | authority | fetched |
-| lib-nunito-nunito-sans | Fonts In Use / Nunito Sans ("A non-rounded version of Vernon Adams' Nunito, added by Jacques Le Bailly in 2017") | authority | fetched |
+| lib-nunito-nunito-sans | Google Fonts – Nunito Sans DESCRIPTION, `ofl/nunitosans/DESCRIPTION.en_us.html` ("Nunito is a well balanced sans serif typeface superfamily, with 2 versions … an accompanying regular non-rounded terminal version, Nunito Sans") | authority | fetched |
 | lib-dm-serif-display-dm-sans | GitHub googlefonts/dm-fonts README ("DM suite of fonts: Sans, Serif Text and Serif Display") | authority | fetched |
-| lib-alegreya-alegreya-sans | Typewolf /alegreya (Suggested Font Pairing: Alegreya Sans) | ranked | fetched |
+| lib-alegreya-alegreya-sans | Typewolf /alegreya (Suggested Font Pairing: Alegreya Sans) | authority | fetched |
 | lib-fira-sans-fira-mono | Wikipedia "Fira (typeface)" ("Fira Sans is accompanied by a monospaced variant called Fira Mono") | authority | fetched |
-| lib-libre-baskerville-libre-franklin | Typewolf /libre-baskerville (Suggested Font Pairing: Libre Baskerville + Libre Franklin) | ranked | fetched |
-| lib-eb-garamond-cabin | Typewolf /eb-garamond (Suggested Font Pairing: EB Garamond + Cabin) | ranked | fetched |
-| lib-bitter-montserrat | Typewolf /bitter (Suggested Font Pairing: Bitter + Montserrat) | ranked | fetched |
-| lib-spectral-source-sans-3 | Typewolf /spectral (Suggested Font Pairing: Spectral + Source Sans Pro — current Google Fonts family name is Source Sans 3, same lineage) | ranked | fetched |
-| lib-vollkorn-montserrat | Typewolf /vollkorn (Suggested Font Pairing: Vollkorn + Montserrat) | ranked | fetched |
-| lib-archivo-narrow-merriweather | Typewolf /archivo-narrow (Suggested Font Pairing: Archivo Narrow + Merriweather) | ranked | fetched |
+| lib-libre-baskerville-libre-franklin | Typewolf /libre-baskerville (Suggested Font Pairing: Libre Baskerville + Libre Franklin) | authority | fetched |
+| lib-eb-garamond-cabin | Typewolf /eb-garamond (Suggested Font Pairing: EB Garamond + Cabin) | authority | fetched |
+| lib-bitter-montserrat | Typewolf /bitter (Suggested Font Pairing: Bitter + Montserrat) | authority | fetched |
+| lib-spectral-source-sans-3 | Typewolf /spectral (Suggested Font Pairing: Spectral + Source Sans Pro — current Google Fonts family name is Source Sans 3, same lineage) | authority | fetched |
+| lib-vollkorn-montserrat | Typewolf /vollkorn (Suggested Font Pairing: Vollkorn + Montserrat) | authority | fetched |
+| lib-archivo-narrow-merriweather | Typewolf /archivo-narrow (Suggested Font Pairing: Archivo Narrow + Merriweather) | authority | fetched |
+
+(Evidence Class values above reflect the research/83 audit fixes: 7 Typewolf pairing rows
+and the Nunito Sans companion row are cited under `authority`, not `ranked`, since Typewolf
+and the Google Fonts DESCRIPTION file are editorial/publisher recommendations, not a numeric
+rank — matching the base-library precedent `designs:cv-dach-tabular:1` /
+`designs:cv-editorial:1`, which already classify Typewolf as `authority`.)
 
 Typewolf pairings that were fetched but **rejected** for non-OFL partners (kept out of file
 A entirely, logged here so the rejection is auditable, not silently dropped): Playfair

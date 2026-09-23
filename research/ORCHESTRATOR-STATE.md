@@ -55,3 +55,10 @@ This file is the live checklist. It is updated and committed after every milesto
   Board: deck-corpus-lo-ms (Researcher), P5.1 generic brand-kit doctypes (Implementer), R1 review (Reviewer).
 - research/83 audit batch 1: PASS-WITH-FIXES; fixes being applied (rulings: keep per-family GF rows,
   test keys on +Ranking Metric; Typewolf rows -> authority; DM Serif Display kept, display faces exempt from weight filter).
+- R1 (research/84) no blockers. BACKLOG from it: (a) cv convention ranks above authority -> fix in cv fill;
+  (b) cv-dach-tabular/cv-editorial "authority" rests on Typewolf FONT pages, not layout -> re-class in cv fill;
+  (c) convention provenance rows carry Fetch=search-corroborated with no source -> make Fetch blank-allowed
+  for convention (build-manifest + test) ; (d) legacy provenance backfill for doc-styles/doc-reasoning/
+  base palettes/typefaces (LEGACY_UNPROVENANCED in test_provenance.py must shrink); (e) build-manifest cwd
+  dependence, stale loader comments, Rank/prov_key format tests.
+- Reviewer now on R-lib2 (research/85: ranked palettes + ratio scales).

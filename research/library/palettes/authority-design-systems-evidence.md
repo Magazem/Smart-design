@@ -28,7 +28,7 @@ Source: USWDS theme tokens: base-darkest #1b1b1b, base-dark #565c65, base-lighte
 
 ## `lib-atlassian-ink` — Atlassian, neutral ink
 
-Source: Atlassian Design System tokens: text #292A2E, text-subtle #505258, border-input #8C8F97, background-code-gutter #F0F1F2, text-brand/link #1868DB (fetched, retrieved 2026-09-23) — https://atlassian.design/DESIGN.md
+Source: Atlassian Design System tokens: text #292A2E, text-subtle #505258, border-input #8C8F97, background-accent-gray-subtlest #F0F1F2, text-brand/link #1868DB (fetched, retrieved 2026-09-23) — https://atlassian.design/DESIGN.md (research/83 audit item 22: the muted token's correct name is `background-accent-gray-subtlest`, not `background-code-gutter` — both tokens share the same hex #F0F1F2, but the accent-gray-subtlest name is semantically a surface, matching this row's Muted role)
 
 | Pair | Foreground | Background | Ratio | Result |
 |---|---|---|---|---|
@@ -160,15 +160,21 @@ Source: Radix Colors sand + bronze scales (light theme): sand-12 #21201c, sand-1
 
 ## `lib-material3-purple` — Material 3, baseline purple
 
-Source: Material Design 3 baseline color roles: on-surface #1C1B1F, on-surface-variant #49454F, surface #FFFBFE, surface-variant #E7E0EC, outline-variant #CAC4D0, primary #6750A4 (search-corroborated: m3.material.io color roles/system pages are client-rendered, JS-hydrated, not statically fetchable) (search-corroborated, retrieved 2026-09-23) — https://m3.material.io/styles/color/roles
+Source (corrected 2026-09-23 per research/83 audit items 12-14 and 18: the previous
+`search-corroborated` citation of `m3.material.io/styles/color/roles` used stale hexes —
+`#1C1B1F`/`#FFFBFE` do not appear in the current fetched token files — and R-a requires
+citing only a fetched copy): Material Web tokens v0_192: on-surface neutral10 #1d1b20,
+on-surface-variant n-v30 #49454f, surface neutral98 #fef7ff, surface-variant n-v90
+#e7e0ec, outline-variant n-v80 #cac4d0, primary primary40 #6750a4 (fetched, retrieved
+2026-09-23) — https://raw.githubusercontent.com/material-components/material-web/main/tokens/versions/v0_192/_md-sys-color.scss (roles) + `_md-ref-palette.scss` (hex values)
 
 | Pair | Foreground | Background | Ratio | Result |
 |---|---|---|---|---|
-| On Primary / Primary | #ffffff | #1C1B1F | 17.13:1 | OK |
+| On Primary / Primary | #ffffff | #1d1b20 | 17.07:1 | OK |
 | On Secondary / Secondary | #ffffff | #49454F | 9.34:1 | OK |
 | On Accent / Accent | #ffffff | #6750A4 | 6.44:1 | OK |
-| Foreground / Background | #1C1B1F | #FFFBFE | 16.71:1 | OK |
-| On Muted / Muted | #1C1B1F | #E7E0EC | 13.27:1 | OK |
+| Foreground / Background | #1d1b20 | #fef7ff | 16.23:1 | OK |
+| On Muted / Muted | #1d1b20 | #E7E0EC | 13.23:1 | OK |
 
 ## `lib-carbon-purple` — IBM Carbon, purple
 
@@ -229,6 +235,7 @@ Source: IBM Carbon color tokens (g100 dark theme family): Gray 100 #161616, Gray
 | On Accent / Accent | #ffffff | #0f62fe | 5.00:1 | OK |
 | Foreground / Background | #f4f4f4 | #161616 | 16.45:1 | OK |
 | On Muted / Muted | #ffffff | #525252 | 7.81:1 | OK |
+| Accent / Background | #0f62fe | #161616 | 3.62:1 | FAIL (<4.5) — research/83 audit item 15: `accent` is Fill-Only against this row's dark Background, not Text-Safe; moved from Text-Safe Roles to Fill-Only Roles (Category Marker Roles keeps `accent`, per `brand-accent-print` precedent) |
 
 ## `lib-fluent-dark-slide` — Fluent 2, dark slide
 
@@ -241,4 +248,6 @@ Source: Fluent UI shared color tokens: grey4 #0a0a0a, grey8 #141414, grey14 #242
 | On Accent / Accent | #ffffff | #0078d4 | 4.53:1 | OK |
 | Foreground / Background | #f0f0f0 | #0a0a0a | 17.37:1 | OK |
 | On Muted / Muted | #f0f0f0 | #333333 | 11.09:1 | OK |
+| Accent / Background | #0078d4 | #0a0a0a | 4.37:1 | FAIL (<4.5) — research/83 audit item 16: `accent` is Fill-Only against this row's dark Background, not Text-Safe; moved from Text-Safe Roles to Fill-Only Roles (Category Marker Roles keeps `accent`, per `brand-accent-print` precedent) |
+| Rule Hair / Background | #3d3d3d | #0a0a0a | 1.82:1 | visible (research/83 audit item 17: Rule Hair corrected from Fluent grey8 `#141414` — 1.07:1, effectively invisible against this dark Background — to Fluent grey24 `#3d3d3d`, comparable to base `deck-high-contrast`'s 1.69:1) |
 
