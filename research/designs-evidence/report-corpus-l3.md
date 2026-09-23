@@ -9,6 +9,8 @@ Coder: Design Researcher. Retrieved 2026-09-23. Presence-based L3 (research/82 �
 - Mercury Excellence Awards: `https://www.mercommawards.com/mercury/awardWinners.htm` and `.../mercury/mercurymedia/NN_NNMRABlueBook.pdf` (2008-09 … 2018-19+) exist and fetch (18_19: HTTP 200, 775 KB, 22 pp). They are **text winner lists without design previews** and cover employee books, brochures etc., not chiefly annual reports (2018-19 Best of Show = Diehl Aviation "We are One" employee book) → **not coded**.
 
 ## R.2 Coded items (14)
+**Superseded in part by R.8 (re-check under 82a round 3, 2026-09-24):** the running-text page and body features of ARC25:011, 013, 018 and 024 are recoded, and admissibility of 011, 012, 013, 018, 020 and 024 changes. The table below is the first coding, kept for audit.
+
 Id = `ARC25:<Red Book page of first listing>`. `award` = Red Book category. Page coded: cover + first running-text page. Header treatment and heading class read from the **cover**; columns/body/rules/density from the **first running-text page**; colour from text/rules/marks/solid panels on both, page background and photos excluded (R.5).
 
 | id | Report (org, title) and fetched PDF | award (Red Book) | columns | head | body | colour | header | rules | dens | cover | adm | note |
@@ -37,6 +39,8 @@ Id = `ARC25:<Red Book page of first listing>`. `award` = Red Book category. Page
 | ARC25:037 | A6 | `contrast_ratio('#ffffff','#00a0a0')` = 3.213 (<4.5) for small white text on the teal panel (teal text on white gives the same ratio); sampled from a 100-dpi render |
 
 ## R.4 Descriptive tally (presence only — not shares, not ranks)
+**Superseded by R.8.4.** First-coding tally kept for audit.
+
 Archetype `columns|heading|colour|header` : exemplars
 - `3+|sans|one-accent|image-hero`: ADCB, PGB (2)
 - `3+|sans|fill-blocks|image-hero`: Halkbank, PDB (2)
@@ -71,3 +75,100 @@ L3 semantics (§6 step 2): all 12 admissible archetypes have one independent jur
 
 ## R.7 Second-coder handoff
 Ids: `ARC25:007 010 011 012 013 014 018 020 021 024 029 033 036 037` (14). Sample per §7 / 82a C10 is family-wide (the GitHub report corpus ids join the pool later). The second coder needs R.5 (1) clarified first. Page chosen for the running-text coding (1-based): ADCB 11, Aktif 3, FR 5, Granite 4, Halkbank 11, HSH 13, March 5, MIF 3, PDB 3, PGB 3, URA 7, Cal Water 32, Uzabase 5, GRAWE 10.
+
+## R.8 Re-check under 82a round 3 (C13, C14, C16), 2026-09-24
+
+Re-checker: Design Researcher 2. All 14 winner PDFs were re-fetched on 2026-09-24 (`curl -sL`, HTTP 200 each) into the system temp dir. They were analysed with PyMuPDF: per-page word counts, cover text spans with their point size and fill colour, and page renders. Contrast was computed with `skill/document-design-intelligence/scripts/lib/color.py` `contrast_ratio`.
+
+**Background sampling method:** the cover's text layer was removed with a text-only redaction (images and vector art kept), the page was re-rendered at 144 dpi, and every text span's own box was sampled on that text-free render against the span's exact PDF fill colour. The median over the box is the reported ratio. These are measurements from the published PDFs, not thumbnail estimates, except where "render-sampled" is noted (outlined text without a span).
+
+### R.8.1 C13 page numbers (cover = PDF page 1; running page = first PDF page with ≥250 words of running text)
+
+PDF page indices are 1-based. Several PDFs are two-page spreads; features are read from the physical page (spread half) that carries the running text, as in R.5 (6).
+
+| id | cover | running page, first coding | running page per C13 | evidence |
+|---|---|---|---|---|
+| ARC25:007 Aktif | 1 | 3 | **3** confirmed | p2 = 3 words; p3 = 258 words of prose |
+| ARC25:010 URA | 1 | 7 | **7** confirmed | p2-6 ≤174 words each; p7 = 354 |
+| ARC25:011 PGB | 1 | 3 | **2** CHANGED | p2 "About this Report" = 398 words of prose (left page) |
+| ARC25:012 FR | 1 | 5 | **5** confirmed | p2-4 ≤214 words; p5 = 286 prose |
+| ARC25:013 HSH | 1 | 13 | **2** CHANGED | p2 = two prose blocks, 164 + 156 = 320 words (integrated-reporting note and cover note) |
+| ARC25:014 ADCB | 1 | 11 | **11** confirmed (borderline) | p2-10 ≤182 words; p11 = 443 words in short highlight paragraphs, accepted as running text |
+| ARC25:018 PDB | 1 | 3 | **2** CHANGED | p2 "Basis of this Report" = 503 words of prose (left page) |
+| ARC25:020 Cal Water | 1 | 32 | **32** confirmed | p2-31 all <250 words (photo-led summary report); p32 = 392 |
+| ARC25:021 Halkbank | 1 | 11 | **11** confirmed | p2 has 690 words, but 511 are the contents list; its prose ("About the Report") is 172 words < 250. p3-10 ≤103 |
+| ARC25:024 MIF | 1 | 3 | **2** CHANGED | p2 = president's letter, 578 words (right page); p3 is the next spread |
+| ARC25:029 GRAWE | 1 | 10 | **10** confirmed | p2-9 ≤207 words; p10 = 453 |
+| ARC25:033 March | 1 | 5 | **5** confirmed | p2-4 ≤100 words; p5 = 383 |
+| ARC25:036 Granite | 1 | 4 | **4** confirmed | p2-3 ≤175 words; p4 = CEO message, 440 words |
+| ARC25:037 Uzabase | 1 | 5 | **5** confirmed | p2-4 ≤86 words; p5 = 270 prose |
+
+The first coding used "first page ≥250 words, index ≥3" (R.5 (1)). C13 has no index floor, so four items move to PDF p2.
+
+### R.8.2 Recode of body features for the four changed pages (cover-read features unchanged)
+
+| id | columns | body | rules/boxes | density | colour (cover + running page) | notes |
+|---|---|---|---|---|---|---|
+| ARC25:011 PGB | 3+ → **2-equal** | sans | boxes → **rules** | dense (85 lines) | one-accent → **fill-blocks** | left page: wide intro block, then 2 flowing columns; rule under the running head; teal→green **gradient panel** behind the intro text ≥10% of page (gradients are fills, C17) |
+| ARC25:013 HSH | 1 | sans | rules → **none** | dense → **airy** (~25 lines) | one-accent | two single-column prose blocks among photos |
+| ARC25:018 PDB | 3+ → **2-equal** | sans | boxes | dense (119 lines, left page) | fill-blocks | physical left page = 2 columns (the spread has 4) |
+| ARC25:024 MIF | 2-equal | sans | boxes → **none** | standard → **dense** (80 lines, right page) | one-accent | right page = letter in 2 columns; left page = illustration with a 3-line quote |
+
+### R.8.3 C14 cover check (and A3/A6 on the new running pages)
+
+Thresholds: title/display text on a photo must reach ≥4.5:1 under 24 pt and ≥3:1 at ≥24 pt (median over the span box). A3 applies to running text and to any text block of 3+ lines on a gradient, texture or photo.
+
+| id | cover text on photo/texture (size, colour, median contrast) | C14 result | running-page check | admissible |
+|---|---|---|---|---|
+| ARC25:007 Aktif | 4-line title black on a flat light-grey ground (not a photo; the chrome star only touches the last line), 17.78 | pass | — | **y** (unchanged) |
+| ARC25:010 URA | 6-line outlined title (no span) blue/green on the white part of the paint-flow image | not needed | — | n (A4, unchanged) |
+| ARC25:011 PGB | 2-line title 45/42 pt white on green photo, 6.46 / 7.14; 9-11 pt labels ≥13 | pass | **p2: white running text on the teal→green gradient panel = A3; sampled 2.01:1 = A6** | **n** (was y) |
+| ARC25:012 FR | tagline "LifeWear, Changing the World" 26.5 pt white on sky photo: **2.58 / 2.20** (need 3); "2024" 61.6 pt #e60012: 3.05 | **FAIL** | — | **n** (was y) |
+| ARC25:013 HSH | "Annual Report 2024" 14 pt #886f52 on the faded photo ground #faf9f9: **4.498** (need 4.5; knife-edge) | FAIL (by 0.002) | **p2: white running text on sky photo = A3; sampled 2.03:1 = A6** | **n** (was y); A3/A6 on p2 make it robust to the knife-edge |
+| ARC25:014 ADCB | 2-line title 34 pt white on red track photo, 5.22 / 5.06; 10 pt label 6.58 | pass | — | **y** (unchanged) |
+| ARC25:018 PDB | labels "PETRONAS DAGANGAN BERHAD / INTEGRATED REPORT 2024" 9 pt #00a99d on iridescent texture: **2.41 / 2.40** (need 4.5); outlined title "THRIVING FORWARD" (≈43 pt, render-sampled) #00a99d: **2.53** (need 3) | **FAIL** | — | **n** (was y) |
+| ARC25:020 Cal Water | "Vision" 51.9 pt 6.78; **"Action" 51.9 pt 2.92** (need 3); **"2024" 12.2 pt 4.07** (need 4.5); white on sky photo | **FAIL** | — | **n** (was y) |
+| ARC25:021 Halkbank | 2-line title 44 pt #1b4778 on photo, 9.22 / 8.60; report label on a flat white disc | pass | — | **y** (unchanged) |
+| ARC25:024 MIF | **3-line block** "MANY PIECES. / ONE PURPOSE. / Together, for good." on the gradient sky of the illustration = **A3**; contrast would pass (4.11-5.70 at 30-40 pt) | **FAIL (A3)** | p2 left page: 3-line quote on the illustration (A3 again) | **n** (was y) |
+| ARC25:029 GRAWE | titles 30.5-35.2 pt #9d9d9c on flat slate (uniform ground), 3.18; 2-line blocks | pass | — | **y** (unchanged) |
+| ARC25:033 March | "2023" 62 pt 4.01, "Annual Report" 23 pt 6.62; white on sea photo; 2 lines | pass | — | **y** (unchanged) |
+| ARC25:036 Granite | single-line title 62 pt white on forest photo, 16.38 | pass | — | **y** (unchanged) |
+| ARC25:037 Uzabase | titles pass by median (≥4.78); the 3-line subtitle on the photo is also A3 under C14 | (A3) | — | n (A6 on running page, unchanged; A3 added) |
+
+**Admissibility after R.8: 6 of 14** (was 12). Newly excluded: 011 (A3, A6 running text), 012 (C14 A6), 013 (A3, A6 running text; C14 A6 knife-edge), 018 (C14 A6), 020 (C14 A6), 024 (C14 A3).
+
+### R.8.4 Descriptive tally after R.8 (presence only: no shares, no ranks)
+
+Archetype `columns|heading|colour|header`:
+- **Admissible (6), all singletons:**
+  - `1|display|mono|image-hero`: Aktif (007)
+  - `3+|sans|one-accent|image-hero`: ADCB (014)
+  - `3+|sans|fill-blocks|image-hero`: Halkbank (021)
+  - `2-equal|sans|fill-blocks|image-hero`: Banca March (033)
+  - `2-equal|sans|one-accent|image-hero`: Granite (036)
+  - `2-equal|serif|mono|image-hero`: GRAWE (029)
+- **Excluded (8):**
+  - `2-equal|sans|fill-blocks|image-hero`: PGB (011), PDB (018)
+  - `1|sans|one-accent|image-hero`: Fast Retailing (012)
+  - `1|serif|one-accent|image-hero`: HSH (013)
+  - `2-equal|serif|multi|image-hero`: Cal Water (020)
+  - `2-equal|serif|one-accent|image-hero`: MIF (024)
+  - `1|sans|multi|image-hero`: URA (010)
+  - `2-sidebar|serif|fill-blocks|image-hero`: Uzabase (037)
+
+**C16:** `header` = `image-hero` for 14 of 14 (6 of 6 admissible), so it is reported and kept; report archetypes are effectively 3-feature. **Cover page** = yes for 14 of 14.
+
+**Variants over the 6 admissible** (codes from R.2, none recoded):
+- body: sans 5, serif 1 (GRAWE)
+- rules: rules 2 (ADCB, Aktif), none 4
+- density: standard 5, airy 1 (Aktif)
+
+§6 step 2 (L3, max 3): all 6 admissible designs have one juried source each (ARC 2025), so their relative order is by key alphabetical per §6. Any that code to a step-1 ranked archetype from the GH report corpus merge there.
+
+### R.8.5 Notes and flags
+1. **HSH cover title = 4.498:1**, a 0.002 miss. It is measured from the vector fill against the image pixel, not estimated. The exclusion does not depend on it: HSH's C13 running page (p2) sets white prose on a sky photo (A3, 2.03:1).
+2. **ADCB p11** (short highlight paragraphs) is accepted as running text. If rejected, the next candidates are p12 (334 words, same style) and p14 (315), so the call recurs.
+3. **Halkbank p2** passes the raw 250-word count only because of the contents list, so it is not running text. p11 is kept.
+4. **Items file pages (82a C24):** `report-items.csv` carries a `pages` column `<cover>;<running page>` (1-based PDF page indices from R.8.1, e.g. `1;11`); page numbers only, no codes. preview_url = PDF `#page=1` (the cover).
+5. A3 on covers (C14, 3+ line blocks) and on running pages newly removes MIF, PGB and HSH. Of the admissible set, only GRAWE and Aktif have multi-line cover blocks, and both sit on flat grounds.
+6. `research/designs-evidence/report-items.csv` is written: 14 rows, id/name/url/preview_url only.
