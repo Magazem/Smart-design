@@ -47,3 +47,11 @@ This file is the live checklist. It is updated and committed after every milesto
   a second-coder task (25% seeded sample, §7) and a fill task (F.c) per family. GitHub search API
   is 10 req/min per IP: only ONE worker may use it at a time.
   IN FLIGHT: cv-corpus-github, cv-corpus-npm-ms, deck-corpus-npm.
+- 2026-09-23: User asked for visible hired teammates. Spawned (AionUi team, "Claude Code" assistant):
+  Design Researcher (Phase 4 corpus coding), Skill Implementer (code/tests), Opus Reviewer (reviews).
+  Slot ids are per-machine; re-derive with team_members. Models are set in the AionUi UI selector
+  (intended: Researcher+Implementer = Sonnet, Reviewer = Opus). Background Agent-tool subagents
+  are also used in parallel (explicit model per call).
+  Board: deck-corpus-lo-ms (Researcher), P5.1 generic brand-kit doctypes (Implementer), R1 review (Reviewer).
+- research/83 audit batch 1: PASS-WITH-FIXES; fixes being applied (rulings: keep per-family GF rows,
+  test keys on +Ranking Metric; Typewolf rows -> authority; DM Serif Display kept, display faces exempt from weight filter).
