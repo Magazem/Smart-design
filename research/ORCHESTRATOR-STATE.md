@@ -69,3 +69,6 @@ This file is the live checklist. It is updated and committed after every milesto
   deck-corpus-npm, P6.1 portable pack (research/build-portable.py -> portable/).
 - NEXT: legacy provenance backfill (d) after Implementer frees test_provenance.py; second-coder + fill for cv
   and deck when their corpora land; remaining families per research/82 §10 (only one GitHub-API user at a time).
+- NOTE (user, 2026-09-23): the "Opus Reviewer" teammate started on Sonnet; user switched it to Opus
+  manually. Treat R1 (research/84) as possibly Sonnet-authored: the final R4 Opus review must re-cover
+  schema/loader. On a new machine, verify teammate models in the AionUi selector after spawning.
