@@ -15,7 +15,8 @@
         "Constraint Set Keys",
         "Structure Key",
         "Region Key",
-        "Default Language"
+        "Default Language",
+        "Family"
       ],
       "key_column": "doc_key",
       "role": "entry",
@@ -30,6 +31,24 @@
           "en",
           "fr",
           "de"
+        ],
+        "Family": [
+          "cv",
+          "cover-letter",
+          "letter",
+          "memo",
+          "form",
+          "brochure",
+          "flyer",
+          "poster",
+          "report",
+          "whitepaper",
+          "proposal",
+          "quote",
+          "invoice",
+          "deck",
+          "one-pager",
+          "infographic"
         ]
       },
       "foreign_keys": {
@@ -79,7 +98,8 @@
         "Constraint Set Keys",
         "Structure Key",
         "Region Key",
-        "Default Language"
+        "Default Language",
+        "Family"
       ]
     },
     "doc-reasoning": {
@@ -969,6 +989,132 @@
         "Licence",
         "Metric Identical",
         "Weights Covered"
+      ]
+    },
+    "designs": {
+      "filename": "designs.csv",
+      "columns": [
+        "design_key",
+        "Display Name",
+        "Family",
+        "Rank",
+        "Reasoning Key",
+        "Keywords",
+        "Best For",
+        "Not For",
+        "Evidence Class",
+        "Brand Scope"
+      ],
+      "key_column": "design_key",
+      "enums": {
+        "Family": [
+          "cv",
+          "cover-letter",
+          "letter",
+          "memo",
+          "form",
+          "brochure",
+          "flyer",
+          "poster",
+          "report",
+          "whitepaper",
+          "proposal",
+          "quote",
+          "invoice",
+          "deck",
+          "one-pager",
+          "infographic"
+        ],
+        "Evidence Class": [
+          "ranked",
+          "juried",
+          "authority",
+          "convention"
+        ]
+      },
+      "foreign_keys": {
+        "Reasoning Key": "doc-reasoning.doc_category"
+      },
+      "distinct_token_columns": {
+        "Keywords": ","
+      },
+      "searchable_columns": [
+        "Display Name",
+        "Keywords",
+        "Best For"
+      ],
+      "typed_json_columns": [],
+      "derived": [],
+      "display_columns": [
+        "Display Name",
+        "Family",
+        "Rank",
+        "Reasoning Key",
+        "Keywords",
+        "Best For",
+        "Not For",
+        "Evidence Class",
+        "Brand Scope"
+      ]
+    },
+    "provenance": {
+      "filename": "provenance.csv",
+      "columns": [
+        "prov_key",
+        "Table",
+        "Row Key",
+        "Evidence Class",
+        "Source Name",
+        "Source URL",
+        "Ranking Metric",
+        "Rank Value",
+        "Retrieved",
+        "Fetch"
+      ],
+      "key_column": "prov_key",
+      "enums": {
+        "Table": [
+          "constraints",
+          "cv-regions",
+          "designs",
+          "doc-reasoning",
+          "doc-styles",
+          "doctypes",
+          "figures",
+          "font-substitutes",
+          "headings",
+          "page-formats",
+          "palettes",
+          "render-targets",
+          "structures",
+          "type-scales",
+          "typefaces"
+        ],
+        "Evidence Class": [
+          "ranked",
+          "juried",
+          "authority",
+          "convention"
+        ],
+        "Fetch": [
+          "fetched",
+          "search-corroborated"
+        ]
+      },
+      "foreign_keys": {},
+      "searchable_columns": [],
+      "typed_json_columns": [],
+      "derived": [],
+      "display_columns": [
+        "Table",
+        "Row Key",
+        "Evidence Class",
+        "Source Name",
+        "Source URL",
+        "Ranking Metric",
+        "Rank Value",
+        "Retrieved",
+        "Fetch"
       ]
     }
   }

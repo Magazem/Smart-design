@@ -28,3 +28,10 @@ This file is the live checklist. It is updated and committed after every milesto
 - 2026-09-23: Plan frozen in research/80-v05-plan.md (read §R rulings first). Butterick NOT banned (R-a).
 - IN FLIGHT: Windows test fix (sonnet); P1.1 schema in build-manifest.py (sonnet); P2.1
   research/81-ranking-sources.md (sonnet). Next after P1.1: P1.2 loader globs + Family column.
+- 2026-09-23: Windows fix committed (8a1b217). research/81 written: typeface (Google Fonts
+  metadata popularity, fontsource npm/jsDelivr), palette (GOV.UK/USWDS fetched; Carbon/M3/Fluent
+  search-corroborated), modularscale OK. NO fetchable popularity-ranked LAYOUT corpus yet
+  (Canva/Behance/Dribbble blocked) -> probe 2 in flight (GitHub stars, Overleaf, Typst, npm themes).
+- P1.1 done (uncommitted, gate red until P1.2). IN FLIGHT: P1.2+1.3 loader globs/Family/seed designs;
+  P3.1 typeface pairings -> research/library/typefaces/; P3.4 authority palettes -> research/library/palettes/;
+  probe 2. Library batches load only when listed in load-base.py's allow-list (orchestrator enables after review).

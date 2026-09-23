@@ -28,6 +28,19 @@ FIELD_DIRECTION = ["expected", "customary", "neutral", "negative-signal", "conte
 YN = ["yes", "no"]
 YNA = ["yes", "no", "n/a"]
 
+#: research/80-v05-plan.md §2A -- the 16 document families. One constant, shared by
+#: `doctypes.Family` (catalogue grouping; HANDOFF_EXCLUSIONS on all 4 handoff paths --
+#: see scripts/ddi.py, out of this generator's scope) and `designs.Family` (the family
+#: each layout archetype belongs to). Filled in research/26.
+FAMILIES = ["cv", "cover-letter", "letter", "memo", "form", "brochure", "flyer", "poster",
+            "report", "whitepaper", "proposal", "quote", "invoice", "deck", "one-pager",
+            "infographic"]
+
+#: research/80-v05-plan.md §3 -- the evidence classes a designs/provenance row can carry,
+#: in preference order (ranked > juried > authority > convention). Shared by
+#: `designs."Evidence Class"` and `provenance."Evidence Class"`.
+EVIDENCE_CLASSES = ["ranked", "juried", "authority", "convention"]
+
 tables = {}
 
 #: `display_columns` -- the columns a resolved row of this table SHOWS (resolve.py
@@ -46,7 +59,8 @@ tables["doctypes"] = {
     "filename": "doctypes.csv",
     "columns": ["doc_key", "Display Name", "Keywords", "Artifact Class", "Brand Scope",
                 "Reasoning Key", "Page Format Key", "Render Target Keys",
-                "Constraint Set Keys", "Structure Key", "Region Key", "Default Language"],
+                "Constraint Set Keys", "Structure Key", "Region Key", "Default Language",
+                "Family"],
     "key_column": "doc_key",
     "role": "entry",
     # research/64 D-E: the language a doctype's document is normally authored in --
@@ -57,8 +71,13 @@ tables["doctypes"] = {
     # cv-us through cv-gulf-gcc), so the authored language is a property of the
     # doctype, not of the section list it shares with six other doctypes.
     "language_column": "Default Language",
+    # `Family` (research/80-v05-plan.md §2A): catalogue grouping used to pick a
+    # doctype's `designs` rows (P1.2 loader task); non-nullable (no "" in the enum,
+    # same idiom as every other required enum column here) and NOT in
+    # `searchable_columns` -- it groups doctypes, it does not describe one for BM25.
     "enums": {"Artifact Class": ["canvas", "flow", "hybrid"],
-              "Default Language": ["en", "fr", "de"]},
+              "Default Language": ["en", "fr", "de"],
+              "Family": FAMILIES},
     "foreign_keys": {
         "Reasoning Key": "doc-reasoning.doc_category",
         "Page Format Key": "page-formats.page_format_key",
@@ -398,6 +417,62 @@ tables["font-substitutes"] = {
     "foreign_keys": {},
     "list_columns": {"Weights Covered": ";"},
     "distinct_token_columns": {"Weights Covered": ";"},
+    "searchable_columns": [],
+    "typed_json_columns": [],
+    "derived": [],
+}
+
+tables["designs"] = {
+    # research/80-v05-plan.md §2B / orchestrator ruling R-b: a "design" is a
+    # `doc-reasoning` row, catalogued here per family so `ddi.py designs` can list,
+    # rank and BM25-query them without walking `doc-reasoning` directly.
+    "filename": "designs.csv",
+    "columns": ["design_key", "Display Name", "Family", "Rank", "Reasoning Key",
+                "Keywords", "Best For", "Not For", "Evidence Class", "Brand Scope"],
+    "key_column": "design_key",
+    "enums": {
+        "Family": FAMILIES,
+        # Evidence Class is non-nullable (no "" here): every design row is sourced
+        # per §3, `convention` included -- it is a real (weakest) evidence class,
+        # not an absence of one.
+        "Evidence Class": EVIDENCE_CLASSES,
+    },
+    "foreign_keys": {"Reasoning Key": "doc-reasoning.doc_category"},
+    # `Keywords` is a `, `-separated search-token cell, same shape and same
+    # over-counting risk as `doctypes.Keywords` -- declared the same way, for the
+    # same reason (see that column's comment above).
+    "distinct_token_columns": {"Keywords": ","},
+    "searchable_columns": ["Display Name", "Keywords", "Best For"],
+    "typed_json_columns": [],
+    "derived": [],
+}
+
+tables["provenance"] = {
+    # research/80-v05-plan.md §2C / orchestrator ruling R-c: one provenance row per
+    # source citing a designs/palettes/typefaces/doc-styles/doc-reasoning row.
+    # Deliberately NOT FK-reachable from any other table (`Row Key` is a polymorphic
+    # pointer resolved by `Table` + `Row Key` together, not a manifest `foreign_keys`
+    # entry) -- checked instead by tests/test_provenance.py (P1.4), which is also
+    # where the "every cited row has >=1 provenance row, ranked rows need URL/metric/
+    # value/date, numeric Rank Value only when Fetch=fetched" rules from §2C live.
+    # That deliberate non-reachability is recorded here too so a future FK-parity
+    # sweep does not re-flag it as a gap (backlog item 6, §0 Facts found).
+    "filename": "provenance.csv",
+    "columns": ["prov_key", "Table", "Row Key", "Evidence Class", "Source Name",
+                "Source URL", "Ranking Metric", "Rank Value", "Retrieved", "Fetch"],
+    "key_column": "prov_key",
+    "enums": {
+        # The manifest's own table names, taken as of this point in the file --
+        # i.e. every table declared above (`designs` included), not `provenance`
+        # itself. A polymorphic `Table` cell can never legitimately name the
+        # provenance table it lives in.
+        "Table": sorted(tables.keys()),
+        "Evidence Class": EVIDENCE_CLASSES,
+        "Fetch": ["fetched", "search-corroborated"],
+    },
+    # `Row Key` is a polymorphic reference (resolved against whichever table `Table`
+    # names), not a same-shaped `foreign_keys` entry -- see the table-level comment.
+    "foreign_keys": {},
     "searchable_columns": [],
     "typed_json_columns": [],
     "derived": [],

@@ -417,6 +417,10 @@ HANDOFF_EXCLUSIONS = {
                              "top-level `language` block (value+source); no handoff "
                              "builder reads it as a doctypes table cell",
         "Display Name": _IDENTITY,
+        # research/80-v05-plan.md §2A: catalogue grouping, not a render value -- it
+        # exists so `ddi.py designs`/the loader can group doctypes by family; no
+        # handoff builder has any reason to read it off a resolved doctypes row.
+        "Family": "catalogue grouping, not a render value",
         "Keywords": _IDENTITY,
         "Page Format Key": _ROUTING,
         "Reasoning Key": _ROUTING,

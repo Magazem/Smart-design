@@ -583,3 +583,68 @@ A second, unrelated defect research/72's judges also named — a section heading
 after `cv-dach-tabular`'s table ("heading collision") — gets the same explicit-line treatment
 via `ddi.py`'s `STYLE_SPACING_INSTRUCTIONS` map, keyed by `style_key` rather than by an enum
 value since it is a rule specific to this one style's layout, not a `Table Rules` semantic.
+
+## 10. v0.5 P1.1 — `Family`, `designs`, `provenance` (research/80-v05-plan.md §2, R-b/R-c)
+
+Three changes, all in `research/build-manifest.py` only; regenerated to 16 tables, 197
+columns, 14 foreign keys (still 5 `group`), 12 list columns, 1 reference column, 13
+distinct-token columns.
+
+- **`FAMILIES` constant** — the 16 document-family tokens from §2A (`cv` … `infographic`),
+  module-level so `doctypes.Family` and `designs.Family` share one list rather than two
+  copies that can drift. Also added `EVIDENCE_CLASSES` (`ranked`/`juried`/`authority`/
+  `convention`, §3 preference order), shared the same way by `designs."Evidence Class"`
+  and `provenance."Evidence Class"`.
+- **`doctypes.Family`** — new enum column, non-nullable (no `""` in the enum, the same
+  idiom every other required enum column here uses) and deliberately NOT in
+  `searchable_columns`: it groups doctypes for `designs` lookup, it is not prose to
+  BM25-match against. `data/base/doctypes.csv` does not carry this column yet (research/26
+  fills it in P1.2) and `scripts/ddi.py`'s `HANDOFF_EXCLUSIONS` does not carry it either —
+  both are out of this generator's scope and are noted as follow-on work, not done here.
+- **`designs` table** (`designs.csv`, key `design_key`) — R-b: a "design" is a
+  `doc-reasoning` row, catalogued per family. Columns: `Display Name`, `Family` (enum
+  `FAMILIES`), `Rank`, `Reasoning Key` (FK → `doc-reasoning.doc_category`), `Keywords`
+  (declared in `distinct_token_columns` with delimiter `,`, the same way `doctypes.Keywords`
+  is — a repeated token would double that term's BM25 weight the same way it did for
+  `doctypes` at v0.2), `Best For`, `Not For` (plain text, nullable — no enum, same as every
+  other table's free-text `Not For`/`Best For` columns), `Evidence Class` (enum
+  `EVIDENCE_CLASSES`, non-nullable — `convention` is a real, weakest-preference class, not
+  an absence of one), `Brand Scope` (plain text, handled exactly like every other table's
+  `Brand Scope` column — no enum, no FK).
+- **`provenance` table** (`provenance.csv`, key `prov_key`) — R-c: one row per source citing
+  a `designs`/`palettes`/`typefaces`/`doc-styles`/`doc-reasoning` row. `Table` is an enum of
+  the manifest's own table names captured at the point `provenance` is declared (i.e. every
+  table above it, `designs` included, `provenance` itself excluded — a polymorphic `Table`
+  cell can never legitimately name the table it lives in). `Row Key` is a polymorphic
+  reference resolved by `Table` + `Row Key` together, so it is plain text with no
+  `foreign_keys` entry — deliberately not FK-reachable, checked instead by the future
+  `tests/test_provenance.py` (P1.4). `Evidence Class` reuses `EVIDENCE_CLASSES`. `Source
+  URL` / `Ranking Metric` / `Rank Value` are plain nullable text (blank permitted for
+  `convention` rows, per §2C). `Retrieved` is plain text holding an ISO date — no date-typed
+  column exists in this schema, same as every other date/size-shaped column here. `Fetch` is
+  a new two-value enum, `fetched` / `search-corroborated`.
+
+Gate against the unchanged `data/base/` (P1.2 has not run yet) now reports exactly the
+three problems this change was expected to cause — `python3 scripts/ddi.py check`:
+
+```
+data/base/doctypes.csv: header mismatch: missing ['Family']
+
+1 structural problem(s) found -- refusing
+```
+
+`scripts/validate_data.py data/base` directly (not gated behind the "refuse past the first
+structural class" short-circuit `ddi.py check` applies) shows all three:
+
+```
+data/base/doctypes.csv: header mismatch: missing ['Family']
+data/base/designs.csv: declared in manifest but file does not exist
+data/base/provenance.csv: declared in manifest but file does not exist
+
+3 problem(s) found
+```
+
+None of this is fixed here on purpose — P1.1 is schema only. `data/base/doctypes.csv`
+gaining `Family`, `data/base/designs.csv` and `data/base/provenance.csv` existing, and
+`scripts/ddi.py`'s `HANDOFF_EXCLUSIONS`/`HANDOFF_VOCAB` gaining entries for the new
+columns/tables are P1.2 (loader) and later (P1.4/P1.5) work.

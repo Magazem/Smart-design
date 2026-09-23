@@ -179,14 +179,54 @@ def read(name):
         return list(csv.DictReader(f))
 
 
+# research/80-v05-plan.md §2E: the loader gains glob inputs so workers can ADD rows to
+# the five library tables (palettes, typefaces, type-scales, doc-styles, doc-reasoning)
+# without hand-editing the numbered drafts above. Other agents are authoring under
+# research/library/<table>/*.csv concurrently and their files may still be incomplete,
+# so a glob file only loads when its filename is LISTED in LIBRARY_INPUTS_ENABLED --
+# left EMPTY on purpose. The orchestrator enables a batch by adding its filename once
+# reviewed; an unlisted file sits in research/library/ and is silently skipped (that
+# silence is the point of a review gate, not a bug).
+LIBRARY_INPUTS_ENABLED = []
+
+
+def load_library_extra(table):
+    """research/library/<table>/*.csv rows whose filename is in LIBRARY_INPUTS_ENABLED,
+    read in sorted-filename order (deterministic append order) and appended AFTER the
+    numbered draft for that table -- write()'s duplicate-key check is what actually
+    makes a colliding key fail loudly rather than one silently shadowing the other."""
+    folder = RES / "library" / table
+    if not folder.is_dir():
+        return []
+    extra = []
+    for path in sorted(folder.glob("*.csv")):
+        if path.name not in LIBRARY_INPUTS_ENABLED:
+            continue
+        with path.open(encoding="utf-8-sig", newline="") as f:
+            extra.extend(csv.DictReader(f))
+    return extra
+
+
 def write(table, rows):
     cols = MANIFEST["tables"][table]["columns"]
+    key_col = MANIFEST["tables"][table]["key_column"]
     path = BASE / MANIFEST["tables"][table]["filename"]
     rows = generic_only(rows, table)
     if "Threshold" in cols:
         rows = [dict(r, Threshold=norm_threshold(r.get("Threshold"),
                                                  "%s/%s" % (table, r[cols[0]])))
                 for r in rows]
+    # research/80-v05-plan.md §2E: numbered drafts are read first and glob inputs are
+    # appended after them (both T2/T3/T4/T6/T5's own library folders and the new
+    # designs/provenance tables), so a key authored twice -- draft vs glob, or glob vs
+    # glob -- must fail loudly here rather than one silently shadowing the other.
+    seen = {}
+    for r in rows:
+        seen.setdefault(r.get(key_col), 0)
+        seen[r.get(key_col)] += 1
+    dups = sorted(k for k, n in seen.items() if n > 1)
+    if dups:
+        sys.exit("%s: duplicate %s value(s): %s" % (table, key_col, ", ".join(dups)))
     with path.open("w", encoding="utf-8", newline="") as f:
         w = csv.DictWriter(f, fieldnames=cols, lineterminator="\n")
         w.writeheader()
@@ -200,7 +240,7 @@ def write(table, rows):
 
 
 # ---------------------------------------------------------------- T5 typefaces
-src = read("19-t5-typefaces-draft.csv")
+src = read("19-t5-typefaces-draft.csv") + load_library_extra("typefaces")
 rows = []
 OS_BUNDLED = {"Arial", "Times New Roman", "Georgia", "Verdana", "Trebuchet MS", "Courier New"}
 for r in src:
@@ -675,7 +715,7 @@ CHANGES.append("T1: +Default Language (research/64 D-E) -- cv-dach=de, cv-france
 # out of the table and in a sibling `rationale/<table>.md`. write() projects to the
 # manifest's 10 columns, so the strip is automatic; this block only has to not lose the
 # prose on the way past.
-src = read("29-t2-doc-reasoning-draft.csv")
+src = read("29-t2-doc-reasoning-draft.csv") + load_library_extra("doc-reasoning")
 rows = write("doc-reasoning", src)
 ens_t2 = sorted(BRAND_ROWS["doc-reasoning"][1])
 RATIONALE.mkdir(parents=True, exist_ok=True)
@@ -706,7 +746,7 @@ CHANGES.append("T2: %d draft rows -> %d generic (4 ENS categories listed in BRAN
                % (len(src), len(rows)))
 
 # ---------------------------------------------------------------- T3 doc-styles
-src = read("31-t3-doc-styles-draft.csv")
+src = read("31-t3-doc-styles-draft.csv") + load_library_extra("doc-styles")
 rows = write("doc-styles", src)
 CHANGES.append("T3: %d draft rows -> %d generic (2 ENS styles are `Brand Scope` ens). "
                "`Checklist` loaded as authored -- it is a DECLARED list column, short "
@@ -714,7 +754,7 @@ CHANGES.append("T3: %d draft rows -> %d generic (2 ENS styles are `Brand Scope` 
                % (len(src), len(rows)))
 
 # --------------------------------------------------------------- T6 type-scales
-src = read("30-t6-type-scales-draft.csv")
+src = read("30-t6-type-scales-draft.csv") + load_library_extra("type-scales")
 rows = write("type-scales", src)
 CHANGES.append("T6: %d draft rows -> %d generic (the 7 `ens-print` rows are listed in "
                "BRAND_ROWS; make_brand_kit.py re-emits ENS's scale from "
@@ -727,7 +767,7 @@ CHANGES.append("T6: %d draft rows -> %d generic (the 7 `ens-print` rows are list
 # re-header step. This is the table 14 `doc-reasoning.Palette Key` lines were dangling on.
 
 # ------------------------------------------------------------------ T4 palettes
-src = read("32-t4-palettes-draft.csv")
+src = read("32-t4-palettes-draft.csv") + load_library_extra("palettes")
 rows = write("palettes", src)
 CHANGES.append("T4: %d draft rows -> %d generic (`ens-core` is `Brand Scope` ens and "
                "reaches the library through data/brand/ens/). Header already matched the "
@@ -768,6 +808,47 @@ CHANGES.append("T10: %d draft rows -> %d generic (no ENS rows in the draft; the 
                            " and ".join(CV_AUTHORED),
                            len([r for r in rows
                                 if r["structure_key"] not in CV_AUTHORED])))
+
+# ============================================================ LOAD PASS 5 ====
+# v0.5 designs + provenance (research/80-v05-plan.md §2B/§2C, R-b/R-c; P1.2/P1.3).
+# Neither table has a numbered draft -- both are populated entirely from glob inputs,
+# authored directly against the manifest header, so there is no re-header step.
+
+# ------------------------------------------------------------------- designs
+# research/designs/<family>.csv, one file per family, read in sorted (family) order.
+# Unlike research/library/ and research/provenance/, no other agent writes here in this
+# phase, so every file present loads -- no allow-list gate.
+DESIGNS_DIR = RES / "designs"
+_designs_files = sorted(DESIGNS_DIR.glob("*.csv")) if DESIGNS_DIR.is_dir() else []
+src = []
+for path in _designs_files:
+    with path.open(encoding="utf-8-sig", newline="") as f:
+        src.extend(csv.DictReader(f))
+rows = write("designs", src)
+CHANGES.append("designs: %d rows loaded from %d research/designs/<family>.csv file(s) "
+               "(P1.3a seed -- one design per existing doc-reasoning row, print-marketing "
+               "catalogued once per family it serves: brochure/flyer/poster)"
+               % (len(rows), len(_designs_files)))
+
+# ----------------------------------------------------------------- provenance
+# research/provenance/*.csv. Other agents are authoring provenance batches under this
+# same directory concurrently and their files may be incomplete, so the same review
+# gate as LIBRARY_INPUTS_ENABLED applies: only a filename LISTED in
+# PROVENANCE_INPUTS_ENABLED loads. Today that is only the seed file this phase authored
+# for the designs seeded just above.
+PROVENANCE_INPUTS_ENABLED = ["seed-designs.csv"]
+PROVENANCE_DIR = RES / "provenance"
+_prov_files = ([p for p in sorted(PROVENANCE_DIR.glob("*.csv"))
+               if p.name in PROVENANCE_INPUTS_ENABLED] if PROVENANCE_DIR.is_dir() else [])
+src = []
+for path in _prov_files:
+    with path.open(encoding="utf-8-sig", newline="") as f:
+        src.extend(csv.DictReader(f))
+rows = write("provenance", src)
+CHANGES.append("provenance: %d rows loaded from %s (PROVENANCE_INPUTS_ENABLED; every "
+               "other file under research/provenance/ is left un-listed until the "
+               "orchestrator reviews its batch)"
+               % (len(rows), ", ".join(p.name for p in _prov_files)))
 
 assert_no_brand_rows()
 

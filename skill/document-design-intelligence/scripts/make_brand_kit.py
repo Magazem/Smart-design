@@ -250,6 +250,22 @@ STRUCTURE_KEY_HINT = {
     "slides": "deck-standard",
 }
 
+# research/80-v05-plan.md §2A: `doctypes.Family` is non-nullable (no "" in the enum,
+# unlike Reasoning Key/Page Format Key/Structure Key above, which stay unset when this
+# builder has no honest generic match) -- every emitted doctype row must carry one of
+# the 16 FAMILIES tokens. "note-interne"/"formulaire"/"slides" map the same way
+# research/26-t1-doctypes-draft.csv maps their generic ENS counterparts
+# (ens-note-interne/ens-formulaire/ens-slides). "social" has no dedicated family in the
+# enum (it is a single branded marketing image, the same "single canvas, promotional"
+# shape as `poster`, not a data-visual like `infographic`) -- classified `poster` for
+# the same reason research/26 classifies `ens-social` that way.
+FAMILY_HINT = {
+    "note-interne": "memo",
+    "formulaire": "form",
+    "social": "poster",
+    "slides": "deck",
+}
+
 # Small, deliberately modest classification used only to pick a Category
 # Contrast enum value and a sensible Safe Stack Fallback default. Not a
 # substitute for data/base/font-substitutes.csv, which is checked first.
@@ -603,6 +619,7 @@ def derive_doctype_rows(spec: dict) -> list[dict]:
             "Constraint Set Keys": ";".join(cat["constraint_hint"]),
             "Structure Key": STRUCTURE_KEY_HINT.get(doctype, ""),
             "Region Key": "",
+            "Family": FAMILY_HINT[doctype],
             # research/64 D-E (A7): this generic brand-kit builder parses no
             # language signal at all out of a brand .md today -- "en" is the
             # documented fallback for a doctype whose own Display Name carries
