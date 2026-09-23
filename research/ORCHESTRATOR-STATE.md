@@ -115,3 +115,9 @@ This file is the live checklist. It is updated and committed after every milesto
 - research/87 fixes landed (Implementer). Remaining from 87: I7 data fix (form-print scale lacks h1), I9, P4 (see 87),
   I8 = cut a release so the pack and the skill ZIP match (at v0.5.0). research/82a-clarifications-3.md (C13-C16) written.
 - 2026-09-24 Repo Keeper: b9a1cac poster MS + report L3 + 82a round 3 (docs only; code/data held for job 3).
+- b582bad (orchestrator, Repo Keeper unresponsive): portable 87 fixes + quote structure/headings. NOTE: that commit
+  also swept in Implementer's IN-PROGRESS I7 type-scale data (data/base/type-scales.csv, provenance.csv,
+  rationale/type-scales.md) without its research sources (research/30, research/provenance/type-scales-i7-convention.csv)
+  -> the I7 commit must include those sources so regeneration reproduces base. Suite was green (292).
+- deck second coder done (n=27). agreement.py was cv-only and printed PASS on n=0 -> being generalised (bg).
+- 2026-09-24 Repo Keeper: I7 type-scale commit (sources; generated I7 data had already landed in b582bad).
