@@ -76,3 +76,11 @@ This file is the live checklist. It is updated and committed after every milesto
   Muted per the pre-registered "lightest tint" rule; new test_palette_roles.py (Text-Safe roles >=4.5 vs Background).
 - RULING FIX 19 (lib type scales unreachable): give brand.md a `## Type scales` section (`print|projection|screen: <scale_key>`)
   so make_brand_kit can use lib-* scales per medium instead of its hard-coded print scale -> Implementer task after backfill.
+- COMMITTED portable pack (P6.1/P6.2): research/build-portable.py -> portable/{AGENTS.md (6609 chars),
+  DDI-LIBRARY.md (~114 KB), INSTALL.md}; test_portable_sync.py fails on ANY data drift.
+  RULE: after every load-base.py run, also run `python3 research/build-portable.py` before committing.
+- research/82a-clarifications-1.md written (C1-C10; family-wide second-coder sample).
+- Committed corpora: cv (github, npm; MS resumes unreachable SPA), deck (npm pending, lo-ms), brochure, flyer.
+  IN FLIGHT: cv second coder (bg, independent); invoice corpora (bg, holds GitHub API); deck npm (bg);
+  Researcher = brochure recode + memo/form; Implementer = FIX 19 type scales; Reviewer = R2 code review;
+  bg palette fixes (research/85).
