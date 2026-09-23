@@ -2,7 +2,7 @@
 
 Coder: Design Researcher. Counts only (research/82 §1). Retrieved 2026-09-23. Flyer identity archetype = `columns|heading|colour|header` (standard §4 features; no flyer-specific feature). Variants: body class, rules/boxes, density. Conventions follow `research/designs-evidence/deck-corpus-lo-ms.md`.
 
-Header-treatment convention used in both files (same as the deck precedent, noted as an ambiguity): §4 says "image/illustration ≥30% of page area" for `image-hero` while inspecting only the top 20% of the page; I read it as **≥30% of the top-20% strip**, since ≥30% of the whole page could never sit in a 20% strip. Panel count / columns / colour use / density follow §4 literally.
+**RECODED 2026-09-23 under research/82a C1/C8/C9.** `image-hero` = image/illustration intersecting the top 20% whose own area is ≥30% of the PAGE (the earlier "30% of the top strip" reading is withdrawn). The three former `image-hero` items were re-viewed: MSF:003 stays (moon illustration ≈47% of page); MSF:014 → `band`; MSF:007 → `plain-left`; MSF:027 → `plain-centered` (details in F.10). Items previously coded with any other header are not affected by C1 (the literal test is stricter than the strip test). N stays 16.
 
 ## F.1 Sources
 - **MS(flyers):** `https://create.microsoft.com/en-us/templates/flyers` → redirected (HTTP 200) to `https://word.cloud.microsoft/create/en/flyer-templates/?source=create_flow`. Editorial page order, no metric. **30 cards rendered = 17 distinct templates** (identical .docx repeated up to 3×; counted once, at the first position). One thumbnail per template (page 1); nothing rendered/opened. research/82 probe also found 17.
@@ -42,16 +42,16 @@ Header-treatment convention used in both files (same as the deck precedent, note
 | MSF:004 | 1 | display | serif | fill-blocks | plain-centered | none | airy | n | EXCLUDED A5 leaf motif repeated around the border (≥3); listed twice (4,30) | https://createcatalog.public.onecdn.static.microsoft/catalog-assets/en-us/e66e0728-c978-4385-973d-40b6d8b885af/thumbnails/400/fall-flyer-orange-whimsical-line-0-1-fe9ba24fd76c.webp |
 | MSF:005 | 1 | sans | sans | fill-blocks | plain-left | none | airy | n | EXCLUDED A6 white body text on #448ecc = 3.3-3.4:1 (color.py); listed 3x (5,13,28) | https://createcatalog.public.onecdn.static.microsoft/catalog-assets/en-us/e87b6b8b-78b4-451d-a611-746ff38c4d5a/thumbnails/400/memorial-day-bbq-flyer-blue-modern-simple-0-1-f395edac7f15.webp |
 | MSF:006 | 2-sidebar | sans | sans | fill-blocks | plain-left | none | standard | n | EXCLUDED A4 painted/ragged brush texture behind title; listed twice (6,15) | https://createcatalog.public.onecdn.static.microsoft/catalog-assets/en-us/e8ae70de-b41a-4274-bfcb-b4046d90b88f/thumbnails/400/flyer-for-martin-luther-king-jr.-day-event-red-modern-bold-0-1-2e8d0666c871.webp |
-| MSF:007 | 1 | sans | sans | fill-blocks | image-hero | none | airy | n | EXCLUDED A5 rows of identical dashes/dots in the border strips | https://createcatalog.public.onecdn.static.microsoft/catalog-assets/en-us/eee74464-bb8d-44fd-88cd-fe567167da65/thumbnails/400/kwanzaa-flyer-whimsical-color-block-0-1-9fd8ef19f458.webp |
+| MSF:007 | 1 | sans | sans | fill-blocks | plain-left | none | airy | n | EXCLUDED A5 rows of identical dashes/dots in the border strips; RECODED (was image-hero): border strips are not one image ≥30% of page | https://createcatalog.public.onecdn.static.microsoft/catalog-assets/en-us/eee74464-bb8d-44fd-88cd-fe567167da65/thumbnails/400/kwanzaa-flyer-whimsical-color-block-0-1-9fd8ef19f458.webp |
 | MSF:008 | 1 | display | sans | fill-blocks | plain-centered | none | airy | n | EXCLUDED A3 smoky texture behind body text; A5 3 identical icons (calendar/clock/map); listed twice (8,29) | https://createcatalog.public.onecdn.static.microsoft/catalog-assets/en-us/aee5b3ce-8086-4ce3-b896-5c2a7fee0ccc/thumbnails/400/mardi-gras-event-flyer-purple-modern-simple-0-1-3fa636f2721c.webp |
 | MSF:009 | 1 | sans | sans | fill-blocks | plain-centered | none | airy | n | EXCLUDED A3 star pattern texture behind text; listed 3x (9,19,26) | https://createcatalog.public.onecdn.static.microsoft/catalog-assets/en-us/9e1ca245-cb75-4c2c-b65b-ade00ec6af06/thumbnails/400/hanukkah-flyer-blue-modern-simple-0-1-df7625a78a48.webp |
 | MSF:010 | 1 | sans | sans | one-accent | plain-centered | boxes | airy | n | EXCLUDED A3 autumn photo fill behind text; listed twice (10,21) | https://createcatalog.public.onecdn.static.microsoft/catalog-assets/en-us/0871cae9-e333-4b12-9b9d-3874e6c1147b/thumbnails/400/autumn-leaves-thanksgiving-flyer-brown-modern-simple-0-1-fd0037a03ee7.webp |
 | MSF:012 | 1 | sans | sans | multi | plain-centered | boxes | airy | n | EXCLUDED A3 pink-purple gradient behind text | https://createcatalog.public.onecdn.static.microsoft/catalog-assets/en-us/8080b24f-6690-45f0-a7b9-32264ab918a1/thumbnails/400/sale-flyer-purple-modern-bold-0-1-165239b73f36.webp |
-| MSF:014 | 1 | sans | sans | fill-blocks | image-hero | none | standard | y | photos ~45% of header strip; yellow bands top/bottom | https://createcatalog.public.onecdn.static.microsoft/catalog-assets/en-us/af9c162d-a28d-4c0b-bf4c-998d0ac9e3e2/thumbnails/400/open-house-flyer-yellow-modern-simple-0-1-bce611115b12.webp |
+| MSF:014 | 1 | sans | sans | fill-blocks | band | none | standard | y | RECODED (was image-hero): main photo ≈48%×55% ≈ 26% of page < 30%; yellow band behind the address line at top → band (BORDERLINE: read as one photo collage ≈43% it would be image-hero) | https://createcatalog.public.onecdn.static.microsoft/catalog-assets/en-us/af9c162d-a28d-4c0b-bf4c-998d0ac9e3e2/thumbnails/400/open-house-flyer-yellow-modern-simple-0-1-bce611115b12.webp |
 | MSF:017 | 1 | sans | sans | multi | plain-centered | boxes | airy | n | EXCLUDED A4 navy brush-blot behind title; A3 illustrated pattern behind text | https://createcatalog.public.onecdn.static.microsoft/catalog-assets/en-us/0035e0a4-479b-4ebc-8d32-6d7dc92c37a0/thumbnails/400/teacher-appreciation-flyer-blue-whimsical-line-0-1-8db60ced51f1.webp |
 | MSF:018 | 1 | display | sans | multi | plain-centered | none | airy | y | listed twice (18,23) | https://createcatalog.public.onecdn.static.microsoft/catalog-assets/en-us/48a43a5b-7123-4b7b-a6ba-808c01339072/thumbnails/400/winter-party-flyer-blue-whimsical-color-block-0-1-9dfdf514e262.webp |
 | MSF:022 | 1 | sans | sans | fill-blocks | plain-centered | boxes | airy | n | EXCLUDED A4 orange brush strokes beside the frame | https://createcatalog.public.onecdn.static.microsoft/catalog-assets/en-us/fdd524fb-9365-4f0f-a0f4-ddd26c6cbf31/thumbnails/400/modern-thanksgiving-flyer-brown-modern-0-1-898e440111d2.webp |
-| MSF:027 | 1 | display | sans | fill-blocks | image-hero | rules | airy | n | EXCLUDED A5 repeated identical jack-o-lantern eyes/bats | https://createcatalog.public.onecdn.static.microsoft/catalog-assets/en-us/14e6729c-5408-48fc-b199-8ab04f75ea8a/thumbnails/400/witch-and-haunted-house-halloween-flyer-purple-whimsical-color-block-0-1-96a7c54398c3.webp |
+| MSF:027 | 1 | display | sans | fill-blocks | plain-centered | rules | airy | n | EXCLUDED A5 repeated identical jack-o-lantern eyes/bats; RECODED (was image-hero): moon ≈22% of page < 30% | https://createcatalog.public.onecdn.static.microsoft/catalog-assets/en-us/14e6729c-5408-48fc-b199-8ab04f75ea8a/thumbnails/400/witch-and-haunted-house-halloween-flyer-purple-whimsical-color-block-0-1-96a7c54398c3.webp |
 
 ## F.4 Exclusions log
 
@@ -77,7 +77,7 @@ Excluded 11 of 16 → **5 admissible**. Rule counts (first-cited): A5=3, A6=1, A
 |---|---|---|---|
 | `1\|display\|fill-blocks\|image-hero` | 1 | 1/16 = 0.062 | MSF:003 |
 | `1\|display\|multi\|plain-centered` | 1 | 1/16 = 0.062 | MSF:018 |
-| `1\|sans\|fill-blocks\|image-hero` | 1 | 1/16 = 0.062 | MSF:014 |
+| `1\|sans\|fill-blocks\|band` | 1 | 1/16 = 0.062 | MSF:014 |
 | `1\|serif\|fill-blocks\|plain-left` | 1 | 1/16 = 0.062 | MSF:001 |
 | `grid\|mono\|fill-blocks\|plain-left` | 1 | 1/16 = 0.062 | MSF:002 |
 
@@ -100,10 +100,19 @@ Microsoft Create is Microsoft's editorial selection and this is only the first s
 Ids: MSF:001, MSF:002, MSF:003, MSF:004, MSF:005, MSF:006, MSF:007, MSF:008, MSF:009, MSF:010, MSF:012, MSF:014, MSF:017, MSF:018, MSF:022, MSF:027. Sample per §7: `random.Random("82:flyer").sample(sorted(ids), max(min(10, len(ids)), math.ceil(0.25*len(ids))))` — N=16 → 10 ids.
 
 ## F.9 Ambiguities met
-1. `image-hero` strip interpretation (top of file); MSF:003, MSF:014, MSF:027 are the only `image-hero` codes.
+1. `image-hero` now per 82a C1 (literal page-area test); MSF:003 is the only `image-hero` code left. MSF:014 is borderline (single photo ≈26% vs photo collage ≈43%).
 2. A5 applied to repeated leaf/dash/eye motifs (MSF:004, MSF:007, MSF:027) and to a 3-icon row (MSF:008); these are judgement-borderline and the second coder should check them.
-3. A3 read strictly (any texture/pattern/photo/gradient directly behind text), as for decks — this excludes MSF:008, 009, 010, 012, 017.
+3. A3 read strictly, consistent with 82a C8 (text set directly on gradient/texture/photo; a flat opaque panel over a photo would be admissible, none of these has one) (any texture/pattern/photo/gradient directly behind text), as for decks — this excludes MSF:008, 009, 010, 012, 017.
 4. `columns` for tile layouts (MSF:002) coded `grid`; a title-left/info-right split (MSF:006) coded `2-sidebar`.
-5. Thumbnails are 400 px; contrast values are estimates (extreme-pixel sampling).
+5. Thumbnails are 400 px; contrast values are estimates (extreme-pixel sampling), disclosed as such under 82a C9.
 6. Duplicate listings on the MS page (30 cards → 17 templates) were merged by identical .docx URL.
 
+## F.10 Recode under 82a
+| id | header before | header after | note |
+|---|---|---|---|
+| MSF:003 | image-hero | image-hero | moon ≈47% of page, intersects top 20% → unchanged |
+| MSF:007 | image-hero | plain-left | decorative border strips; excluded A5 either way |
+| MSF:014 | image-hero | band | single photo ≈26% < 30%; yellow address band; borderline |
+| MSF:027 | image-hero | plain-centered | moon ≈22%; excluded A5 either way |
+
+Effect on the frequency table: admissible archetype `1|sans|fill-blocks|image-hero` (MSF:014) becomes `1|sans|fill-blocks|band`; still 5 singletons, k≥2 = 0, Shortfall unchanged. C8: all five A3 exclusions (MSF:008, 009, 010, 012, 017) have text directly on texture/photo/gradient/pattern and stand; the admissible MSF:003 has its title on a flat-fill moon (admissible under C8). C9: MSF:005's 3.31/3.44:1 was computed with `color.py` on thumbnail samples and is far below 4.5 (estimate, disclosed); admissible items were spot-checked at ≥7:1, far from the 3.5–5.5 band, so no further sampling was needed.
