@@ -15,8 +15,18 @@ Run `ddi.py`'s subcommands in this order:
 
 1. `ddi.py check` — validate the data
 2. `ddi.py resolve --query "<text>" [--brand <slug>] [--json]` — resolve one request
-3. `ddi.py preflight <file> [--json]` — verify a rendered file
-4. `ddi.py handoff --json <resolved.json> --format docx|pptx|pdf|png` — render-handoff block
+3. If the user expresses a style, tone, or industry preference (e.g. "make it look
+   editorial", "something for a design portfolio", "keep it formal/DACH-style"), run
+   `ddi.py designs --doctype <key> [--query "<their wording>"]` and offer the top 3
+   designs it lists (Display Name, Best For, Evidence Class) instead of guessing; once
+   they pick one, re-run step 2 as `ddi.py resolve --doctype <key> --design <design_key>
+   --json` so the rest of the pipeline resolves from that design's own style/palette/
+   typeface. Skip this step if the user has no such preference — the doctype's own
+   default design (already the fitness choice, e.g. ATS-safe for a CV) applies with no
+   extra step. `ddi.py library <palettes|typefaces|type-scales|doc-styles> [--query]` browses
+   the grand library the same way when building a brand kit.
+4. `ddi.py preflight <file> [--json]` — verify a rendered file
+5. `ddi.py handoff --json <resolved.json> --format docx|pptx|pdf|png` — render-handoff block
 
 Do not skip step 2 and go straight to free-form generation — that is the activation
 failure this skill exists to prevent.

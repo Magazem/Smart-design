@@ -937,5 +937,161 @@ class TestCvRegionRowCoverage(unittest.TestCase):
                         f"band {band!r}) missing from handoff")
 
 
+class TestDdiDesigns(unittest.TestCase):
+    """`ddi.py designs --doctype <key>` against the REAL data/base library
+    (research/80-v05-plan.md section 6 P1.5) -- cv-uk's family (cv) has 6
+    authored designs, and cv-uk's own Reasoning Key (cv-us-uk-designed) is
+    designs.csv's rank-1 row, so it must be marked as this doctype's default."""
+
+    def test_unknown_doctype_is_a_clear_error_nonzero_exit(self):
+        proc = _run(["designs", "--doctype", "not-a-real-doctype"])
+        self.assertNotEqual(proc.returncode, 0)
+        self.assertIn("not-a-real-doctype", proc.stdout)
+
+    def test_lists_all_six_cv_designs_in_rank_order(self):
+        proc = _run(["designs", "--doctype", "cv-uk", "--json"])
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        payload = json.loads(proc.stdout)
+        self.assertEqual(payload["family"], "cv")
+        keys = [d["design_key"] for d in payload["designs"]]
+        self.assertEqual(len(keys), 6)
+        ranks = [d["rank"] for d in payload["designs"]]
+        self.assertEqual([int(r) for r in ranks], sorted(int(r) for r in ranks))
+
+    def test_marks_the_doctype_default_by_reasoning_key(self):
+        proc = _run(["designs", "--doctype", "cv-uk", "--json"])
+        payload = json.loads(proc.stdout)
+        defaults = [d for d in payload["designs"] if d["is_default"]]
+        self.assertEqual(len(defaults), 1)
+        self.assertEqual(defaults[0]["design_key"], "cv-us-uk-designed")
+
+    def test_each_design_carries_evidence_and_resolved_style_palette_typeface(self):
+        proc = _run(["designs", "--doctype", "cv-uk", "--json"])
+        payload = json.loads(proc.stdout)
+        editorial = next(d for d in payload["designs"] if d["design_key"] == "cv-editorial")
+        self.assertTrue(editorial["style_key"])
+        self.assertTrue(editorial["palette_key"])
+        self.assertTrue(editorial["typeface_key"])
+        self.assertIn("Typewolf", editorial["evidence"])
+
+    def test_query_reranks_by_bm25_ties_broken_by_rank(self):
+        proc = _run(["designs", "--doctype", "cv-uk", "--query", "editorial creative portfolio", "--json"])
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        payload = json.loads(proc.stdout)
+        self.assertEqual(payload["method"], "bm25")
+        self.assertEqual(payload["designs"][0]["design_key"], "cv-editorial")
+
+    def test_text_output_contains_display_name_and_rank_and_evidence_class(self):
+        proc = _run(["designs", "--doctype", "cv-uk"])
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        self.assertIn("CV -- Harvard reverse-chronological", proc.stdout)
+        self.assertIn("rank 1 of 6", proc.stdout)
+        self.assertIn("authority", proc.stdout)
+
+
+class TestDdiLibrary(unittest.TestCase):
+    """`ddi.py library <palettes|typefaces|type-scales|doc-styles>` browses
+    the grand library against the REAL data/base tables."""
+
+    def test_unknown_library_name_rejected(self):
+        proc = _run(["library", "not-a-real-table"])
+        self.assertNotEqual(proc.returncode, 0)
+
+    def test_palettes_query_returns_ranked_hexes_and_evidence(self):
+        proc = _run(["library", "palettes", "--query", "warm earthy", "--limit", "5", "--json"])
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        payload = json.loads(proc.stdout)
+        self.assertLessEqual(len(payload["entries"]), 5)
+        self.assertGreater(len(payload["entries"]), 0)
+        entry = payload["entries"][0]
+        self.assertTrue(entry["key"])
+        self.assertTrue(any(kv.startswith("Primary:") for kv in entry["key_values"]))
+
+    def test_typefaces_entry_shows_heading_body_and_licence(self):
+        proc = _run(["library", "typefaces", "--limit", "3", "--json"])
+        payload = json.loads(proc.stdout)
+        entry = payload["entries"][0]
+        joined = " ".join(entry["key_values"])
+        self.assertIn("Heading Family:", joined)
+        self.assertIn("Body Family:", joined)
+        self.assertIn("Embedding Licence:", joined)
+
+    def test_type_scales_grouped_by_scale_key_with_body_and_h1_and_medium(self):
+        proc = _run(["library", "type-scales", "--json"])
+        payload = json.loads(proc.stdout)
+        keys = [e["key"] for e in payload["entries"]]
+        self.assertEqual(len(keys), len(set(keys)), "type-scales entries must be grouped, not per-row")
+        entry = payload["entries"][0]
+        joined = " ".join(entry["key_values"])
+        self.assertIn("Medium:", joined)
+        self.assertIn("body:", joined)
+        self.assertIn("h1:", joined)
+
+    def test_doc_styles_entry_has_evidence_line(self):
+        proc = _run(["library", "doc-styles", "--limit", "2", "--json"])
+        payload = json.loads(proc.stdout)
+        for entry in payload["entries"]:
+            self.assertIn("evidence", entry)
+
+    def test_limit_truncates_results(self):
+        proc = _run(["library", "typefaces", "--limit", "2", "--json"])
+        payload = json.loads(proc.stdout)
+        self.assertLessEqual(len(payload["entries"]), 2)
+
+    def test_only_generic_brand_scope_rows_shown_by_default(self):
+        proc = _run(["library", "palettes", "--json"])
+        payload = json.loads(proc.stdout)
+        self.assertGreater(len(payload["entries"]), 0)
+
+
+class TestHandoffDesignLine(unittest.TestCase):
+    """Handoff must gain one `design: <Display Name> (rank r of N,
+    <Evidence Class>)` line -- the doctype's own default design when none
+    was explicitly resolved, or the `--design`-overridden one when it was."""
+
+    def _resolved_path(self, tmpdir, args):
+        proc = _run(["resolve", *args, "--json"])
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        path = Path(tmpdir) / "resolved.json"
+        path.write_text(proc.stdout, encoding="utf-8")
+        return path
+
+    def test_default_design_line_for_plain_doctype_resolution(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = self._resolved_path(tmp, ["--doctype", "cv-uk"])
+            proc = _run(["handoff", "--json", str(path), "--format", "docx"])
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        self.assertIn("design: CV -- Harvard reverse-chronological (rank 1 of 6, authority)",
+                       proc.stdout)
+
+    def test_overridden_design_line_when_design_flag_used(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = self._resolved_path(tmp, ["--doctype", "cv-uk", "--design", "cv-editorial"])
+            proc = _run(["handoff", "--json", str(path), "--format", "pptx"])
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        self.assertIn("design: CV, editorial / creative-industry (rank 6 of 6, authority)",
+                       proc.stdout)
+
+    def test_present_on_all_four_formats(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = self._resolved_path(tmp, ["--doctype", "cv-uk"])
+            for fmt in ("docx", "pptx", "pdf", "png"):
+                proc = _run(["handoff", "--json", str(path), "--format", fmt])
+                self.assertIn("design: CV -- Harvard reverse-chronological (rank 1 of 6, authority)",
+                              proc.stdout, f"format={fmt}")
+
+    def test_no_design_line_when_no_designs_table_in_data_dir(self):
+        # The toy fixture manifest (manifest_ok) declares no designs table at
+        # all -- degrade to no design line, not a crash.
+        with tempfile.TemporaryDirectory() as tmp:
+            proc = _run(["resolve", "--data-dir", str(DATA_DIR), "--doctype", "dice", "--json"])
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+            path = Path(tmp) / "resolved.json"
+            path.write_text(proc.stdout, encoding="utf-8")
+            handoff = _run(["handoff", "--json", str(path), "--format", "docx"])
+        self.assertEqual(handoff.returncode, 0, handoff.stderr)
+        self.assertNotIn("design:", handoff.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -357,5 +357,62 @@ class TestGroupFkGuidanceMessage(unittest.TestCase):
         self.assertEqual(value, "contact;summary")
 
 
+class TestApplyDesignOverride(unittest.TestCase):
+    """research/80-v05-plan.md section 6 P1.5: `--design` must override the
+    entry doctype row's Reasoning Key with a shallow copy -- the original
+    loaded row dict must never be mutated in place."""
+
+    def test_shallow_copy_never_mutates_original(self):
+        original = {"doc_key": "x", "Reasoning Key": "old-key", "Family": "cv"}
+        design_row = {"design_key": "y", "Reasoning Key": "new-key", "Family": "cv"}
+        overridden = resolve._apply_design_override(original, design_row)
+        self.assertEqual(overridden["Reasoning Key"], "new-key")
+        self.assertEqual(original["Reasoning Key"], "old-key")
+        self.assertIsNot(overridden, original)
+
+    def test_other_columns_carried_through_unchanged(self):
+        original = {"doc_key": "x", "Reasoning Key": "old-key", "Family": "cv", "Display Name": "X"}
+        design_row = {"design_key": "y", "Reasoning Key": "new-key", "Family": "cv"}
+        overridden = resolve._apply_design_override(original, design_row)
+        self.assertEqual(overridden["Display Name"], "X")
+        self.assertEqual(overridden["doc_key"], "x")
+
+
+class TestDesignOverrideEndToEnd(unittest.TestCase):
+    """Against the REAL data/base library (data/base/designs.csv, cv family) --
+    the toy fixture manifest this file otherwise uses carries no designs
+    table at all, so these run with no --data-dir (resolve.py's own default,
+    the skill's real data/)."""
+
+    def _run_real(self, args):
+        proc = subprocess.run([PYTHON, str(RESOLVE_PY), *args], capture_output=True, text=True)
+        return proc
+
+    def test_design_overrides_reasoning_key_and_is_included_in_resolved(self):
+        proc = self._run_real(["--doctype", "cv-uk", "--design", "cv-editorial", "--json"])
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        payload = json.loads(proc.stdout)
+        self.assertEqual(payload["resolved"]["doc-reasoning"][0]["key"], "cv-editorial")
+        self.assertEqual(payload["resolved"]["designs"][0]["key"], "cv-editorial")
+
+    def test_without_design_reasoning_key_is_the_doctypes_own_default(self):
+        proc = self._run_real(["--doctype", "cv-uk", "--json"])
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        payload = json.loads(proc.stdout)
+        self.assertEqual(payload["resolved"]["doc-reasoning"][0]["key"], "cv-us-uk-designed")
+        self.assertNotIn("designs", payload["resolved"])
+
+    def test_unknown_design_key_refuses_exit_4(self):
+        proc = self._run_real(["--doctype", "cv-uk", "--design", "not-a-real-design"])
+        self.assertEqual(proc.returncode, 4)
+        self.assertIn("not-a-real-design", proc.stdout)
+
+    def test_family_mismatch_refuses_exit_4(self):
+        # cv-uk's Family is "cv"; deck-generic's Family is "deck".
+        proc = self._run_real(["--doctype", "cv-uk", "--design", "deck-generic"])
+        self.assertEqual(proc.returncode, 4)
+        self.assertIn("Family", proc.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()

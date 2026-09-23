@@ -446,6 +446,19 @@ def _fk_walk(entry_table, entry_row, tables_spec, all_rows, rows_by_key):
     return resolved
 
 
+def _apply_design_override(entry_row, design_row):
+    """research/80-v05-plan.md section 6 P1.5 (`ddi.py resolve --design`):
+    shallow copy the resolved entry (doctype) row -- NEVER mutate the row
+    dict `load_all_tables` handed back, since that same dict is shared by
+    any other resolution running against the same loaded data -- with its
+    Reasoning Key replaced by the design's own, so the FK walk that follows
+    pulls in the design's doc-reasoning (and therefore its style/palette/
+    typeface) instead of the doctype's own default."""
+    overridden = dict(entry_row)
+    overridden["Reasoning Key"] = design_row.get("Reasoning Key", "")
+    return overridden
+
+
 def _has_brand_row(resolved, brand):
     return any(row.get("Brand Scope") == brand for rows in resolved.values() for row in rows)
 
@@ -644,6 +657,10 @@ def build_arg_parser():
     parser.add_argument("--brand", default=None, help="brand slug to prefer (two-pass resolution)")
     parser.add_argument("--doctype", default=None,
                          help="exact entry-table key -- resolves directly, no search")
+    parser.add_argument("--design", default=None,
+                         help="design key (data/base/designs.csv) -- overrides the resolved "
+                              "doctype's Reasoning Key with this design's own before the FK "
+                              "walk, and includes the design row in the resolved output")
     parser.add_argument("--lang", default=None, choices=("en", "fr", "de"),
                          help="override the resolved doctype's own Default Language")
     parser.add_argument("--data-dir", default=None,
@@ -698,6 +715,25 @@ def main(argv=None):
         _print_abstain(args.query or args.doctype, diag, args.json)
         return 2
 
+    design_row = None
+    if args.design:
+        designs_spec = tables.get("designs", {})
+        designs_key_col = designs_spec.get("key_column", "design_key")
+        design_row = next(
+            (r for r in all_rows.get("designs", []) if r.get(designs_key_col, "") == args.design),
+            None,
+        )
+        if design_row is None:
+            print(f"[NO SUCH DESIGN] design={args.design!r} not found in designs table -- refusing")
+            return 4
+        entry_family = entry_row.get("Family", "")
+        design_family = design_row.get("Family", "")
+        if design_family != entry_family:
+            print(f"[DESIGN FAMILY MISMATCH] design={args.design!r} Family={design_family!r} "
+                  f"!= doctype Family={entry_family!r} -- refusing")
+            return 4
+        entry_row = _apply_design_override(entry_row, design_row)
+
     language = _resolve_language(entry_spec, entry_row, args.lang)
 
     rows_by_key = {
@@ -705,6 +741,9 @@ def main(argv=None):
         for name, spec in tables.items() if spec.get("key_column")
     }
     resolved = _fk_walk(entry_name, entry_row, tables, all_rows, rows_by_key)
+
+    if design_row is not None:
+        resolved["designs"] = [design_row]
 
     touched = _touched_poison(resolved, tables, poisoned)
     if touched:

@@ -245,6 +245,11 @@ PDFX4_TIER_WORDING = (
 
 NOT_PRESENT = "(not present in this resolution)"
 
+#: Library tables `ddi.py library` can browse (research/80-v05-plan.md
+#: section 6 P1.6) -- the grand library minus designs (that's `ddi.py
+#: designs`'s own job) and everything reached only via a doctype's FK walk.
+LIBRARY_TABLES = ("palettes", "typefaces", "type-scales", "doc-styles")
+
 HANDOFF_VOCAB = {
     "page_format_table": "page-formats",
     # source-mm-column -> DXA label shown alongside it (research/24 section 3
@@ -1302,10 +1307,75 @@ _FORMAT_BUILDERS = {
 }
 
 
-def _build_handoff_lines(resolved_payload, target_format):
+def _load_full_designs(data_dir):
+    """Fresh, standalone load of data/base/designs.csv (+ any brand
+    overlay) -- NOT read off the resolve.py --json payload, so a plain
+    `ddi.py resolve --doctype ...` (no --design) still gets a `design:`
+    handoff line naming the doctype's own default design, and so `rank r
+    of N` can be computed against the WHOLE family, not just whatever one
+    design row (if any) happens to be in `resolved`. Returns [] (never
+    raises) if the manifest can't be read or declares no `designs` table at
+    all -- a data dir with no design library yet (this project's own toy
+    test fixtures) must degrade to "no design line", not a crash."""
+    try:
+        manifest = resolve.datalib.load_manifest(data_dir)
+    except (OSError, ValueError):
+        return []
+    spec = manifest.get("tables", {}).get("designs")
+    if not spec:
+        return []
+    problems = resolve.datalib.ProblemLog()
+    return resolve.datalib.load_table_rows(data_dir, spec, problems, table_name="designs")
+
+
+def _design_handoff_line(resolved, data_dir):
+    """research/80-v05-plan.md section 6 P1.5: `design: <Display Name>
+    (rank r of N, <Evidence Class>)` -- the `--design`-overridden design if
+    resolve.py included one in `resolved["designs"]`, else this doctype's
+    own default (the family design whose Reasoning Key equals the resolved
+    doctype row's own Reasoning Key). None (no line printed) if neither can
+    be found -- e.g. the resolved payload carries no `doctypes` row at all
+    (a non-doctype entry table, this project's own toy test fixtures) or
+    the data dir has no designs library."""
+    all_designs = _load_full_designs(data_dir)
+    if not all_designs:
+        return None
+
+    design_row = None
+    resolved_designs = resolved.get("designs", [])
+    if resolved_designs:
+        key = resolved_designs[0].get("key", "")
+        design_row = next((d for d in all_designs if d.get("design_key", "") == key), None)
+
+    if design_row is None:
+        doctype_row = _first_row(resolved, "doctypes")
+        if doctype_row is None:
+            return None
+        family = doctype_row.get("Family", "")
+        reasoning_key = doctype_row.get("Reasoning Key", "")
+        design_row = next(
+            (d for d in all_designs
+             if d.get("Family", "") == family and d.get("Reasoning Key", "") == reasoning_key),
+            None,
+        )
+
+    if design_row is None:
+        return None
+
+    family = design_row.get("Family", "")
+    n_total = sum(1 for d in all_designs if d.get("Family", "") == family)
+    return (f"design: {design_row.get('Display Name', '')} "
+            f"(rank {design_row.get('Rank', '')} of {n_total}, "
+            f"{design_row.get('Evidence Class', '')})")
+
+
+def _build_handoff_lines(resolved_payload, target_format, data_dir=None):
     resolved = resolved_payload.get("resolved", {})
     language = resolved_payload.get("language", {})
     lines = [f"HANDOFF (format={target_format})"]
+    design_line = _design_handoff_line(resolved, data_dir or DEFAULT_DATA_DIR)
+    if design_line:
+        lines.append(design_line)
     lines.extend(_FORMAT_BUILDERS[target_format](resolved, language))
     lines.extend(_constraints_and_preflight_lines(resolved, target_format))
     return lines
@@ -1331,6 +1401,9 @@ def cmd_handoff(argv):
     parser.add_argument("--json", dest="json_path", required=True,
                          help="path to a resolve.py --json result")
     parser.add_argument("--format", required=True, choices=("docx", "pptx", "pdf", "png"))
+    parser.add_argument("--data-dir", default=None,
+                         help="data dir for the design-library lookup used by the `design:` "
+                              "line (default: this skill's own data/)")
     args = parser.parse_args(argv)
 
     try:
@@ -1347,7 +1420,8 @@ def cmd_handoff(argv):
               "-- refusing to build a handoff block from it")
         return 1
 
-    for line in _build_handoff_lines(payload, args.format):
+    data_dir = Path(args.data_dir) if args.data_dir else None
+    for line in _build_handoff_lines(payload, args.format, data_dir):
         print(line)
     return 0
 
@@ -1373,11 +1447,346 @@ def cmd_version(argv):
     return 0
 
 
+# ---------------------------------------------------------------------------
+# designs / library -- research/80-v05-plan.md section 6 P1.5/P1.6. Both read
+# the real data/base tables directly (via resolve.datalib, resolve.BM25 --
+# already-imported sibling modules, no new top-level import here so the
+# stdlib-only guard above needs no change) rather than going through
+# resolve.py's entry-table Stage 1, since neither is a doctype resolution:
+# `designs` browses one family's designs.csv rows, `library` browses the
+# palette/typeface/type-scale/doc-style tables directly.
+# ---------------------------------------------------------------------------
+
+def _provenance_line(provenance_rows, table_name, row_key):
+    """One-line evidence summary for a designs/library entry: Source Name
+    plus Ranking Metric/Rank Value if the provenance row carries them
+    (research/80-v05-plan.md section 2C). `row_key` is looked up EXACTLY
+    against provenance.csv's own polymorphic FK (Table, Row Key) -- no
+    fuzzy matching, and the first match wins if more than one row is ever
+    authored for the same (table, key)."""
+    if not row_key:
+        return "(no provenance recorded)"
+    matches = [p for p in provenance_rows
+               if p.get("Table", "") == table_name and p.get("Row Key", "") == row_key]
+    if not matches:
+        return "(no provenance recorded)"
+    row = matches[0]
+    source = row.get("Source Name", "") or "(unnamed source)"
+    metric = row.get("Ranking Metric", "")
+    value = row.get("Rank Value", "")
+    if metric and value:
+        return f"{source} ({metric}: {value})"
+    if metric:
+        return f"{source} ({metric})"
+    return source
+
+
+def cmd_designs(argv):
+    """`ddi.py designs --doctype <doc_key> [--query "<text>"] [--json]`
+
+    Lists the designs (data/base/designs.csv) whose Family matches the
+    given doctype's own Family, in Rank order; marks the design whose
+    Reasoning Key equals the doctype's own Reasoning Key as this doctype's
+    default. With --query, re-ranks by BM25 (resolve.py's own
+    implementation, reused rather than reimplemented) over Keywords + Best
+    For + Display Name, ties broken by Rank. Each design's "rank r of N"
+    always names its own authored Rank and family size, never its position
+    in a --query-reordered list.
+
+    Exit codes: 0 printed successfully (including an empty family). 1
+    unknown --doctype, or a tier-1 (structural) data problem.
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(prog="ddi.py designs")
+    parser.add_argument("--doctype", required=True)
+    parser.add_argument("--query", default=None)
+    parser.add_argument("--json", action="store_true")
+    parser.add_argument("--data-dir", default=None)
+    args = parser.parse_args(argv)
+
+    data_dir = Path(args.data_dir) if args.data_dir else DEFAULT_DATA_DIR
+    datalib = resolve.datalib
+
+    tier1_ok, tier1_lines, _tier2, _summary = validate_data.validate_tiered(data_dir)
+    if not tier1_ok:
+        for line in tier1_lines:
+            print(line)
+        print(f"\n{len(tier1_lines)} structural problem(s) found -- refusing")
+        return 1
+
+    manifest = datalib.load_manifest(data_dir)
+    tables = manifest["tables"]
+    problems = datalib.ProblemLog()
+    all_rows = datalib.load_all_tables(data_dir, tables, problems)
+
+    doctype_spec = tables.get("doctypes", {})
+    doctype_key_col = doctype_spec.get("key_column", "doc_key")
+    doctype_row = next(
+        (r for r in all_rows.get("doctypes", []) if r.get(doctype_key_col, "") == args.doctype),
+        None,
+    )
+    if doctype_row is None:
+        print(f"[NO SUCH DOCTYPE] doctype={args.doctype!r} not found in doctypes table")
+        return 1
+
+    family = doctype_row.get("Family", "")
+    default_reasoning_key = doctype_row.get("Reasoning Key", "")
+
+    design_spec = tables.get("designs", {})
+    design_key_col = design_spec.get("key_column", "design_key")
+    family_designs = [r for r in all_rows.get("designs", []) if r.get("Family", "") == family]
+    family_designs.sort(key=lambda r: int(r.get("Rank", "0") or 0))
+    n_total = len(family_designs)
+
+    doc_reasoning_by_key = {r.get("doc_category", ""): r for r in all_rows.get("doc-reasoning", [])}
+    provenance_rows = all_rows.get("provenance", [])
+
+    order = list(range(len(family_designs)))
+    method = "rank"
+    scores = None
+    if args.query:
+        documents = [
+            " ".join([r.get("Keywords", ""), r.get("Best For", ""), r.get("Display Name", "")])
+            for r in family_designs
+        ]
+        bm25 = resolve.BM25()
+        bm25.fit(documents)
+        scores = bm25.scores(args.query)
+        order.sort(key=lambda i: (-scores[i], int(family_designs[i].get("Rank", "0") or 0)))
+        method = "bm25"
+
+    entries = []
+    for i in order:
+        row = family_designs[i]
+        design_key = row.get(design_key_col, "")
+        dr = doc_reasoning_by_key.get(row.get("Reasoning Key", ""), {})
+        entry = {
+            "design_key": design_key,
+            "display_name": row.get("Display Name", ""),
+            "rank": row.get("Rank", ""),
+            "n": n_total,
+            "evidence_class": row.get("Evidence Class", ""),
+            "best_for": row.get("Best For", ""),
+            "keywords": row.get("Keywords", ""),
+            "is_default": bool(row.get("Reasoning Key", "")) and row.get("Reasoning Key", "") == default_reasoning_key,
+            "evidence": _provenance_line(provenance_rows, "designs", design_key),
+            "style_key": dr.get("Style Key", ""),
+            "palette_key": dr.get("Palette Key", ""),
+            "typeface_key": dr.get("Typeface Key", ""),
+        }
+        if scores is not None:
+            entry["score"] = round(scores[i], 4)
+        entries.append(entry)
+
+    if args.json:
+        print(json.dumps(
+            {"doctype": args.doctype, "family": family, "query": args.query,
+             "method": method, "designs": entries},
+            indent=2,
+        ))
+        return 0
+
+    print(f"DESIGNS for doctype={args.doctype!r} (family={family}, method={method})")
+    for e in entries:
+        default_marker = "  [DEFAULT for this doctype]" if e["is_default"] else ""
+        print(f"  {e['display_name']}  [{e['design_key']}]  rank {e['rank']} of {e['n']}"
+              f"{default_marker}")
+        print(f"    Evidence Class: {e['evidence_class']}")
+        print(f"    Best For: {e['best_for']}")
+        print(f"    Evidence: {e['evidence']}")
+        print(f"    Resolved: style={e['style_key'] or NOT_PRESENT} "
+              f"palette={e['palette_key'] or NOT_PRESENT} typeface={e['typeface_key'] or NOT_PRESENT}")
+        if "score" in e:
+            print(f"    score: {e['score']}")
+    return 0
+
+
+def _library_key_values(table_name, row):
+    if table_name == "palettes":
+        return [f"Primary: {row.get('Primary', '') or NOT_PRESENT}",
+                f"Accent: {row.get('Accent', '') or NOT_PRESENT}",
+                f"Background: {row.get('Background', '') or NOT_PRESENT}"]
+    if table_name == "typefaces":
+        return [f"Heading Family: {row.get('Heading Family', '') or NOT_PRESENT}",
+                f"Body Family: {row.get('Body Family', '') or NOT_PRESENT}",
+                f"Embedding Licence: {row.get('Embedding Licence', '') or NOT_PRESENT}"]
+    if table_name == "doc-styles":
+        return [f"Table Rules: {row.get('Table Rules', '') or NOT_PRESENT}",
+                f"Emphasis Mechanism: {row.get('Emphasis Mechanism', '') or NOT_PRESENT}",
+                f"Field Style: {row.get('Field Style', '') or NOT_PRESENT}"]
+    return []
+
+
+_LIBRARY_KEY_COLUMNS = {
+    "palettes": "palette_key",
+    "typefaces": "typeface_key",
+    "doc-styles": "style_key",
+}
+
+
+def _library_simple(table_name, rows, provenance_rows, query):
+    """palettes/typefaces/doc-styles -- one library entry per row, BM25 over
+    Keywords + Display Name + Best For when --query is given."""
+    key_col = _LIBRARY_KEY_COLUMNS[table_name]
+    order = list(range(len(rows)))
+    method = "authored-order"
+    scores = None
+    if query:
+        documents = [
+            " ".join([r.get("Keywords", ""), r.get("Display Name", ""), r.get("Best For", "")])
+            for r in rows
+        ]
+        bm25 = resolve.BM25()
+        bm25.fit(documents)
+        scores = bm25.scores(query)
+        order.sort(key=lambda i: -scores[i])
+        method = "bm25"
+
+    entries = []
+    for i in order:
+        row = rows[i]
+        key = row.get(key_col, "")
+        entry = {
+            "key": key,
+            "name": row.get("Display Name", ""),
+            "key_values": _library_key_values(table_name, row),
+            "evidence": _provenance_line(provenance_rows, table_name, key),
+        }
+        if scores is not None:
+            entry["score"] = round(scores[i], 4)
+        entries.append(entry)
+    return entries, method
+
+
+def _library_type_scales(rows, provenance_rows, query):
+    """type-scales has no Keywords/Display Name/Best For at all -- rows are
+    grouped by scale_key first (one library entry per ratio-family x
+    medium, not per role row), and --query searches scale_key + Medium."""
+    groups = {}
+    order_keys = []
+    for row in rows:
+        key = row.get("scale_key", "")
+        if key not in groups:
+            groups[key] = []
+            order_keys.append(key)
+        groups[key].append(row)
+
+    def size_for(member_rows, role):
+        return next((r.get("Size pt", "") for r in member_rows if r.get("Role", "") == role), "")
+
+    keys = list(order_keys)
+    method = "authored-order"
+    scores_by_key = None
+    if query:
+        documents = [f"{key} {groups[key][0].get('Medium', '') if groups[key] else ''}"
+                     for key in order_keys]
+        bm25 = resolve.BM25()
+        bm25.fit(documents)
+        scores = bm25.scores(query)
+        scores_by_key = dict(zip(order_keys, scores))
+        keys = sorted(order_keys, key=lambda k: -scores_by_key[k])
+        method = "bm25"
+
+    entries = []
+    for key in keys:
+        member_rows = groups[key]
+        medium = member_rows[0].get("Medium", "") if member_rows else ""
+        body = size_for(member_rows, "body")
+        h1 = size_for(member_rows, "h1")
+        row_key_for_prov = member_rows[0].get("scale_row_key", "") if member_rows else ""
+        entry = {
+            "key": key,
+            "name": key,
+            "key_values": [f"Medium: {medium or NOT_PRESENT}",
+                           f"body: {body or NOT_PRESENT}pt",
+                           f"h1: {h1 or NOT_PRESENT}pt"],
+            "evidence": _provenance_line(provenance_rows, "type-scales", row_key_for_prov),
+        }
+        if scores_by_key is not None:
+            entry["score"] = round(scores_by_key[key], 4)
+        entries.append(entry)
+    return entries, method
+
+
+def cmd_library(argv):
+    """`ddi.py library <palettes|typefaces|type-scales|doc-styles>
+    [--query "<text>"] [--json] [--limit N] [--brand <slug>]`
+
+    Browses the grand library (data/base/{palettes,typefaces,type-scales,
+    doc-styles}.csv) with each entry's provenance evidence line. Only
+    Brand Scope=="generic" rows are shown unless --brand names a scope to
+    show instead -- no row in today's library carries any other Brand
+    Scope, so --brand is a no-op until a brand overlay authors one.
+    type-scales carries no Brand Scope column at all (it is not a
+    brand-scoped table), so that filter does not apply to it.
+
+    Exit codes: 0 printed successfully. 1 unknown library name, or a
+    tier-1 (structural) data problem. 2 bad usage (argparse).
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(prog="ddi.py library")
+    parser.add_argument("table", choices=LIBRARY_TABLES)
+    parser.add_argument("--query", default=None)
+    parser.add_argument("--json", action="store_true")
+    parser.add_argument("--limit", type=int, default=None)
+    parser.add_argument("--brand", default=None)
+    parser.add_argument("--data-dir", default=None)
+    args = parser.parse_args(argv)
+
+    data_dir = Path(args.data_dir) if args.data_dir else DEFAULT_DATA_DIR
+    datalib = resolve.datalib
+
+    tier1_ok, tier1_lines, _tier2, _summary = validate_data.validate_tiered(data_dir)
+    if not tier1_ok:
+        for line in tier1_lines:
+            print(line)
+        print(f"\n{len(tier1_lines)} structural problem(s) found -- refusing")
+        return 1
+
+    manifest = datalib.load_manifest(data_dir)
+    tables = manifest["tables"]
+    problems = datalib.ProblemLog()
+    all_rows = datalib.load_all_tables(data_dir, tables, problems)
+    provenance_rows = all_rows.get("provenance", [])
+
+    scope = args.brand or "generic"
+
+    if args.table == "type-scales":
+        entries, method = _library_type_scales(all_rows.get("type-scales", []), provenance_rows, args.query)
+    else:
+        rows = [r for r in all_rows.get(args.table, []) if r.get("Brand Scope", "") == scope]
+        entries, method = _library_simple(args.table, rows, provenance_rows, args.query)
+
+    if args.limit is not None:
+        entries = entries[: args.limit]
+
+    if args.json:
+        print(json.dumps(
+            {"table": args.table, "query": args.query, "method": method, "entries": entries},
+            indent=2,
+        ))
+        return 0
+
+    print(f"LIBRARY {args.table} (method={method})")
+    for e in entries:
+        print(f"  {e['name']}  [{e['key']}]")
+        for line in e["key_values"]:
+            print(f"    {line}")
+        print(f"    Evidence: {e['evidence']}")
+        if "score" in e:
+            print(f"    score: {e['score']}")
+    return 0
+
+
 COMMANDS = {
     "check": cmd_check,
     "resolve": cmd_resolve,
     "preflight": cmd_preflight,
     "handoff": cmd_handoff,
+    "designs": cmd_designs,
+    "library": cmd_library,
     "version": cmd_version,
 }
 
