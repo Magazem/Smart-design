@@ -1,21 +1,21 @@
 # rationale/headings.md
 
 Written by `research/load-base.py`. **Do not hand-edit** -- the source is the
-`source` column of the 4 heading inputs (`research/18-ats-headings.csv`, `research/39-headings-transactional-draft.csv`, `research/40-headings-longform-draft.csv`, `research/41-headings-marketing-draft.csv`).
+`source` column of the 5 heading inputs (`research/18-ats-headings.csv`, `research/39-headings-transactional-draft.csv`, `research/40-headings-longform-draft.csv`, `research/41-headings-marketing-draft.csv`, `research/43-headings-quote.csv`).
 
 Rule 2 (`09-library-schema.md:70`): rationale and provenance live in a sibling
 `rationale/<table>.md`, not in a column.
 
 T13 is the table where that citation carries the most weight and repeats the most:
-204 rows over 49 distinct citations. No single distinction runs through all of them,
+219 rows over 50 distinct citations. No single distinction runs through all of them,
 because the rows arrive from four inputs authored against different evidence.
 
 The 81 CV rows (`18-ats-headings.csv`) are the ones that measure themselves against **report 03**:
 6 name it as their source and 75 are convention, of which 59 carry the identical
 `convention (not in report 03)` string.
 
-The remaining 123 transactional, long-form and marketing rows are cited against
-different evidence, over 33 distinct strings. **Not one of them names report 03 as
+The remaining 138 transactional, long-form and marketing rows are cited against
+different evidence, over 34 distinct strings. **Not one of them names report 03 as
 a source.** 35 mention it at all, and only to disclaim it (`not in report 03`) --
 report 03 is a CV document, and these classes are outside it. 25 carry a `sourced`
 citation to a standard or convention of their own, and 86 name the phase A notes
@@ -61,6 +61,10 @@ Three worked examples, quoting the shipped rows:
 ### convention (standard report-writing convention; not in report 03)
 
 16 heading(s): `introduction-en-1`, `introduction-fr-1`, `introduction-de-1`, `findings-en-1`, `findings-fr-1`, `findings-de-1`, `conclusion-en-1`, `conclusion-fr-1`, `conclusion-de-1`, `recommendations-en-1`, `recommendations-fr-1`, `recommendations-de-1`, `appendices-en-1`, `appendices-fr-1`, `appendices-de-1`, `bibliography-en-1`
+
+### convention (quote-specific wording chosen so a quote does not inherit invoice headings; not from a fetched source)
+
+15 heading(s): `quote-for-en-1`, `quote-for-fr-1`, `quote-for-de-1`, `quote-details-en-1`, `quote-details-fr-1`, `quote-details-de-1`, `validity-en-1`, `validity-fr-1`, `validity-de-1`, `acceptance-en-1`, `acceptance-fr-1`, `acceptance-de-1`, `quote-issuer-en-1`, `quote-issuer-fr-1`, `quote-issuer-de-1`
 
 ### convention (generic hand-filled-form model, not a cited standard; see 39-notes.md)
 

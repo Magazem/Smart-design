@@ -52,3 +52,13 @@ own caveat, restated from research/69).
 Perfect Fourth = 1.333, also from modularscale.com's ratio table, chosen for Direction 4
 because it carries no ATS point-size ceiling (research/70: "a more expressive jump"). As above,
 the "3 steps" H1 convention is this project's derived convention, not a modularscale.com claim.
+
+### I7 gap fill (research/87 I7) -- CONVENTION
+
+A census of every doctype's resolved scale against its structure's `Heading Depth Max` found
+two scales missing heading roles the structure needs: `form-print` (no `h1`; used by
+form-handfilled, quote-devis, invoice-tabular) and `report-technical` (body only; used by
+whitepaper, depth 3). The added rows reuse the 11pt-body print ladder that `cv-print` and
+`report-print` already share: h1 24pt, h2 16pt, h3 12pt, leading ratio 1.20. Evidence Class
+`convention` (research/provenance/type-scales-i7-convention.csv); no external source is claimed.
+`report-screen` (body only) is used by no doctype and is left as is.

@@ -9,6 +9,7 @@ flyer-single-sheet,Flyer -- single sheet,headline;key-points;call-to-action;cont
 form-standard,Form -- standard,header;instructions;fields;signature;date,en,1,0,none,fig=below;table=above,numbered
 infographic-canvas,Infographic -- single canvas,headline;key-points;call-to-action,en,1,0,none,fig=below;table=above,numbered
 invoice-standard,Invoice -- standard,issuer;bill-to;invoice-details;line-items;totals;tax;payment-terms,en,1,0,none,fig=below;table=above,numbered
+quote-standard,Quote -- standard,quote-issuer;quote-for;quote-details;line-items;totals;tax;validity;acceptance,en,1,0,none,fig=below;table=above,numbered
 letter-standard,Letter -- formal business,sender;recipient;date;salutation;body;closing,en,0,0,none,fig=below;table=above,numbered
 memo-standard,Memo -- internal,to;from;date;subject;body,en,1,0,none,fig=below;table=above,numbered
 one-pager-standard,One-pager -- standard,headline;key-points;call-to-action;contact,en,2,0,none,fig=below;table=above,numbered

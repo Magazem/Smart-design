@@ -463,10 +463,6 @@ HANDOFF_EXCLUSIONS = {
                                  "layout, no page-formats row emitted -- research/24 section 3 item 2)",
             "Margin Top mm": "not applicable: pptx has no print page geometry (fixed slide "
                              "layout, no page-formats row emitted -- research/24 section 3 item 2)",
-            "Trim H mm": "not applicable: pptx has no print page geometry (fixed slide layout, "
-                        "no page-formats row emitted -- research/24 section 3 item 2)",
-            "Trim W mm": "not applicable: pptx has no print page geometry (fixed slide layout, "
-                        "no page-formats row emitted -- research/24 section 3 item 2)",
             "Columns": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
             "Fold Type": "not yet wired: backlog Fold Type / Panels mm -> research/64 D-C",
             "Folio Style": "not yet wired: backlog page-formats print-production columns (research/66 S2 DEFECT)",
@@ -1022,9 +1018,23 @@ def _build_pptx_lines(resolved, language):
     v = HANDOFF_VOCAB
     lines = []
 
-    lines.append("  slide layout (pptxgenjs default -- research/23 pptx:454; NOT a print page "
-                 "format, no page-formats row emitted -- research/24 section 3 item 2):")
-    lines.append(f"    {PPTX_DEFAULT_LAYOUT_NAME}: {PPTX_DEFAULT_LAYOUT_IN[0]}in x {PPTX_DEFAULT_LAYOUT_IN[1]}in")
+    page_row = _first_row(resolved, v["page_format_table"])
+    try:
+        w_in = round(float(page_row["Trim W mm"]) / 25.4, 3)
+        h_in = round(float(page_row["Trim H mm"]) / 25.4, 3)
+    except (TypeError, KeyError, ValueError):
+        w_in = h_in = None
+    if w_in and h_in:
+        # research/87 F5: pptxgenjs's built-in LAYOUT_16x9 is 10 x 5.625in, a third smaller
+        # than the resolved page-formats row (13.333 x 7.5in); the type sizes are authored
+        # for the row's size, so define a layout of exactly that trim.
+        lines.append(f"  slide layout (from page-formats {page_row.get('key', '')} trim; "
+                     "pptxgenjs `pres.defineLayout`, then `pres.layout = 'DDI_LAYOUT'`):")
+        lines.append(f"    DDI_LAYOUT: {w_in:g}in x {h_in:g}in")
+    else:
+        lines.append("  slide layout (pptxgenjs default -- research/23 pptx:454; no page-formats "
+                     "row resolved):")
+        lines.append(f"    {PPTX_DEFAULT_LAYOUT_NAME}: {PPTX_DEFAULT_LAYOUT_IN[0]}in x {PPTX_DEFAULT_LAYOUT_IN[1]}in")
 
     typeface_row = _first_row(resolved, v["typeface_table"])
     render_rows = [r for r in resolved.get(v["render_target_table"], [])

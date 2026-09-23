@@ -122,6 +122,10 @@ designs:invoice-tabular:1,designs,invoice-tabular,convention,,,,,2026-09-23,
 designs:deck-generic:1,designs,deck-generic,convention,,,,,2026-09-23,
 designs:one-pager-restrained:1,designs,one-pager-restrained,convention,,,,,2026-09-23,
 designs:infographic-scaffold:1,designs,infographic-scaffold,convention,,,,,2026-09-23,
+type-scales:report-technical-print-h3:1,type-scales,report-technical-print-h3,convention,,,,,2026-09-23,
+type-scales:report-technical-print-h2:1,type-scales,report-technical-print-h2,convention,,,,,2026-09-23,
+type-scales:report-technical-print-h1:1,type-scales,report-technical-print-h1,convention,,,,,2026-09-23,
+type-scales:form-print-print-h1:1,type-scales,form-print-print-h1,convention,,,,,2026-09-23,
 type-scales:lib-minor-third-print-print-label:1,type-scales,lib-minor-third-print-print-label,authority,modularscale.com named ratio: minor third 1.2 (5:6),https://www.modularscale.com/,,,2026-09-23,fetched
 type-scales:lib-minor-third-print-print-caption:1,type-scales,lib-minor-third-print-print-caption,authority,modularscale.com named ratio: minor third 1.2 (5:6),https://www.modularscale.com/,,,2026-09-23,fetched
 type-scales:lib-minor-third-print-print-body:1,type-scales,lib-minor-third-print-print-body,authority,modularscale.com named ratio: minor third 1.2 (5:6),https://www.modularscale.com/,,,2026-09-23,fetched

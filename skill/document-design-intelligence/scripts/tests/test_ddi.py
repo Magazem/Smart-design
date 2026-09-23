@@ -673,7 +673,7 @@ class TestPdfHandoffCarriesTypeScaleAndPalette(unittest.TestCase):
         self.assertTrue(
             values and any(v != ddi.NOT_PRESENT for v in values),
             f"quote-devis: pdf sections block is empty: {values}")
-        self.assertIn("issuer: From", values)
+        self.assertIn("quote-issuer: From", values)
 
 
 class TestPngHandoffBuilder(unittest.TestCase):

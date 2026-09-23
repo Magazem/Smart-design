@@ -114,3 +114,4 @@ This file is the live checklist. It is updated and committed after every milesto
 - 2026-09-24 Repo Keeper: f00e53c 82a C11 make_items_csv.py + cv-items.csv (80) + deck-items.csv (105 = 40 NPM + 40 LO + 25 MS); 282 passed, 1 skipped, 1 xfailed.
 - research/87 fixes landed (Implementer). Remaining from 87: I7 data fix (form-print scale lacks h1), I9, P4 (see 87),
   I8 = cut a release so the pack and the skill ZIP match (at v0.5.0). research/82a-clarifications-3.md (C13-C16) written.
+- 2026-09-24 Repo Keeper: b9a1cac poster MS + report L3 + 82a round 3 (docs only; code/data held for job 3).

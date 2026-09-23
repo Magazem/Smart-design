@@ -3,12 +3,16 @@
 Two ways to use this project's design rules, depending on whether your
 platform can execute code.
 
-## Claude.ai (no code execution needed, or with it)
+## Claude.ai
 
-Upload the `document-design-intelligence` skill ZIP from this project's
-GitHub Releases as a custom skill (Settings -> Capabilities -> Skills, or a
-Project's file upload for Projects). Claude then follows `SKILL.md` and runs
-`scripts/ddi.py` itself -- no extra setup.
+Skills **require code execution** to be enabled (individual plans: Settings >
+Capabilities). With it on, upload the `document-design-intelligence` skill ZIP
+from this project's GitHub Releases as a custom skill (Customize > Skills > +
+> Create skill > upload the ZIP). Claude then follows `SKILL.md` and runs
+`scripts/ddi.py` itself. Uploading the ZIP to a Project's files does NOT
+install a skill. With code execution off, use this portable pack instead: paste
+`AGENTS.md` into the Project's instructions and add `DDI-LIBRARY.md` as
+Project knowledge.
 
 ## Claude Code
 
@@ -19,11 +23,14 @@ your platform). `SKILL.md` activates the same way any other skill does.
 ## ChatGPT
 
 - **Custom GPT**: paste this pack's `AGENTS.md` into the GPT's Instructions
-  field, and upload `DDI-LIBRARY.md` as Knowledge. The GPT has no code
-  execution by default, so it follows `AGENTS.md`'s step-by-step instructions
-  and reads exact values out of `DDI-LIBRARY.md`.
-- **ChatGPT Project**: add `AGENTS.md` and `DDI-LIBRARY.md` as project files;
-  reference them in the project's custom instructions.
+  field (limit 8,000 characters; `AGENTS.md` is under it), and upload
+  `DDI-LIBRARY.md` as Knowledge. Unless you enable Code Interpreter & Data
+  Analysis in the GPT's Capabilities it cannot run code, so it follows
+  `AGENTS.md`'s instructions and reads exact values out of `DDI-LIBRARY.md`
+  (Knowledge is retrieved in chunks, not read whole -- each block is headed
+  with its doctype key for that reason).
+- **ChatGPT Project**: add `AGENTS.md` and `DDI-LIBRARY.md` as project files
+  and reference them in the project's instructions.
 - **Code Interpreter (Advanced Data Analysis)**: upload the skill ZIP instead
   and run `python3 scripts/ddi.py ...` directly -- this gets you the live
   per-request search and the mechanical `preflight` gate, which the static
@@ -36,10 +43,11 @@ been recorded here.
 
 ## Grok
 
-Add `AGENTS.md`'s contents to a Grok Project's custom instructions, and
-upload `DDI-LIBRARY.md` as a project knowledge file. **Untested by this
-project's maintainers** -- verify the two-file split is honoured the way it
-is described here before relying on it.
+Grok Projects (instructions + files) could not be verified against xAI's own
+documentation, so treat this as **unverified and untested**: add `AGENTS.md`'s
+contents to the project's instructions and upload `DDI-LIBRARY.md` as a project
+file. Fallback: paste `AGENTS.md` into Settings > Customize Grok and attach
+`DDI-LIBRARY.md` in each chat.
 
 ## Gemini Gems
 

@@ -29,6 +29,7 @@ the per-family designs table already carries as its own rows).
 from __future__ import annotations
 
 import ast
+import re
 import sys
 from pathlib import Path
 
@@ -109,6 +110,14 @@ def load_context(data_dir=None):
     tables_spec = manifest["tables"]
     problems = datalib.ProblemLog()
     all_rows = datalib.load_all_tables(data_dir, tables_spec, problems)
+    # G1 (research/87): load_all_tables merges every data/brand/<slug>/ overlay. A knowledge
+    # pack is generic by definition, so keep only rows that came from data/base -- this is
+    # table-agnostic (doc-reasoning and type-scales have no Brand Scope column).
+    base_dir = (data_dir / "base").resolve()
+    all_rows = {
+        name: [r for r in rows if base_dir in Path(r.get("__file__", base_dir / "x")).resolve().parents]
+        for name, rows in all_rows.items()
+    }
 
     families = list(tables_spec["doctypes"]["enums"]["Family"])  # manifest's own order
 
@@ -159,7 +168,7 @@ def _dedup_keep_order(items):
 
 def _page_format_lines(row):
     if not row:
-        return [f"  page format: {NOT_PRESENT}"]
+        return ["- page format: " + NOT_PRESENT]
     w, h = row.get("Trim W mm", ""), row.get("Trim H mm", "")
     top = row.get("Margin Top mm", "")
     bottom = row.get("Margin Bottom mm", "")
@@ -167,31 +176,41 @@ def _page_format_lines(row):
     outside = row.get("Margin Outside mm", "")
     bleed = row.get("Bleed mm", "")
     lines = [
-        f"  page format: {row.get('Display Name', '')} ({row.get('page_format_key', '')})",
-        f"    trim: {w}mm x {h}mm; margins top/bottom/inside/outside: "
+        f"- page format: {row.get('Display Name', '')} ({row.get('page_format_key', '')})",
+        f"  - trim: {w}mm x {h}mm; margins top/bottom/inside/outside: "
         f"{top}/{bottom}/{inside}/{outside}mm; bleed: {bleed or '0'}mm",
     ]
     columns = row.get("Columns", "")
     measure = row.get("Measure mm", "")
     if columns or measure:
-        lines.append(f"    columns: {columns or NOT_PRESENT}; measure: {measure or NOT_PRESENT}mm")
+        lines.append(f"  - columns: {columns or NOT_PRESENT}; measure: {measure or NOT_PRESENT}mm")
+    # F2 (research/87): every remaining non-empty print-geometry column
+    extras = [("safe margin", "Safe Margin mm", "mm"), ("fold", "Fold Type", ""),
+              ("panels", "Panels mm", "mm"), ("stock", "Stock gsm", "gsm"),
+              ("print mode", "Print Mode", ""), ("min DPI raster", "Min DPI Raster", ""),
+              ("min DPI line art", "Min DPI Line Art", ""), ("folio", "Folio Style", ""),
+              ("running head", "Running Head", "")]
+    parts = [f"{label}: {row.get(col, '')}{unit}" for label, col, unit in extras
+             if row.get(col, "") and row.get(col, "") != "none"]
+    if parts:
+        lines.append("  - print geometry: " + "; ".join(parts))
     return lines
 
 
 def _typeface_lines(typeface_row, scale_rows):
     if not typeface_row:
-        return [f"  typography: {NOT_PRESENT}"]
+        return ["- typography: " + NOT_PRESENT]
     heading = typeface_row.get("Heading Family", "")
     body = typeface_row.get("Body Family", "")
     heading_fb = typeface_row.get("Safe Stack Fallback", "")
     body_fb = typeface_row.get("Safe Stack Body Fallback", "") or heading_fb
     licence = typeface_row.get("Embedding Licence", "")
     lines = [
-        f"  typography: {typeface_row.get('Display Name', '')} "
+        f"- typography: {typeface_row.get('Display Name', '')} "
         f"({typeface_row.get('typeface_key', '')})",
-        f"    heading: {heading}  (safe-stack fallback: {heading_fb or NOT_PRESENT})",
-        f"    body: {body}  (safe-stack fallback: {body_fb or NOT_PRESENT})",
-        f"    embedding licence: {licence or NOT_PRESENT}",
+        f"  - heading: {heading}  (safe-stack fallback: {heading_fb or NOT_PRESENT})",
+        f"  - body: {body}  (safe-stack fallback: {body_fb or NOT_PRESENT})",
+        f"  - embedding licence: {licence or NOT_PRESENT}",
     ]
     by_medium = {}
     for row in scale_rows:
@@ -205,39 +224,49 @@ def _typeface_lines(typeface_row, scale_rows):
             if r:
                 parts.append(f"{role} {r.get('Size pt', '')}pt/{r.get('Leading Ratio', '')}")
         if parts:
-            lines.append(f"    type scale ({medium}): " + ", ".join(parts))
+            lines.append(f"  - type scale ({medium}): " + ", ".join(parts))
     return lines
 
 
 def _palette_lines(row):
     if not row:
-        return [f"  palette: {NOT_PRESENT}"]
+        return ["- palette: " + NOT_PRESENT]
     roles = ["Primary", "On Primary", "Secondary", "On Secondary", "Accent", "On Accent",
               "Background", "Foreground", "Muted", "On Muted"]
     hexes = ", ".join(f"{r}={row.get(r, '') or NOT_PRESENT}" for r in roles if row.get(r, ""))
     rules = (f"rule hair/strong/brand: {row.get('Rule Hair', '')}/"
              f"{row.get('Rule Strong', '')}/{row.get('Rule Brand', '') or NOT_PRESENT}")
     return [
-        f"  palette: {row.get('Display Name', '')} ({row.get('palette_key', '')})",
-        f"    {hexes}",
-        f"    {rules}",
+        f"- palette: {row.get('Display Name', '')} ({row.get('palette_key', '')})",
+        f"  - {hexes}",
+        f"  - {rules}",
+        f"  - {_palette_roles(row)}",
     ]
+
+
+def _palette_roles(row):
+    """F3 (research/87): which roles may carry text and which are fill-only."""
+    def roles(col):
+        return "; ".join(_split(row.get(col, ""))) or "none"
+    return (f"text-safe roles (may carry text on Background): {roles('Text-Safe Roles')}; "
+            f"fill-only roles (never set text in these): {roles('Fill-Only Roles')}; "
+            f"category-marker roles: {roles('Category Marker Roles')}")
 
 
 def _style_lines(row):
     if not row:
-        return [f"  style: {NOT_PRESENT}"]
+        return ["- style: " + NOT_PRESENT]
     lines = [
-        f"  style: {row.get('Display Name', '')} ({row.get('style_key', '')})",
-        f"    rules: hair {row.get('Rule Hair pt', '')}pt / strong {row.get('Rule Strong pt', '')}pt "
+        f"- style: {row.get('Display Name', '')} ({row.get('style_key', '')})",
+        f"  - rules: hair {row.get('Rule Hair pt', '')}pt / strong {row.get('Rule Strong pt', '')}pt "
         f"/ brand {row.get('Rule Brand pt', '') or '0'}pt; corner radius: "
         f"{row.get('Corner Radius mm', '') or '0'}mm",
-        f"    table rules: {row.get('Table Rules', '')}; table fills: {row.get('Table Fills', '')}; "
+        f"  - table rules: {row.get('Table Rules', '')}; table fills: {row.get('Table Fills', '')}; "
         f"emphasis: {row.get('Emphasis Mechanism', '')}; field style: {row.get('Field Style', '')}",
     ]
     checklist = _split(row.get("Checklist", ""))
     if checklist:
-        lines.append("    checklist: " + "; ".join(checklist))
+        lines.append("  - checklist: " + "; ".join(checklist))
     return lines
 
 
@@ -253,9 +282,9 @@ def _primary_headings_index(headings_rows):
 
 def _section_order_lines(section_order, headings_rows, label="section order"):
     if not section_order:
-        return [f"  {label}: {NOT_PRESENT}"]
+        return [f"- {label}: {NOT_PRESENT}"]
     index = _primary_headings_index(headings_rows)
-    lines = [f"  {label} (headings en / fr / de where authored):"]
+    lines = [f"- {label} (headings en / fr / de where authored):"]
     for section in section_order:
         per_lang = []
         for lang in ("en", "fr", "de"):
@@ -263,7 +292,7 @@ def _section_order_lines(section_order, headings_rows, label="section order"):
             if text:
                 per_lang.append(f"{lang}: {text}")
         wording = " / ".join(per_lang) if per_lang else NOT_PRESENT
-        lines.append(f"    {section} -- {wording}")
+        lines.append(f"  - {section} -- {wording}")
     return lines
 
 
@@ -271,52 +300,117 @@ def _cv_region_lines(resolved):
     rows = resolved.get("cv-regions", [])
     if not rows:
         return []
-    lines = ["  regional CV variants (Seniority Band; Photo/DoB/Marital/Visa field norms):"]
+    lines = ["- regional CV variants (a variant's section order OVERRIDES the structure order above "
+             "for that region and seniority band; photo: customary = include only if the user "
+             "supplies one, negative-signal = omit):"]
     for row in sorted(rows, key=lambda r: (r.get("region_key", ""), r.get("Seniority Band", ""))):
         lines.append(
-            f"    [{row.get('cv_region_key', '')}] band={row.get('Seniority Band', '')}, "
+            f"  - [{row.get('cv_region_key', '')}] band={row.get('Seniority Band', '')}, "
             f"max pages={row.get('Max Pages', '')}, photo={row.get('Photo', '')}, "
             f"date of birth={row.get('Date of Birth', '')}, marital status={row.get('Marital Status', '')}, "
-            f"visa status={row.get('Visa Status', '')}, format={row.get('Format', '')}"
+            f"visa status={row.get('Visa Status', '')}, format={row.get('Format', '')}, "
+            f"education before experience={row.get('Education Before Experience', '')}"
         )
         section_order = _split(row.get("Section Order", ""))
         if section_order:
-            lines.append(f"      section order: {'; '.join(section_order)}")
+            lines.append(f"    - section order: {'; '.join(section_order)}")
     return lines
 
 
-def _constraints_lines(resolved):
+_REF_RE = re.compile(r"^[a-z][a-z-]*:[A-Za-z][A-Za-z0-9 -]*$")
+
+
+def _threshold_text(threshold, resolved, tables_spec):
+    """F1: a `table:Column` threshold is a reference -- print the value(s) it points to
+    in this doctype's resolved rows, not the reference."""
+    if not threshold:
+        return ""
+    if not _REF_RE.match(threshold):
+        return threshold
+    table, column = threshold.split(":", 1)
+    rows = resolved.get(table, [])
+    key_col = tables_spec.get(table, {}).get("key_column", "")
+    vals = [(r.get(key_col, ""), r.get(column, "")) for r in rows if r.get(column, "")]
+    if not vals:
+        return f"{threshold} (not resolved for this doctype)"
+    if len({v for _, v in vals}) == 1:
+        return vals[0][1]
+    return "; ".join(f"{k}={v}" for k, v in vals)
+
+
+def _constraints_lines(resolved, tables_spec):
     rows = resolved.get("constraints", [])
     if not rows:
-        return [f"  key constraints: {NOT_PRESENT}"]
+        return [f"- key constraints: {NOT_PRESENT}"]
     by_set = {}
     for row in rows:
         by_set.setdefault(row.get("Set Key", ""), []).append(row)
-    lines = ["  key constraints (Set Key: Check -- severity):"]
+    lines = ["- key constraints ([Set Key] Check: Parameter = limit -- severity [applies to]):"]
     for set_key in sorted(by_set):
         for row in by_set[set_key]:
+            param = row.get("Parameter", "")
+            limit = _threshold_text(row.get("Threshold", ""), resolved, tables_spec)
+            expr = f"{param} = {limit}" if param and limit else (param or limit or "no parameter")
             lines.append(
-                f"    [{set_key}] {row.get('Check', '')} "
-                f"({row.get('Parameter', '') or 'no parameter'}) -- {row.get('Severity', '')}"
+                f"  - [{set_key}] {row.get('Check', '')}: {expr} -- {row.get('Severity', '')} "
+                f"[{row.get('Applies To', '')}]"
             )
     return lines
 
 
-def _doctype_section(doc_key, doctype_row, resolved):
+def _reasoning_lines(resolved):
+    """F6: the doctype's own anti-pattern tokens (with severity) and Doc Conditions."""
+    row = _first(resolved, "doc-reasoning")
+    if not row:
+        return []
+    lines = []
+    tokens = _split(row.get("Anti-Pattern Tokens", ""))
+    if tokens:
+        lines.append(f"- anti-patterns ({row.get('Severity', '')}): " + "; ".join(tokens))
+    if row.get("Doc Conditions", ""):
+        lines.append("- conditional constraints (apply the named constraint set only when the "
+                     "condition holds): " + row["Doc Conditions"].replace("=", " -> "))
+    return lines
+
+
+def _render_lines(resolved):
+    """F4: per-format font rule for this doctype's render targets."""
+    rows = resolved.get("render-targets", [])
+    if not rows:
+        return []
+    parts = sorted({f"{r.get('Format', '')} = {r.get('Font Rule', '')}" for r in rows})
+    return ["- font rule by output format: " + "; ".join(parts)]
+
+
+def _doctype_section(doc_key, doctype_row, resolved, tables_spec):
     lines = [f"### {doctype_row.get('Display Name', '')} (`{doc_key}`)", ""]
     keywords = _split(doctype_row.get("Keywords", ""), ",")
     if keywords:
-        lines.append(f"  trigger keywords: {', '.join(keywords[:10])}")
-    lines.append(f"  language: {doctype_row.get('Default Language', 'en')}")
+        lines.append(f"- trigger keywords: {', '.join(keywords[:10])}")
+    lines.append(f"- language: {doctype_row.get('Default Language', 'en')}")
+    lines.append("")
+    lines.append(f"#### {doc_key} -- page / type / colour / style")
+    lines.append("")
     lines.extend(_page_format_lines(_first(resolved, "page-formats")))
     lines.extend(_typeface_lines(_first(resolved, "typefaces"), resolved.get("type-scales", [])))
     lines.extend(_palette_lines(_first(resolved, "palettes")))
     lines.extend(_style_lines(_first(resolved, "doc-styles")))
+    lines.extend(_render_lines(resolved))
+    lines.append("")
+    lines.append(f"#### {doc_key} -- structure / constraints")
+    lines.append("")
     structure_row = _first(resolved, "structures")
     section_order = _split(structure_row.get("Section Order", "")) if structure_row else []
     lines.extend(_section_order_lines(section_order, resolved.get("headings", [])))
+    if structure_row:
+        extra = [f"{label}: {structure_row.get(col, '')}" for label, col in
+                 (("caption position", "Caption Position"), ("cross-refs", "Cross-Ref Style"))
+                 if structure_row.get(col, "")]
+        if extra:
+            lines.append("- " + "; ".join(extra))
     lines.extend(_cv_region_lines(resolved))
-    lines.extend(_constraints_lines(resolved))
+    lines.extend(_reasoning_lines(resolved))
+    lines.extend(_constraints_lines(resolved, tables_spec))
     lines.append("")
     return lines
 
@@ -329,7 +423,10 @@ def _provenance_line(provenance_rows, table_name, row_key):
     if not matches:
         return "(no provenance recorded)"
     row = matches[0]
-    source = row.get("Source Name", "") or "(unnamed source)"
+    source = row.get("Source Name", "")
+    if not source:
+        source = ("(convention -- no external source)"
+                  if row.get("Evidence Class", "") == "convention" else "(unnamed source)")
     metric, value = row.get("Ranking Metric", ""), row.get("Rank Value", "")
     if metric and value:
         return f"{source} ({metric}: {value})"
@@ -348,7 +445,7 @@ def _designs_table(family, ctx):
         return []
     doc_reasoning_by_key = ctx["rows_by_key"].get("doc-reasoning", {})
     provenance_rows = ctx["all_rows"].get("provenance", [])
-    lines = ["### Designs (ranked)", "",
+    lines = [f"### Designs (ranked) -- family: {family}", "",
              "| Rank | Design (key) | Evidence | Best for | Style / Palette / Typeface | Provenance |",
              "|---|---|---|---|---|---|"]
     for row in family_designs:
@@ -374,11 +471,14 @@ def _grand_library_palettes(ctx):
     provenance_rows = ctx["all_rows"].get("provenance", [])
     lines = ["### Palettes (generic, hex by role)", ""]
     for row in sorted(rows, key=lambda r: r.get("palette_key", "")):
-        roles = ["Primary", "Secondary", "Accent", "Background", "Foreground", "Muted"]
+        roles = ["Primary", "On Primary", "Secondary", "On Secondary", "Accent", "On Accent",
+                 "Background", "Foreground", "Muted", "On Muted"]
         hexes = ", ".join(f"{r}={row.get(r, '')}" for r in roles if row.get(r, ""))
         evidence = _provenance_line(provenance_rows, "palettes", row.get("palette_key", ""))
         lines.append(f"- **{row.get('Display Name', '')}** (`{row.get('palette_key', '')}`): "
-                     f"{hexes} -- {evidence}")
+                     f"{hexes}; rule hair/strong/brand: {row.get('Rule Hair', '')}/"
+                     f"{row.get('Rule Strong', '')}/{row.get('Rule Brand', '') or NOT_PRESENT}; "
+                     f"{_palette_roles(row)} -- {evidence}")
     lines.append("")
     return lines
 
@@ -396,7 +496,8 @@ def _grand_library_typefaces(ctx):
         lines.append(
             f"- **{row.get('Display Name', '')}** (`{row.get('typeface_key', '')}`): "
             f"heading {heading} / body {body} (fallback {fallback} / {body_fallback}); "
-            f"licence {licence}; scale {row.get('Scale Key', '') or NOT_PRESENT} -- {evidence}"
+            f"licence {licence}; tabular figures: {row.get('Has Tabular Figures', '') or NOT_PRESENT}; "
+            f"type scale to use with it: {row.get('Scale Key', '') or NOT_PRESENT} -- {evidence}"
         )
     lines.append("")
     return lines
@@ -428,39 +529,70 @@ def _grand_library_type_scales(ctx):
     return lines
 
 
+def _grand_library_doc_styles(ctx):
+    """I2: a design's Style Key must be resolvable inside the pack."""
+    rows = [r for r in ctx["all_rows"].get("doc-styles", []) if r.get("Brand Scope", "") == "generic"]
+    lines = ["### Doc styles (generic; a design's Style Key points here)", ""]
+    for row in sorted(rows, key=lambda r: r.get("style_key", "")):
+        lines.extend(_style_lines(row))
+    lines.append("")
+    return lines
+
+
+def _grand_library_output_formats(ctx):
+    """F4: font rule per output format, and the metric-identical font substitutes."""
+    targets = ctx["all_rows"].get("render-targets", [])
+    rules = {}
+    for r in targets:
+        rules.setdefault(r.get("Format", ""), set()).add(r.get("Font Rule", ""))
+    lines = ["### Font rule by output format", "",
+             "`safe-stack` = name the design's safe-stack fallback fonts (the design's own font "
+             "may not be installed on the reader's machine); `embed` = the design's own fonts "
+             "may be embedded; `inline-webfont` = webfont in the HTML.", ""]
+    for fmt in sorted(rules):
+        lines.append(f"- {fmt}: {' / '.join(sorted(x for x in rules[fmt] if x))}")
+    lines += ["", "### Font substitutes (metric-identical replacements when a proprietary font is "
+              "not installed)", ""]
+    for r in sorted(ctx["all_rows"].get("font-substitutes", []), key=lambda r: r.get("substitute_key", "")):
+        lines.append(f"- {r.get('proprietary_family', '')} -> {r.get('Substitute Family', '')} "
+                     f"({r.get('Licence', '')}; metric identical: {r.get('Metric Identical', '')}; "
+                     f"weights: {r.get('Weights Covered', '')})")
+    lines.append("")
+    return lines
+
+
 def _anti_slop_checklist(ctx):
     """Built only from shipped data (data/base/constraints.csv's slop-mechanical
     Set Key, plus doc-reasoning.csv's Anti-Pattern Tokens) -- short item names, not
-    research prose, per research/80-v05-plan.md section 5 / research/68-slop-
-    patterns.md's own note that research prose stays out of shipped tables."""
+    research prose."""
     lines = ["## Anti-slop checklist", "", "Mechanical checks (data/base/constraints.csv, "
              "Set Key `slop-mechanical`):", ""]
     constraint_rows = [r for r in ctx["all_rows"].get("constraints", [])
                         if r.get("Set Key", "") == "slop-mechanical"]
-    # Several rows repeat the same Check/Parameter/Severity once per format
-    # (docx, pptx, ...) via a distinct `constraint_key` -- grouped here by
-    # what the check actually verifies, with the formats/doctypes it Applies
-    # To folded in, instead of printing the same line once per format.
     grouped = {}
     for row in constraint_rows:
-        check_key = (row.get("Check", ""), row.get("Parameter", ""), row.get("Severity", ""))
+        check_key = (row.get("Check", ""), row.get("Parameter", ""), row.get("Threshold", ""),
+                     row.get("Severity", ""))
         grouped.setdefault(check_key, []).append(row.get("Applies To", ""))
-    for (check, parameter, severity) in sorted(grouped):
-        applies_to = ", ".join(sorted(set(grouped[(check, parameter, severity)])))
-        lines.append(f"- {check} ({parameter}) -- {severity} -- applies to: {applies_to}")
+    for (check, parameter, threshold, severity) in sorted(grouped):
+        applies_to = ", ".join(sorted(set(grouped[(check, parameter, threshold, severity)])))
+        limit = f" = {threshold}" if threshold else ""
+        lines.append(f"- {check} ({parameter}{limit}) -- {severity} -- applies to: {applies_to}")
     lines.append("")
 
-    token_severity = {}
+    # G2: severity belongs to the (token, doc_category) pair, never folded across categories
+    per_token = {}
     for row in ctx["all_rows"].get("doc-reasoning", []):
-        severity = row.get("Severity", "")
         for token in _split(row.get("Anti-Pattern Tokens", "")):
-            if token_severity.get(token) != "fail":
-                token_severity[token] = severity if severity == "fail" else token_severity.get(token, severity)
-    lines.append("Anti-pattern tokens (data/base/doc-reasoning.csv, worst severity across "
-                 "every doc_category that lists the token):")
+            per_token.setdefault(token, {}).setdefault(row.get("Severity", ""), []).append(
+                row.get("doc_category", ""))
+    lines.append("Anti-pattern tokens (data/base/doc-reasoning.csv). A token is forbidden ONLY "
+                 "in the doc categories listed against it, at that severity -- each doctype's "
+                 "own `anti-patterns` line names its category's tokens:")
     lines.append("")
-    for token in sorted(token_severity):
-        lines.append(f"- `{token}` -- {token_severity[token]}")
+    for token in sorted(per_token):
+        sev = "; ".join(f"{sv}: {', '.join(sorted(cats))}" for sv, cats in sorted(per_token[token].items()))
+        lines.append(f"- `{token}` -- {sev}")
     lines.append("")
     return lines
 
@@ -488,7 +620,7 @@ def build_ddi_library_md(ctx):
         for row in family_doctypes:
             doc_key = row.get("doc_key", "")
             resolved = ctx["resolved_by_doctype"][doc_key]
-            lines.extend(_doctype_section(doc_key, row, resolved))
+            lines.extend(_doctype_section(doc_key, row, resolved, ctx["tables_spec"]))
         lines.extend(_designs_table(family, ctx))
 
     lines.append("## Grand library")
@@ -496,6 +628,8 @@ def build_ddi_library_md(ctx):
     lines.extend(_grand_library_palettes(ctx))
     lines.extend(_grand_library_typefaces(ctx))
     lines.extend(_grand_library_type_scales(ctx))
+    lines.extend(_grand_library_doc_styles(ctx))
+    lines.extend(_grand_library_output_formats(ctx))
     lines.extend(_anti_slop_checklist(ctx))
 
     return "\n".join(lines).rstrip("\n") + "\n"
@@ -505,21 +639,30 @@ def build_ddi_library_md(ctx):
 # AGENTS.md
 # =============================================================================
 
+TRIGGERS_PER_FAMILY = 6
+TRIGGER_MAX_LEN = 24
+
+
 def _family_triggers(ctx):
-    """{family: [keyword, ...]} -- deduplicated Keywords tokens pooled across
-    every doctype in that family, in first-seen order, capped so the whole
-    table stays inside AGENTS.md's character budget. Read off shipped data
-    (doctypes.Keywords) rather than hand-authored, so this cannot drift from
-    SKILL.md's own trigger words."""
+    """{family: [keyword, ...]} read off shipped doctypes.Keywords. Round-robin: one
+    keyword per doctype in turn (doctypes sorted by key, each doctype's own keyword
+    order), so no single doctype fills the list (research/87 I1); over-long phrases are
+    skipped and the family's own bare noun is always present."""
     doctypes_by_family = {}
     for row in ctx["all_rows"]["doctypes"]:
         doctypes_by_family.setdefault(row.get("Family", ""), []).append(row)
     out = {}
     for family in ctx["families"]:
+        lists = [[k for k in _split(r.get("Keywords", ""), ",") if len(k) <= TRIGGER_MAX_LEN]
+                 for r in sorted(doctypes_by_family.get(family, []), key=lambda r: r.get("doc_key", ""))]
         pooled = []
-        for row in sorted(doctypes_by_family.get(family, []), key=lambda r: r.get("doc_key", "")):
-            pooled.extend(_split(row.get("Keywords", ""), ","))
-        out[family] = _dedup_keep_order(pooled)[:6]
+        for i in range(max((len(l) for l in lists), default=0)):
+            pooled.extend(l[i] for l in lists if i < len(l))
+        words = _dedup_keep_order(pooled)[:TRIGGERS_PER_FAMILY]
+        noun = family.replace("-", " ")
+        if lists and noun not in words and family not in words:
+            words = [noun] + words[:TRIGGERS_PER_FAMILY - 1]
+        out[family] = words
     return out
 
 
@@ -535,98 +678,81 @@ def build_agents_md(ctx):
     text = f"""# AGENTS.md -- Document Design Intelligence (portable)
 
 Operating instructions for ANY AI agent producing a print/office document (CV,
-cover letter, letter, memo, form, brochure, flyer, poster, report, whitepaper,
-proposal, quote, invoice, slide deck, one-pager, infographic) -- Claude,
-ChatGPT, Grok, Gemini, or any other assistant, with or without code execution.
-Read this file, then open `DDI-LIBRARY.md` for the exact values it references.
+letter, memo, form, brochure, flyer, poster, report, whitepaper, proposal, quote,
+invoice, slide deck, one-pager, infographic), with or without code execution.
+Read this file, then use `DDI-LIBRARY.md` for the exact values it references.
 
 ## 1. Identify the family and doctype
 
-Match the user's request against a family below by its trigger words (the
-request need not use these exact words -- match on intent, e.g. "Lebenslauf"
-or "note interne" both count):
+Match the request to a family by intent (e.g. "Lebenslauf", "note interne"):
 
 {chr(10).join(family_lines)}
 
-Once you have a family, open `DDI-LIBRARY.md`'s `## Family: <family>` section
-and pick the specific doctype whose trigger keywords and region/language best
-match the request (e.g. family `cv` has separate doctypes for `cv-us`,
-`cv-uk`, `cv-dach`, `cv-eu-europass`, `cv-academic`, ...).
+Open `DDI-LIBRARY.md` `## Family: <family>` and pick the doctype whose keywords
+and region/language fit (family `cv`: `cv-us`, `cv-uk`, `cv-dach`, ...). CV with
+no country stated: ask once for the target country, or use `cv-generic` and say
+so. Write in the user's language; a doctype's `language:` is only a default.
 
 ## 2. Pick a design
 
-Every doctype has a default design (the first one in that family's "Designs
-(ranked)" table whose Style/Palette/Typeface match the doctype's own resolved
-values in `DDI-LIBRARY.md`). Use the default UNLESS the user states a style,
-tone, or industry preference ("editorial", "formal DACH-style", "for a design
-portfolio") -- in that case, list the family's top 3 ranked designs (name,
-evidence class, best for) and ask which one they want, then apply THAT
-design's own Style/Palette/Typeface keys instead of the default.
+The default design is the family design whose Style/Palette/Typeface equal the
+doctype's own. Use it UNLESS the user states a style, tone or industry
+("editorial", "for a design portfolio"): then list up to 3 designs from the
+family's "Designs (ranked)" table whose Best-for fits their wording (fewer if
+the family has fewer) and ask. An override replaces Style/Palette/Typeface with
+the design's: look them up under `## Grand library` (Doc styles, Palettes,
+Typeface pairings) and use the typeface's own type scale. Page format, section
+order and constraints stay the doctype's.
 
-## 3. Apply EXACT values from the pack
+## 3. Apply EXACT values
 
-For the chosen doctype (and design, if overridden), copy from `DDI-LIBRARY.md`
-verbatim:
-  - page format: trim size + all four margins + bleed
-  - fonts: heading and body family, with their safe-stack fallback if you
-    cannot embed a font
-  - type scale: size and leading per role (h1/h2/h3/lead/body/caption/label)
-  - palette: hex value per role (primary/secondary/accent/background/
-    foreground/muted) -- every pack palette already meets WCAG 4.5:1 text
-    contrast on its own text-safe role pairs
-  - section order and headings, in the user's own language (en/fr/de) where
-    authored; if a section has no wording in that language, use whichever
-    language IS authored and say so
-  - the doc style's rule weights, table rules/fills, emphasis mechanism, and
-    its checklist items
-  - the doctype's key constraints and their severity (fail = must fix before
-    delivering; warn = flag it, deliver anyway)
+Copy verbatim from the doctype block (and chosen design): page format (trim,
+margins, bleed, print geometry: panels, DPI, folio), fonts, type scale, palette
+hexes, the doc style's rules/tables/emphasis/checklist, section order with
+headings, the doctype's anti-patterns and constraints WITH their limits.
+- Fonts: obey the block's `font rule by output format`: `safe-stack` (docx)
+  means name the fallback fonts, not the design's own; `embed` may use the
+  design's fonts.
+- Colour: text only in text-safe roles; fill-only roles are fills, never text.
+- Missing role size (e.g. no h1): reuse the nearest listed role with weight
+  emphasis; never create a size.
+- CV: the regional variant for the user's country and seniority band (early =
+  under ~3 years or a recent graduate) sets section order and limits over the
+  structure order. Photo only if the variant says `customary` AND the user
+  supplies one; ATS-strict target: never.
+- `conditional constraints` apply only when their condition holds (e.g.
+  professional-print only if going to a print shop).
 
 ## 4. Never invent
 
-Never introduce a font, colour, or size that is not in the resolved doctype's
-own block in `DDI-LIBRARY.md`. Never add multi-column layouts, text boxes,
-icon-only skill bars, photos, gradients, emoji, or decorative borders unless
-the doctype's own style/checklist explicitly allows them -- see the anti-slop
-checklist below.
+No font, colour or size outside the doctype block or the chosen design's
+resolved values. Add no layout or decoration the doctype's own anti-patterns,
+style and checklist forbid; an anti-pattern listed for another category does
+not bind this one.
 
-## 5. Anti-slop checklist (run before returning the document)
+## 5. Check before returning
 
-`DDI-LIBRARY.md`'s `## Anti-slop checklist` lists every mechanical check and
-anti-pattern token this library ships. Before returning a document, check it
-does not contain any `fail`-severity item; flag (do not silently ignore)
-`warn`-severity items to the user. A resolved doctype's own key-constraints
-list (in its `DDI-LIBRARY.md` block) may add doctype-specific fail items on
-top of these.
+Check the document against its doctype's `anti-patterns` and `key constraints`
+and the `## Anti-slop checklist`. `fail` = fix before delivering; `warn` = flag
+it. Checks you cannot verify without tools (embedded fonts, PDF/X, DPI): list
+them as "unverified", never as passed.
 
-## 6. Prefer code execution when it is available
+## 6. Delivering without code execution
 
-If you can run python3, prefer the actual skill instead of this pack: fetch
-the `document-design-intelligence` skill ZIP (see `INSTALL.md`) and run
-`python3 scripts/ddi.py resolve --query "<request>" --json`, then
-`ddi.py handoff --json <result> --format docx|pptx|pdf|png`, then render and
-run `ddi.py preflight <file>` on the result. That path resolves the SAME data
-this pack is generated from, with live per-request search and a mechanical
-preflight gate this static pack cannot run for you.
+Never claim to have produced a .docx/.pptx/.pdf you did not create. Deliver
+either (1) one self-contained HTML file (CSS `@page` size and margins, font stack
+with fallback, exact hex and pt values) to print or save as PDF, or (2) the
+content in section order plus an exact style sheet (named styles: font, size,
+leading, colour per role; page setup and margins) to apply in Word/PowerPoint.
+With code: install the skill ZIP (see `INSTALL.md`) and run `python3
+scripts/ddi.py resolve --query "<request>" --json`, then `ddi.py handoff`, render,
+`ddi.py preflight` -- same data, plus live search and a mechanical gate.
 
-## 7. Building a brand kit from the grand library
+## 7. Brand kit from the grand library (no code)
 
-If the user wants their own brand's document instead of a generic one, and
-you have no code execution (so `make_brand_kit.py` is not available), compose
-one by hand from `DDI-LIBRARY.md`'s `## Grand library`:
-  - **Palette**: pick one generic palette whose tone matches the brand (e.g.
-    restrained/neutral vs. high-contrast/bold); every listed palette already
-    satisfies >=4.5:1 text contrast on its text-safe role pairs, so picking
-    ANY one keeps that guarantee -- do not hand-mix roles from two palettes.
-  - **Typeface pairing**: pick one pairing; keep it to the pairing's own
-    families (heading + body -- at most 2 families total; do not add a third
-    "just for emphasis", per the anti-slop checklist's font-family-count
-    rule).
-  - **Type scale**: pick the scale grouped for the right medium (print /
-    projection / screen) for the doctype's own artifact class.
-  - Apply the picked palette/pairing/scale the same way step 3 above applies
-    a doctype's own resolved values -- do not invent a hex, family, or size
-    outside the two tables you picked from.
+Pick ONE palette (never mix roles across palettes), ONE typeface pairing (max 2
+families) and the pairing's own type scale; use them as in step 3. Invent no hex,
+family or size outside those three tables.
 """
     return text
 
@@ -640,12 +766,16 @@ INSTALL_MD = """# Installing the Document Design Intelligence pack
 Two ways to use this project's design rules, depending on whether your
 platform can execute code.
 
-## Claude.ai (no code execution needed, or with it)
+## Claude.ai
 
-Upload the `document-design-intelligence` skill ZIP from this project's
-GitHub Releases as a custom skill (Settings -> Capabilities -> Skills, or a
-Project's file upload for Projects). Claude then follows `SKILL.md` and runs
-`scripts/ddi.py` itself -- no extra setup.
+Skills **require code execution** to be enabled (individual plans: Settings >
+Capabilities). With it on, upload the `document-design-intelligence` skill ZIP
+from this project's GitHub Releases as a custom skill (Customize > Skills > +
+> Create skill > upload the ZIP). Claude then follows `SKILL.md` and runs
+`scripts/ddi.py` itself. Uploading the ZIP to a Project's files does NOT
+install a skill. With code execution off, use this portable pack instead: paste
+`AGENTS.md` into the Project's instructions and add `DDI-LIBRARY.md` as
+Project knowledge.
 
 ## Claude Code
 
@@ -656,11 +786,14 @@ your platform). `SKILL.md` activates the same way any other skill does.
 ## ChatGPT
 
 - **Custom GPT**: paste this pack's `AGENTS.md` into the GPT's Instructions
-  field, and upload `DDI-LIBRARY.md` as Knowledge. The GPT has no code
-  execution by default, so it follows `AGENTS.md`'s step-by-step instructions
-  and reads exact values out of `DDI-LIBRARY.md`.
-- **ChatGPT Project**: add `AGENTS.md` and `DDI-LIBRARY.md` as project files;
-  reference them in the project's custom instructions.
+  field (limit 8,000 characters; `AGENTS.md` is under it), and upload
+  `DDI-LIBRARY.md` as Knowledge. Unless you enable Code Interpreter & Data
+  Analysis in the GPT's Capabilities it cannot run code, so it follows
+  `AGENTS.md`'s instructions and reads exact values out of `DDI-LIBRARY.md`
+  (Knowledge is retrieved in chunks, not read whole -- each block is headed
+  with its doctype key for that reason).
+- **ChatGPT Project**: add `AGENTS.md` and `DDI-LIBRARY.md` as project files
+  and reference them in the project's instructions.
 - **Code Interpreter (Advanced Data Analysis)**: upload the skill ZIP instead
   and run `python3 scripts/ddi.py ...` directly -- this gets you the live
   per-request search and the mechanical `preflight` gate, which the static
@@ -673,10 +806,11 @@ been recorded here.
 
 ## Grok
 
-Add `AGENTS.md`'s contents to a Grok Project's custom instructions, and
-upload `DDI-LIBRARY.md` as a project knowledge file. **Untested by this
-project's maintainers** -- verify the two-file split is honoured the way it
-is described here before relying on it.
+Grok Projects (instructions + files) could not be verified against xAI's own
+documentation, so treat this as **unverified and untested**: add `AGENTS.md`'s
+contents to the project's instructions and upload `DDI-LIBRARY.md` as a project
+file. Fallback: paste `AGENTS.md` into Settings > Customize Grok and attach
+`DDI-LIBRARY.md` in each chat.
 
 ## Gemini Gems
 

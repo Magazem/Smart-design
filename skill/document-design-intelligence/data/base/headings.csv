@@ -203,3 +203,18 @@ call-to-action-de-1,call-to-action,Handlungsaufruf,de,yes
 agenda-en-1,agenda,Agenda,en,yes
 agenda-fr-1,agenda,Agenda,fr,yes
 agenda-de-1,agenda,Agenda,de,yes
+quote-for-en-1,quote-for,Quote For,en,yes
+quote-for-fr-1,quote-for,Devis pour,fr,yes
+quote-for-de-1,quote-for,Angebot für,de,yes
+quote-details-en-1,quote-details,Quote Details,en,yes
+quote-details-fr-1,quote-details,Détail du devis,fr,yes
+quote-details-de-1,quote-details,Angebotsdetails,de,yes
+validity-en-1,validity,Valid Until,en,yes
+validity-fr-1,validity,Date de validité,fr,yes
+validity-de-1,validity,Gültig bis,de,yes
+acceptance-en-1,acceptance,Acceptance,en,yes
+acceptance-fr-1,acceptance,Bon pour accord,fr,yes
+acceptance-de-1,acceptance,Annahme,de,yes
+quote-issuer-en-1,quote-issuer,From,en,yes
+quote-issuer-fr-1,quote-issuer,Émetteur,fr,yes
+quote-issuer-de-1,quote-issuer,Anbieter,de,yes
