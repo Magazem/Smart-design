@@ -8,12 +8,18 @@ the exact v0.1.0 blocker, reintroduced by the fix for it. Nothing in the suite
 noticed, because nothing compared the committed file to what the generator emits.
 
 This does. Regenerate into a temp directory and compare BYTES with the committed
-copy. Bytes, not text: `Path.read_text` opens in universal-newlines mode and
-silently folds CRLF to LF on read, which would make a line-ending comparison
-pass no matter what -- and line endings are the one axis a Windows working copy
-(CRLF on disk, LF in git's object store) is most likely to differ on. Both sides
-here are read as bytes off a Windows filesystem, so this compares CRLF against
-freshly-generated CRLF.
+copy, after normalizing CRLF -> LF on both sides. Bytes, not text: `Path.read_text`
+opens in universal-newlines mode and would silently fold CRLF to LF AND mask a
+real single-`\r` or mixed-newline corruption -- so this reads both sides as bytes
+and does the CRLF fold itself, deliberately, rather than relying on text mode.
+
+Line endings are NOT a signal worth failing on here: RESUME.md's "TWO MANIFEST
+HASHES" note records that the generator (this test's GENERATOR) emits LF, git
+stores LF (`i/lf` per .gitattributes), and a Windows working copy legitimately
+checks the same content out as CRLF -- both forms are correct, simultaneously,
+by design. Normalizing before comparing keeps this test doing its actual job
+(catching a HAND-EDIT of the manifest's content) without also failing on the
+checkout's own line-ending convention, which git/.gitattributes already own.
 
 The generator lives in research/, OUTSIDE the skill root, and build_zip.py drops
 `tests/` from the ZIP anyway -- so this test skips rather than fails wherever the
@@ -48,11 +54,18 @@ class TestManifestIsGeneratorOutput(unittest.TestCase):
         self.assertEqual(proc.returncode, 0, proc.stderr)
         return Path(tmp) / "data" / "schema-manifest.json"
 
+    @staticmethod
+    def _normalize_newlines(data):
+        """CRLF -> LF only; leaves a lone `\r` (which no legitimate generator
+        or checkout produces here) as a real difference."""
+        return data.replace(b"\r\n", b"\n")
+
     def test_committed_manifest_is_byte_identical_to_a_fresh_generation(self):
         with tempfile.TemporaryDirectory() as tmp:
             fresh = self._regenerate(tmp)
             self.assertEqual(
-                fresh.read_bytes(), MANIFEST.read_bytes(),
+                self._normalize_newlines(fresh.read_bytes()),
+                self._normalize_newlines(MANIFEST.read_bytes()),
                 "data/schema-manifest.json differs from research/build-manifest.py's "
                 "output -- it has been hand-edited, and the next regeneration will "
                 "silently discard the edit. Put the change in the generator instead.")
@@ -64,7 +77,9 @@ class TestManifestIsGeneratorOutput(unittest.TestCase):
             tampered = Path(tmp) / "tampered.json"
             shutil.copyfile(fresh, tampered)
             tampered.write_bytes(fresh.read_bytes().replace(b'"schemaVersion": 1', b'"schemaVersion": 2', 1))
-            self.assertNotEqual(tampered.read_bytes(), MANIFEST.read_bytes())
+            self.assertNotEqual(
+                self._normalize_newlines(tampered.read_bytes()),
+                self._normalize_newlines(MANIFEST.read_bytes()))
 
     def test_every_handoff_table_declares_display_columns(self):
         """The six tables ddi.py's HANDOFF_VOCAB names must each carry one, or

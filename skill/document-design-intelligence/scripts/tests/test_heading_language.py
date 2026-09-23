@@ -29,11 +29,19 @@ DDI_PY = SCRIPTS_DIR / "ddi.py"
 
 
 def _resolve(args):
-    return subprocess.run([PYTHON, str(RESOLVE_PY), *args], capture_output=True, text=True)
+    # encoding="utf-8": resolve.py forces its own stdout to UTF-8 (see
+    # scripts/resolve.py), so decode with the same encoding here rather than
+    # falling back to the ambient locale codepage, which mojibakes non-ASCII
+    # heading text (accented French/German) on Windows.
+    return subprocess.run(
+        [PYTHON, str(RESOLVE_PY), *args], capture_output=True, text=True, encoding="utf-8"
+    )
 
 
 def _ddi(args):
-    return subprocess.run([PYTHON, str(DDI_PY), *args], capture_output=True, text=True)
+    return subprocess.run(
+        [PYTHON, str(DDI_PY), *args], capture_output=True, text=True, encoding="utf-8"
+    )
 
 
 class TestResolveLanguageField(unittest.TestCase):

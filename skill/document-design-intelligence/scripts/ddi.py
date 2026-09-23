@@ -30,6 +30,18 @@ import re
 import sys
 from pathlib import Path
 
+# Windows: a piped/redirected stdout (as opposed to a real console) falls
+# back to the process's ANSI codepage, not UTF-8 -- non-ASCII heading text
+# (accented French/German section names) would otherwise mojibake or raise
+# UnicodeEncodeError for callers who capture this script's output. Force
+# UTF-8 unconditionally so behavior doesn't depend on the caller's console
+# codepage or PYTHONIOENCODING. `reconfigure` is Python 3.7+; guard it for
+# anything older that might still run this stdlib-only script.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
 
 def _assert_stdlib_only(extra_allowed=()):
     """Fail loudly at import time if a non-stdlib import is ever added here.
