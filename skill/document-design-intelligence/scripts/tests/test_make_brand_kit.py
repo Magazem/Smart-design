@@ -432,6 +432,76 @@ class TestDesignsSection(MakeBrandKitTestCase):
     def test_malformed_line_rejected(self):
         self._fails("cv-editorial", "## Designs")
 
+SCALES_BRAND_MD = GENERIC_BRAND_MD.split("## Doctypes")[0] + """## Doctypes
+cv-uk
+slide-deck-projection
+
+## Designs
+cv: cv-editorial
+deck: deck-generic
+
+## Type scales
+print: lib-major-third-print
+projection: lib-perfect-fourth-projection
+"""
+
+
+class TestTypeScalesSection(MakeBrandKitTestCase):
+    def _kit_tables(self, text):
+        code, out = self._run([str(self._write_brand_md(text))])
+        self.assertEqual(code, 0, out)
+        with zipfile.ZipFile(self.outputs / "ens-brand-kit.zip") as zf:
+            return {n: list(csv.DictReader(io.StringIO(zf.read(n).decode("utf-8"))))
+                    for n in zf.namelist() if n.endswith(".csv")}
+
+    def test_scales_copied_and_typefaces_per_medium(self):
+        t = self._kit_tables(SCALES_BRAND_MD)
+        base = _csv_rows(self.skill_dir, "type-scales.csv")
+        for medium, src in (("print", "lib-major-third-print"),
+                            ("projection", "lib-perfect-fourth-projection")):
+            got = {r["Role"]: r for r in t["data/type-scales.csv"]
+                   if r["scale_key"] == f"ens-{medium}"}
+            want = {r["Role"]: r for r in base if r["scale_key"] == src}
+            self.assertEqual(set(got), set(want))
+            for role, r in got.items():
+                self.assertEqual(r["Medium"], medium)
+                self.assertEqual((r["Size pt"], r["Leading Ratio"]),
+                                 (want[role]["Size pt"], want[role]["Leading Ratio"]))
+        tfs = {r["Scale Key"]: r["typeface_key"] for r in t["data/typefaces.csv"]}
+        self.assertEqual(set(tfs), {"ens-print", "ens-projection"})
+        rr = {r["doc_category"]: r for r in t["data/doc-reasoning.csv"]}
+        self.assertEqual(rr["ens-cv"]["Typeface Key"], tfs["ens-print"])
+        self.assertEqual(rr["ens-deck"]["Typeface Key"], tfs["ens-projection"])
+
+    def test_no_section_output_unchanged(self):
+        t = self._kit_tables(ENS_BRAND_MD)
+        self.assertEqual(len(t["data/typefaces.csv"]), 1)
+        self.assertEqual(t["data/typefaces.csv"][0]["Scale Key"], "ens-print")
+
+    def _fails(self, line, needle):
+        text = SCALES_BRAND_MD.replace("print: lib-major-third-print", line)
+        code, out = self._run([str(self._write_brand_md(text)), "--dry-run"])
+        self.assertEqual(code, 1, out)
+        self.assertIn(needle, out)
+
+    def test_unknown_medium_rejected(self):
+        self._fails("web: lib-major-third-print", "unknown medium 'web'")
+
+    def test_unknown_scale_rejected(self):
+        self._fails("print: nope", "unknown scale 'nope'")
+
+    def test_scale_medium_mismatch_rejected(self):
+        self._fails("print: lib-major-third-screen", "medium")
+
+    def test_duplicate_medium_rejected(self):
+        self._fails("print: lib-major-third-print" + chr(10) + "print: lib-major-third-print", "listed twice")
+
+    def test_conflict_with_document_defaults_type_scale(self):
+        text = SCALES_BRAND_MD + chr(10) + "## Document defaults" + chr(10) + "type-scale body: 11" + chr(10)
+        code, out = self._run([str(self._write_brand_md(text)), "--dry-run"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("type-scale", out)
+
 
 if __name__ == "__main__":
     unittest.main()

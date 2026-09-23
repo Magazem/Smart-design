@@ -88,6 +88,29 @@ doc-reasoning.csv is emitted at all.
     cv: cv-editorial
     invoice: invoice-tabular
 
+## Type scales   (optional)
+One `<medium>: <scale_key>` line per medium, e.g. `projection:
+lib-perfect-fourth-projection`. `<medium>` must be a type-scales.Medium enum
+token from the schema manifest and `<scale_key>` a scale_key of
+`data/base/type-scales.csv` whose rows all have that Medium (anything else is
+a hard failure naming the line). For each line the kit gets brand type-scale
+rows `<slug>-<medium>` COPYING the library scale's roles, sizes and leadings
+(scale_row_key `<slug>-<medium>-<medium>-<role>`, same shape as the
+## Document defaults path; no Brand Scope column, the kit directory scopes
+them). typefaces has ONE Scale Key per row, so the kit emits one typeface row
+per listed medium, identical families, typeface_key `<base_key>-<medium>` and
+Scale Key `<slug>-<medium>`. A brand doctype's medium is `projection` if its
+Constraint Set Keys include `projection`, `screen` if every Render Target is a
+png-*/html-* target, else `print`; a ## Designs doc-reasoning row takes the
+Typeface Key of the typeface row matching the medium of the first doctype of
+its family (falling back to the first listed medium if that medium has no
+line). Without this section nothing changes (single typeface row, the
+`type-scale` Document defaults path below). A `print:` line here cannot be
+combined with `type-scale` lines in ## Document defaults (both would emit
+`<slug>-print`) -- a hard failure.
+    print: lib-major-third-print
+    projection: lib-perfect-fourth-projection
+
 ## Voice   (optional)
 Free text, any content, no grammar checked. Passed through to the kit's
 brand.md verbatim (via `lib/data.py`'s loader this text never becomes a CSV
@@ -216,7 +239,7 @@ DOC_DEFAULT_RE = re.compile(r"^(page-format|type-scale)\s+([a-z][a-z0-9-]*)\s*:\
 TOP_LEVEL_KEYS = {"slug", "logo"}
 PALETTE_ROLES = ("primary", "secondary", "accent", "background", "foreground", "muted")
 TYPEFACE_KEYS = {"heading", "body", "mono"}
-ALLOWED_SECTIONS = {"Palette", "Typefaces", "Doctypes", "Voice", "Document defaults", "Designs"}
+ALLOWED_SECTIONS = {"Palette", "Typefaces", "Doctypes", "Voice", "Document defaults", "Designs", "Type scales"}
 TYPESCALE_ROLES = ("label", "caption", "body", "body-dense", "lead", "h3", "h2", "h1")
 
 DESIGN_LINE_RE = re.compile(r"^([a-z][a-z0-9-]*)\s*:\s*([a-z0-9][a-z0-9-]*)$")
@@ -353,8 +376,25 @@ def load_designs_context(skill_dir: Path | None = None) -> tuple[set[str], dict[
     return families, designs
 
 
+def load_scales_context(skill_dir: Path | None = None) -> tuple[set[str], dict[str, set[str]]]:
+    """(type-scales.Medium enum tokens, scale_key -> Mediums of its base rows)."""
+    skill_dir = skill_dir or find_skill_dir()
+    if skill_dir is None:
+        return set(), {}
+    manifest = json.loads((skill_dir / "data" / "schema-manifest.json").read_text(encoding="utf-8"))
+    mediums = set(manifest["tables"]["type-scales"]["enums"]["Medium"])
+    scales: dict[str, set[str]] = {}
+    path = skill_dir / "data" / "base" / "type-scales.csv"
+    if path.is_file():
+        with path.open(encoding="utf-8", newline="") as f:
+            for r in csv.DictReader(f):
+                scales.setdefault(r["scale_key"], set()).add(r["Medium"])
+    return mediums, scales
+
+
 def parse_brand_md(text: str, base_doctypes: dict[str, dict] | None = None,
-                   designs_context: tuple[set[str], dict[str, dict]] | None = None) -> dict:
+                   designs_context: tuple[set[str], dict[str, dict]] | None = None,
+                   scales_context: tuple[set[str], dict[str, set[str]]] | None = None) -> dict:
     """Parse brand.md into a structured dict. Raises BrandKitError with a
     line number on the first problem found. `base_doctypes` (default: loaded
     from the detected skill dir) supplies the generic doc_keys ## Doctypes
@@ -363,6 +403,7 @@ def parse_brand_md(text: str, base_doctypes: dict[str, dict] | None = None,
         base_doctypes = load_base_doctypes()
     known_doctypes = set(DOCTYPE_CATALOG) | set(base_doctypes)
     families, base_designs = designs_context if designs_context is not None else load_designs_context()
+    mediums, base_scales = scales_context if scales_context is not None else load_scales_context()
     lines = text.splitlines()
     top = {}
     palette = {}
@@ -372,6 +413,7 @@ def parse_brand_md(text: str, base_doctypes: dict[str, dict] | None = None,
     page_format_overrides = {}
     type_scale = {}
     designs = {}
+    scale_choices = {}
 
     section = None  # None, "Palette", "Typefaces", "Doctypes", "Voice", "Document defaults"
     seen_h1 = False
@@ -486,6 +528,35 @@ def parse_brand_md(text: str, base_doctypes: dict[str, dict] | None = None,
             designs[family] = design_key
             continue
 
+        if section == "Type scales":
+            m = DESIGN_LINE_RE.match(stripped)
+            if not m:
+                raise BrandKitError(
+                    f"brand.md:{line_no}: unrecognised line in ## Type scales: {stripped!r} "
+                    "(expected '<medium>: <scale_key>')"
+                )
+            medium, scale_key = m.groups()
+            if medium not in mediums:
+                raise BrandKitError(
+                    f"brand.md:{line_no}: unknown medium '{medium}' in ## Type scales "
+                    f"(allowed: {', '.join(sorted(mediums))})"
+                )
+            if medium in scale_choices:
+                raise BrandKitError(f"brand.md:{line_no}: medium '{medium}' listed twice in ## Type scales")
+            if scale_key not in base_scales:
+                raise BrandKitError(
+                    f"brand.md:{line_no}: unknown scale '{scale_key}' "
+                    f"(see data/base/type-scales.csv; {medium} scales: "
+                    f"{', '.join(sorted(k for k, ms in base_scales.items() if medium in ms)) or 'none'})"
+                )
+            if base_scales[scale_key] != {medium}:
+                raise BrandKitError(
+                    f"brand.md:{line_no}: scale '{scale_key}' has medium "
+                    f"{'/'.join(sorted(base_scales[scale_key]))}, not '{medium}'"
+                )
+            scale_choices[medium] = scale_key
+            continue
+
         if section == "Document defaults":
             m = DOC_DEFAULT_RE.match(stripped)
             if not m:
@@ -539,6 +610,12 @@ def parse_brand_md(text: str, base_doctypes: dict[str, dict] | None = None,
                 f"brand.md: page-format override given for '{doctype}', which is not in ## Doctypes"
             )
 
+    if "print" in scale_choices and type_scale:
+        raise BrandKitError(
+            "brand.md: '## Type scales' has a print line AND '## Document defaults' has "
+            "type-scale lines -- both would emit '<slug>-print'; use one or the other"
+        )
+
     return {
         "slug": slug,
         "logo": top.get("logo"),
@@ -549,6 +626,7 @@ def parse_brand_md(text: str, base_doctypes: dict[str, dict] | None = None,
         "page_format_overrides": page_format_overrides,
         "type_scale": type_scale,
         "designs": designs,
+        "scale_choices": scale_choices,
     }
 
 
@@ -684,6 +762,43 @@ def derive_typefaces_row(spec: dict, font_substitutes: list[dict]) -> tuple[dict
         "Scale Key": f"{slug}-print" if spec["type_scale"] else "",
     }
     return row, warnings
+
+
+def doctype_medium(doctype_row: dict) -> str:
+    """The type-scale Medium a derived doctypes row is set in."""
+    if "projection" in doctype_row["Constraint Set Keys"].split(";"):
+        return "projection"
+    targets = [t for t in doctype_row["Render Target Keys"].split(";") if t]
+    if targets and all(t.startswith(("png", "html")) for t in targets):
+        return "screen"
+    return "print"
+
+
+def derive_medium_typeface_rows(spec: dict, typeface_row: dict) -> list[dict]:
+    """One typeface row per ## Type scales medium (see module docstring)."""
+    slug = spec["slug"]
+    rows = []
+    for medium in spec["scale_choices"]:
+        row = dict(typeface_row)
+        row["typeface_key"] = f"{typeface_row['typeface_key']}-{medium}"
+        row["Scale Key"] = f"{slug}-{medium}"
+        rows.append(row)
+    return rows
+
+
+def derive_library_typescale_rows(spec: dict, base_scale_rows: list[dict]) -> list[dict]:
+    """Brand rows `<slug>-<medium>` copying each chosen library scale."""
+    rows = []
+    for medium, src in spec["scale_choices"].items():
+        key = f"{spec['slug']}-{medium}"
+        for r in base_scale_rows:
+            if r["scale_key"] == src:
+                rows.append({
+                    "scale_row_key": f"{key}-{medium}-{r['Role']}", "scale_key": key,
+                    "Medium": medium, "Role": r["Role"],
+                    "Size pt": r["Size pt"], "Leading Ratio": r["Leading Ratio"],
+                })
+    return rows
 
 
 def _generic_catalog_entry(base_row: dict) -> dict:
@@ -914,7 +1029,8 @@ def main(argv: list[str] | None = None) -> int:
                 "set DDI_SKILL_DIR to override"
             )
         base_doctypes = load_base_doctypes(skill_dir)
-        spec = parse_brand_md(brand_md_text, base_doctypes, load_designs_context(skill_dir))
+        spec = parse_brand_md(brand_md_text, base_doctypes, load_designs_context(skill_dir),
+                              load_scales_context(skill_dir))
         slug = spec["slug"]
         manifest = json.loads((skill_dir / "data" / "schema-manifest.json").read_text(encoding="utf-8"))
         font_substitutes = load_font_substitutes(skill_dir)
@@ -934,8 +1050,22 @@ def main(argv: list[str] | None = None) -> int:
         typefaces_row, font_warnings = derive_typefaces_row(spec, font_substitutes)
         doctype_rows = derive_doctype_rows(spec, base_doctypes)
         typescale_rows = derive_typescale_rows(spec)
+        typeface_rows = [typefaces_row]
+        family_typeface = {}
+        if spec["scale_choices"]:
+            typeface_rows = derive_medium_typeface_rows(spec, typefaces_row)
+            with (skill_dir / "data" / "base" / "type-scales.csv").open(encoding="utf-8", newline="") as f:
+                typescale_rows = derive_library_typescale_rows(spec, list(csv.DictReader(f)))
+            by_medium = {r["Scale Key"]: r["typeface_key"] for r in typeface_rows}
+            for r in doctype_rows:
+                key = f"{slug}-{doctype_medium(r)}"
+                family_typeface.setdefault(r["Family"], by_medium.get(key, typeface_rows[0]["typeface_key"]))
         reasoning_rows = derive_reasoning_rows(
             spec, palette_row["palette_key"], typefaces_row["typeface_key"], skill_dir)
+        for rr in reasoning_rows:
+            fam = rr["doc_category"][len(slug) + 1:]
+            if fam in family_typeface:
+                rr["Typeface Key"] = family_typeface[fam]
         for r in doctype_rows:
             fam_key = f"{slug}-{r['Family']}"
             if any(rr["doc_category"] == fam_key for rr in reasoning_rows):
@@ -944,7 +1074,7 @@ def main(argv: list[str] | None = None) -> int:
         tables = manifest["tables"]
         csv_files = {
             "palettes.csv": rows_to_csv(tables["palettes"]["columns"], [palette_row]),
-            "typefaces.csv": rows_to_csv(tables["typefaces"]["columns"], [typefaces_row]),
+            "typefaces.csv": rows_to_csv(tables["typefaces"]["columns"], typeface_rows),
             "doctypes.csv": rows_to_csv(tables["doctypes"]["columns"], doctype_rows),
         }
         if reasoning_rows:
@@ -1004,7 +1134,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.dry_run:
             print(
                 f"\nDRY-RUN OK: would generate {slug}-brand-kit.zip "
-                f"(palettes=1 typefaces=1 doctypes={len(doctype_rows)} type-scales={len(typescale_rows)})"
+                f"(palettes=1 typefaces={len(typeface_rows)} doctypes={len(doctype_rows)} type-scales={len(typescale_rows)})"
             )
             return 0
 
@@ -1020,7 +1150,7 @@ def main(argv: list[str] | None = None) -> int:
 
         print(
             f"\nOK: {out_path} "
-            f"(palettes=1 typefaces=1 doctypes={len(doctype_rows)} type-scales={len(typescale_rows)})"
+            f"(palettes=1 typefaces={len(typeface_rows)} doctypes={len(doctype_rows)} type-scales={len(typescale_rows)})"
         )
         return 0
 
