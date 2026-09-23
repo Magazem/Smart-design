@@ -89,6 +89,32 @@ class TestFamilyDefault(unittest.TestCase):
         self.assertResolvesTo("write a memo about the new office hours", "memo-internal")
         self.assertResolvesTo("make an invoice for my consulting work", "invoice-tabular")
 
+    def test_explicit_family_noun_beats_incidental_words(self):
+        """research/88 round 3: "paper", "page", "A4", "US" must not move a request out of
+        the family the user named."""
+        for q, key in (("make a brochure on 8.5x11 paper", "brochure-trifold-letter"),
+                       ("make a flyer on 8.5x11 paper", "brochure-flyer-letter"),
+                       ("flyer for US paper", "brochure-flyer-letter"),
+                       ("make a poster on A4 paper", "poster"),
+                       ("professional CV on A4 paper", "cv-generic"),
+                       ("make a simple invoice template on A4 paper", "invoice-tabular"),
+                       ("modern price quote, one page", "quote-devis"),
+                       ("make a printable form on A4 paper", "form-handfilled"),
+                       ("a one page memo on company paper", "memo-internal")):
+            with self.subTest(q=q):
+                self.assertResolvesTo(q, key)
+
+    def test_one_page_cv_stays_a_cv(self):
+        # "one page" is a keyword of cv-us and one-pager; the named family keeps it a CV
+        rc, out = run("make a simple one page CV template")
+        self.assertEqual(rc, 0, out)
+        self.assertTrue(out["resolved"]["doctypes"][0]["key"].startswith("cv-"))
+
+    def test_two_family_nouns_do_not_trigger_the_rule(self):
+        # a cover letter is one family, not "letter" + something
+        self.assertResolvesTo("simple cover letter template, one page", "cover-letter")
+        self.assertResolvesTo("make a one pager on US letter paper", "one-pager")
+
 
 if __name__ == "__main__":
     unittest.main()

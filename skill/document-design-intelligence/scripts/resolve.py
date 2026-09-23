@@ -405,6 +405,30 @@ def _detect_language(query):
     return best if counts[best] > counts["en"] else "en"
 
 
+def _named_family(entry_rows, query):
+    """research/88 round 3: the ONE family the query names explicitly, else None.
+
+    A family is named when its own name (hyphen/space/none between words, optional plural
+    s) appears in the query as a whole word. Longer names are matched first and their text
+    masked, so "cover letter" names cover-letter, not letter. Zero or two-plus families named
+    -> None and ordinary BM25 stands. Why: an explicit family noun is the strongest signal a
+    request carries, but BM25 weighs it like any keyword, so incidental words ("paper",
+    "one page", "A4") that other families list in their Keywords outvoted it (flyer ->
+    whitepaper). Data alternative rejected: "paper"/"one page" are legitimate keywords of
+    whitepaper/one-pager, and dropping them would make those families unreachable."""
+    families = sorted({r.get("Family", "") for r in entry_rows if r.get("Family", "")},
+                      key=lambda f: -len(f))
+    text = " " + re.sub(r"[^a-z0-9]+", " ", BM25._fold_diacritics(str(query or "").lower())) + " "
+    named = []
+    for family in families:
+        words = family.split("-")
+        m = re.search(r"(?<![a-z0-9])" + r"[ ]?".join(re.escape(w) for w in words) + r"s?(?![a-z0-9])", text)
+        if m:
+            named.append(family)
+            text = text[:m.start()] + " " + text[m.end():]
+    return named[0] if len(named) == 1 else None
+
+
 def _family_default(entry_rows, key_column, diag, designs_rows, query=""):
     """research/88: an `ambiguous` abstention whose top candidates all belong to ONE
     Family means the query carried nothing that separates that family's variants (a
@@ -814,9 +838,20 @@ def main(argv=None):
         entry_row = matches[0] if len(matches) == 1 else None
         diag = {"method": "doctype-direct", "candidates": [], "pass": None}
     else:
-        entry_row, diag = _resolve_entry(
-            entry_rows, key_column, searchable_columns, args.query, args.brand, description_column
-        )
+        named = _named_family(entry_rows, args.query)
+        if named:
+            narrowed = [r for r in entry_rows if r.get("Family", "") == named]
+            entry_row, diag = _resolve_entry(
+                narrowed, key_column, searchable_columns, args.query, args.brand, description_column)
+            if entry_row is not None or diag.get("reason") == "ambiguous":
+                entry_rows = narrowed
+                diag["named_family"] = named
+            else:
+                named = None
+        if not named:
+            entry_row, diag = _resolve_entry(
+                entry_rows, key_column, searchable_columns, args.query, args.brand, description_column
+            )
 
     if entry_row is None and args.query and not args.doctype:
         default_row, query_lang = _family_default(

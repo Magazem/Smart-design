@@ -148,3 +148,6 @@ This file is the live checklist. It is updated and committed after every milesto
   Proposal ruling: MS proposals = 7 Word docs (corroboration); 20 pptx "proposals" deferred as a separate deck pool.
   IIB infographic: extend backwards from 2019 one edition at a time, stop at first edition reaching >=10 on-topic.
 - 2026-09-24 Repo Keeper: invoice second coder + agreement (header 0.33, colour 0.50 FAIL); cv round-2 agreement record.
+- Cover-letter (C22a): 12/15 admissible, 2 ranked archetypes + singletons. Letter: 32/34 admissible, 8 archetypes k>=2.
+  Report L3 re-check: admissible 12 -> 6 (C14 contrast measured on published PDFs), all singletons.
+- 2026-09-24 Repo Keeper: resolver named-family narrowing (306 passed); report L3 re-check + items csv; IIB extension ruling.

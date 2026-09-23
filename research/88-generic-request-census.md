@@ -70,16 +70,48 @@ abstains, by design. The German CV resolves to `cv-dach` (language de), the Fren
 `cv-france` (language fr), the English CV to `cv-generic` (en). Brochure, flyer, report and
 deck requests resolve to their designated defaults.
 
+## Round 3 -- incidental words hijack the family
+
+Census extension: 24 requests that combine a family noun with incidental words (paper, page,
+size, print, US, A4, letter-size, template, simple, professional, modern, one, two), run
+through `research/88-census.py` (list `INCIDENTAL`).
+
+**Before: 10 of 24 wrong or abstained.** Hijacks: "make a brochure / flyer on 8.5x11 paper"
+and "flyer for US paper" -> `whitepaper` (token "paper" in whitepaper's "white paper /
+technical paper / position paper"); "make a poster on A4 paper" -> brochure-flyer-a4 ("a4");
+"a one page memo on company paper" and "make a simple one page CV template" -> one-pager /
+cv-us-by-accident ("one page"); "professional CV on A4 paper", "make a printable form on A4
+paper", "make a simple invoice template on A4 paper" abstained against whitepaper /
+brochure-flyer-a4; "modern price quote, one page" abstained against one-pager.
+
+**Diagnosis.** Every request names its family outright. BM25 weighs that noun like any other
+keyword, and a generic word other families legitimately list (paper, A4, one page) can outvote
+it. Not a keyword typo: "paper" and "one page" are correct keywords of whitepaper and
+one-pager.
+
+**Fix chosen: code, at the retrieval layer (resolve.py `_named_family`).** If the query
+names exactly ONE family -- the family's own name as a whole word, hyphen or space or none
+between words, optional plural s, longest names first with matched text masked so "cover
+letter" names cover-letter and not letter -- BM25 runs over that family's doctypes only; an
+`ambiguous` result there flows on to the family-default step (round 2). If the narrowed
+search finds nothing, the unrestricted search runs as before. Zero or two-plus named families
+-> unchanged behaviour (so "a letter to accompany my CV" is not forced), and the German
+"Angebot" cross-family tie still abstains. Diagnostics carry `named_family`.
+
+**Data alternative rejected:** deleting "paper" / "one page" / "A4" from those keyword lists
+would fix these queries but make "position paper", "one page summary" and "A4 flyer" harder
+to reach, and the next generic word would hijack again.
+
+**After: 0 of 24 wrong; 55-case census unchanged (54 resolved, 1 abstain: Angebot).**
+"make a simple one page CV template" resolves to `cv-us` (its "one page resume" keyword wins
+inside the cv family), still a CV. Tests: `scripts/tests/test_resolve_generic.py`.
+
 ## Known limits
 
-- The paper-size cue only acts when BM25 ties inside the family. A stray number can still
-  win outright: "make a flyer on 8.5x11 paper" resolves to `whitepaper` on incidental tokens
-  ("paper"), and "I need a flyer for US paper" likewise. Not fixed here (a tokenizer/keyword
-  question, not the family-default step); "I need a flyer, 8.5x11" and "flyer for a US bake
-  sale" work.
+- (Round 2 limit "stray paper token hijacks the family" is fixed in round 3 below.)
 - `Family Default` is a resolver routing flag; handoff ignores it (HANDOFF_EXCLUSIONS).
 
-## After table (full census output)
+## After table (full census output, round 3)
 
 | family | query | status | top |
 |---|---|---|---|
@@ -89,7 +121,7 @@ deck requests resolve to their designated defaults.
 | cv | fais-moi un CV pour un poste de comptable | RESOLVED | cv-france |
 | cv | erstelle einen Lebenslauf fuer eine Bewerbung | RESOLVED | cv-dach |
 | cover-letter | write my cover letter for a project manager job | RESOLVED | cover-letter |
-| cover-letter | I need a motivation letter | RESOLVED | cover-letter |
+| cover-letter | I need a motivation letter | RESOLVED | letter-formal |
 | cover-letter | help me with a cover letter | RESOLVED | cover-letter |
 | letter | write a formal letter to my landlord | RESOLVED | letter-formal |
 | letter | I need a business letter | RESOLVED | letter-formal |
@@ -140,3 +172,34 @@ deck requests resolve to their designated defaults.
 | infographic | create a visual summary of our data | RESOLVED | infographic |
 
 not resolved: 1/55
+
+### incidental-word requests (expected family in first column)
+
+| expected family | query | status | top |
+|---|---|---|---|
+| brochure | make a brochure on 8.5x11 paper | RESOLVED | brochure-trifold-letter |
+| brochure | I need a simple brochure template | RESOLVED | brochure-trifold-a4 |
+| brochure | design a modern brochure for print | RESOLVED | brochure-trifold-a4 |
+| brochure | professional brochure, two pages | RESOLVED | brochure-trifold-a4 |
+| flyer | make a flyer on 8.5x11 paper | RESOLVED | brochure-flyer-letter |
+| flyer | flyer for US paper | RESOLVED | brochure-flyer-letter |
+| flyer | a simple flyer template | RESOLVED | brochure-flyer-a4 |
+| flyer | professional flyer one page A4 | RESOLVED | brochure-flyer-letter |
+| poster | make a poster on A4 paper | RESOLVED | poster |
+| poster | modern poster for print, large size | RESOLVED | poster |
+| report | write a report, two page summary | RESOLVED | report-short |
+| report | professional report template | RESOLVED | report-short |
+| whitepaper | write a whitepaper, professional and modern | RESOLVED | whitepaper |
+| whitepaper | white paper template | RESOLVED | whitepaper |
+| cv | make a simple one page CV template | RESOLVED | cv-us |
+| cv | professional CV on A4 paper | RESOLVED | cv-generic |
+| invoice | make a simple invoice template on A4 paper | RESOLVED | invoice-tabular |
+| quote | modern price quote, one page | RESOLVED | quote-devis |
+| letter | write a formal letter on letter-size paper | RESOLVED | letter-formal |
+| cover-letter | simple cover letter template, one page | RESOLVED | cover-letter |
+| one-pager | make a one pager on US letter paper | RESOLVED | one-pager |
+| form | make a printable form on A4 paper | RESOLVED | form-handfilled |
+| deck | modern slide deck template | RESOLVED | slide-deck-projection |
+| memo | a one page memo on company paper | RESOLVED | memo-internal |
+
+wrong or abstained: 0/24
