@@ -142,3 +142,9 @@ This file is the live checklist. It is updated and committed after every milesto
 - 2026-09-24 Repo Keeper: resolver follow-up (language-aware family default, Family Default column, lettre keywords); 303 passed.
 - 2026-09-24 Repo Keeper: 82a-deck rule amendment; infographic IIB corpus (corroboration only).
 - 2026-09-24 Repo Keeper: poster GitHub L1 corpus committed.
+- INVOICE gate FAILED (header 0.33, colour 0.50; variants density/table_rules dropped). Pattern across cv/deck/invoice
+  -> Opus Reviewer writes research/82a-general.md (header + colour rules for all remaining families); every already
+  coded family then recodes those 2 features (fresh worker) + fresh second coder seed "82a:<family>".
+  Proposal ruling: MS proposals = 7 Word docs (corroboration); 20 pptx "proposals" deferred as a separate deck pool.
+  IIB infographic: extend backwards from 2019 one edition at a time, stop at first edition reaching >=10 on-topic.
+- 2026-09-24 Repo Keeper: invoice second coder + agreement (header 0.33, colour 0.50 FAIL); cv round-2 agreement record.
