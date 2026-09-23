@@ -8,3 +8,10 @@ C26 Families coded before research/82a-general.md landed (report MS, proposal MS
     letter, invoice, brochure, flyer, memo, form) have header treatment and colour use RECODED by a fresh
     worker under 82a-general before their second-coder check; the first coders' header/colour values are
     kept as (r1) for the record only.
+C27 (answers flyer/poster question, 2026-09-24) An A1 pool (several catalogues each <10 on-topic items,
+    pooled to >=10) IS a corpus in its own right and MAY sit beside other corpora (L1 or L2 >=10) of the same
+    family; the family's combined share is the unweighted mean across corpora (§6), the pool counting once.
+    Items appearing in more than one corpus are deduplicated (keep the first by corpus order: L1, then L2,
+    then pool). The pool must reach >=10 on-topic items AFTER dedup, else it stays corroboration-only.
+    Flyer pool (LO + Typst + GH flyer/typst) and poster pool (MS 8 + Typst 8) are assembled by the GitHub
+    worker, who alone can dedup against GitHub items.

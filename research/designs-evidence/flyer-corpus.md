@@ -116,3 +116,55 @@ Ids: MSF:001, MSF:002, MSF:003, MSF:004, MSF:005, MSF:006, MSF:007, MSF:008, MSF
 | MSF:027 | image-hero | plain-centered | moon ≈22%; excluded A5 either way |
 
 Effect on the frequency table: admissible archetype `1|sans|fill-blocks|image-hero` (MSF:014) becomes `1|sans|fill-blocks|band`; still 5 singletons, k≥2 = 0, Shortfall unchanged. C8: all five A3 exclusions (MSF:008, 009, 010, 012, 017) have text directly on texture/photo/gradient/pattern and stand; the admissible MSF:003 has its title on a flat-fill moon (admissible under C8). C9: MSF:005's 3.31/3.44:1 was computed with `color.py` on thumbnail samples and is far below 4.5 (estimate, disclosed); admissible items were spot-checked at ≥7:1, far from the 3.5–5.5 band, so no further sampling was needed.
+
+
+## F.11 Recount under 82b (Design Researcher 3, 2026-09-23; 82b adopted 2026-09-24)
+
+82b-ADOPTED: "Flyer's MS pool is recounted with the 3 new PowerPoint flyers." 82b §3 also asks to check the Word pamphlet "Teacher appreciation flyer" for a duplicate. Everything above F.11 is unchanged; this section only adds items and recounts.
+
+### F.11.1 Sources added (same vendor catalogue, 82a C5)
+- `https://powerpoint.cloud.microsoft/create/en/flyers-posters-templates/` (slug from the static PowerPoint sitemap; curl HTTP 200). 10 cards, 10 distinct `.pptx`: 5 posters (pos 1-5, see `poster-corpus-ms.md`), 2 tri-fold travel brochures (pos 6, 8: brochure family, A4 cross-list recorded only), **3 flyers** (pos 7 Yoga flyer, pos 9 Holi celebration flyer, pos 10 Daycare flyer).
+- `https://word.cloud.microsoft/create/en/pamphlet-templates/` (HTTP 200). 20 cards. "Modern flyer" (pos 15) and "Teacher appreciation flyer" (pos 18) link the **same .docx** as MSF:002 and MSF:017, so they are duplicates and not re-counted. Pos 17 **"Music tutor"** is a tear-off-tab lesson flyer (its thumbnail was viewed) and is added as MSFW:017 (on-topic by form, disclosed). All other pamphlet items are brochures and booklets (brochure family), and a church bulletin.
+- `https://word.cloud.microsoft/create/en/flyer-templates/` re-fetched 2026-09-23: 30 cards, 17 distinct, same list as F.2 (no change to MSF:001-027).
+- Order: editorial page order (no metric). Ids `MSFP:<pos>` (PowerPoint page) and `MSFW:<pos>` (Word pamphlet page). Items file with ONLY the 4 new ids: `flyer-items-ms-82b.csv` (C11). The existing `flyer-items.csv` is untouched.
+- **New N = 16 + 4 = 20.** Ranking Metric string: `prevalence:ms-create-flyers:k/20`. This replaces k/16.
+
+### F.11.2 Coded (4 new items; 400-px webp thumbnails, page 1)
+
+| id | source (page pos) | template | columns | head | body | colour | header | rules | dens | adm | rule | note | thumbnail |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| MSFP:007 | PowerPoint flyers-posters-templates (7) | [Yoga flyer](https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fcreatecatalog.public.onecdn.static.microsoft%2Fcatalog-assets%2Fen-us%2F3c28132e-ab1c-4004-ad6c-ea88ef6a61fe%2FTF3c28132e-ab1c-4004-ad6c-ea88ef6a61fe3b381b53_wac-0a5efa7692c5.pptx) | 1 | sans | sans | one-accent | image-hero | none | standard | **n** | A3 | Full-bleed pink duotone photo (yoga pose) intersecting the top 20%, ≥30% of page → image-hero; photo excluded from colour; orange/yellow text = one hue. ALL text (title, class times, body, footer) sits directly on the photo → A3 (82a C8) | https://createcatalog.public.onecdn.static.microsoft/catalog-assets/en-us/3c28132e-ab1c-4004-ad6c-ea88ef6a61fe/thumbnails/400/yoga-flyer-pink-modern-0-1-35b1de999172.webp |
+| MSFP:009 | PowerPoint flyers-posters-templates (9) | [Holi celebration flyer](https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fcreatecatalog.public.onecdn.static.microsoft%2Fcatalog-assets%2Fen-us%2F9324e10c-4767-47ff-bbaa-0b8a217892b1%2FTF9324e10c-4767-47ff-bbaa-0b8a217892b1ae483db5_wac-1a6a640511fd.pptx) | 1 | display | sans | multi | image-hero | none | airy | **n** | A4 | Watercolour/powder paint splash in magenta, blue and teal fills the top half (≥30%, intersects top) → image-hero; outline-letter "HOLI" = display. The paint splatter is the A4 motif (paint-swipe/splatter decorative graphic) | https://createcatalog.public.onecdn.static.microsoft/catalog-assets/en-us/9324e10c-4767-47ff-bbaa-0b8a217892b1/thumbnails/400/holi-celebration-flyer-pink-modern-0-1-be0d7089daee.webp |
+| MSFP:010 | PowerPoint flyers-posters-templates (10) | [Daycare flyer](https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fcreatecatalog.public.onecdn.static.microsoft%2Fcatalog-assets%2Fen-us%2F3980c8b2-b10a-4ea9-9534-2f54562533f2%2FTF3980c8b2-b10a-4ea9-9534-2f54562533f295b21fb9_wac-df2add60bd71.pptx) | 1 | display | sans | fill-blocks | plain-centered | none | airy | **n** | A6/C8 | Full-page sky-blue fill (#62cdf7 sampled) → fill-blocks; sun illustration ≈10% of page → not hero; centred condensed hand-lettered title → plain-centered. White body text on #5ec4f0 ≈ **1.98:1** (`color.contrast_ratio`, thumbnail estimate) < 4.5 (and < 3 for large text) → A6/C8 | https://createcatalog.public.onecdn.static.microsoft/catalog-assets/en-us/3980c8b2-b10a-4ea9-9534-2f54562533f2/thumbnails/400/daycare-flyer-blue-whimsical-color-block-0-1-71a9459a0096.webp |
+| MSFW:017 | Word pamphlet-templates (17) | [Music tutor](https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fcreatecatalog.public.onecdn.static.microsoft%2Fcatalog-assets%2Fen-us%2F51bf2f52-0595-46ea-9c7f-1dbe88af9b75%2FTF51bf2f52-0595-46ea-9c7f-1dbe88af9b75e438d990_wac-a12a0b361366.docx) | 1 | sans | sans | fill-blocks | plain-left | boxes | airy | y | - | Full-page navy fill (#0a4c68 sampled) → fill-blocks. The guitar-of-music-notes illustration on the left is ≈30%×85% ≈ 25% of page < 30% → not hero. The title "MUSIC LESSONS" sits in the right column between short yellow rules that are not full-width → not ruled, not centred on the page → plain-left. Text is one column beside the illustration → 1. Six dashed tear-off tabs at the foot → boxes. The musical-note motifs vary (not identical, A5 not hit). White on navy ≈ 11.6:1. **Not titled "flyer"**: on-topic by form (a tear-off flyer), found on the Word `pamphlet-templates` page (A4 cross-listing within the same vendor catalogue, disclosed; sensitivity in F.11.4) | https://createcatalog.public.onecdn.static.microsoft/catalog-assets/en-us/51bf2f52-0595-46ea-9c7f-1dbe88af9b75/thumbnails/400/music-tutor-blue-whimsical-line-0-1-09d26eb4979c.webp |
+
+### F.11.3 Exclusions added
+| id | rule | evidence |
+|---|---|---|
+| MSFP:007 | A3 (C8) | all text set directly on the full-bleed duotone photo |
+| MSFP:009 | A4 | paint/powder splash decorative graphic filling the top half |
+| MSFP:010 | A6 / C8 | white body text on sky blue ≈1.98:1 (thumbnail estimate, `color.contrast_ratio`) |
+
+### F.11.4 Frequency after the recount (k counts admissible exemplars, C21; N includes inadmissible items)
+Script output (F.3 rows parsed from this file, plus the 4 rows above):
+
+| archetype `columns\|heading\|colour\|header` | k | share = k/20 | exemplar |
+|---|---|---|---|
+| `1\|serif\|fill-blocks\|plain-left` | 1 | 1/20 = 0.050 | MSF:001 |
+| `grid\|mono\|fill-blocks\|plain-left` | 1 | 1/20 = 0.050 | MSF:002 |
+| `1\|display\|fill-blocks\|image-hero` | 1 | 1/20 = 0.050 | MSF:003 |
+| `1\|sans\|fill-blocks\|band` | 1 | 1/20 = 0.050 | MSF:014 |
+| `1\|display\|multi\|plain-centered` | 1 | 1/20 = 0.050 | MSF:018 |
+| `1\|sans\|fill-blocks\|plain-left` | 1 | 1/20 = 0.050 | MSFW:017 (new) |
+
+N = 20; admissible 6 (was 5); distinct admissible archetypes 6; k≥2: **0**; singletons 6/6. **§4 coarsening re-evaluated** (82b asks for it): the trigger needs ≥15 admissible items, and there are 6, so it is **not triggered**. The shortfall stands: 6 ranked singletons (§6 step 3), and no archetype has K≥2.
+Informational only, not triggered: dropping `header` would give `1|sans|fill-blocks` 2 (MSF:014, MSFW:017) and every other archetype 1.
+**Sensitivity (MSFW:017 not a flyer):** N = 19, admissible 5, the same 5 singletons at 1/19 = 0.053, and the order is unchanged.
+
+Variant modes over the 6 admissible items: body sans 4 / serif 1 / mono 1; rules/boxes none 4 / boxes 2; density airy 4 / standard 2.
+
+### F.11.5 A1 pool (LibreOffice + Typst Universe + GitHub `flyer+typst`): not run here
+82b §3 flyer row 2 proposes a separate A1 pool, "run it only if ≥10 after dedup". Its GitHub part needs the GitHub search API, which belongs to the Design Researcher, so this coder does not hold it. LO gives 4 (F.7). Typst Universe (`https://packages.typst.org/preview/index.json`, 82b §1d) lists 6 templates in category `flyer`, but its GitHub-hosted previews overlap with GitHub `flyer+typst`. Deduplication therefore needs the GitHub list, and the pool is left to the GitHub worker. Also note that A1's precondition reads "every reachable catalogue … fewer than 10". MS flyers is now 20, so the orchestrator must rule whether a second, sub-10 pool may sit beside an L2 ≥10 corpus.
+
+### F.11.6 Second coder
+The family-wide sample must be redrawn by the orchestrator over the 20 ids: the 16 in F.8 plus MSFP:007, MSFP:009, MSFP:010 and MSFW:017. The F.8 sample formula over 16 ids is superseded.
