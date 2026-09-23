@@ -1,4 +1,5 @@
 # RESUME — Document Design Intelligence (open-source Claude skill)
+**→ 2026-09-23 onward: read research/ORCHESTRATOR-STATE.md FIRST (live v0.5 checklist).**
 Written 2026-09-08 by the Workflow Orchestrator after two session-limit incidents.
 Purpose: let a FRESH orchestrator (or the user) continue with a small context.
 Full history: research/05-SYNTHESIS.md (long). This file is the short version.
