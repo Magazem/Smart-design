@@ -13,7 +13,7 @@ Coded ids come from the coded table (explicit `id` column, or LABEL:NNN from `Po
 URL / preview are taken from the coded table if it carries them, else joined from the
 sources table by the same id.
 
-Usage:  python3 make_items_csv.py            # writes cv-items.csv and deck-items.csv
+Usage:  python3 make_items_csv.py            # writes cv-, deck- and invoice-items.csv
 """
 import csv
 import re
@@ -25,6 +25,8 @@ HERE = Path(__file__).resolve().parent
 FAMILIES = {
     "cv": [("GH", "cv-corpus-github.md"), ("NPM", "cv-corpus-npm-ms.md")],
     "deck": [("NPM", "deck-corpus-npm.md"), (None, "deck-corpus-lo-ms.md")],
+    # LO is corroborate-only (no coded table); the file records no preview URLs.
+    "invoice": [(None, "invoice-corpus.md")],
 }
 
 LINK = re.compile(r"\[([^\]]*)\]\(([^)]*)\)")

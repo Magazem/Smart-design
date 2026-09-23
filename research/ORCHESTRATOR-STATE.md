@@ -121,3 +121,7 @@ This file is the live checklist. It is updated and committed after every milesto
   -> the I7 commit must include those sources so regeneration reproduces base. Suite was green (292).
 - deck second coder done (n=27). agreement.py was cv-only and printed PASS on n=0 -> being generalised (bg).
 - 2026-09-24 Repo Keeper: I7 type-scale commit (sources; generated I7 data had already landed in b582bad).
+- cv header recode (d5d9a56) + 82a-cv Addendum A. Researcher self-corrected: header counts in its first report were
+  typed before computing. RULE for all workers: report numbers only from a script run, never from memory; the evidence
+  FILE is authoritative over any message. cv round-2 second coder (seed "82a:cv", header only, from cv-items.csv) in bg.
+- 2026-09-24 Repo Keeper: invoice corpus + invoice-items.csv (48 = 40 GH + 8 MS; preview_url blank, not recorded in evidence).
