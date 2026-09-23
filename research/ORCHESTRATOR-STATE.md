@@ -84,3 +84,12 @@ This file is the live checklist. It is updated and committed after every milesto
   IN FLIGHT: cv second coder (bg, independent); invoice corpora (bg, holds GitHub API); deck npm (bg);
   Researcher = brochure recode + memo/form; Implementer = FIX 19 type scales; Reviewer = R2 code review;
   bg palette fixes (research/85).
+- 2026-09-23 evening: SESSION LIMIT hit mid-work (resets ~22:30 Europe/Luxembourg); resumed after reset.
+  Committed since last log: 0f72892 (FIX 19 ## Type scales + research/86 R2 review).
+  Resumed bg agents: palette fixes (research/85, partial edits on disk), invoice corpus, deck npm corpus,
+  cv second coder (tmp-cv2/ scratch dir). Teammates were "paused" after the limit; team_interrupt_agent
+  re-queues them (plain team_send_message did not wake them).
+  Board: Implementer = R2 fixes (Design Key column, brand-aware --design, BM25); Reviewer = R3 portable review;
+  Researcher = brochure recode (82a C1/C3) + memo + form.
+  RULINGS for R2 (research/86): F1 brand keeps own palette/typeface under --design; F2 nullable
+  doc-reasoning.Design Key; F3 blank bias terms in kit rows; F4 drop all-doc query terms, fallback Rank.
