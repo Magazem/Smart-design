@@ -55,14 +55,22 @@ Figures, Category Contrast and Scale Key are all derived — see
 `_derive_typefaces_row`.
 
 ## Doctypes   (required, at least one)
-One bare doctype short-name per line. v1 supports a fixed catalog (see
-DOCTYPE_CATALOG below): `note-interne`, `formulaire`, `social`, `slides`.
-Any other name is a hard failure — this script does not guess an Artifact
-Class, Render Target, or Reasoning Key for a doctype it doesn't know:
+One bare doctype name per line. Two kinds are accepted:
+  * the four legacy ENS short-names in DOCTYPE_CATALOG below: `note-interne`,
+    `formulaire`, `social`, `slides`;
+  * ANY generic base doctype, by its `doc_key` in `data/base/doctypes.csv`
+    (e.g. `cv-uk`, `report-short`, `invoice-tabular`, `slide-deck-projection`).
+    The kit's row is derived from that base row: Artifact Class, Reasoning
+    Key, Page Format Key, Render Target Keys, Constraint Set Keys, Structure
+    Key, Region Key, Family and Default Language are copied verbatim (the
+    base row is the source this script otherwise lacks); Keywords, Brand
+    Scope and doc_key (`<slug>-<doc_key>`) follow the brand path.
+A legacy short-name wins over a base doc_key of the same name. Any other name
+is a hard failure listing every valid key — this script does not guess an
+Artifact Class, Render Target, or Reasoning Key for a doctype it doesn't know:
     note-interne
-    formulaire
-    social
-    slides
+    cv-uk
+    invoice-tabular
 
 ## Voice   (optional)
 Free text, any content, no grammar checked. Passed through to the kit's
@@ -300,9 +308,26 @@ class BrandKitError(ValueError):
 # brand.md parsing
 # ---------------------------------------------------------------------------
 
-def parse_brand_md(text: str) -> dict:
+def load_base_doctypes(skill_dir: Path | None = None) -> dict[str, dict]:
+    """doc_key -> row for data/base/doctypes.csv ({} if it cannot be found)."""
+    skill_dir = skill_dir or find_skill_dir()
+    if skill_dir is None:
+        return {}
+    path = skill_dir / "data" / "base" / "doctypes.csv"
+    if not path.is_file():
+        return {}
+    with path.open(encoding="utf-8", newline="") as f:
+        return {r["doc_key"]: r for r in csv.DictReader(f) if r.get("doc_key")}
+
+
+def parse_brand_md(text: str, base_doctypes: dict[str, dict] | None = None) -> dict:
     """Parse brand.md into a structured dict. Raises BrandKitError with a
-    line number on the first problem found."""
+    line number on the first problem found. `base_doctypes` (default: loaded
+    from the detected skill dir) supplies the generic doc_keys ## Doctypes
+    may name besides the DOCTYPE_CATALOG legacy entries."""
+    if base_doctypes is None:
+        base_doctypes = load_base_doctypes()
+    known_doctypes = set(DOCTYPE_CATALOG) | set(base_doctypes)
     lines = text.splitlines()
     top = {}
     palette = {}
@@ -385,10 +410,10 @@ def parse_brand_md(text: str) -> dict:
         if section == "Doctypes":
             m = KV_RE.match(stripped)
             name = m.group(1).strip().lower() if m and not m.group(2) else stripped.lower()
-            if name not in DOCTYPE_CATALOG:
+            if name not in known_doctypes:
                 raise BrandKitError(
                     f"brand.md:{line_no}: unknown doctype '{name}' "
-                    f"(supported: {', '.join(sorted(DOCTYPE_CATALOG))})"
+                    f"(supported: {', '.join(sorted(known_doctypes))})"
                 )
             if name in doctypes:
                 raise BrandKitError(f"brand.md:{line_no}: doctype '{name}' listed twice")
@@ -404,7 +429,7 @@ def parse_brand_md(text: str) -> dict:
                 )
             directive, arg, value = m.group(1), m.group(2), m.group(3).strip()
             if directive == "page-format":
-                if arg not in DOCTYPE_CATALOG:
+                if arg not in known_doctypes:
                     raise BrandKitError(
                         f"brand.md:{line_no}: page-format override names unknown doctype '{arg}'"
                     )
@@ -594,11 +619,25 @@ def derive_typefaces_row(spec: dict, font_substitutes: list[dict]) -> tuple[dict
     return row, warnings
 
 
-def derive_doctype_rows(spec: dict) -> list[dict]:
+def _generic_catalog_entry(base_row: dict) -> dict:
+    """A DOCTYPE_CATALOG-shaped entry from a data/base/doctypes.csv row."""
+    split = lambda v: tuple(x for x in v.split(";") if x)  # noqa: E731
+    return dict(
+        display=base_row["Display Name"], artifact_class=base_row["Artifact Class"],
+        render_targets=split(base_row["Render Target Keys"]),
+        page_format_hint=base_row["Page Format Key"] or None,
+        constraint_hint=split(base_row["Constraint Set Keys"]),
+    )
+
+
+def derive_doctype_rows(spec: dict, base_doctypes: dict[str, dict] | None = None) -> list[dict]:
+    if base_doctypes is None:
+        base_doctypes = load_base_doctypes()
     slug = spec["slug"]
     rows = []
     for doctype in spec["doctypes"]:
-        cat = DOCTYPE_CATALOG[doctype]
+        base_row = None if doctype in DOCTYPE_CATALOG else base_doctypes[doctype]
+        cat = DOCTYPE_CATALOG[doctype] if base_row is None else _generic_catalog_entry(base_row)
         page_format = spec["page_format_overrides"].get(doctype, cat["page_format_hint"] or "")
         rows.append({
             "doc_key": f"{slug}-{doctype}",
@@ -613,19 +652,21 @@ def derive_doctype_rows(spec: dict) -> list[dict]:
                 [doctype, doctype.replace("-", " "), slug])),
             "Artifact Class": cat["artifact_class"],
             "Brand Scope": slug,
-            "Reasoning Key": REASONING_KEY_HINT.get(doctype, ""),
+            "Reasoning Key": (base_row["Reasoning Key"] if base_row
+                              else REASONING_KEY_HINT.get(doctype, "")),
             "Page Format Key": page_format,
             "Render Target Keys": ";".join(cat["render_targets"]),
             "Constraint Set Keys": ";".join(cat["constraint_hint"]),
-            "Structure Key": STRUCTURE_KEY_HINT.get(doctype, ""),
-            "Region Key": "",
-            "Family": FAMILY_HINT[doctype],
+            "Structure Key": (base_row["Structure Key"] if base_row
+                              else STRUCTURE_KEY_HINT.get(doctype, "")),
+            "Region Key": base_row["Region Key"] if base_row else "",
+            "Family": base_row["Family"] if base_row else FAMILY_HINT[doctype],
             # research/64 D-E (A7): this generic brand-kit builder parses no
             # language signal at all out of a brand .md today -- "en" is the
             # documented fallback for a doctype whose own Display Name carries
             # no market/language signal (rationale/doctypes.md), and adding
             # brand-markdown language parsing is out of this fix's scope.
-            "Default Language": "en",
+            "Default Language": base_row["Default Language"] if base_row else "en",
         })
     return rows
 
@@ -775,15 +816,15 @@ def main(argv: list[str] | None = None) -> int:
             raise BrandKitError(f"brand.md not found: {brand_md_path}")
         brand_md_text = brand_md_path.read_text(encoding="utf-8")
 
-        spec = parse_brand_md(brand_md_text)
-        slug = spec["slug"]
-
         skill_dir = find_skill_dir()
         if skill_dir is None:
             raise BrandKitError(
                 "could not locate the skill directory (no data/schema-manifest.json found); "
                 "set DDI_SKILL_DIR to override"
             )
+        base_doctypes = load_base_doctypes(skill_dir)
+        spec = parse_brand_md(brand_md_text, base_doctypes)
+        slug = spec["slug"]
         manifest = json.loads((skill_dir / "data" / "schema-manifest.json").read_text(encoding="utf-8"))
         font_substitutes = load_font_substitutes(skill_dir)
 
@@ -800,7 +841,7 @@ def main(argv: list[str] | None = None) -> int:
 
         palette_row, contrast_report = derive_palette_row(spec)
         typefaces_row, font_warnings = derive_typefaces_row(spec, font_substitutes)
-        doctype_rows = derive_doctype_rows(spec)
+        doctype_rows = derive_doctype_rows(spec, base_doctypes)
         typescale_rows = derive_typescale_rows(spec)
 
         tables = manifest["tables"]
@@ -821,8 +862,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"WARNING: {w}")
 
         for doctype in spec["doctypes"]:
-            cat = DOCTYPE_CATALOG[doctype]
             row = next(r for r in doctype_rows if r["doc_key"] == f"{slug}-{doctype}")
+            cat = {"display": row["Display Name"].split(" -- ", 1)[-1]}
             if not row["Page Format Key"]:
                 print(
                     f"NOTE: {doctype}: no Page Format Key (none given; no generic "

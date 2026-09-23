@@ -299,5 +299,65 @@ class TestOutputPathHandling(MakeBrandKitTestCase):
         self.assertIn("refusing to write into the read-only uploads directory", out)
 
 
+GENERIC_BRAND_MD = ENS_BRAND_MD.replace(
+    "note-interne\nformulaire\nsocial\nslides\n",
+    "cv-uk\ninvoice-tabular\nslide-deck-projection\nreport-short\nnote-interne\n",
+).replace(
+    "page-format note-interne: a4-professional\npage-format formulaire: a4-professional\n",
+    "page-format note-interne: a4-professional\n",
+)
+
+
+def _base_doctype_rows(skill_dir: Path) -> dict:
+    with (skill_dir / "data" / "base" / "doctypes.csv").open(encoding="utf-8", newline="") as f:
+        return {r["doc_key"]: r for r in csv.DictReader(f)}
+
+
+class TestGenericBaseDoctypes(MakeBrandKitTestCase):
+    def test_generic_doctypes_dry_run_ok(self):
+        path = self._write_brand_md(GENERIC_BRAND_MD)
+        code, out = self._run([str(path), "--dry-run"])
+        self.assertEqual(code, 0, out)
+        self.assertIn("doctypes=5", out)
+        self.assertNotIn("REAL problem", out)
+
+    def test_generic_rows_copy_base_row(self):
+        path = self._write_brand_md(GENERIC_BRAND_MD)
+        code, out = self._run([str(path)])
+        self.assertEqual(code, 0, out)
+        with zipfile.ZipFile(self.outputs / "ens-brand-kit.zip") as zf:
+            rows = {r["doc_key"]: r for r in csv.DictReader(
+                io.StringIO(zf.read("data/doctypes.csv").decode("utf-8")))}
+        base = _base_doctype_rows(self.skill_dir)
+        for key in ("cv-uk", "invoice-tabular", "slide-deck-projection", "report-short"):
+            row, b = rows[f"ens-{key}"], base[key]
+            for col in ("Artifact Class", "Reasoning Key", "Page Format Key",
+                        "Render Target Keys", "Constraint Set Keys", "Structure Key",
+                        "Region Key", "Family", "Default Language"):
+                self.assertEqual(row[col], b[col], f"{key}: {col}")
+            self.assertEqual(row["Brand Scope"], "ens")
+            self.assertIn(key, row["Keywords"])
+            self.assertIn("ens", row["Keywords"])
+
+    def test_generic_page_format_override_applies(self):
+        text = GENERIC_BRAND_MD.replace(
+            "type-scale label", "page-format cv-uk: a4-professional\ntype-scale label")
+        path = self._write_brand_md(text)
+        code, out = self._run([str(path)])
+        self.assertEqual(code, 0, out)
+        with zipfile.ZipFile(self.outputs / "ens-brand-kit.zip") as zf:
+            rows = {r["doc_key"]: r for r in csv.DictReader(
+                io.StringIO(zf.read("data/doctypes.csv").decode("utf-8")))}
+        self.assertEqual(rows["ens-cv-uk"]["Page Format Key"], "a4-professional")
+
+    def test_unknown_key_lists_generic_and_legacy_keys(self):
+        path = self._write_brand_md(ENS_BRAND_MD.replace("slides\n", "slides\nno-such-doc\n"))
+        code, out = self._run([str(path), "--dry-run"])
+        self.assertEqual(code, 1)
+        self.assertIn("unknown doctype 'no-such-doc'", out)
+        for key in ("cv-uk", "invoice-tabular", "slide-deck-projection", "note-interne"):
+            self.assertIn(key, out)
+
+
 if __name__ == "__main__":
     unittest.main()
