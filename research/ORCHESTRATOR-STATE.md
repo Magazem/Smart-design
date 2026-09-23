@@ -161,3 +161,4 @@ This file is the live checklist. It is updated and committed after every milesto
   Report MS: N=10 all admissible, 3 archetypes k=2. research/82a-clarifications-5.md (C25 declared-font reading,
   C26 recode header/colour under 82a-general for all pre-82ag families).
 - 2026-09-24 Repo Keeper: proposal MS + report MS corpora; 82a round 5.
+- 2026-09-24 Repo Keeper: P6.5 harness research/p65 committed (10 passed; not yet run against a model).
