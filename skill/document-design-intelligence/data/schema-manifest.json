@@ -114,7 +114,8 @@
         "Typeface Bias Terms",
         "Doc Conditions",
         "Anti-Pattern Tokens",
-        "Severity"
+        "Severity",
+        "Design Key"
       ],
       "key_column": "doc_category",
       "enums": {
@@ -126,7 +127,8 @@
       "foreign_keys": {
         "Style Key": "doc-styles.style_key",
         "Palette Key": "palettes.palette_key",
-        "Typeface Key": "typefaces.typeface_key"
+        "Typeface Key": "typefaces.typeface_key",
+        "Design Key": "designs.design_key"
       },
       "list_columns": {
         "Anti-Pattern Tokens": ";"
@@ -149,7 +151,8 @@
         "Typeface Bias Terms",
         "Doc Conditions",
         "Anti-Pattern Tokens",
-        "Severity"
+        "Severity",
+        "Design Key"
       ]
     },
     "doc-styles": {

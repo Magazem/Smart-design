@@ -19,9 +19,10 @@ Run `ddi.py`'s subcommands in this order:
    editorial", "something for a design portfolio", "keep it formal/DACH-style"), run
    `ddi.py designs --doctype <key> [--query "<their wording>"]` and offer the top 3
    designs it lists (Display Name, Best For, Evidence Class) instead of guessing; once
-   they pick one, re-run step 2 as `ddi.py resolve --doctype <key> --design <design_key>
-   --json` so the rest of the pipeline resolves from that design's own style/palette/
-   typeface. Skip this step if the user has no such preference — the doctype's own
+   they pick one, re-run step 2 with the same flags (including `--brand` and `--lang` if you used
+   them) plus `--design <design_key>` so the rest of the pipeline resolves from that
+   design's own style; a brand keeps its own palette/typeface, an unbranded doctype takes
+   the design's. Skip this step if the user has no such preference — the doctype's own
    default design (already the fitness choice, e.g. ATS-safe for a CV) applies with no
    extra step. `ddi.py library <palettes|typefaces|type-scales|doc-styles> [--query]` browses
    the grand library the same way when building a brand kit.

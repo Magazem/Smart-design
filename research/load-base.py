@@ -716,6 +716,19 @@ CHANGES.append("T1: +Default Language (research/64 D-E) -- cv-dach=de, cv-france
 # manifest's 10 columns, so the strip is automatic; this block only has to not lose the
 # prose on the way past.
 src = read("29-t2-doc-reasoning-draft.csv") + load_library_extra("doc-reasoning")
+# R2 F2: `Design Key` is DERIVED, never authored -- the design whose Reasoning Key is this
+# row's doc_category. Blank when no design points at the row, or when several do
+# (print-marketing serves brochure/flyer/poster: ambiguous, so the readers fall back to
+# Family + Reasoning Key).
+_dk = {}
+_dd = RES / "designs"
+for _p in (sorted(_dd.glob("*.csv")) if _dd.is_dir() else []):
+    with _p.open(encoding="utf-8-sig", newline="") as _f:
+        for _r in csv.DictReader(_f):
+            _dk.setdefault(_r["Reasoning Key"], []).append(_r["design_key"])
+src = [dict(r, **{"Design Key": (_dk[r["doc_category"]][0]
+                                 if len(_dk.get(r["doc_category"], [])) == 1 else "")})
+       for r in src]
 rows = write("doc-reasoning", src)
 ens_t2 = sorted(BRAND_ROWS["doc-reasoning"][1])
 RATIONALE.mkdir(parents=True, exist_ok=True)

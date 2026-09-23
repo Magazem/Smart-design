@@ -648,3 +648,16 @@ None of this is fixed here on purpose — P1.1 is schema only. `data/base/doctyp
 gaining `Family`, `data/base/designs.csv` and `data/base/provenance.csv` existing, and
 `scripts/ddi.py`'s `HANDOFF_EXCLUSIONS`/`HANDOFF_VOCAB` gaining entries for the new
 columns/tables are P1.2 (loader) and later (P1.4/P1.5) work.
+
+## R2 addendum — `doc-reasoning.Design Key` (research/86 F2)
+
+`doc-reasoning` gains a nullable 11th column `Design Key`, FK -> `designs.design_key`. It says
+which catalogued design a reasoning row *is*. `research/load-base.py` derives it (never
+authored): the design whose Reasoning Key is the row's `doc_category`; blank when no design
+points at the row or several do (`print-marketing` serves brochure/flyer/poster). Brand kits
+set it on their `<slug>-<family>` rows. The handoff `design:` line and `ddi.py designs`'
+DEFAULT marker prefer it, falling back to Family + Reasoning Key.
+
+The FK is validated but not walked (`resolve.NON_WALK_FKS`): a walk would attach a `designs`
+row to every resolution. `HANDOFF_EXCLUSIONS["doc-reasoning"]["Design Key"]` is routing
+metadata for all four formats.

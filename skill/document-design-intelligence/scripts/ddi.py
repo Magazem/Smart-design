@@ -130,7 +130,7 @@ def cmd_check(argv):
 def cmd_resolve(argv):
     """`ddi.py resolve ...` -- resolve.py passthrough, every flag forwarded
     as-is. Exit codes: propagated unchanged from resolve.main() (0
-    resolved, 1 data invalid, 2 abstained, 3 brand refusal)."""
+    resolved, 1 data invalid, 2 abstained, 3 brand refusal, 4 --design refusal)."""
     return resolve.main(argv)
 
 
@@ -396,6 +396,7 @@ HANDOFF_EXCLUSIONS = {
         "Palette Key": _ROUTING,
         "Style Key": _ROUTING,
         "Typeface Key": _ROUTING,
+        "Design Key": _ROUTING,
         "Anti-Pattern Tokens": "not yet wired: backlog doc-reasoning columns (research/66 S2 DEFECT)",
         "Doc Conditions": "not yet wired: backlog doc-reasoning columns (research/66 S2 DEFECT)",
         "Palette Bias Terms": "not yet wired: backlog doc-reasoning columns (research/66 S2 DEFECT)",
@@ -1353,11 +1354,16 @@ def _design_handoff_line(resolved, data_dir):
             return None
         family = doctype_row.get("Family", "")
         reasoning_key = doctype_row.get("Reasoning Key", "")
-        design_row = next(
-            (d for d in all_designs
-             if d.get("Family", "") == family and d.get("Reasoning Key", "") == reasoning_key),
-            None,
-        )
+        reasoning_row = _first_row(resolved, "doc-reasoning") or {}
+        design_key = reasoning_row.get("Design Key", "")
+        design_row = next((d for d in all_designs if design_key and d.get("design_key", "") == design_key
+                           and d.get("Family", "") == family), None)
+        if design_row is None:
+            design_row = next(
+                (d for d in all_designs
+                 if d.get("Family", "") == family and d.get("Reasoning Key", "") == reasoning_key),
+                None,
+            )
 
     if design_row is None:
         return None
@@ -1471,7 +1477,10 @@ def _provenance_line(provenance_rows, table_name, row_key):
     if not matches:
         return "(no provenance recorded)"
     row = matches[0]
-    source = row.get("Source Name", "") or "(unnamed source)"
+    source = row.get("Source Name", "")
+    if not source:
+        source = ("(convention -- no external source)"
+                  if row.get("Evidence Class", "") == "convention" else "(unnamed source)")
     metric = row.get("Ranking Metric", "")
     value = row.get("Rank Value", "")
     if metric and value:
@@ -1532,6 +1541,9 @@ def cmd_designs(argv):
 
     family = doctype_row.get("Family", "")
     default_reasoning_key = doctype_row.get("Reasoning Key", "")
+    default_reasoning_row = next(
+        (r for r in all_rows.get("doc-reasoning", []) if r.get("doc_category", "") == default_reasoning_key), {})
+    default_design_key = default_reasoning_row.get("Design Key", "")
 
     design_spec = tables.get("designs", {})
     design_key_col = design_spec.get("key_column", "design_key")
@@ -1552,9 +1564,18 @@ def cmd_designs(argv):
         ]
         bm25 = resolve.BM25()
         bm25.fit(documents)
-        scores = bm25.scores(args.query)
-        order.sort(key=lambda i: (-scores[i], int(family_designs[i].get("Rank", "0") or 0)))
-        method = "bm25"
+        # R2 F4: a term present in EVERY design of the family carries no signal;
+        # its IDF is ~0 and BM25 length noise would reorder the family.
+        doc_tokens = [set(resolve.BM25.tokenize(d)) for d in documents]
+        terms = [t for t in dict.fromkeys(resolve.BM25.tokenize(args.query))
+                 if not all(t in dt for dt in doc_tokens)]
+        if terms:
+            scores = bm25.scores(" ".join(terms))
+            if max(scores) > 0:
+                order.sort(key=lambda i: (-scores[i], int(family_designs[i].get("Rank", "0") or 0)))
+                method = "bm25"
+            else:
+                scores = None
 
     entries = []
     for i in order:
@@ -1569,7 +1590,9 @@ def cmd_designs(argv):
             "evidence_class": row.get("Evidence Class", ""),
             "best_for": row.get("Best For", ""),
             "keywords": row.get("Keywords", ""),
-            "is_default": bool(row.get("Reasoning Key", "")) and row.get("Reasoning Key", "") == default_reasoning_key,
+            "is_default": (row.get(design_key_col, "") == default_design_key if default_design_key
+                           else bool(row.get("Reasoning Key", ""))
+                           and row.get("Reasoning Key", "") == default_reasoning_key),
             "evidence": _provenance_line(provenance_rows, "designs", design_key),
             "style_key": dr.get("Style Key", ""),
             "palette_key": dr.get("Palette Key", ""),
@@ -1640,8 +1663,11 @@ def _library_simple(table_name, rows, provenance_rows, query):
         bm25 = resolve.BM25()
         bm25.fit(documents)
         scores = bm25.scores(query)
-        order.sort(key=lambda i: -scores[i])
-        method = "bm25"
+        if max(scores, default=0) > 0:
+            order.sort(key=lambda i: -scores[i])
+            method = "bm25"
+        else:
+            scores, method = None, "rank"
 
     entries = []
     for i in order:
@@ -1657,6 +1683,19 @@ def _library_simple(table_name, rows, provenance_rows, query):
             entry["score"] = round(scores[i], 4)
         entries.append(entry)
     return entries, method
+
+
+def _brand_slugs(all_rows):
+    """Every non-generic Brand Scope value present in any loaded table."""
+    return {r.get("Brand Scope", "") for rows in all_rows.values() for r in rows
+            if r.get("Brand Scope", "") not in ("", "generic")}
+
+
+def _scale_in_scope(scale_key, scope, brand_slugs):
+    """type-scales has no Brand Scope column; a brand kit's scales are keyed
+    `<slug>-...` (make_brand_kit), so scope is read off the key prefix."""
+    owner = next((b for b in brand_slugs if scale_key.startswith(b + "-")), "generic")
+    return owner == scope
 
 
 def _library_type_scales(rows, provenance_rows, query):
@@ -1684,9 +1723,12 @@ def _library_type_scales(rows, provenance_rows, query):
         bm25 = resolve.BM25()
         bm25.fit(documents)
         scores = bm25.scores(query)
-        scores_by_key = dict(zip(order_keys, scores))
-        keys = sorted(order_keys, key=lambda k: -scores_by_key[k])
-        method = "bm25"
+        if max(scores, default=0) > 0:
+            scores_by_key = dict(zip(order_keys, scores))
+            keys = sorted(order_keys, key=lambda k: -scores_by_key[k])
+            method = "bm25"
+        else:
+            method = "rank"
 
     entries = []
     for key in keys:
@@ -1716,13 +1758,12 @@ def cmd_library(argv):
     Browses the grand library (data/base/{palettes,typefaces,type-scales,
     doc-styles}.csv) with each entry's provenance evidence line. Only
     Brand Scope=="generic" rows are shown unless --brand names a scope to
-    show instead -- no row in today's library carries any other Brand
-    Scope, so --brand is a no-op until a brand overlay authors one.
-    type-scales carries no Brand Scope column at all (it is not a
-    brand-scoped table), so that filter does not apply to it.
+    show INSTEAD (brand rows only, not brand + generic). type-scales has
+    no Brand Scope column, so its scope is read off the `<slug>-` key prefix.
 
-    Exit codes: 0 printed successfully. 1 unknown library name, or a
-    tier-1 (structural) data problem. 2 bad usage (argparse).
+    Exit codes: 0 printed successfully. 1 unknown --brand, or a tier-1
+    (structural) data problem. 2 bad usage (argparse), including an
+    unknown library name.
     """
     import argparse
 
@@ -1752,9 +1793,16 @@ def cmd_library(argv):
     provenance_rows = all_rows.get("provenance", [])
 
     scope = args.brand or "generic"
+    brand_slugs = _brand_slugs(all_rows)
+    if args.brand and args.brand not in brand_slugs:
+        print(f"[NO SUCH BRAND] brand={args.brand!r} has no rows in any table "
+              f"(known: {', '.join(sorted(brand_slugs)) or 'none'})")
+        return 1
 
     if args.table == "type-scales":
-        entries, method = _library_type_scales(all_rows.get("type-scales", []), provenance_rows, args.query)
+        scale_rows = [r for r in all_rows.get("type-scales", [])
+                      if _scale_in_scope(r.get("scale_key", ""), scope, brand_slugs)]
+        entries, method = _library_type_scales(scale_rows, provenance_rows, args.query)
     else:
         rows = [r for r in all_rows.get(args.table, []) if r.get("Brand Scope", "") == scope]
         entries, method = _library_simple(args.table, rows, provenance_rows, args.query)

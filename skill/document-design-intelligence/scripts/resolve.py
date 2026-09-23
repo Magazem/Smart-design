@@ -71,7 +71,8 @@ value on one row) only refuses a resolution once it actually walks
 through the broken row -- everything that doesn't touch it answers
 normally, with a one-line warning header printed either way. This calls
 validate_data.validate_tiered(), it does not re-implement any of its
-checks - 2 abstained (no confident match) - 3 brand refusal.
+checks - 2 abstained (no confident match) - 3 brand refusal - 4 `--design`
+refusal (unknown design key, or design Family != doctype Family).
 
 Output is the resolved decision only, never a whole table: each resolved
 row is shown by table + key + only the columns the manifest marks
@@ -379,6 +380,12 @@ def _resolve_entry(entry_rows, key_column, searchable_columns, query, brand, des
 
 # ============ stage 2+: pure FK walk ============
 
+#: FKs that are validated but never walked: a back-pointer whose target is only
+#: attached on request (`--design`), so walking it would put a `designs` row in
+#: every resolution.
+NON_WALK_FKS = {("doc-reasoning", "Design Key")}
+
+
 def _fk_walk(entry_table, entry_row, tables_spec, all_rows, rows_by_key):
     """Follow every foreign_keys reference from the entry row outward,
     breadth-first, one level at a time, until no new row is reached.
@@ -417,6 +424,8 @@ def _fk_walk(entry_table, entry_row, tables_spec, all_rows, rows_by_key):
         table_name, row = frontier.pop(0)
         spec = tables_spec[table_name]
         for column, raw_fk in spec.get("foreign_keys", {}).items():
+            if (table_name, column) in NON_WALK_FKS:
+                continue
             ref_table, ref_column, is_list, is_group = datalib.fk_spec(raw_fk)
             value = row.get(column, "")
             if not value:
@@ -457,6 +466,22 @@ def _apply_design_override(entry_row, design_row):
     overridden = dict(entry_row)
     overridden["Reasoning Key"] = design_row.get("Reasoning Key", "")
     return overridden
+
+
+def _brand_design_reasoning(brand_row, design_reasoning_row, design_row):
+    """In-memory doc-reasoning row: the design's own row with the brand row's
+    Palette Key / Typeface Key (and blank bias terms for them). Nothing loaded
+    is mutated; the synthesized key is never written anywhere."""
+    merged = dict(design_reasoning_row)
+    merged.update({
+        "doc_category": f"{design_reasoning_row.get('doc_category', '')}+{brand_row.get('doc_category', '')}",
+        "Palette Key": brand_row.get("Palette Key", ""),
+        "Typeface Key": brand_row.get("Typeface Key", ""),
+        "Palette Bias Terms": brand_row.get("Palette Bias Terms", ""),
+        "Typeface Bias Terms": brand_row.get("Typeface Bias Terms", ""),
+        "Design Key": design_row.get("design_key", ""),
+    })
+    return merged
 
 
 def _has_brand_row(resolved, brand):
@@ -716,6 +741,8 @@ def main(argv=None):
         return 2
 
     design_row = None
+    original_entry_row = entry_row
+    brand_reasoning_key = None
     if args.design:
         designs_spec = tables.get("designs", {})
         designs_key_col = designs_spec.get("key_column", "design_key")
@@ -733,6 +760,7 @@ def main(argv=None):
                   f"!= doctype Family={entry_family!r} -- refusing")
             return 4
         entry_row = _apply_design_override(entry_row, design_row)
+        brand_reasoning_key = original_entry_row.get("Reasoning Key", "")
 
     language = _resolve_language(entry_spec, entry_row, args.lang)
 
@@ -740,6 +768,16 @@ def main(argv=None):
         name: {r.get(spec["key_column"], ""): r for r in all_rows[name]}
         for name, spec in tables.items() if spec.get("key_column")
     }
+    if (design_row is not None and original_entry_row.get("Brand Scope", "generic") != "generic"
+            and brand_reasoning_key in rows_by_key.get("doc-reasoning", {})):
+        # R2 F1: the design supplies layout/style, the brand keeps its colour/type.
+        merged = _brand_design_reasoning(
+            rows_by_key["doc-reasoning"][brand_reasoning_key],
+            rows_by_key["doc-reasoning"].get(design_row.get("Reasoning Key", ""), {}),
+            design_row)
+        rows_by_key["doc-reasoning"] = dict(rows_by_key["doc-reasoning"],
+                                            **{merged["doc_category"]: merged})
+        entry_row = dict(entry_row, **{"Reasoning Key": merged["doc_category"]})
     resolved = _fk_walk(entry_name, entry_row, tables, all_rows, rows_by_key)
 
     if design_row is not None:

@@ -113,13 +113,16 @@ tables["doc-reasoning"] = {
     "filename": "doc-reasoning.csv",
     "columns": ["doc_category", "Style Key", "Palette Key", "Typeface Key",
                 "Style Bias Terms", "Palette Bias Terms", "Typeface Bias Terms",
-                "Doc Conditions", "Anti-Pattern Tokens", "Severity"],
+                "Doc Conditions", "Anti-Pattern Tokens", "Severity", "Design Key"],
     "key_column": "doc_category",
     "enums": {"Severity": ["fail", "warn"]},
     "foreign_keys": {
         "Style Key": "doc-styles.style_key",
         "Palette Key": "palettes.palette_key",
         "Typeface Key": "typefaces.typeface_key",
+        # nullable: which catalogued design this row IS (R2 F2). Blank when the row
+        # is no design's Reasoning Key or several designs share it (print-marketing).
+        "Design Key": "designs.design_key",
     },
     "list_columns": {"Anti-Pattern Tokens": ";"},
     "distinct_token_columns": {"Anti-Pattern Tokens": ";"},

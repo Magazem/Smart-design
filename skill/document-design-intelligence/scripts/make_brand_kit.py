@@ -426,6 +426,7 @@ def parse_brand_md(text: str, base_doctypes: dict[str, dict] | None = None,
         section_match = SECTION_RE.match(stripped)
         if section_match:
             name = section_match.group(1)
+            name = next((a for a in ALLOWED_SECTIONS if a.lower() == name.lower()), name)
             if name not in ALLOWED_SECTIONS:
                 raise BrandKitError(
                     f"brand.md:{line_no}: unknown section heading '## {name}' "
@@ -499,7 +500,7 @@ def parse_brand_md(text: str, base_doctypes: dict[str, dict] | None = None,
             continue
 
         if section == "Designs":
-            m = DESIGN_LINE_RE.match(stripped)
+            m = DESIGN_LINE_RE.match(stripped.lower())
             if not m:
                 raise BrandKitError(
                     f"brand.md:{line_no}: unrecognised line in ## Designs: {stripped!r} "
@@ -529,7 +530,7 @@ def parse_brand_md(text: str, base_doctypes: dict[str, dict] | None = None,
             continue
 
         if section == "Type scales":
-            m = DESIGN_LINE_RE.match(stripped)
+            m = DESIGN_LINE_RE.match(stripped.lower())
             if not m:
                 raise BrandKitError(
                     f"brand.md:{line_no}: unrecognised line in ## Type scales: {stripped!r} "
@@ -872,7 +873,11 @@ def derive_reasoning_rows(spec: dict, palette_key: str, typeface_key: str,
             )
         row = dict(base[rk])
         row.update({"doc_category": f"{spec['slug']}-{family}",
-                    "Palette Key": palette_key, "Typeface Key": typeface_key})
+                    "Palette Key": palette_key, "Typeface Key": typeface_key,
+                    "Design Key": design_key,
+                    # the copied bias terms describe the design's generic palette/type,
+                    # not the brand's (R2 F3) -- blank them; Style Bias Terms stay
+                    "Palette Bias Terms": "", "Typeface Bias Terms": ""})
         rows.append(row)
     return rows
 
@@ -1062,6 +1067,12 @@ def main(argv: list[str] | None = None) -> int:
                 family_typeface.setdefault(r["Family"], by_medium.get(key, typeface_rows[0]["typeface_key"]))
         reasoning_rows = derive_reasoning_rows(
             spec, palette_row["palette_key"], typefaces_row["typeface_key"], skill_dir)
+        doctype_families = {r["Family"] for r in doctype_rows}
+        for fam in spec["designs"]:
+            if fam not in doctype_families:
+                print(f"WARNING: ## Designs line for family '{fam}' but no doctype of that "
+                      f"family is listed in ## Doctypes -- {slug}-{fam} will be an orphan "
+                      "doc-reasoning row", file=sys.stderr)
         for rr in reasoning_rows:
             fam = rr["doc_category"][len(slug) + 1:]
             if fam in family_typeface:
