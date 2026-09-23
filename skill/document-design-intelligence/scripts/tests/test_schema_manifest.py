@@ -45,11 +45,11 @@ GENERATOR = SKILL_ROOT.parent.parent / "research" / "build-manifest.py"
 class TestManifestIsGeneratorOutput(unittest.TestCase):
 
     def _regenerate(self, tmp):
-        """Run the generator with cwd=tmp -- it writes the RELATIVE path
-        data/schema-manifest.json, which is why its own docstring says to run it
-        from the skill directory."""
+        """Run the generator (from tmp, to prove cwd independence) with an explicit
+        output path so it never touches the committed manifest."""
         (Path(tmp) / "data").mkdir()
-        proc = subprocess.run([sys.executable, str(GENERATOR)],
+        out = Path(tmp) / "data" / "schema-manifest.json"
+        proc = subprocess.run([sys.executable, str(GENERATOR), str(out)],
                               cwd=tmp, capture_output=True, text=True)
         self.assertEqual(proc.returncode, 0, proc.stderr)
         return Path(tmp) / "data" / "schema-manifest.json"

@@ -229,6 +229,22 @@ class TestEvidenceClassFieldRequirements(unittest.TestCase):
             "expected at least one convention row with a blank Source URL "
             "(§2C: blank is only ever permitted for convention)")
 
+    def test_convention_blank_source_and_fetch_else_fetch_required(self):
+        for row in PROVENANCE:
+            with self.subTest(prov_key=row["prov_key"]):
+                if row["Evidence Class"] == "convention":
+                    self.assertEqual(row["Source URL"].strip(), "", f"{row['prov_key']}: convention has a Source URL")
+                    self.assertEqual(row["Fetch"].strip(), "", f"{row['prov_key']}: convention must have blank Fetch")
+                else:
+                    self.assertTrue(row["Fetch"].strip(), f"{row['prov_key']}: non-convention needs Fetch")
+
+    def test_prov_key_format(self):
+        for row in PROVENANCE:
+            with self.subTest(prov_key=row["prov_key"]):
+                m = re.fullmatch(r"([^:]+):([^:]+):([1-9][0-9]*)", row["prov_key"])
+                self.assertTrue(m, f"bad prov_key {row['prov_key']!r}")
+                self.assertEqual((m.group(1), m.group(2)), (row["Table"], row["Row Key"]))
+
     def test_ranked_rows_require_url_metric_value_and_date(self):
         ranked_rows = [r for r in PROVENANCE if r["Evidence Class"] == "ranked"]
         self.assertTrue(ranked_rows, "no ranked provenance rows found to exercise this rule against")

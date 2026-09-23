@@ -40,23 +40,23 @@ designs:cv-us-uk-designed:1,designs,cv-us-uk-designed,authority,Butterick's Prac
 designs:cv-eu-europass:1,designs,cv-eu-europass,authority,Europass -- Create your CV (official),https://europass.europa.eu/en/create-europass-cv,,,2026-09-23,fetched
 designs:cv-dach-tabular:1,designs,cv-dach-tabular,authority,Typewolf -- PT Serif suggested pairing,https://www.typewolf.com/pt-serif,,,2026-09-23,fetched
 designs:cv-editorial:1,designs,cv-editorial,authority,Typewolf -- Fraunces page (illustrative pairings),https://www.typewolf.com/fraunces,,,2026-09-23,fetched
-designs:cv-ats-strict:1,designs,cv-ats-strict,convention,,,,,2026-09-23,search-corroborated
-designs:cv-academic:1,designs,cv-academic,convention,,,,,2026-09-23,search-corroborated
-designs:cover-letter-professional:1,designs,cover-letter-professional,convention,,,,,2026-09-23,search-corroborated
-designs:letter-formal:1,designs,letter-formal,convention,,,,,2026-09-23,search-corroborated
-designs:memo-internal:1,designs,memo-internal,convention,,,,,2026-09-23,search-corroborated
-designs:form-handfilled:1,designs,form-handfilled,convention,,,,,2026-09-23,search-corroborated
-designs:brochure-print-marketing:1,designs,brochure-print-marketing,convention,,,,,2026-09-23,search-corroborated
-designs:flyer-print-marketing:1,designs,flyer-print-marketing,convention,,,,,2026-09-23,search-corroborated
-designs:poster-print-marketing:1,designs,poster-print-marketing,convention,,,,,2026-09-23,search-corroborated
-designs:report-classic:1,designs,report-classic,convention,,,,,2026-09-23,search-corroborated
-designs:whitepaper-formal:1,designs,whitepaper-formal,convention,,,,,2026-09-23,search-corroborated
-designs:proposal-narrative:1,designs,proposal-narrative,convention,,,,,2026-09-23,search-corroborated
-designs:quote-devis:1,designs,quote-devis,convention,,,,,2026-09-23,search-corroborated
-designs:invoice-tabular:1,designs,invoice-tabular,convention,,,,,2026-09-23,search-corroborated
-designs:deck-generic:1,designs,deck-generic,convention,,,,,2026-09-23,search-corroborated
-designs:one-pager-restrained:1,designs,one-pager-restrained,convention,,,,,2026-09-23,search-corroborated
-designs:infographic-scaffold:1,designs,infographic-scaffold,convention,,,,,2026-09-23,search-corroborated
+designs:cv-ats-strict:1,designs,cv-ats-strict,convention,,,,,2026-09-23,
+designs:cv-academic:1,designs,cv-academic,convention,,,,,2026-09-23,
+designs:cover-letter-professional:1,designs,cover-letter-professional,convention,,,,,2026-09-23,
+designs:letter-formal:1,designs,letter-formal,convention,,,,,2026-09-23,
+designs:memo-internal:1,designs,memo-internal,convention,,,,,2026-09-23,
+designs:form-handfilled:1,designs,form-handfilled,convention,,,,,2026-09-23,
+designs:brochure-print-marketing:1,designs,brochure-print-marketing,convention,,,,,2026-09-23,
+designs:flyer-print-marketing:1,designs,flyer-print-marketing,convention,,,,,2026-09-23,
+designs:poster-print-marketing:1,designs,poster-print-marketing,convention,,,,,2026-09-23,
+designs:report-classic:1,designs,report-classic,convention,,,,,2026-09-23,
+designs:whitepaper-formal:1,designs,whitepaper-formal,convention,,,,,2026-09-23,
+designs:proposal-narrative:1,designs,proposal-narrative,convention,,,,,2026-09-23,
+designs:quote-devis:1,designs,quote-devis,convention,,,,,2026-09-23,
+designs:invoice-tabular:1,designs,invoice-tabular,convention,,,,,2026-09-23,
+designs:deck-generic:1,designs,deck-generic,convention,,,,,2026-09-23,
+designs:one-pager-restrained:1,designs,one-pager-restrained,convention,,,,,2026-09-23,
+designs:infographic-scaffold:1,designs,infographic-scaffold,convention,,,,,2026-09-23,
 type-scales:lib-minor-third-print-print-label:1,type-scales,lib-minor-third-print-print-label,authority,modularscale.com named ratio: minor third 1.2 (5:6),https://www.modularscale.com/,,,2026-09-23,fetched
 type-scales:lib-minor-third-print-print-caption:1,type-scales,lib-minor-third-print-print-caption,authority,modularscale.com named ratio: minor third 1.2 (5:6),https://www.modularscale.com/,,,2026-09-23,fetched
 type-scales:lib-minor-third-print-print-body:1,type-scales,lib-minor-third-print-print-body,authority,modularscale.com named ratio: minor third 1.2 (5:6),https://www.modularscale.com/,,,2026-09-23,fetched

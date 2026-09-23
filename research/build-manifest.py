@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Emit data/schema-manifest.json from research/09-library-schema.md Revision 4.
 
-Run from skill/document-design-intelligence/ -- the output path is relative.
+Runs from any cwd -- the default output path resolves relative to this script file;
+an optional argv[1] overrides it (used by tests/test_schema_manifest.py).
 
 One key is NOT from Revision 4: `distinct_token_columns`. Revision 4 does not describe it,
 does not name it and rules nothing about it -- it was added at v0.2, after a repeated
@@ -11,7 +12,7 @@ weight. Its provenance is this file plus `validate_data.py`, which implements th
 declarations below as authored here, not as transcribed from the schema, and do not
 "reconcile" them against Revision 4 -- there is nothing there to reconcile with.
 """
-import json, pathlib, re
+import json, pathlib, re, sys
 
 def group(table, column, is_list=False):
     """A foreign key whose target is a non-unique GROUPING column, not the target
@@ -468,7 +469,7 @@ tables["provenance"] = {
         # provenance table it lives in.
         "Table": sorted(tables.keys()),
         "Evidence Class": EVIDENCE_CLASSES,
-        "Fetch": ["fetched", "search-corroborated"],
+        "Fetch": ["", "fetched", "search-corroborated"],  # blank only for convention (tests/test_provenance.py)
     },
     # `Row Key` is a polymorphic reference (resolved against whichever table `Table`
     # names), not a same-shaped `foreign_keys` entry -- see the table-level comment.
@@ -548,7 +549,7 @@ for name, t in tables.items():
     for d in t["derived"]:
         assert d["column"] in t["columns"] and d["against_column"] in t["columns"], name
 
-out = pathlib.Path("data/schema-manifest.json")
+out = pathlib.Path(sys.argv[1]) if len(sys.argv) > 1 else pathlib.Path(__file__).resolve().parent.parent / "skill" / "document-design-intelligence" / "data" / "schema-manifest.json"
 out.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 n_fk = sum(len(t["foreign_keys"]) for t in tables.values())
 n_group = sum(1 for t in tables.values() for r in t["foreign_keys"].values()

@@ -184,7 +184,7 @@ def read(name):
 # without hand-editing the numbered drafts above. Other agents are authoring under
 # research/library/<table>/*.csv concurrently and their files may still be incomplete,
 # so a glob file only loads when its filename is LISTED in LIBRARY_INPUTS_ENABLED --
-# left EMPTY on purpose. The orchestrator enables a batch by adding its filename once
+# a batch stays out of the build until enabled. The orchestrator enables a batch by adding its filename once
 # reviewed; an unlisted file sits in research/library/ and is silently skipped (that
 # silence is the point of a review gate, not a bug).
 LIBRARY_INPUTS_ENABLED = ["ranked-pairings.csv", "authority-design-systems.csv", "ratio-families.csv", "ranked-colourlovers.csv"]
@@ -834,8 +834,8 @@ CHANGES.append("designs: %d rows loaded from %d research/designs/<family>.csv fi
 # research/provenance/*.csv. Other agents are authoring provenance batches under this
 # same directory concurrently and their files may be incomplete, so the same review
 # gate as LIBRARY_INPUTS_ENABLED applies: only a filename LISTED in
-# PROVENANCE_INPUTS_ENABLED loads. Today that is only the seed file this phase authored
-# for the designs seeded just above.
+# PROVENANCE_INPUTS_ENABLED loads. The list below is the reviewed set (the designs seed
+# plus the ranked/authority provenance batches).
 PROVENANCE_INPUTS_ENABLED = ["seed-designs.csv", "typefaces-ranked-pairings.csv", "palettes-authority-design-systems.csv", "type-scales-ratio-families.csv", "palettes-ranked-colourlovers.csv"]
 PROVENANCE_DIR = RES / "provenance"
 _prov_files = ([p for p in sorted(PROVENANCE_DIR.glob("*.csv"))
