@@ -72,3 +72,7 @@ This file is the live checklist. It is updated and committed after every milesto
 - NOTE (user, 2026-09-23): the "Opus Reviewer" teammate started on Sonnet; user switched it to Opus
   manually. Treat R1 (research/84) as possibly Sonnet-authored: the final R4 Opus review must re-cover
   schema/loader. On a new machine, verify teammate models in the AionUi selector after spawning.
+- research/85 (R-lib2) PASS-WITH-FIXES; fixes in flight (bg). Rulings: r13 admitted/r137 dropped (pre-registration wins);
+  Muted per the pre-registered "lightest tint" rule; new test_palette_roles.py (Text-Safe roles >=4.5 vs Background).
+- RULING FIX 19 (lib type scales unreachable): give brand.md a `## Type scales` section (`print|projection|screen: <scale_key>`)
+  so make_brand_kit can use lib-* scales per medium instead of its hard-coded print scale -> Implementer task after backfill.
