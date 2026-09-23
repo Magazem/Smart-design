@@ -81,3 +81,13 @@ centre ≈ 12% of page width → **plain-left**.
 4. Gate: header A ≥ 0.80 → header stays in cv identity with the recoded values. **A second failure
    removes `header treatment` from cv's identity features** (archetype = columns|heading|colour),
    disclosed in the cv evidence file, per §7.
+
+## Addendum A (orchestrator, 2026-09-24) — gaps met by the recoder, fixed BEFORE the second coder runs
+A1 The header block is the name plus any title/tagline and contact lines. An un-headed summary
+   paragraph is NOT part of the header block. A full-width rule between the header block and such a
+   summary is therefore "directly below the header block" and satisfies the ruled test (NPM:048, NPM:063).
+A2 Rules belonging to SECTION headings (over- or underlines of "Experience", etc.) never count for
+   the header test, whichever side of the heading they sit on (GH:013).
+A3 "Page" is the document sheet only; any web canvas, mockup background or device frame around it
+   is ignored for every test (NPM:007, promo mockups). Sheets rendered under ~300 px tall are coded
+   but flagged low-confidence.
