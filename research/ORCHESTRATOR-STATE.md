@@ -23,3 +23,8 @@ This file is the live checklist. It is updated and committed after every milesto
 
 ## Progress log
 - 2026-09-23: Oriented. Launched health check (haiku) + v0.5 planner (opus).
+- 2026-09-23: Health check: 199 pass / 6 fail (Windows UTF-8 mojibake in 2 tests, manifest CRLF
+  byte-compare), gate OK 477 rows. "make me a CV ..." ABSTAINS (cv-uk vs cv-gulf-gcc) — to fix in Phase 4 cv.
+- 2026-09-23: Plan frozen in research/80-v05-plan.md (read §R rulings first). Butterick NOT banned (R-a).
+- IN FLIGHT: Windows test fix (sonnet); P1.1 schema in build-manifest.py (sonnet); P2.1
+  research/81-ranking-sources.md (sonnet). Next after P1.1: P1.2 loader globs + Family column.
