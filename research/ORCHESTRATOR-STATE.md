@@ -62,3 +62,10 @@ This file is the live checklist. It is updated and committed after every milesto
   base palettes/typefaces (LEGACY_UNPROVENANCED in test_provenance.py must shrink); (e) build-manifest cwd
   dependence, stale loader comments, Rank/prov_key format tests.
 - Reviewer now on R-lib2 (research/85: ranked palettes + ratio scales).
+- COMMITTED: 2ffac1d P5.1, 7577168 P5.2 (brand.md ## Designs), b5b3b4f research/83 fixes + test_provenance/test_designs,
+  11e8dca P1.5/1.6 (ddi designs / library / resolve --design / handoff design line; SKILL.md workflow step).
+- IN FLIGHT: Implementer = R1 backlog (c)(e) (Fetch blank for convention, build-manifest cwd, format tests);
+  Reviewer = R-lib2 audit; Researcher = deck-corpus-lo-ms; bg: cv-corpus-github, cv-corpus-npm-ms,
+  deck-corpus-npm, P6.1 portable pack (research/build-portable.py -> portable/).
+- NEXT: legacy provenance backfill (d) after Implementer frees test_provenance.py; second-coder + fill for cv
+  and deck when their corpora land; remaining families per research/82 §10 (only one GitHub-API user at a time).
