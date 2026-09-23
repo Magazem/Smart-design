@@ -141,3 +141,4 @@ This file is the live checklist. It is updated and committed after every milesto
 - 2026-09-24 Repo Keeper: deck agreement + generalized agreement.py committed (cv header 0.70 reproduces).
 - 2026-09-24 Repo Keeper: resolver follow-up (language-aware family default, Family Default column, lettre keywords); 303 passed.
 - 2026-09-24 Repo Keeper: 82a-deck rule amendment; infographic IIB corpus (corroboration only).
+- 2026-09-24 Repo Keeper: poster GitHub L1 corpus committed.
