@@ -836,7 +836,7 @@ CHANGES.append("designs: %d rows loaded from %d research/designs/<family>.csv fi
 # gate as LIBRARY_INPUTS_ENABLED applies: only a filename LISTED in
 # PROVENANCE_INPUTS_ENABLED loads. The list below is the reviewed set (the designs seed
 # plus the ranked/authority provenance batches).
-PROVENANCE_INPUTS_ENABLED = ["seed-designs.csv", "typefaces-ranked-pairings.csv", "palettes-authority-design-systems.csv", "type-scales-ratio-families.csv", "palettes-ranked-colourlovers.csv"]
+PROVENANCE_INPUTS_ENABLED = ["seed-designs.csv", "typefaces-ranked-pairings.csv", "palettes-authority-design-systems.csv", "type-scales-ratio-families.csv", "palettes-ranked-colourlovers.csv", "legacy-backfill.csv"]
 PROVENANCE_DIR = RES / "provenance"
 _prov_files = ([p for p in sorted(PROVENANCE_DIR.glob("*.csv"))
                if p.name in PROVENANCE_INPUTS_ENABLED] if PROVENANCE_DIR.is_dir() else [])

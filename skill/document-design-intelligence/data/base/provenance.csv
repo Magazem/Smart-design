@@ -1,4 +1,69 @@
 prov_key,Table,Row Key,Evidence Class,Source Name,Source URL,Ranking Metric,Rank Value,Retrieved,Fetch
+palettes:mono-ink:1,palettes,mono-ink,convention,,,,,2026-09-23,
+palettes:brand-accent-print:1,palettes,brand-accent-print,convention,,,,,2026-09-23,
+palettes:print-neutral:1,palettes,print-neutral,convention,,,,,2026-09-23,
+palettes:deck-high-contrast:1,palettes,deck-high-contrast,convention,,,,,2026-09-23,
+palettes:cv-harvard:1,palettes,cv-harvard,authority,USWDS system colour tokens,https://designsystem.digital.gov/design-tokens/color/system-tokens/,,,2026-09-23,search-corroborated
+palettes:cv-dach-formal:1,palettes,cv-dach-formal,authority,GOV.UK Design System colour,https://design-system.service.gov.uk/styles/colour/,,,2026-09-23,search-corroborated
+palettes:cv-europass:1,palettes,cv-europass,authority,GOV.UK Design System colour,https://design-system.service.gov.uk/styles/colour/,,,2026-09-23,search-corroborated
+palettes:cv-editorial:1,palettes,cv-editorial,authority,IBM Carbon colour overview,https://carbondesignsystem.com/elements/color/overview/,,,2026-09-23,search-corroborated
+typefaces:safe-sans-arial:1,typefaces,safe-sans-arial,convention,,,,,2026-09-23,
+typefaces:safe-serif-times:1,typefaces,safe-serif-times,convention,,,,,2026-09-23,
+typefaces:safe-serif-georgia:1,typefaces,safe-serif-georgia,convention,,,,,2026-09-23,
+typefaces:safe-sans-deck:1,typefaces,safe-sans-deck,convention,,,,,2026-09-23,
+typefaces:safe-sans-infographic:1,typefaces,safe-sans-infographic,convention,,,,,2026-09-23,
+typefaces:ofl-source-sans-serif:1,typefaces,ofl-source-sans-serif,authority,"google/fonts repository (font files and LICENSE, licence + fsType checked per file)",https://github.com/google/fonts,,,2026-09-23,fetched
+typefaces:ofl-plex-superfamily:1,typefaces,ofl-plex-superfamily,authority,"google/fonts repository (font files and LICENSE, licence + fsType checked per file)",https://github.com/google/fonts,,,2026-09-23,fetched
+typefaces:ofl-public-sans:1,typefaces,ofl-public-sans,authority,"google/fonts repository (font files and LICENSE, licence + fsType checked per file)",https://github.com/google/fonts,,,2026-09-23,fetched
+typefaces:ofl-roboto-slab:1,typefaces,ofl-roboto-slab,authority,"google/fonts repository (font files and LICENSE, licence + fsType checked per file)",https://github.com/google/fonts,,,2026-09-23,fetched
+typefaces:source-serif-sans:1,typefaces,source-serif-sans,authority,adobe-fonts/source-serif README,https://github.com/adobe-fonts/source-serif,,,2026-09-23,fetched
+typefaces:pt-serif-sans:1,typefaces,pt-serif-sans,authority,Typewolf - PT Serif (suggested pairing PT Serif + PT Sans),https://www.typewolf.com/pt-serif,,,2026-09-23,fetched
+typefaces:ibm-plex-sans:1,typefaces,ibm-plex-sans,convention,,,,,2026-09-23,
+typefaces:fraunces-work-sans:1,typefaces,fraunces-work-sans,authority,Typewolf - Fraunces page (illustrative pairings),https://www.typewolf.com/fraunces,,,2026-09-23,fetched
+doc-styles:cv-restrained:1,doc-styles,cv-restrained,convention,,,,,2026-09-23,
+doc-styles:cv-academic-plain:1,doc-styles,cv-academic-plain,convention,,,,,2026-09-23,
+doc-styles:letter-restrained:1,doc-styles,letter-restrained,convention,,,,,2026-09-23,
+doc-styles:letter-formal-grid:1,doc-styles,letter-formal-grid,convention,,,,,2026-09-23,
+doc-styles:memo-plain:1,doc-styles,memo-plain,convention,,,,,2026-09-23,
+doc-styles:form-grid-underline:1,doc-styles,form-grid-underline,convention,,,,,2026-09-23,
+doc-styles:marketing-print-bold:1,doc-styles,marketing-print-bold,convention,,,,,2026-09-23,
+doc-styles:infographic-bold:1,doc-styles,infographic-bold,convention,,,,,2026-09-23,
+doc-styles:report-classic-serif:1,doc-styles,report-classic-serif,convention,,,,,2026-09-23,
+doc-styles:deck-bold-minimal:1,doc-styles,deck-bold-minimal,convention,,,,,2026-09-23,
+doc-styles:one-pager-tight:1,doc-styles,one-pager-tight,convention,,,,,2026-09-23,
+doc-styles:cv-harvard:1,doc-styles,cv-harvard,authority,Butterick Practical Typography - Resumes,https://practicaltypography.com/resumes.html,,,2026-09-23,fetched
+doc-styles:cv-dach-tabular:1,doc-styles,cv-dach-tabular,authority,Europass official CV page,https://europass.europa.eu/en/create-europass-cv,,,2026-09-23,fetched
+doc-styles:cv-europass:1,doc-styles,cv-europass,authority,Europass official CV page,https://europass.europa.eu/en/create-europass-cv,,,2026-09-23,fetched
+doc-styles:cv-editorial:1,doc-styles,cv-editorial,convention,,,,,2026-09-23,
+doc-reasoning:cv-ats-strict:1,doc-reasoning,cv-ats-strict,convention,,,,,2026-09-23,
+doc-reasoning:cv-academic:1,doc-reasoning,cv-academic,convention,,,,,2026-09-23,
+doc-reasoning:cover-letter-professional:1,doc-reasoning,cover-letter-professional,convention,,,,,2026-09-23,
+doc-reasoning:letter-formal:1,doc-reasoning,letter-formal,convention,,,,,2026-09-23,
+doc-reasoning:memo-internal:1,doc-reasoning,memo-internal,convention,,,,,2026-09-23,
+doc-reasoning:form-handfilled:1,doc-reasoning,form-handfilled,convention,,,,,2026-09-23,
+doc-reasoning:print-marketing:1,doc-reasoning,print-marketing,convention,,,,,2026-09-23,
+doc-reasoning:report-classic:1,doc-reasoning,report-classic,convention,,,,,2026-09-23,
+doc-reasoning:whitepaper-formal:1,doc-reasoning,whitepaper-formal,convention,,,,,2026-09-23,
+doc-reasoning:proposal-narrative:1,doc-reasoning,proposal-narrative,convention,,,,,2026-09-23,
+doc-reasoning:quote-devis:1,doc-reasoning,quote-devis,convention,,,,,2026-09-23,
+doc-reasoning:deck-generic:1,doc-reasoning,deck-generic,convention,,,,,2026-09-23,
+doc-reasoning:one-pager-restrained:1,doc-reasoning,one-pager-restrained,convention,,,,,2026-09-23,
+doc-reasoning:infographic-scaffold:1,doc-reasoning,infographic-scaffold,convention,,,,,2026-09-23,
+doc-reasoning:invoice-tabular:1,doc-reasoning,invoice-tabular,convention,,,,,2026-09-23,
+doc-reasoning:cv-us-uk-designed:1,doc-reasoning,cv-us-uk-designed,authority,Butterick Practical Typography - Resumes,https://practicaltypography.com/resumes.html,,,2026-09-23,fetched
+doc-reasoning:cv-us-uk-designed:2,doc-reasoning,cv-us-uk-designed,authority,HR Dive - TheLadders 2018 eye-tracking study,https://www.hrdive.com/news/eye-tracking-study-shows-recruiters-look-at-resumes-for-7-seconds/541582/,,,2026-09-23,fetched
+doc-reasoning:cv-us-uk-designed:3,doc-reasoning,cv-us-uk-designed,authority,Jobscan - 5 Critical ATS Formatting Mistakes,https://www.jobscan.co/blog/ats-formatting-mistakes/,,,2026-09-23,fetched
+doc-reasoning:cv-us-uk-designed:4,doc-reasoning,cv-us-uk-designed,authority,adobe-fonts/source-serif README,https://github.com/adobe-fonts/source-serif,,,2026-09-23,fetched
+doc-reasoning:cv-us-uk-designed:5,doc-reasoning,cv-us-uk-designed,authority,USWDS system colour tokens,https://designsystem.digital.gov/design-tokens/color/system-tokens/,,,2026-09-23,search-corroborated
+doc-reasoning:cv-dach-tabular:1,doc-reasoning,cv-dach-tabular,authority,Europass official CV page,https://europass.europa.eu/en/create-europass-cv,,,2026-09-23,fetched
+doc-reasoning:cv-dach-tabular:2,doc-reasoning,cv-dach-tabular,authority,Typewolf - PT Serif (suggested pairing PT Serif + PT Sans),https://www.typewolf.com/pt-serif,,,2026-09-23,fetched
+doc-reasoning:cv-dach-tabular:3,doc-reasoning,cv-dach-tabular,authority,GOV.UK Design System colour,https://design-system.service.gov.uk/styles/colour/,,,2026-09-23,search-corroborated
+doc-reasoning:cv-eu-europass:1,doc-reasoning,cv-eu-europass,authority,Europass official CV page,https://europass.europa.eu/en/create-europass-cv,,,2026-09-23,fetched
+doc-reasoning:cv-eu-europass:2,doc-reasoning,cv-eu-europass,authority,Jobscan - 5 Critical ATS Formatting Mistakes,https://www.jobscan.co/blog/ats-formatting-mistakes/,,,2026-09-23,fetched
+doc-reasoning:cv-eu-europass:3,doc-reasoning,cv-eu-europass,authority,GOV.UK Design System colour,https://design-system.service.gov.uk/styles/colour/,,,2026-09-23,search-corroborated
+doc-reasoning:cv-editorial:1,doc-reasoning,cv-editorial,authority,Typewolf - IBM Plex Sans page (illustrative creative-portfolio pairings),https://www.typewolf.com/ibm-plex-sans,,,2026-09-23,fetched
+doc-reasoning:cv-editorial:2,doc-reasoning,cv-editorial,authority,Typewolf - Fraunces page (illustrative pairings),https://www.typewolf.com/fraunces,,,2026-09-23,fetched
+doc-reasoning:cv-editorial:3,doc-reasoning,cv-editorial,authority,IBM Carbon colour overview,https://carbondesignsystem.com/elements/color/overview/,,,2026-09-23,search-corroborated
 palettes:lib-govuk-ink:1,palettes,lib-govuk-ink,authority,"GOV.UK Design System colours: text #0b0c0c, secondary text #484949, border #cecece, template background #f4f8fb, blue (brand) #1d70b8",https://design-system.service.gov.uk/styles/colour/,,,2026-09-23,fetched
 palettes:lib-uswds-navy:1,palettes,lib-uswds-navy,authority,"USWDS theme tokens: base-darkest #1b1b1b, base-dark #565c65, base-lighter #dfe1e2, base-light #a9aeb1, primary blue-60v #005ea2",https://designsystem.digital.gov/design-tokens/color/theme-tokens/,,,2026-09-23,fetched
 palettes:lib-atlassian-ink:1,palettes,lib-atlassian-ink,authority,"Atlassian Design System tokens: text #292A2E, text-subtle #505258, border-input #8C8F97, background-code-gutter #F0F1F2, text-brand/link #1868DB",https://atlassian.design/DESIGN.md,,,2026-09-23,fetched
