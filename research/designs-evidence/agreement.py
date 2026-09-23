@@ -14,27 +14,70 @@ Usage:
         --second research/designs-evidence/cv-second-coder.md \
         [--exclude GH:003 GH:007 GH:008]
 
+    python agreement.py --family deck \
+        --first NPM:research/designs-evidence/deck-corpus-npm.md \
+                LO:research/designs-evidence/deck-corpus-lo-ms.md \
+        --second research/designs-evidence/deck-second-coder.md
+
 Each --first entry is "LABEL:path". LABEL is only used to synthesize an id (LABEL:NNN) for
 coded tables that key rows by a bare position/rank column instead of an explicit id column
 (e.g. "Pos" in an NPM-style table). Tables that already carry an explicit id column (e.g.
-"GH:001") are read as-is and LABEL is only used to sanity-check the prefix.
+"GH:001", "LO:001", "MS:001") are read as-is and LABEL is only used to sanity-check the
+prefix. A single evidence file may contain more than one coded table keyed by different id
+prefixes (e.g. `deck-corpus-lo-ms.md` has an `LO.3` section keyed `LO:###` and an `MS.2-3`
+section keyed `MS:###`) — every qualifying table in a file is parsed and merged.
+
+Feature set per family (research/82 §4): every family shares 2 universal identity features
+(heading, colour) and 3 universal variant features (body, rules/boxes, density). The other 2
+identity-feature slots and any extra variant features are family-specific:
+
+  - cv, cover-letter:            identity = columns, heading, colour, header
+                                  + variant photo
+  - deck:                        identity = background (replaces columns), heading, colour,
+                                  title-slide layout (replaces header)
+  - invoice, quote:              identity = columns, heading, colour, header
+                                  + variant totals position, table rules
+  - brochure:                    identity = panel count (replaces columns), heading, colour,
+                                  header
+  - form:                        identity = columns, heading, colour, field style (replaces
+                                  header)
+  - letter:                      identity = columns, heading, colour, header
+                                  + variant letterhead position
+  - poster:                      identity = columns, heading, colour, header
+                                  + variant orientation
+  - report, whitepaper, proposal: identity = columns, heading, colour, header
+                                  + variant cover page
+  - any other family:            identity = columns, heading, colour, header (default)
 
 What it does:
   1. Parses every markdown table in each input file (a file may contain many: raw list,
-     coded table, exclusions log, frequency table, sources...). Selects the "coded" table(s)
-     in each file: those whose header row contains (after normalization) columns/heading/
-     colour/header/admissible.
+     coded table(s), exclusions log, frequency table, sources...). Selects the "coded"
+     table(s) in each file: those whose header row contains (after tolerant normalization,
+     using the family's own feature-alias set) a sufficient subset of that family's identity
+     features plus an admissible/adm column. A file may contain more than one qualifying
+     table (e.g. LO and MS sections); every one found is parsed and merged.
   2. Builds an id -> {feature: value} record for every coded row, id = existing "id" cell if
      present, else f"{LABEL}:{int(pos):03d}".
   3. Also builds a name index (repo/package column, normalized) per id, for cases where the
      id scheme of the first coder(s) and the second coder differ (§7 amendment: the script
      resolves by name and reports the mapping used).
-  4. Reads the second coder's own coded table (same parser) — its ids define the sample.
+  4. Reads the second coder's own coded table(s) (same parser) — its ids define the sample.
   5. For each sampled id, looks up the matching first-coder row (by id; falls back to name
      match, reporting every fallback used) and compares every shared feature.
-  6. Reports, per feature: n, agreements, A_f, Cohen's kappa, and the full disagreement list
-     (id, feature, coder1 value, coder2 value).
-  7. If --exclude is given, reruns the whole computation with those ids removed from the
+  6. Per 82a **C7**: a coded value of `unknown` (or a bare `-` placeholder, used the same way
+     by some corpora) means "not codeable from the available preview" and is not a real code;
+     such cells are excluded from both coders' denominators for that feature — agreement is
+     computed only over items where BOTH coders recorded a non-unknown value for that
+     feature, and n (the shared-value count) is reported per feature so this is auditable.
+  7. Reports, per feature (grouped identity / variant / admissible), n, agreements, A_f,
+     Cohen's kappa, and the full disagreement list (id, feature, coder1 value, coder2 value).
+  8. Gate: every IDENTITY feature (plus admissible) must reach A_f >= 0.80 to pass; this is
+     the family's falsifier gate. A failing VARIANT feature does not fail the gate — it is
+     simply disqualified from filling (§8), which is reported separately.
+  9. n=0 for any gating feature (an identity feature, or admissible) is never silently
+     reported as passing: it means detection failed (no shared coded sample was found), and
+     the script exits non-zero with an explicit ERROR instead of printing PASS.
+ 10. If --exclude is given, reruns the whole computation with those ids removed from the
      sample (a "sensitivity run"), and reports that table too.
 
 The script only counts and computes; it never judges which coder is "right" (R-d).
@@ -45,37 +88,102 @@ import re
 import sys
 from collections import OrderedDict
 
-# Canonical feature keys and the header-cell aliases that map onto them after normalization
-# (normalization = lowercase, strip everything but letters/digits).
+# ---------------------------------------------------------------------------------------
+# Feature aliases: header-cell text (after normalize_header: lowercase, strip non-alnum)
+# -> canonical feature key. Deliberately tolerant of abbreviation ("adm", "dens", "bg",
+# "head", "rules") and of longer/rephrased headers ("colour use", "title-slide layout",
+# "header treatment") so a coded table is recognized regardless of which corpus wrote it.
+# ---------------------------------------------------------------------------------------
 ALIASES = {
     "id": "id",
     "repo": "name",
     "package": "name",
     "repopackage": "name",
+    "repopackagename": "name",
     "item": "name",
+    "template": "name",
     "pos": "pos",
     "rank": "pos",
+    # universal identity/variant features
     "columns": "columns",
+    "column": "columns",
     "heading": "heading",
+    "head": "heading",
     "body": "body",
     "colour": "colour",
     "color": "colour",
+    "colouruse": "colour",
+    "coloruse": "colour",
     "header": "header",
+    "headertreatment": "header",
     "rulesboxes": "rules_boxes",
+    "rules": "rules_boxes",
     "density": "density",
-    "photo": "photo",
+    "dens": "density",
     "admissible": "admissible",
+    "adm": "admissible",
+    # deck-specific (replace columns/header)
+    "background": "background",
+    "bg": "background",
+    "titlelayout": "title_layout",
+    "titleslidelayout": "title_layout",
+    "titleslide": "title_layout",
+    "title": "title_layout",
+    # cv/cover-letter
+    "photo": "photo",
+    # invoice/quote
+    "totalsposition": "totals_position",
+    "totals": "totals_position",
+    "tablerules": "table_rules",
+    # brochure
+    "panelcount": "panel_count",
+    "panels": "panel_count",
+    # form
+    "fieldstyle": "field_style",
+    # letter
+    "letterheadposition": "letterhead_position",
+    "letterhead": "letterhead_position",
+    # poster
+    "orientation": "orientation",
+    # report/whitepaper/proposal
+    "coverpage": "cover_page",
 }
 
-# The columns that must be present (mapped) for a table to be treated as "the" coded table.
-CODED_TABLE_MARKERS = {"columns", "heading", "colour", "header", "admissible"}
+# Feature keys whose value is parsed like "admissible" (leading yes/no/y/n, rest is a
+# disclosed reason and is ignored for comparison).
+YESNO_KEYS = {"admissible"}
 
-# All feature keys we ever compare (order = report order). "id"/"name"/"pos" are structural,
-# not features.
-FEATURE_KEYS = [
-    "columns", "heading", "body", "colour", "header",
-    "rules_boxes", "density", "photo", "admissible",
-]
+# Per-family feature set: (identity feature keys, variant feature keys). "admissible" is
+# implicit in every family (always compared, always a gating feature) and is not repeated
+# here. Order given here is the report order.
+DEFAULT_IDENTITY = ["columns", "heading", "colour", "header"]
+DEFAULT_VARIANT = ["body", "rules_boxes", "density"]
+
+FAMILY_FEATURES = {
+    "cv": (DEFAULT_IDENTITY, DEFAULT_VARIANT + ["photo"]),
+    "cover-letter": (DEFAULT_IDENTITY, DEFAULT_VARIANT + ["photo"]),
+    "deck": (["background", "heading", "colour", "title_layout"], DEFAULT_VARIANT),
+    "invoice": (DEFAULT_IDENTITY, DEFAULT_VARIANT + ["totals_position", "table_rules"]),
+    "quote": (DEFAULT_IDENTITY, DEFAULT_VARIANT + ["totals_position", "table_rules"]),
+    "brochure": (["panel_count", "heading", "colour", "header"], DEFAULT_VARIANT),
+    "form": (["columns", "heading", "colour", "field_style"], DEFAULT_VARIANT),
+    "letter": (DEFAULT_IDENTITY, DEFAULT_VARIANT + ["letterhead_position"]),
+    "poster": (DEFAULT_IDENTITY, DEFAULT_VARIANT + ["orientation"]),
+    "report": (DEFAULT_IDENTITY, DEFAULT_VARIANT + ["cover_page"]),
+    "whitepaper": (DEFAULT_IDENTITY, DEFAULT_VARIANT + ["cover_page"]),
+    "proposal": (DEFAULT_IDENTITY, DEFAULT_VARIANT + ["cover_page"]),
+}
+
+
+def family_features(family):
+    """Return (identity_keys, variant_keys, all_feature_keys) for a family, falling back to
+    the universal default (columns/heading/colour/header + body/rules_boxes/density) for any
+    family not listed explicitly."""
+    identity, variant = FAMILY_FEATURES.get(family, (DEFAULT_IDENTITY, DEFAULT_VARIANT))
+    identity = list(identity)
+    variant = list(variant)
+    all_keys = identity + variant + ["admissible"]
+    return identity, variant, all_keys
 
 
 def normalize_header(cell):
@@ -134,29 +242,78 @@ def map_header(header):
         norm = normalize_header(cell)
         if norm in ALIASES:
             key = ALIASES[norm]
-            # first match wins (avoid a later "photo"-like collision overwriting)
+            # first match wins (avoid a later alias collision overwriting)
             mapping.setdefault(key, idx)
     return mapping
 
 
+def table_is_coded(colmap, identity_keys):
+    """A table qualifies as "the" (a) coded table for this family if it carries an
+    admissible/adm column and a sufficient subset of the family's identity features —
+    tolerant of one missing/unrecognized identity header, but never of a missing admissible
+    column (every coded table in every family evidence file records admissibility)."""
+    if "admissible" not in colmap:
+        return False
+    matched = sum(1 for k in identity_keys if k in colmap)
+    return matched >= max(1, len(identity_keys) - 1)
+
+
 def clean_feature_cell(raw):
+    """Extract the canonical enum value from a feature cell, stripping any disclosed
+    parenthetical annotation or free-text note a coder appended after it (e.g.
+    `one-accent (gold)` -> `one-accent`; `display (handwriting-style "Excalifont"/Virgil
+    glyphs)` -> `display`; `standard (~30 words on content slide)` -> `standard`; `sans —
+    also carries an emoji` -> `sans`). Enum values themselves only ever use a plain hyphen
+    (`one-accent`, `full-bleed-image`, `2-sidebar`, ...), never a parenthesis or an em/en
+    dash, so splitting on those is safe and does not touch the value itself."""
     cell = raw.strip()
     cell = re.sub(r"^`|`$", "", cell)
+    cell = cell.strip()
+    cell = re.split(r"\s*\(", cell, maxsplit=1)[0]
+    cell = re.split(r"\s+[–—]\s+", cell, maxsplit=1)[0]
+    cell = re.split(r"\s+--\s+", cell, maxsplit=1)[0]
     return cell.strip()
 
 
-def parse_admissible_cell(raw):
+def parse_yesno_cell(raw):
+    """Admissible-like cell: leading yes/no (or y/n abbreviation, optionally preceded by
+    markdown bold `**`), rest of the cell is a disclosed reason and is dropped."""
     cell = re.sub(r"[`]", "", raw.strip())
-    m = re.match(r"^\**\s*(yes|no)\b", cell, re.I)
+    m = re.match(r"^\**\s*(yes|no|y|n)\b", cell, re.I)
     if m:
-        return m.group(1).lower()
+        val = m.group(1).lower()
+        return "yes" if val in ("yes", "y") else "no"
     return clean_feature_cell(raw)  # fall back to raw text, disagreement will show it
 
 
-def load_coded_records(path, label=None):
+UNKNOWN_RE = re.compile(r"(?i)^unknown\b")
+
+
+def is_uncoded(value):
+    """82a C7: a coded value that isn't really a code — the coder couldn't determine this
+    feature from the available preview. Covers the literal `unknown` (optionally followed by
+    a parenthetical reason, e.g. `unknown (2nd image is ... — C7)`), a bare `-` placeholder
+    (used the same way by the MS deck corpus for features it structurally can't code), and
+    empty cells."""
+    if value is None:
+        return True
+    v = value.strip()
+    if v == "" or v == "-":
+        return True
+    if UNKNOWN_RE.match(v):
+        return True
+    if v.lower() in ("n/a", "na"):
+        return True
+    return False
+
+
+def load_coded_records(path, feature_keys, identity_keys, label=None):
     """
-    Parse a file, return dict id -> {feature_key: value, '_name': normalized name,
-    '_raw_name': original name text}. Also returns a list of (table_header) diagnostics.
+    Parse a file, return (records, tables_used) where records is dict
+    id -> {feature_key: value, '_name': normalized name, '_raw_name': original name text}.
+    Every qualifying coded table in the file (there may be more than one, e.g. an LO section
+    and an MS section in the same file, each keyed by its own id prefix) is parsed and
+    merged.
     """
     with open(path, "r", encoding="utf-8") as f:
         text = f.read()
@@ -165,7 +322,7 @@ def load_coded_records(path, label=None):
     tables_used = 0
     for header, rows in tables:
         colmap = map_header(header)
-        if not CODED_TABLE_MARKERS.issubset(colmap.keys()):
+        if not table_is_coded(colmap, identity_keys):
             continue
         tables_used += 1
         for row in rows:
@@ -188,11 +345,11 @@ def load_coded_records(path, label=None):
             else:
                 continue
             rec = {}
-            for key in FEATURE_KEYS:
+            for key in feature_keys:
                 if key in colmap and colmap[key] < len(row):
                     raw = row[colmap[key]]
-                    if key == "admissible":
-                        rec[key] = parse_admissible_cell(raw)
+                    if key in YESNO_KEYS:
+                        rec[key] = parse_yesno_cell(raw)
                     else:
                         rec[key] = clean_feature_cell(raw)
             name_raw = ""
@@ -207,7 +364,7 @@ def load_coded_records(path, label=None):
     return records, tables_used
 
 
-def build_first_coder_index(first_specs):
+def build_first_coder_index(first_specs, feature_keys, identity_keys):
     """
     first_specs: list of (label, path). Returns:
       by_id: id -> record (merged across all files; later files don't override earlier)
@@ -218,7 +375,7 @@ def build_first_coder_index(first_specs):
     by_name = {}
     report = []
     for label, path in first_specs:
-        records, tables_used = load_coded_records(path, label=label)
+        records, tables_used = load_coded_records(path, feature_keys, identity_keys, label=label)
         report.append((label, path, len(records), tables_used))
         for rid, rec in records.items():
             if rid not in by_id:
@@ -249,33 +406,44 @@ def cohens_kappa(pairs):
     return po, pe, kappa, n
 
 
-def compute_feature_table(pairs_by_feature):
-    """pairs_by_feature: feature -> list of (id, v1, v2). Returns list of rows."""
+def compute_feature_table(pairs_by_feature, identity_keys, variant_keys):
+    """Returns list of rows (feat, role, n, po, pe, kappa), identity features first (role
+    "identity"), then variant features (role "variant"), then admissible last (role
+    "admit/exclude")."""
     out = []
-    for feat in FEATURE_KEYS:
+    for feat in identity_keys:
         pairs = pairs_by_feature.get(feat, [])
         po, pe, kappa, n = cohens_kappa([(a, b) for _, a, b in pairs])
-        out.append((feat, n, po, pe, kappa))
+        out.append((feat, "identity", n, po, pe, kappa))
+    for feat in variant_keys:
+        pairs = pairs_by_feature.get(feat, [])
+        po, pe, kappa, n = cohens_kappa([(a, b) for _, a, b in pairs])
+        out.append((feat, "variant", n, po, pe, kappa))
+    pairs = pairs_by_feature.get("admissible", [])
+    po, pe, kappa, n = cohens_kappa([(a, b) for _, a, b in pairs])
+    out.append(("admissible", "admit/exclude", n, po, pe, kappa))
     return out
 
 
-def gather_pairs(sample_ids, second_records, first_by_id, first_by_name):
+def gather_pairs(sample_ids, second_records, first_by_id, first_by_name, feature_keys):
     """
-    Returns (pairs_by_feature, disagreements, name_fallbacks, unmatched)
-    pairs_by_feature: feature -> list of (id, c1_value, c2_value)  (only where both coders
-    recorded a value for that feature)
+    Returns (pairs_by_feature, disagreements, name_fallbacks, unmatched, uncoded_skips)
+    pairs_by_feature: feature -> list of (id, c1_value, c2_value)  (only where BOTH coders
+    recorded a non-unknown value for that feature — 82a C7)
     disagreements: list of (id, feature, c1_value, c2_value) where they differ
     name_fallbacks: list of (id, resolved_first_coder_id) used when direct id lookup failed
     unmatched: list of ids in the sample with no first-coder match at all (by id or name)
+    uncoded_skips: list of (id, feature, c1_value, c2_value) excluded from n because at least
+    one side was unknown/uncoded (82a C7 audit trail)
     """
-    pairs_by_feature = {k: [] for k in FEATURE_KEYS}
+    pairs_by_feature = {k: [] for k in feature_keys}
     disagreements = []
     name_fallbacks = []
     unmatched = []
+    uncoded_skips = []
     for sid in sample_ids:
         second_rec = second_records[sid]
         first_rec = first_by_id.get(sid)
-        resolved_via = "id"
         if first_rec is None:
             # id schemes differ: fall back to name match
             nm = second_rec.get("_name")
@@ -283,33 +451,35 @@ def gather_pairs(sample_ids, second_records, first_by_id, first_by_name):
             if fid is not None:
                 first_rec = first_by_id[fid]
                 name_fallbacks.append((sid, fid))
-                resolved_via = "name"
             else:
                 unmatched.append(sid)
                 continue
-        for feat in FEATURE_KEYS:
+        for feat in feature_keys:
             v1 = first_rec.get(feat)
             v2 = second_rec.get(feat)
-            if v1 is None or v2 is None or v1 == "" or v2 == "":
+            if v1 is None or v2 is None:
+                continue
+            if is_uncoded(v1) or is_uncoded(v2):
+                uncoded_skips.append((sid, feat, v1, v2))
                 continue
             pairs_by_feature[feat].append((sid, v1, v2))
             if v1 != v2:
                 disagreements.append((sid, feat, v1, v2))
-    return pairs_by_feature, disagreements, name_fallbacks, unmatched
+    return pairs_by_feature, disagreements, name_fallbacks, unmatched, uncoded_skips
 
 
 def print_feature_table(title, rows, fh=sys.stdout):
     print(f"\n### {title}\n", file=fh)
-    print("| Feature | n | Agreements | A_f | Cohen's kappa | Gate (>=0.80) |", file=fh)
-    print("|---|---|---|---|---|---|", file=fh)
-    for feat, n, po, pe, kappa in rows:
+    print("| Feature | Role | n | Agreements | A_f | Cohen's kappa | Gate (>=0.80) |", file=fh)
+    print("|---|---|---|---|---|---|---|", file=fh)
+    for feat, role, n, po, pe, kappa in rows:
         if n == 0:
-            print(f"| {feat} | 0 | - | n/a (no shared sample) | n/a | n/a |", file=fh)
+            print(f"| {feat} | {role} | 0 | - | n/a (no shared coded sample) | n/a | n/a |", file=fh)
             continue
         agree = round(po * n)
         gate = "PASS" if po >= 0.80 else "FAIL"
         print(
-            f"| {feat} | {n} | {agree} | {po:.4f} | {kappa:.4f} | {gate} |",
+            f"| {feat} | {role} | {n} | {agree} | {po:.4f} | {kappa:.4f} | {gate} |",
             file=fh,
         )
 
@@ -323,6 +493,62 @@ def print_disagreements(title, disagreements, fh=sys.stdout):
     print("|---|---|---|---|", file=fh)
     for sid, feat, v1, v2 in disagreements:
         print(f"| {sid} | {feat} | {v1} | {v2} |", file=fh)
+
+
+def gate_verdict(rows, fh=sys.stdout):
+    """Prints the gate verdict for one feature table (`rows` from compute_feature_table) and
+    returns (zero_gating_features, identity_or_admissible_fail). `rows` includes identity,
+    variant and admissible features; the gate is: every identity feature AND admissible must
+    reach A_f >= 0.80 (research/82 §7). A failing variant feature does not fail the gate — it
+    is dropped from filling (§8) instead, and reported as such. n=0 on a gating feature
+    (identity or admissible) is an ERROR, never a silent PASS."""
+    gating_zero = [feat for feat, role, n, po, pe, kappa in rows
+                   if role in ("identity", "admit/exclude") and n == 0]
+    identity_fail = [feat for feat, role, n, po, pe, kappa in rows
+                     if role == "identity" and n > 0 and po < 0.80]
+    admissible_fail = [feat for feat, role, n, po, pe, kappa in rows
+                        if role == "admit/exclude" and n > 0 and po < 0.80]
+    variant_fail = [feat for feat, role, n, po, pe, kappa in rows
+                     if role == "variant" and n > 0 and po < 0.80]
+    variant_zero = [feat for feat, role, n, po, pe, kappa in rows
+                     if role == "variant" and n == 0]
+
+    print("\n### Gate verdict\n", file=fh)
+    if gating_zero:
+        print(
+            f"ERROR — n=0 for gating feature(s) {', '.join(gating_zero)}: no shared coded "
+            f"sample was found (both coders' non-unknown values). This means table/feature "
+            f"detection failed for this family/invocation — it is NOT a pass. Fix detection "
+            f"before trusting any other number in this report.",
+            file=fh,
+        )
+        return gating_zero, True
+
+    if identity_fail or admissible_fail:
+        parts = []
+        if identity_fail:
+            parts.append(f"identity feature(s) {', '.join(identity_fail)}")
+        if admissible_fail:
+            parts.append(f"admissible")
+        print(f"FAIL — {' and '.join(parts)} below A_f >= 0.80 (falsifier gate).", file=fh)
+    else:
+        print("PASS — every identity feature (and admissible) A_f >= 0.80.", file=fh)
+
+    if variant_fail:
+        print(
+            f"\nVariant feature(s) below A_f >= 0.80, dropped from filling (family default "
+            f"used instead), per §7's last sentence — does not fail the gate: "
+            f"{', '.join(variant_fail)}.",
+            file=fh,
+        )
+    if variant_zero:
+        print(
+            f"\nVariant feature(s) with n=0 shared coded sample (e.g. all sampled items were "
+            f"`unknown` for both coders): {', '.join(variant_zero)}. Not gating, not usable "
+            f"for filling either — family default used.",
+            file=fh,
+        )
+    return gating_zero, False
 
 
 def main():
@@ -339,6 +565,15 @@ def main():
     )
     args = ap.parse_args()
 
+    # Evidence files carry em dashes, curly quotes etc.; force utf-8 stdout so this runs
+    # unchanged on a Windows console (cp1252) as well as everywhere else.
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
+    identity_keys, variant_keys, feature_keys = family_features(args.family)
+
     first_specs = []
     for spec in args.first:
         if ":" not in spec:
@@ -346,10 +581,12 @@ def main():
         label, path = spec.split(":", 1)
         first_specs.append((label, path))
 
-    first_by_id, first_by_name, report = build_first_coder_index(first_specs)
-    second_records, second_tables_used = load_coded_records(args.second, label=None)
+    first_by_id, first_by_name, report = build_first_coder_index(first_specs, feature_keys, identity_keys)
+    second_records, second_tables_used = load_coded_records(args.second, feature_keys, identity_keys, label=None)
 
     print(f"# Agreement computation — family: {args.family}\n")
+    print(f"Identity features (gating): {', '.join(identity_keys)}, admissible.")
+    print(f"Variant features (non-gating, dropped from filling on failure): {', '.join(variant_keys)}.\n")
     print("## Inputs\n")
     for label, path, n_records, n_tables in report:
         print(f"- First coder [{label}] `{path}`: {n_records} coded rows found "
@@ -360,8 +597,8 @@ def main():
     sample_ids = list(second_records.keys())
     print(f"\n## Sample\n\n{len(sample_ids)} ids: {', '.join(sample_ids)}\n")
 
-    pairs_by_feature, disagreements, name_fallbacks, unmatched = gather_pairs(
-        sample_ids, second_records, first_by_id, first_by_name
+    pairs_by_feature, disagreements, name_fallbacks, unmatched, uncoded_skips = gather_pairs(
+        sample_ids, second_records, first_by_id, first_by_name, feature_keys
     )
 
     if unmatched:
@@ -379,32 +616,32 @@ def main():
         print("\n## id-scheme check\n\nAll sampled ids matched a first-coder row directly "
               "by id (no name-based fallback needed).")
 
-    rows = compute_feature_table(pairs_by_feature)
+    if uncoded_skips:
+        print(f"\n## Unknown/uncoded values excluded from n (82a C7) — {len(uncoded_skips)} cell(s)\n")
+        print("| id | feature | coder1 | coder2 |", file=sys.stdout)
+        print("|---|---|---|---|", file=sys.stdout)
+        for sid, feat, v1, v2 in uncoded_skips:
+            print(f"| {sid} | {feat} | {v1} | {v2} |")
+
+    rows = compute_feature_table(pairs_by_feature, identity_keys, variant_keys)
     print_feature_table("Per-feature agreement (full sample)", rows)
     print_disagreements("Disagreements (full sample)", disagreements)
-
-    n_gate_fail = [feat for feat, n, po, pe, kappa in rows if n > 0 and po < 0.80]
-    print("\n### Gate verdict (full sample)\n")
-    if n_gate_fail:
-        print(f"FAIL — feature(s) below A_f >= 0.80: {', '.join(n_gate_fail)}")
-    else:
-        print("PASS — every feature A_f >= 0.80.")
+    _, fatal = gate_verdict(rows)
 
     if args.exclude:
         excl = set(args.exclude)
         sub_ids = [i for i in sample_ids if i not in excl]
         dropped = [i for i in sample_ids if i in excl]
         print(f"\n## Sensitivity run — excluding {', '.join(dropped) if dropped else '(none matched)'}\n")
-        pbf2, dis2, nf2, um2 = gather_pairs(sub_ids, second_records, first_by_id, first_by_name)
-        rows2 = compute_feature_table(pbf2)
+        pbf2, dis2, nf2, um2, unc2 = gather_pairs(sub_ids, second_records, first_by_id, first_by_name, feature_keys)
+        rows2 = compute_feature_table(pbf2, identity_keys, variant_keys)
         print_feature_table("Per-feature agreement (sensitivity run)", rows2)
         print_disagreements("Disagreements (sensitivity run)", dis2)
-        n_gate_fail2 = [feat for feat, n, po, pe, kappa in rows2 if n > 0 and po < 0.80]
-        print("\n### Gate verdict (sensitivity run)\n")
-        if n_gate_fail2:
-            print(f"FAIL — feature(s) below A_f >= 0.80: {', '.join(n_gate_fail2)}")
-        else:
-            print("PASS — every feature A_f >= 0.80.")
+        _, fatal2 = gate_verdict(rows2)
+        fatal = fatal or fatal2
+
+    if fatal:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
