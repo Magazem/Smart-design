@@ -52,6 +52,15 @@ jobs:
           fi
           echo "path=$NOTES_FILE" >> "$GITHUB_OUTPUT"
 
+      # A red test suite fails the release: nothing is built or published. This
+      # includes the portable-pack sync test, so a tag cannot ship a portable/
+      # folder that has drifted from its generator.
+      - name: Run the test suite
+        working-directory: skill/document-design-intelligence
+        run: |
+          python3 -m pip install --quiet pytest
+          python3 -m pytest -q
+
       # Single build entry point for both CI and local dev — see the script's
       # own docstring. Validates data (research/09-library-schema.md §4,
       # items 1-4), stamps the version into SKILL.md, and zips with the
@@ -61,9 +70,16 @@ jobs:
       - name: Build the skill ZIP
         run: python3 skill/document-design-intelligence/scripts/build_zip.py
 
+      # Second asset: the portable pack for agents without code execution
+      # (AGENTS.md + DDI-LIBRARY.md + INSTALL.md + LICENSE + NOTICE.md, LF).
+      - name: Build the portable pack ZIP
+        run: python3 research/build-portable-zip.py "${{ steps.version.outputs.version }}" --out-dir skill/dist
+
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
-          files: skill/dist/document-design-intelligence-${{ steps.version.outputs.version }}.zip
+          files: |
+            skill/dist/document-design-intelligence-${{ steps.version.outputs.version }}.zip
+            skill/dist/ddi-portable-${{ steps.version.outputs.version }}.zip
           body_path: ${{ steps.notes.outputs.path }}
           generate_release_notes: true

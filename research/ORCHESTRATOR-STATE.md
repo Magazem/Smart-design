@@ -125,3 +125,4 @@ This file is the live checklist. It is updated and committed after every milesto
   typed before computing. RULE for all workers: report numbers only from a script run, never from memory; the evidence
   FILE is authoritative over any message. cv round-2 second coder (seed "82a:cv", header only, from cv-items.csv) in bg.
 - 2026-09-24 Repo Keeper: invoice corpus + invoice-items.csv (48 = 40 GH + 8 MS; preview_url blank, not recorded in evidence).
+- 2026-09-24 Repo Keeper: README + release CI (tests + ddi-portable zip); added pip install pytest to CI test step.
