@@ -35,3 +35,15 @@ This file is the live checklist. It is updated and committed after every milesto
 - P1.1 done (uncommitted, gate red until P1.2). IN FLIGHT: P1.2+1.3 loader globs/Family/seed designs;
   P3.1 typeface pairings -> research/library/typefaces/; P3.4 authority palettes -> research/library/palettes/;
   probe 2. Library batches load only when listed in load-base.py's allow-list (orchestrator enables after review).
+- COMMITTED 22b5689 (P1.1-1.3: Family, designs, provenance, loader globs, 21 seed designs) and
+  7229d7d (library batch 1: 20 typeface pairings + 20 design-system palettes; allow-listed in
+  research/load-base.py LIBRARY_INPUTS_ENABLED / PROVENANCE_INPUTS_ENABLED). Gate 625 rows, 200 tests.
+- IN FLIGHT: research/82 protocol (opus); P3.5 ranked COLOURlovers palettes; P3.7 ratio type scales;
+  R-lib1 audit of batch 1 -> research/83 (opus); P1.4 test_provenance/test_designs; P1.5/1.6 ddi designs/library/--design.
+- To enable a new library batch: add its csv filename to the two allow-lists, run
+  `python3 research/load-base.py`, then `ddi.py check` + pytest from the skill dir.
+- COMMITTED a6b0b81 (9 ratio type scales, gate 715 rows) and research/82 protocol (FROZEN; amendments go in research/82a-*.md).
+- PHASE 4 STARTED. Coding outputs per corpus: research/designs-evidence/<family>-corpus-<src>.md, then
+  a second-coder task (25% seeded sample, §7) and a fill task (F.c) per family. GitHub search API
+  is 10 req/min per IP: only ONE worker may use it at a time.
+  IN FLIGHT: cv-corpus-github, cv-corpus-npm-ms, deck-corpus-npm.
