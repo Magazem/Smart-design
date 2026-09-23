@@ -72,6 +72,22 @@ Artifact Class, Render Target, or Reasoning Key for a doctype it doesn't know:
     cv-uk
     invoice-tabular
 
+## Designs   (optional)
+One `<family>: <design_key>` line per family, e.g. `cv: cv-editorial`.
+`<family>` must be a doctypes.Family enum token from the schema manifest and
+`<design_key>` a row of `data/base/designs.csv` whose Family is that family
+(anything else is a hard failure naming the line). For each line the kit gets
+a `data/doc-reasoning.csv` row `<slug>-<family>` that COPIES the design's own
+doc-reasoning row (Style Key, bias terms, Doc Conditions, Anti-Pattern
+Tokens, Severity) but swaps Palette Key / Typeface Key for the brand's own
+generated rows (doc-reasoning has no Brand Scope column; the loader scopes
+the row from the kit's directory, i.e. to the slug). Every brand doctype of
+that family then gets Reasoning Key `<slug>-<family>`. A family with no line
+keeps its current Reasoning Key; with no ## Designs section no
+doc-reasoning.csv is emitted at all.
+    cv: cv-editorial
+    invoice: invoice-tabular
+
 ## Voice   (optional)
 Free text, any content, no grammar checked. Passed through to the kit's
 brand.md verbatim (via `lib/data.py`'s loader this text never becomes a CSV
@@ -200,8 +216,10 @@ DOC_DEFAULT_RE = re.compile(r"^(page-format|type-scale)\s+([a-z][a-z0-9-]*)\s*:\
 TOP_LEVEL_KEYS = {"slug", "logo"}
 PALETTE_ROLES = ("primary", "secondary", "accent", "background", "foreground", "muted")
 TYPEFACE_KEYS = {"heading", "body", "mono"}
-ALLOWED_SECTIONS = {"Palette", "Typefaces", "Doctypes", "Voice", "Document defaults"}
+ALLOWED_SECTIONS = {"Palette", "Typefaces", "Doctypes", "Voice", "Document defaults", "Designs"}
 TYPESCALE_ROLES = ("label", "caption", "body", "body-dense", "lead", "h3", "h2", "h1")
+
+DESIGN_LINE_RE = re.compile(r"^([a-z][a-z0-9-]*)\s*:\s*([a-z0-9][a-z0-9-]*)$")
 
 # v1's fixed, well-formed doctype catalog. Extending this to an arbitrary
 # doctype would require a source for Artifact Class / Render Target Keys /
@@ -320,7 +338,23 @@ def load_base_doctypes(skill_dir: Path | None = None) -> dict[str, dict]:
         return {r["doc_key"]: r for r in csv.DictReader(f) if r.get("doc_key")}
 
 
-def parse_brand_md(text: str, base_doctypes: dict[str, dict] | None = None) -> dict:
+def load_designs_context(skill_dir: Path | None = None) -> tuple[set[str], dict[str, dict]]:
+    """(doctypes.Family enum tokens, design_key -> row of data/base/designs.csv)."""
+    skill_dir = skill_dir or find_skill_dir()
+    if skill_dir is None:
+        return set(), {}
+    manifest = json.loads((skill_dir / "data" / "schema-manifest.json").read_text(encoding="utf-8"))
+    families = set(manifest["tables"]["doctypes"]["enums"]["Family"])
+    path = skill_dir / "data" / "base" / "designs.csv"
+    designs = {}
+    if path.is_file():
+        with path.open(encoding="utf-8", newline="") as f:
+            designs = {r["design_key"]: r for r in csv.DictReader(f) if r.get("design_key")}
+    return families, designs
+
+
+def parse_brand_md(text: str, base_doctypes: dict[str, dict] | None = None,
+                   designs_context: tuple[set[str], dict[str, dict]] | None = None) -> dict:
     """Parse brand.md into a structured dict. Raises BrandKitError with a
     line number on the first problem found. `base_doctypes` (default: loaded
     from the detected skill dir) supplies the generic doc_keys ## Doctypes
@@ -328,6 +362,7 @@ def parse_brand_md(text: str, base_doctypes: dict[str, dict] | None = None) -> d
     if base_doctypes is None:
         base_doctypes = load_base_doctypes()
     known_doctypes = set(DOCTYPE_CATALOG) | set(base_doctypes)
+    families, base_designs = designs_context if designs_context is not None else load_designs_context()
     lines = text.splitlines()
     top = {}
     palette = {}
@@ -336,6 +371,7 @@ def parse_brand_md(text: str, base_doctypes: dict[str, dict] | None = None) -> d
     voice_lines = []
     page_format_overrides = {}
     type_scale = {}
+    designs = {}
 
     section = None  # None, "Palette", "Typefaces", "Doctypes", "Voice", "Document defaults"
     seen_h1 = False
@@ -420,6 +456,36 @@ def parse_brand_md(text: str, base_doctypes: dict[str, dict] | None = None) -> d
             doctypes.append(name)
             continue
 
+        if section == "Designs":
+            m = DESIGN_LINE_RE.match(stripped)
+            if not m:
+                raise BrandKitError(
+                    f"brand.md:{line_no}: unrecognised line in ## Designs: {stripped!r} "
+                    "(expected '<family>: <design_key>')"
+                )
+            family, design_key = m.groups()
+            if family not in families:
+                raise BrandKitError(
+                    f"brand.md:{line_no}: unknown family '{family}' in ## Designs "
+                    f"(allowed: {', '.join(sorted(families))})"
+                )
+            if family in designs:
+                raise BrandKitError(f"brand.md:{line_no}: family '{family}' listed twice in ## Designs")
+            row = base_designs.get(design_key)
+            if row is None:
+                raise BrandKitError(
+                    f"brand.md:{line_no}: unknown design '{design_key}' "
+                    f"(see data/base/designs.csv; {family} designs: "
+                    f"{', '.join(sorted(k for k, r in base_designs.items() if r['Family'] == family)) or 'none'})"
+                )
+            if row["Family"] != family:
+                raise BrandKitError(
+                    f"brand.md:{line_no}: design '{design_key}' belongs to family "
+                    f"'{row['Family']}', not '{family}'"
+                )
+            designs[family] = design_key
+            continue
+
         if section == "Document defaults":
             m = DOC_DEFAULT_RE.match(stripped)
             if not m:
@@ -482,6 +548,7 @@ def parse_brand_md(text: str, base_doctypes: dict[str, dict] | None = None) -> d
         "voice": "\n".join(voice_lines).strip(),
         "page_format_overrides": page_format_overrides,
         "type_scale": type_scale,
+        "designs": designs,
     }
 
 
@@ -671,6 +738,30 @@ def derive_doctype_rows(spec: dict, base_doctypes: dict[str, dict] | None = None
     return rows
 
 
+def derive_reasoning_rows(spec: dict, palette_key: str, typeface_key: str,
+                          skill_dir: Path) -> list[dict]:
+    """One doc-reasoning row `<slug>-<family>` per ## Designs line: a copy of
+    the design's base doc-reasoning row with the brand's own Palette/Typeface."""
+    if not spec["designs"]:
+        return []
+    _, base_designs = load_designs_context(skill_dir)
+    with (skill_dir / "data" / "base" / "doc-reasoning.csv").open(encoding="utf-8", newline="") as f:
+        base = {r["doc_category"]: r for r in csv.DictReader(f)}
+    rows = []
+    for family, design_key in spec["designs"].items():
+        rk = base_designs[design_key]["Reasoning Key"]
+        if rk not in base:
+            raise BrandKitError(
+                f"design '{design_key}' has Reasoning Key '{rk}' which is not a row "
+                "of data/base/doc-reasoning.csv"
+            )
+        row = dict(base[rk])
+        row.update({"doc_category": f"{spec['slug']}-{family}",
+                    "Palette Key": palette_key, "Typeface Key": typeface_key})
+        rows.append(row)
+    return rows
+
+
 def derive_typescale_rows(spec: dict) -> list[dict]:
     if not spec["type_scale"]:
         return []
@@ -823,7 +914,7 @@ def main(argv: list[str] | None = None) -> int:
                 "set DDI_SKILL_DIR to override"
             )
         base_doctypes = load_base_doctypes(skill_dir)
-        spec = parse_brand_md(brand_md_text, base_doctypes)
+        spec = parse_brand_md(brand_md_text, base_doctypes, load_designs_context(skill_dir))
         slug = spec["slug"]
         manifest = json.loads((skill_dir / "data" / "schema-manifest.json").read_text(encoding="utf-8"))
         font_substitutes = load_font_substitutes(skill_dir)
@@ -843,6 +934,12 @@ def main(argv: list[str] | None = None) -> int:
         typefaces_row, font_warnings = derive_typefaces_row(spec, font_substitutes)
         doctype_rows = derive_doctype_rows(spec, base_doctypes)
         typescale_rows = derive_typescale_rows(spec)
+        reasoning_rows = derive_reasoning_rows(
+            spec, palette_row["palette_key"], typefaces_row["typeface_key"], skill_dir)
+        for r in doctype_rows:
+            fam_key = f"{slug}-{r['Family']}"
+            if any(rr["doc_category"] == fam_key for rr in reasoning_rows):
+                r["Reasoning Key"] = fam_key
 
         tables = manifest["tables"]
         csv_files = {
@@ -850,6 +947,8 @@ def main(argv: list[str] | None = None) -> int:
             "typefaces.csv": rows_to_csv(tables["typefaces"]["columns"], [typefaces_row]),
             "doctypes.csv": rows_to_csv(tables["doctypes"]["columns"], doctype_rows),
         }
+        if reasoning_rows:
+            csv_files["doc-reasoning.csv"] = rows_to_csv(tables["doc-reasoning"]["columns"], reasoning_rows)
         if typescale_rows:
             csv_files["type-scales.csv"] = rows_to_csv(tables["type-scales"]["columns"], typescale_rows)
 

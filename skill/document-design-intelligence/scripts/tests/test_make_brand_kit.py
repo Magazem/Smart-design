@@ -359,5 +359,79 @@ class TestGenericBaseDoctypes(MakeBrandKitTestCase):
             self.assertIn(key, out)
 
 
+DESIGNS_BRAND_MD = GENERIC_BRAND_MD.split("## Doctypes")[0] + """## Doctypes
+cv-uk
+invoice-tabular
+note-interne
+
+## Designs
+cv: cv-editorial
+invoice: invoice-tabular
+"""
+
+
+def _csv_rows(skill_dir: Path, name: str) -> dict:
+    with (skill_dir / "data" / "base" / name).open(encoding="utf-8", newline="") as f:
+        return list(csv.DictReader(f))
+
+
+class TestDesignsSection(MakeBrandKitTestCase):
+    def _kit(self, text):
+        path = self._write_brand_md(text)
+        code, out = self._run([str(path)])
+        self.assertEqual(code, 0, out)
+        with zipfile.ZipFile(self.outputs / "ens-brand-kit.zip") as zf:
+            names = zf.namelist()
+            tables = {n: list(csv.DictReader(io.StringIO(zf.read(n).decode("utf-8"))))
+                      for n in names if n.endswith(".csv")}
+            return names, tables.__getitem__
+
+    def test_designs_emit_reasoning_rows_and_repoint_doctypes(self):
+        names, get = self._kit(DESIGNS_BRAND_MD)
+        self.assertIn("data/doc-reasoning.csv", names)
+        rr = {r["doc_category"]: r for r in get("data/doc-reasoning.csv")}
+        self.assertEqual(set(rr), {"ens-cv", "ens-invoice"})
+        pal = get("data/palettes.csv")[0]["palette_key"]
+        tf = get("data/typefaces.csv")[0]["typeface_key"]
+        designs = {r["design_key"]: r for r in _csv_rows(self.skill_dir, "designs.csv")}
+        base = {r["doc_category"]: r for r in _csv_rows(self.skill_dir, "doc-reasoning.csv")}
+        for fam, dk in (("cv", "cv-editorial"), ("invoice", "invoice-tabular")):
+            row, src = rr[f"ens-{fam}"], base[designs[dk]["Reasoning Key"]]
+            self.assertEqual(row["Palette Key"], pal)
+            self.assertEqual(row["Typeface Key"], tf)
+            for col in ("Style Key", "Style Bias Terms", "Doc Conditions",
+                        "Anti-Pattern Tokens", "Severity"):
+                self.assertEqual(row[col], src[col], col)
+        dts = {r["doc_key"]: r for r in get("data/doctypes.csv")}
+        self.assertEqual(dts["ens-cv-uk"]["Reasoning Key"], "ens-cv")
+        self.assertEqual(dts["ens-invoice-tabular"]["Reasoning Key"], "ens-invoice")
+        self.assertEqual(dts["ens-note-interne"]["Reasoning Key"], "memo-internal")
+
+    def test_no_designs_section_emits_no_reasoning_table(self):
+        names, _ = self._kit(ENS_BRAND_MD)
+        self.assertNotIn("data/doc-reasoning.csv", names)
+
+    def _fails(self, designs_line, needle):
+        text = DESIGNS_BRAND_MD.replace("cv: cv-editorial", designs_line)
+        code, out = self._run([str(self._write_brand_md(text)), "--dry-run"])
+        self.assertEqual(code, 1, out)
+        self.assertIn(needle, out)
+
+    def test_unknown_family_rejected(self):
+        self._fails("banana: cv-editorial", "unknown family 'banana'")
+
+    def test_unknown_design_rejected(self):
+        self._fails("cv: no-such-design", "unknown design 'no-such-design'")
+
+    def test_design_family_mismatch_rejected(self):
+        self._fails("cv: invoice-tabular", "family")
+
+    def test_duplicate_family_rejected(self):
+        self._fails("cv: cv-editorial" + chr(10) + "cv: cv-editorial", "listed twice")
+
+    def test_malformed_line_rejected(self):
+        self._fails("cv-editorial", "## Designs")
+
+
 if __name__ == "__main__":
     unittest.main()
