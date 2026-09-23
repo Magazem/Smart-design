@@ -102,3 +102,7 @@ This file is the live checklist. It is updated and committed after every milesto
   NEXT: cv agreement verdict -> cv fill (F.c) incl. R1 backlog (a)(b) re-rank; deck agreement -> fill;
   GH families in turn: cover-letter, letter, report, poster, proposal (one GH user at a time).
   Teammate models (seen 2026-09-24): Implementer + Researcher on Fable 5.1 (user told), Reviewer Opus.
+- BACKLOG from research/87: quote-devis inherits invoice headings ("Facturé à", "Détails de la facture") —
+  data fix in research/39 headings/section orders; pptx handoff slide size 10x5.625in vs page format
+  13.33x7.5in (F5, in Implementer's portable task); release a new ZIP so the pack and skill match (I8, at v0.5.0);
+  P6.5 proxy trial design is in research/87 §G (run after pack fixes).
