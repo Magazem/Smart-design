@@ -93,3 +93,12 @@ This file is the live checklist. It is updated and committed after every milesto
   Researcher = brochure recode (82a C1/C3) + memo + form.
   RULINGS for R2 (research/86): F1 brand keeps own palette/typeface under --design; F2 nullable
   doc-reasoning.Design Key; F3 blank bias terms in kit rows; F4 drop all-doc query terms, fallback Rank.
+- 2026-09-24: WEEKLY + 5h limits hit, user reset both. Committed: 769663d research/85 palette fixes +
+  test_palette_roles; 4ff0d4b R2 fixes (Design Key col, brand-aware --design, BM25); research/87 R3 portable
+  review; deck-corpus-npm; cv-second-coder (9edd302).
+  IN FLIGHT: Implementer = portable fixes per research/87; Reviewer = 82b shortfall-sources plan;
+  Researcher = poster MS + report/whitepaper L3; bg: invoice corpus (resumed, GH holder), cv agreement calc
+  (research/designs-evidence/agreement.py reusable), deck second coder.
+  NEXT: cv agreement verdict -> cv fill (F.c) incl. R1 backlog (a)(b) re-rank; deck agreement -> fill;
+  GH families in turn: cover-letter, letter, report, poster, proposal (one GH user at a time).
+  Teammate models (seen 2026-09-24): Implementer + Researcher on Fable 5.1 (user told), Reviewer Opus.
