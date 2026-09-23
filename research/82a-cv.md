@@ -91,3 +91,7 @@ A2 Rules belonging to SECTION headings (over- or underlines of "Experience", etc
 A3 "Page" is the document sheet only; any web canvas, mockup background or device frame around it
    is ignored for every test (NPM:007, promo mockups). Sheets rendered under ~300 px tall are coded
    but flagged low-confidence.
+A4 (reconciles A1 with worked example NPM:044) A1 WIDENS the ruled test, it never narrows it. A full-width
+   rule counts as "directly below the header block" if the only text between it and the header block is an
+   un-headed summary of <= 6 lines, i.e. a rule below the summary and directly above the first section
+   heading is ruled (NPM:044, 054, 069, 073 stay ruled, as the recoder coded them).
