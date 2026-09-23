@@ -10,20 +10,39 @@ rebuilt in 2026."}` (quoted verbatim from the actual response, not paraphrased).
 Color Hunt were already confirmed not fetchable per research/81 (client-side injected
 results, no numeric metric in the static payload). Fell through to fallback #2 of the brief.
 
+**Auditor re-probe 2026-09-23** (fix 11): `curl` of the https, http and apex forms of
+`www.colourlovers.com/api/palettes/top?format=json&numResults=100` all returned **403**
+(Cloudflare "Just a moment…" challenge), with and without a browser User-Agent. The quoted
+410 "gone" body above could **not** be reproduced in this re-probe. The conclusion (API not
+fetchable, must use a fallback) is unaffected either way, but the exact HTTP status/body
+quoted for the `https://` form should be read as observed once by the original researcher,
+not reproduced in audit.
+
 ## Source
 
-`https://unpkg.com/nice-color-palettes/1000.json` -- curl, HTTP 200 (after a 302 redirect to
-the pinned version `nice-color-palettes@4.0.0/1000.json`), 51585 bytes: a flat JSON array of
-992 palettes, 5 hex strings each (the package's own README notes duplicates/short palettes
-are pre-filtered out, hence 992 not 1000).
+`https://unpkg.com/nice-color-palettes@4.0.0/1000.json` (pinned; fix 10 -- the unpinned
+`.../nice-color-palettes/1000.json` 302-redirects here today, but an unpinned URL would
+silently change ranks under a future major version) -- curl, HTTP 200, 51585 bytes: a flat
+JSON array of 992 palettes, 5 hex strings each (the package's own README notes
+duplicates/short palettes are pre-filtered out, hence 992 not 1000). `100.json`, `200.json`
+and `500.json` at the same pinned version were also fetched and have exactly 100, 200 and 500
+entries respectively, and share the `1000.json` prefix -- so array position for any rank
+<=500 (all 15 admitted rows are ranks <=137) is an exact, stable API position, not an
+artefact of the 1000-entry file alone.
 
 `https://unpkg.com/nice-color-palettes/README.md` -- curl, HTTP 200. States verbatim: "A JSON
-of the top color palettes on ColourLovers.com, as RGB hex strings" -- confirming array order
-IS the ColourLovers popularity rank (index 0 = rank 1, the single most-popular palette). The
-README is dated "Last updated Oct 14 2018" -- the popularity snapshot is historical, not
-live, but it is the only fetchable numeric-order corpus found for palettes in this session
-(research/81 already ruled out live COLOURlovers, Coolors, Color Hunt, and Adobe Color as not
-fetchable).
+of the top color palettes on ColourLovers.com, as RGB hex strings". This confirms the corpus
+is COLOURlovers-sourced but does **not** by itself establish that array order is populatity
+rank (fix 8/9): the ordering evidence is `bin/fetch.js` in the same package (curl, HTTP 200),
+which pages `http://www.colourlovers.com/api/palettes/top?format=json&numResults=100&resultOffset=…`
+in increasing offset order, concatenates the pages, lowercases the hex strings, and drops
+only (a) palettes with fewer than 5 colours and (b) exact whole-palette duplicates -- it does
+not re-sort by any vote/heart/view count. Array position is therefore the API's `top`-endpoint
+order, preserved verbatim; the README's "top color palettes" phrase is packaging metadata, not
+the ordering proof. The README is dated "Last updated Oct 14 2018" -- the snapshot is
+historical, not live, but it is the only fetchable numeric-order corpus found for palettes in
+this session (research/81 already ruled out live COLOURlovers, Coolors, Color Hunt, and Adobe
+Color as not fetchable).
 
 No numeric vote/heart/view count is exposed in this JSON (unlike the dead COLOURlovers API's
 `numVotes`/`numHearts`/`numViews` fields) -- only rank order survives. Rank Value in the
@@ -60,25 +79,55 @@ Mapping (pre-registered, applied identically to every candidate):
 - of the remaining source colours (5 minus darkest, lightest, accent), the one at the
   midpoint of their HSL-lightness order -> Secondary; if only one colour remains it is
   Secondary; if none remain, Secondary falls back to the darkest colour (`mono-ink`
-  precedent, where Primary and Secondary can be the same ink)
-- any source colour still unused -> Muted; if none remains, Muted is derived as #F2F2F2 (the
-  synthetic light-neutral constant already used by `mono-ink`, `brand-accent-print`,
-  `print-neutral`, `cv-harvard`, `cv-europass`, `cv-editorial` in the base library)
+  precedent, where Primary and Secondary can be the same ink). **As actually applied (fix
+  5)**: with 3 remaining, the true median (middle by HSL L) is Secondary. With 2 remaining
+  (always the case in accent-bearing rows), Secondary is the **lighter** of the two -- an
+  "upper median" reading that was never spelled out in the pre-registration text; ties in
+  HSL L are broken by source order (affects rank 49's secondary vs muted split, see rank-75
+  log entry note below for the analogous tie in rule (a)).
+- Muted = the **lightest non-background tint** among the source colours still unused after
+  Primary/Foreground, Background, Accent and Secondary are assigned; or, if no such colour
+  remains (either because none is left, or the only one left is not a light tint), Muted is
+  derived as #F2F2F2 (the synthetic light-neutral constant already used by `mono-ink`,
+  `brand-accent-print`, `print-neutral`, `cv-harvard`, `cv-europass`, `cv-editorial` in the
+  base library). **Rules applied that were not pre-registered**: the pre-registration text
+  said only "any source colour still unused -> Muted", which is ambiguous whenever 2 source
+  colours are left unused (every accent-less row leaves exactly 2 after Secondary is taken).
+  The rule now stated -- take the lighter of the 2, and fall back to #F2F2F2 only when the
+  sole remaining colour is not itself a light tint -- is the corrected, actually-intended
+  rule; the original run instead kept "the first unused colour in source order" for those
+  rows, which silently produced a **dark** Muted (fails as a panel-tint) in 7 of the 15 rows.
+  This correction changes Muted (and its derived On Muted) in `lib-cl-r6-orange`,
+  `lib-cl-r13-lime`, `lib-cl-r14-red`, `lib-cl-r21-red`, `lib-cl-r49-orange`,
+  `lib-cl-r60-neutral`, `lib-cl-r116-red`, `lib-cl-r121-neutral` and `lib-cl-r134-neutral`
+  relative to the original (unaudited) run; it leaves `lib-cl-r33-neutral`, `lib-cl-r65-neutral`,
+  `lib-cl-r90-neutral`, `lib-cl-r108-red`, `lib-cl-r124-neutral` and `lib-cl-r136-neutral`
+  unchanged because their original leftover pick was already the lighter/only tint.
 - On-X = whichever of #FFFFFF or the palette's darkest (Foreground) colour has the higher
   `contrast_ratio` against that role's colour (mirrors `color.py`'s own `on_color` logic)
 - Rule Hair fixed at #CCCCCC -- the constant every base-library palette without a real
   design-system border token already uses (`mono-ink`, `brand-accent-print`, `cv-harvard`,
   `cv-europass`), since a bare 5-hex source palette carries no separate border-token scale to
-  transcribe. Rule Strong = Foreground; Rule Brand = Accent (blank if none) -- both match
-  every single row of both existing palette batches with no exception found.
-- Text-Safe Roles always includes `foreground;primary;secondary`. Accent is added to
-  Text-Safe only if `contrast_ratio(Accent, Background) >= 4.5` -- this reproduces
-  `authority-design-systems.csv`'s own Text-Safe/Fill-Only split exactly when checked against
-  every accent-bearing row there, including its one exception (`lib-govuk-orange-brown`,
-  whose accent scores 4.4:1 against white and is Fill-Only there, not Text-Safe). Fill-Only
-  Roles is always at least `muted`, plus `accent` when the text-safe test fails. Category
-  Marker Roles is left blank for all 15 rows (in the authority batch it is only ever used by
-  the two deck-specific dark-theme rows; these are generic, not deck-specific, palettes).
+  transcribe. Rule Strong = Foreground. Rule Brand = Accent where an accent exists; blank
+  otherwise. **Corrected (fix 4)**: accent-less precedent in the base library is *not*
+  unanimous -- `mono-ink`, `lib-carbon-mono` and `lib-radix-burgundy` set Rule Brand =
+  Primary when there is no accent, while `cv-dach-formal` and `deck-high-contrast` leave it
+  blank. This batch leaves Rule Brand blank for its accent-less rows, matching the
+  blank-precedent minority, not majority precedent; the earlier "matches every row with no
+  exception" claim was false.
+- Text-Safe Roles always includes `foreground;primary` (Primary/Foreground always clears
+  4.5:1 against Background here because filter (a) already requires >=7:1). **Corrected
+  (fix 1/2)**: Secondary and Accent are each added to Text-Safe Roles independently, only if
+  `contrast_ratio(role, Background) >= 4.5` -- the same rule `make_brand_kit.derive_palette_row`
+  uses for its own Text-Safe/Fill-Only split. The original evidence claimed Secondary was
+  *always* Text-Safe; that was true only for `make_brand_kit`'s own light-ink secondaries and
+  was never actually checked here. 11 of the (previous) 15 rows had Secondary below 4.5:1
+  against Background (as low as 1.21:1) and are Fill-Only for Secondary in the corrected
+  data; see the per-row tables below for the exact ratio in every row. Fill-Only Roles is
+  always at least `muted`, plus `secondary` and/or `accent` whichever fails the 4.5:1 test.
+  Category Marker Roles is left blank for all 15 rows (in the authority batch it is only ever
+  used by the two deck-specific dark-theme rows; these are generic, not deck-specific,
+  palettes).
 
 ## Source palettes in popularity order (all 137 processed; stopped once 15 were admitted)
 
@@ -96,7 +145,7 @@ Mapping (pre-registered, applied identically to every candidate):
 | 10 | `#e94e77 #d68189 #c6a49a #c6e5d9 #f4ead5` | REJECT | (a) no colour reaches 7:1 vs lightest (3.02:1) or vs #FFFFFF (3.61:1) |
 | 11 | `#3fb8af #7fc7af #dad8a7 #ff9e9d #ff3d7f` | REJECT | (a) no colour reaches 7:1 vs lightest (1.22:1) or vs #FFFFFF (2.42:1) |
 | 12 | `#d9ceb2 #948c75 #d5ded9 #7a6a53 #99b2b7` | REJECT | (a) no colour reaches 7:1 vs lightest (3.81:1) or vs #FFFFFF (5.23:1) |
-| 13 | `#ffffff #cbe86b #f2e9e1 #1c140d #cbe86b` | REJECT | duplicate hex within source palette |
+| 13 | `#ffffff #cbe86b #f2e9e1 #1c140d #cbe86b` | ADMIT | passes (a)(b)(c)(d) -- **corrected (fix 7)**: the original run rejected this rank for "duplicate hex within source palette", a rule that is not one of the pre-registered (a)-(d) and is not the package's own dedupe either (which drops whole duplicate palettes, and this one was kept). Read literally, (b) ("at most ONE saturated hue") passes here: the two `#cbe86b` entries are the same hue, counted once. With the duplicate collapsed to a single usable colour, this palette admits: Primary/Foreground/Rule Strong `#1c140d`, Background `#ffffff` (the source's own lightest, transcribed), Secondary `#f2e9e1` (the sole non-duplicate leftover), Accent/Rule Brand `#cbe86b` (hue 74 deg, S 73%, L 67%), Muted derived `#F2F2F2` (the duplicate leaves no second leftover colour for Muted, so the fallback triggers on first use in this batch). Pre-registration ranks the admitted set by first-15-admitted-in-order, so admitting rank 13 pushes what would otherwise have been the 15th admission (rank 137) out of the batch; rank 137 is dropped, not re-admitted elsewhere. |
 | 14 | `#efffcd #dce9be #555152 #2e2633 #99173c` | ADMIT | passes (a)(b)(c)(d) |
 | 15 | `#343838 #005f6b #008c9e #00b4cc #00dffc` | REJECT | (b) 3 saturated hues (S>40%,25%<L<75%): ['#008c9e', '#00b4cc', '#00dffc'] |
 | 16 | `#413e4a #73626e #b38184 #f0b49e #f7e4be` | REJECT | (d) On-X contrast below 4.5:1: {'On Secondary/Secondary': 3.2863682414414126} |
@@ -158,7 +207,7 @@ Mapping (pre-registered, applied identically to every candidate):
 | 72 | `#8dccad #988864 #fea6a2 #f9d6ac #ffe9af` | REJECT | (a) no colour reaches 7:1 vs lightest (2.90:1) or vs #FFFFFF (3.48:1) |
 | 73 | `#2d2d29 #215a6d #3ca2a2 #92c7a3 #dfece6` | REJECT | (b) 2 saturated hues (S>40%,25%<L<75%): ['#215a6d', '#3ca2a2'] |
 | 74 | `#413d3d #040004 #c8ff00 #fa023c #4b000f` | REJECT | (b) 2 saturated hues (S>40%,25%<L<75%): ['#c8ff00', '#fa023c'] |
-| 75 | `#eff3cd #b2d5ba #61ada0 #248f8d #605063` | REJECT | (a) no colour reaches 7:1 vs lightest (3.41:1) or vs #FFFFFF (3.90:1) |
+| 75 | `#eff3cd #b2d5ba #61ada0 #248f8d #605063` | REJECT | **corrected (fix 6)**: (d) On-X below 4.5: On Primary 3.90, On Secondary 2.63, Fg/Bg 3.90, On Muted 2.43, On Accent 3.90 -- outcome (REJECT) is unchanged. Rule (a) as originally logged is wrong: `#605063` vs `#FFFFFF` = 7.43:1, so (a) actually **passes**; the original log tested (a) only against the HSL-darkest colour by construction, and `#248f8d` and `#605063` tie at HSL L 35.1, with the first-in-source-order colour (`#248f8d`) winning that comparison and being reported as "the" darkest even though `#605063` also qualifies and is in fact the true Foreground/Primary candidate once the tie is broken toward source order. Because rule (d) fails regardless, the admit/reject outcome does not change. |
 | 76 | `#ffefd3 #fffee4 #d0ecea #9fd6d2 #8b7a5e` | REJECT | (a) no colour reaches 7:1 vs lightest (4.07:1) or vs #FFFFFF (4.16:1) |
 | 77 | `#cfffdd #b4dec1 #5c5863 #a85163 #ff1f4c` | REJECT | (a) no colour reaches 7:1 vs lightest (6.27:1) or vs #FFFFFF (6.93:1) |
 | 78 | `#9dc9ac #fffec7 #f56218 #ff9d2e #919167` | REJECT | (a) no colour reaches 7:1 vs lightest (3.14:1) or vs #FFFFFF (3.26:1) |
@@ -220,24 +269,26 @@ Mapping (pre-registered, applied identically to every candidate):
 | 134 | `#ffb884 #f5df98 #fff8d4 #c0d1c2 #2e4347` | ADMIT | passes (a)(b)(c)(d) |
 | 135 | `#e5eaa4 #a8c4a2 #69a5a4 #616382 #66245b` | REJECT | (d) On-X contrast below 4.5:1: {'On Secondary/Secondary': 3.819790663071899} |
 | 136 | `#e0eff1 #7db4b5 #ffffff #680148 #000000` | ADMIT | passes (a)(b)(c)(d) |
-| 137 | `#b1e6d1 #77b1a9 #3d7b80 #270a33 #451a3e` | ADMIT | passes (a)(b)(c)(d) |
+| 137 | `#b1e6d1 #77b1a9 #3d7b80 #270a33 #451a3e` | DROPPED | passes (a)(b)(c)(d), same as the original run, but **fix 7 (Orchestrator ruling)**: pre-registration wins and rank 13 admits (see corrected row 13 above). Admitting rank 13 makes it the batch's 3rd admission, so the stop-at-15 rule now closes the batch one palette earlier and rank 137 -- originally the 15th and last admission -- falls outside the cut. It is not carried as a 16th row; the batch keeps exactly 15. |
 
-**15 admitted, 122 rejected**, out of 137 source palettes processed
-(ranks 1-137 of the 992-entry corpus).
+**15 admitted (ranks 6, 13, 14, 21, 33, 49, 60, 65, 90, 108, 116, 121, 124, 134, 136), 122
+rejected**, out of 137 source palettes processed (ranks 1-137 of the 992-entry corpus). Rank
+137 passed the filter but is not in the admitted 15 (see its row above); it remains logged
+here as a passing-but-excluded candidate, not a rejection.
 
 ## Admitted palettes: mapping + contrast ratios
 
 ### `lib-cl-r6-orange` -- CL-ranked #6, warm orange accent
 
-Source (rank 6 of nice-color-palettes/1000.json): `#e8ddcb, #cdb380, #036564, #033649, #031634`
+Source (rank 6 of nice-color-palettes@4.0.0/1000.json): `#e8ddcb, #cdb380, #036564, #033649, #031634`
 
 | Role | Hex | Derived? |
 |---|---|---|
 | Primary / Foreground | #031634 | transcribed (darkest source colour) |
-| Background | #ffffff | derived -- lightest source colour's HSL L<90, substituted #FFFFFF per mapping rule |
+| Background | #ffffff | derived -- lightest source colour HSL L<90, substituted #ffffff per mapping rule |
 | Secondary | #036564 | transcribed (mid-lightness remaining colour) |
 | Accent | #cdb380 | transcribed (sole saturated hue: 40 deg, S=44%, L=65%) |
-| Muted | #033649 | transcribed (leftover source colour) |
+| Muted | #f2f2f2 | corrected (fix 5/12) -- derived #F2F2F2; the only leftover source colour (#033649, HSL L 15) is not a light tint, so the fallback applies instead of keeping it as Muted |
 | Rule Hair | #CCCCCC | derived (fixed constant, see mapping notes above) |
 
 | Pair | Foreground | Background | Ratio | Result |
@@ -246,19 +297,42 @@ Source (rank 6 of nice-color-palettes/1000.json): `#e8ddcb, #cdb380, #036564, #0
 | On Secondary / Secondary | #ffffff | #036564 | 6.89:1 | OK |
 | On Accent / Accent | #031634 | #cdb380 | 8.86:1 | OK |
 | Foreground / Background | #031634 | #ffffff | 17.98:1 | OK |
-| On Muted / Muted | #ffffff | #033649 | 12.90:1 | OK |
+| On Muted / Muted | #031634 | #f2f2f2 | 16.06:1 | OK |
+| Secondary / Background (Text-Safe test, fix 2) | #036564 | #ffffff | 6.89:1 | OK (Text-Safe) |
+
+### `lib-cl-r13-lime` -- CL-ranked #13, warm lime accent
+
+Source (rank 13 of nice-color-palettes@4.0.0/1000.json): `#ffffff, #cbe86b, #f2e9e1, #1c140d, #cbe86b (the source repeats #cbe86b)`
+
+| Role | Hex | Derived? |
+|---|---|---|
+| Primary / Foreground | #1c140d | transcribed (darkest source colour) |
+| Background | #ffffff | transcribed (the source own lightest colour, HSL L 100) |
+| Secondary | #f2e9e1 | transcribed (the sole non-duplicate leftover colour) |
+| Accent | #cbe86b | transcribed (sole saturated hue: 74 deg, S=73%, L=67%); the duplicate #cbe86b entry is the same hue and does not create a second saturated colour under rule (b) |
+| Muted | #f2f2f2 | derived #F2F2F2 -- the duplicate hex leaves no second leftover colour available for Muted, so the fallback triggers on its first use in this batch |
+| Rule Hair | #CCCCCC | derived (fixed constant, see mapping notes above) |
+
+| Pair | Foreground | Background | Ratio | Result |
+|---|---|---|---|---|
+| On Primary / Primary | #ffffff | #1c140d | 18.18:1 | OK |
+| On Secondary / Secondary | #1c140d | #f2e9e1 | 15.16:1 | OK |
+| On Accent / Accent | #1c140d | #cbe86b | 13.24:1 | OK |
+| Foreground / Background | #1c140d | #ffffff | 18.18:1 | OK |
+| On Muted / Muted | #1c140d | #f2f2f2 | 16.24:1 | OK |
+| Secondary / Background (Text-Safe test, fix 2) | #f2e9e1 | #ffffff | 1.20:1 | FAIL (Fill-Only) -- fix 1/2 |
 
 ### `lib-cl-r14-red` -- CL-ranked #14, warm red accent
 
-Source (rank 14 of nice-color-palettes/1000.json): `#efffcd, #dce9be, #555152, #2e2633, #99173c`
+Source (rank 14 of nice-color-palettes@4.0.0/1000.json): `#efffcd, #dce9be, #555152, #2e2633, #99173c`
 
 | Role | Hex | Derived? |
 |---|---|---|
 | Primary / Foreground | #2e2633 | transcribed (darkest source colour) |
-| Background | #efffcd | transcribed (lightest source colour) |
+| Background | #efffcd | transcribed (lightest source colour, HSL L 90.2 >= 90) |
 | Secondary | #dce9be | transcribed (mid-lightness remaining colour) |
 | Accent | #99173c | transcribed (sole saturated hue: 343 deg, S=74%, L=35%) |
-| Muted | #555152 | transcribed (leftover source colour) |
+| Muted | #f2f2f2 | corrected (fix 5/12) -- derived #F2F2F2; the only leftover source colour (#555152, HSL L 33) is not a light tint |
 | Rule Hair | #CCCCCC | derived (fixed constant, see mapping notes above) |
 
 | Pair | Foreground | Background | Ratio | Result |
@@ -267,19 +341,20 @@ Source (rank 14 of nice-color-palettes/1000.json): `#efffcd, #dce9be, #555152, #
 | On Secondary / Secondary | #2e2633 | #dce9be | 11.41:1 | OK |
 | On Accent / Accent | #ffffff | #99173c | 8.26:1 | OK |
 | Foreground / Background | #2e2633 | #efffcd | 13.78:1 | OK |
-| On Muted / Muted | #ffffff | #555152 | 7.82:1 | OK |
+| On Muted / Muted | #2e2633 | #f2f2f2 | 13.02:1 | OK |
+| Secondary / Background (Text-Safe test, fix 2) | #dce9be | #efffcd | 1.21:1 | FAIL (Fill-Only) -- fix 1/2 |
 
 ### `lib-cl-r21-red` -- CL-ranked #21, warm red accent
 
-Source (rank 21 of nice-color-palettes/1000.json): `#351330, #424254, #64908a, #e8caa4, #cc2a41`
+Source (rank 21 of nice-color-palettes@4.0.0/1000.json): `#351330, #424254, #64908a, #e8caa4, #cc2a41`
 
 | Role | Hex | Derived? |
 |---|---|---|
 | Primary / Foreground | #351330 | transcribed (darkest source colour) |
-| Background | #ffffff | derived -- lightest source colour's HSL L<90, substituted #FFFFFF per mapping rule |
+| Background | #ffffff | derived -- lightest source colour HSL L<90, substituted #ffffff per mapping rule |
 | Secondary | #64908a | transcribed (mid-lightness remaining colour) |
 | Accent | #cc2a41 | transcribed (sole saturated hue: 351 deg, S=66%, L=48%) |
-| Muted | #424254 | transcribed (leftover source colour) |
+| Muted | #f2f2f2 | corrected (fix 5/12) -- derived #F2F2F2; the only leftover source colour (#424254, HSL L 29) is not a light tint |
 | Rule Hair | #CCCCCC | derived (fixed constant, see mapping notes above) |
 
 | Pair | Foreground | Background | Ratio | Result |
@@ -288,19 +363,20 @@ Source (rank 21 of nice-color-palettes/1000.json): `#351330, #424254, #64908a, #
 | On Secondary / Secondary | #351330 | #64908a | 4.58:1 | OK |
 | On Accent / Accent | #ffffff | #cc2a41 | 5.28:1 | OK |
 | Foreground / Background | #351330 | #ffffff | 16.31:1 | OK |
-| On Muted / Muted | #ffffff | #424254 | 9.82:1 | OK |
+| On Muted / Muted | #351330 | #f2f2f2 | 14.57:1 | OK |
+| Secondary / Background (Text-Safe test, fix 2) | #64908a | #ffffff | 3.56:1 | FAIL (Fill-Only) -- fix 1/2 |
 
 ### `lib-cl-r33-neutral` -- CL-ranked #33, mid-tone neutral
 
-Source (rank 33 of nice-color-palettes/1000.json): `#eee6ab, #c5bc8e, #696758, #45484b, #36393b`
+Source (rank 33 of nice-color-palettes@4.0.0/1000.json): `#eee6ab, #c5bc8e, #696758, #45484b, #36393b`
 
 | Role | Hex | Derived? |
 |---|---|---|
 | Primary / Foreground | #36393b | transcribed (darkest source colour) |
-| Background | #ffffff | derived -- lightest source colour's HSL L<90, substituted #FFFFFF per mapping rule |
-| Secondary | #696758 | transcribed (mid-lightness remaining colour) |
+| Background | #ffffff | derived -- lightest source colour HSL L<90, substituted #ffffff per mapping rule |
+| Secondary | #696758 | transcribed (true median-by-lightness of the 3 remaining colours) |
 | Accent | (none) | no source colour met S>40%/25%<L<75%; left blank, not invented |
-| Muted | #c5bc8e | transcribed (leftover source colour) |
+| Muted | #c5bc8e | transcribed (the lighter of the 2 leftover colours, HSL L 66 vs 28 for #45484b) -- already the lightest-tint pick, unchanged by fix 5/12 |
 | Rule Hair | #CCCCCC | derived (fixed constant, see mapping notes above) |
 
 | Pair | Foreground | Background | Ratio | Result |
@@ -310,18 +386,19 @@ Source (rank 33 of nice-color-palettes/1000.json): `#eee6ab, #c5bc8e, #696758, #
 | On Accent / Accent | (blank) | (blank) | n/a | n/a (no accent) |
 | Foreground / Background | #36393b | #ffffff | 11.63:1 | OK |
 | On Muted / Muted | #36393b | #c5bc8e | 6.07:1 | OK |
+| Secondary / Background (Text-Safe test, fix 2) | #696758 | #ffffff | 5.70:1 | OK (Text-Safe) |
 
 ### `lib-cl-r49-orange` -- CL-ranked #49, warm orange accent
 
-Source (rank 49 of nice-color-palettes/1000.json): `#3e4147, #fffedf, #dfba69, #5a2e2e, #2a2c31`
+Source (rank 49 of nice-color-palettes@4.0.0/1000.json): `#3e4147, #fffedf, #dfba69, #5a2e2e, #2a2c31`
 
 | Role | Hex | Derived? |
 |---|---|---|
 | Primary / Foreground | #2a2c31 | transcribed (darkest source colour) |
-| Background | #fffedf | transcribed (lightest source colour) |
-| Secondary | #5a2e2e | transcribed (mid-lightness remaining colour) |
+| Background | #fffedf | transcribed (lightest source colour, HSL L 93.7 >= 90) |
+| Secondary | #5a2e2e | transcribed (lighter of the 2 remaining colours: HSL L 26.7 vs 26.1 for #3e4147 -- a near-tie broken toward the lighter value) |
 | Accent | #dfba69 | transcribed (sole saturated hue: 41 deg, S=65%, L=64%) |
-| Muted | #3e4147 | transcribed (leftover source colour) |
+| Muted | #f2f2f2 | corrected (fix 5/12) -- derived #F2F2F2; the only leftover source colour (#3e4147, HSL L 26) is not a light tint |
 | Rule Hair | #CCCCCC | derived (fixed constant, see mapping notes above) |
 
 | Pair | Foreground | Background | Ratio | Result |
@@ -330,19 +407,20 @@ Source (rank 49 of nice-color-palettes/1000.json): `#3e4147, #fffedf, #dfba69, #
 | On Secondary / Secondary | #ffffff | #5a2e2e | 11.26:1 | OK |
 | On Accent / Accent | #2a2c31 | #dfba69 | 7.56:1 | OK |
 | Foreground / Background | #2a2c31 | #fffedf | 13.63:1 | OK |
-| On Muted / Muted | #ffffff | #3e4147 | 10.23:1 | OK |
+| On Muted / Muted | #2a2c31 | #f2f2f2 | 12.48:1 | OK |
+| Secondary / Background (Text-Safe test, fix 2) | #5a2e2e | #fffedf | 10.99:1 | OK (Text-Safe) |
 
 ### `lib-cl-r60-neutral` -- CL-ranked #60, mid-tone neutral
 
-Source (rank 60 of nice-color-palettes/1000.json): `#3a111c, #574951, #83988e, #bcdea5, #e6f9bc`
+Source (rank 60 of nice-color-palettes@4.0.0/1000.json): `#3a111c, #574951, #83988e, #bcdea5, #e6f9bc`
 
 | Role | Hex | Derived? |
 |---|---|---|
 | Primary / Foreground | #3a111c | transcribed (darkest source colour) |
-| Background | #ffffff | derived -- lightest source colour's HSL L<90, substituted #FFFFFF per mapping rule |
-| Secondary | #83988e | transcribed (mid-lightness remaining colour) |
+| Background | #ffffff | derived -- lightest source colour HSL L<90, substituted #ffffff per mapping rule |
+| Secondary | #83988e | transcribed (true median-by-lightness of the 3 remaining colours) |
 | Accent | (none) | no source colour met S>40%/25%<L<75%; left blank, not invented |
-| Muted | #574951 | transcribed (leftover source colour) |
+| Muted | #bcdea5 | corrected (fix 5/12) -- the lighter of the 2 leftover colours (HSL L 76 vs 31 for #574951); the original run kept #574951 (first-in-source-order), a dark colour that is not a usable light-tint Muted on this row white background |
 | Rule Hair | #CCCCCC | derived (fixed constant, see mapping notes above) |
 
 | Pair | Foreground | Background | Ratio | Result |
@@ -351,19 +429,20 @@ Source (rank 60 of nice-color-palettes/1000.json): `#3a111c, #574951, #83988e, #
 | On Secondary / Secondary | #3a111c | #83988e | 5.36:1 | OK |
 | On Accent / Accent | (blank) | (blank) | n/a | n/a (no accent) |
 | Foreground / Background | #3a111c | #ffffff | 16.45:1 | OK |
-| On Muted / Muted | #ffffff | #574951 | 8.48:1 | OK |
+| On Muted / Muted | #3a111c | #bcdea5 | 11.07:1 | OK |
+| Secondary / Background (Text-Safe test, fix 2) | #83988e | #ffffff | 3.07:1 | FAIL (Fill-Only) -- fix 1/2 |
 
 ### `lib-cl-r65-neutral` -- CL-ranked #65, mid-tone neutral
 
-Source (rank 65 of nice-color-palettes/1000.json): `#e3dfba, #c8d6bf, #93ccc6, #6cbdb5, #1a1f1e`
+Source (rank 65 of nice-color-palettes@4.0.0/1000.json): `#e3dfba, #c8d6bf, #93ccc6, #6cbdb5, #1a1f1e`
 
 | Role | Hex | Derived? |
 |---|---|---|
 | Primary / Foreground | #1a1f1e | transcribed (darkest source colour) |
-| Background | #ffffff | derived -- lightest source colour's HSL L<90, substituted #FFFFFF per mapping rule |
-| Secondary | #93ccc6 | transcribed (mid-lightness remaining colour) |
+| Background | #ffffff | derived -- lightest source colour HSL L<90, substituted #ffffff per mapping rule |
+| Secondary | #93ccc6 | transcribed (true median-by-lightness of the 3 remaining colours) |
 | Accent | (none) | no source colour met S>40%/25%<L<75%; left blank, not invented |
-| Muted | #c8d6bf | transcribed (leftover source colour) |
+| Muted | #c8d6bf | transcribed (the lighter of the 2 leftover colours, HSL L 79 vs 58 for #6cbdb5) -- already the lightest-tint pick, unchanged by fix 5/12 |
 | Rule Hair | #CCCCCC | derived (fixed constant, see mapping notes above) |
 
 | Pair | Foreground | Background | Ratio | Result |
@@ -373,18 +452,19 @@ Source (rank 65 of nice-color-palettes/1000.json): `#e3dfba, #c8d6bf, #93ccc6, #
 | On Accent / Accent | (blank) | (blank) | n/a | n/a (no accent) |
 | Foreground / Background | #1a1f1e | #ffffff | 16.68:1 | OK |
 | On Muted / Muted | #1a1f1e | #c8d6bf | 10.99:1 | OK |
+| Secondary / Background (Text-Safe test, fix 2) | #93ccc6 | #ffffff | 1.80:1 | FAIL (Fill-Only) -- fix 1/2 |
 
 ### `lib-cl-r90-neutral` -- CL-ranked #90, mid-tone neutral
 
-Source (rank 90 of nice-color-palettes/1000.json): `#fffbb7, #a6f6af, #66b6ab, #5b7c8d, #4f2958`
+Source (rank 90 of nice-color-palettes@4.0.0/1000.json): `#fffbb7, #a6f6af, #66b6ab, #5b7c8d, #4f2958`
 
 | Role | Hex | Derived? |
 |---|---|---|
 | Primary / Foreground | #4f2958 | transcribed (darkest source colour) |
-| Background | #ffffff | derived -- lightest source colour's HSL L<90, substituted #FFFFFF per mapping rule |
-| Secondary | #66b6ab | transcribed (mid-lightness remaining colour) |
+| Background | #ffffff | derived -- lightest source colour HSL L<90, substituted #ffffff per mapping rule |
+| Secondary | #66b6ab | transcribed (true median-by-lightness of the 3 remaining colours) |
 | Accent | (none) | no source colour met S>40%/25%<L<75%; left blank, not invented |
-| Muted | #a6f6af | transcribed (leftover source colour) |
+| Muted | #a6f6af | transcribed (the lighter of the 2 leftover colours, HSL L 81 vs 46 for #5b7c8d) -- already the lightest-tint pick, unchanged by fix 5/12 |
 | Rule Hair | #CCCCCC | derived (fixed constant, see mapping notes above) |
 
 | Pair | Foreground | Background | Ratio | Result |
@@ -394,18 +474,19 @@ Source (rank 90 of nice-color-palettes/1000.json): `#fffbb7, #a6f6af, #66b6ab, #
 | On Accent / Accent | (blank) | (blank) | n/a | n/a (no accent) |
 | Foreground / Background | #4f2958 | #ffffff | 11.73:1 | OK |
 | On Muted / Muted | #4f2958 | #a6f6af | 9.17:1 | OK |
+| Secondary / Background (Text-Safe test, fix 2) | #66b6ab | #ffffff | 2.37:1 | FAIL (Fill-Only) -- fix 1/2 |
 
 ### `lib-cl-r108-red` -- CL-ranked #108, warm red accent
 
-Source (rank 108 of nice-color-palettes/1000.json): `#312736, #d4838f, #d6abb1, #d9d9d9, #c4ffeb`
+Source (rank 108 of nice-color-palettes@4.0.0/1000.json): `#312736, #d4838f, #d6abb1, #d9d9d9, #c4ffeb`
 
 | Role | Hex | Derived? |
 |---|---|---|
 | Primary / Foreground | #312736 | transcribed (darkest source colour) |
-| Background | #ffffff | derived -- lightest source colour's HSL L<90, substituted #FFFFFF per mapping rule |
-| Secondary | #d9d9d9 | transcribed (mid-lightness remaining colour) |
+| Background | #ffffff | derived -- lightest source colour HSL L<90, substituted #ffffff per mapping rule |
+| Secondary | #d9d9d9 | transcribed (lighter of the 2 remaining colours) |
 | Accent | #d4838f | transcribed (sole saturated hue: 351 deg, S=49%, L=67%) |
-| Muted | #d6abb1 | transcribed (leftover source colour) |
+| Muted | #d6abb1 | transcribed (the other of the 2 remaining colours, HSL L 76 -- already a light tint, unchanged by fix 5/12) |
 | Rule Hair | #CCCCCC | derived (fixed constant, see mapping notes above) |
 
 | Pair | Foreground | Background | Ratio | Result |
@@ -415,18 +496,19 @@ Source (rank 108 of nice-color-palettes/1000.json): `#312736, #d4838f, #d6abb1, 
 | On Accent / Accent | #312736 | #d4838f | 5.05:1 | OK |
 | Foreground / Background | #312736 | #ffffff | 14.25:1 | OK |
 | On Muted / Muted | #312736 | #d6abb1 | 7.00:1 | OK |
+| Secondary / Background (Text-Safe test, fix 2) | #d9d9d9 | #ffffff | 1.41:1 | FAIL (Fill-Only) -- fix 1/2 |
 
 ### `lib-cl-r116-red` -- CL-ranked #116, warm red accent
 
-Source (rank 116 of nice-color-palettes/1000.json): `#efd9b4, #d6a692, #a39081, #4d6160, #292522`
+Source (rank 116 of nice-color-palettes@4.0.0/1000.json): `#efd9b4, #d6a692, #a39081, #4d6160, #292522`
 
 | Role | Hex | Derived? |
 |---|---|---|
 | Primary / Foreground | #292522 | transcribed (darkest source colour) |
-| Background | #ffffff | derived -- lightest source colour's HSL L<90, substituted #FFFFFF per mapping rule |
-| Secondary | #a39081 | transcribed (mid-lightness remaining colour) |
+| Background | #ffffff | derived -- lightest source colour HSL L<90, substituted #ffffff per mapping rule |
+| Secondary | #a39081 | transcribed (lighter of the 2 remaining colours) |
 | Accent | #d6a692 | transcribed (sole saturated hue: 18 deg, S=45%, L=71%) |
-| Muted | #4d6160 | transcribed (leftover source colour) |
+| Muted | #f2f2f2 | corrected (fix 5/12) -- derived #F2F2F2; the only leftover source colour (#4d6160, HSL L 34) is not a light tint |
 | Rule Hair | #CCCCCC | derived (fixed constant, see mapping notes above) |
 
 | Pair | Foreground | Background | Ratio | Result |
@@ -435,19 +517,20 @@ Source (rank 116 of nice-color-palettes/1000.json): `#efd9b4, #d6a692, #a39081, 
 | On Secondary / Secondary | #292522 | #a39081 | 4.97:1 | OK |
 | On Accent / Accent | #292522 | #d6a692 | 7.04:1 | OK |
 | Foreground / Background | #292522 | #ffffff | 15.20:1 | OK |
-| On Muted / Muted | #ffffff | #4d6160 | 6.57:1 | OK |
+| On Muted / Muted | #292522 | #f2f2f2 | 13.57:1 | OK |
+| Secondary / Background (Text-Safe test, fix 2) | #a39081 | #ffffff | 3.06:1 | FAIL (Fill-Only) -- fix 1/2 |
 
 ### `lib-cl-r121-neutral` -- CL-ranked #121, mid-tone neutral
 
-Source (rank 121 of nice-color-palettes/1000.json): `#512b52, #635274, #7bb0a8, #a7dbab, #e4f5b1`
+Source (rank 121 of nice-color-palettes@4.0.0/1000.json): `#512b52, #635274, #7bb0a8, #a7dbab, #e4f5b1`
 
 | Role | Hex | Derived? |
 |---|---|---|
 | Primary / Foreground | #512b52 | transcribed (darkest source colour) |
-| Background | #ffffff | derived -- lightest source colour's HSL L<90, substituted #FFFFFF per mapping rule |
-| Secondary | #7bb0a8 | transcribed (mid-lightness remaining colour) |
+| Background | #ffffff | derived -- lightest source colour HSL L<90, substituted #ffffff per mapping rule |
+| Secondary | #7bb0a8 | transcribed (true median-by-lightness of the 3 remaining colours) |
 | Accent | (none) | no source colour met S>40%/25%<L<75%; left blank, not invented |
-| Muted | #635274 | transcribed (leftover source colour) |
+| Muted | #a7dbab | corrected (fix 5/12) -- the lighter of the 2 leftover colours (HSL L 76 vs 39 for #635274); the original run kept #635274 (first-in-source-order), a dark colour that is not a usable light-tint Muted on this row white background |
 | Rule Hair | #CCCCCC | derived (fixed constant, see mapping notes above) |
 
 | Pair | Foreground | Background | Ratio | Result |
@@ -456,19 +539,20 @@ Source (rank 121 of nice-color-palettes/1000.json): `#512b52, #635274, #7bb0a8, 
 | On Secondary / Secondary | #512b52 | #7bb0a8 | 4.74:1 | OK |
 | On Accent / Accent | (blank) | (blank) | n/a | n/a (no accent) |
 | Foreground / Background | #512b52 | #ffffff | 11.56:1 | OK |
-| On Muted / Muted | #ffffff | #635274 | 7.02:1 | OK |
+| On Muted / Muted | #512b52 | #a7dbab | 7.35:1 | OK |
+| Secondary / Background (Text-Safe test, fix 2) | #7bb0a8 | #ffffff | 2.44:1 | FAIL (Fill-Only) -- fix 1/2 |
 
 ### `lib-cl-r124-neutral` -- CL-ranked #124, light neutral
 
-Source (rank 124 of nice-color-palettes/1000.json): `#fdffd9, #fff0b8, #ffd6a3, #faad8e, #142f30`
+Source (rank 124 of nice-color-palettes@4.0.0/1000.json): `#fdffd9, #fff0b8, #ffd6a3, #faad8e, #142f30`
 
 | Role | Hex | Derived? |
 |---|---|---|
 | Primary / Foreground | #142f30 | transcribed (darkest source colour) |
-| Background | #fdffd9 | transcribed (lightest source colour) |
-| Secondary | #ffd6a3 | transcribed (mid-lightness remaining colour) |
+| Background | #fdffd9 | transcribed (lightest source colour, HSL L 92.5 >= 90) |
+| Secondary | #ffd6a3 | transcribed (true median-by-lightness of the 3 remaining colours) |
 | Accent | (none) | no source colour met S>40%/25%<L<75%; left blank, not invented |
-| Muted | #fff0b8 | transcribed (leftover source colour) |
+| Muted | #fff0b8 | transcribed (the lighter of the 2 leftover colours, HSL L 86 vs 77 for #faad8e) -- already the lightest-tint pick, unchanged by fix 5/12 |
 | Rule Hair | #CCCCCC | derived (fixed constant, see mapping notes above) |
 
 | Pair | Foreground | Background | Ratio | Result |
@@ -478,18 +562,19 @@ Source (rank 124 of nice-color-palettes/1000.json): `#fdffd9, #fff0b8, #ffd6a3, 
 | On Accent / Accent | (blank) | (blank) | n/a | n/a (no accent) |
 | Foreground / Background | #142f30 | #fdffd9 | 13.85:1 | OK |
 | On Muted / Muted | #142f30 | #fff0b8 | 12.45:1 | OK |
+| Secondary / Background (Text-Safe test, fix 2) | #ffd6a3 | #fdffd9 | 1.33:1 | FAIL (Fill-Only) -- fix 1/2 |
 
 ### `lib-cl-r134-neutral` -- CL-ranked #134, light neutral
 
-Source (rank 134 of nice-color-palettes/1000.json): `#ffb884, #f5df98, #fff8d4, #c0d1c2, #2e4347`
+Source (rank 134 of nice-color-palettes@4.0.0/1000.json): `#ffb884, #f5df98, #fff8d4, #c0d1c2, #2e4347`
 
 | Role | Hex | Derived? |
 |---|---|---|
 | Primary / Foreground | #2e4347 | transcribed (darkest source colour) |
-| Background | #fff8d4 | transcribed (lightest source colour) |
-| Secondary | #f5df98 | transcribed (mid-lightness remaining colour) |
+| Background | #fff8d4 | transcribed (lightest source colour, HSL L 91.6 >= 90) |
+| Secondary | #f5df98 | transcribed (true median-by-lightness of the 3 remaining colours) |
 | Accent | (none) | no source colour met S>40%/25%<L<75%; left blank, not invented |
-| Muted | #ffb884 | transcribed (leftover source colour) |
+| Muted | #c0d1c2 | corrected (fix 5/12) -- the lighter of the 2 leftover colours (HSL L 79 vs 76 for #ffb884, a near-tie); the original run kept #ffb884 (first-in-source-order) instead of the marginally lighter tint |
 | Rule Hair | #CCCCCC | derived (fixed constant, see mapping notes above) |
 
 | Pair | Foreground | Background | Ratio | Result |
@@ -498,19 +583,20 @@ Source (rank 134 of nice-color-palettes/1000.json): `#ffb884, #f5df98, #fff8d4, 
 | On Secondary / Secondary | #2e4347 | #f5df98 | 7.91:1 | OK |
 | On Accent / Accent | (blank) | (blank) | n/a | n/a (no accent) |
 | Foreground / Background | #2e4347 | #fff8d4 | 9.77:1 | OK |
-| On Muted / Muted | #2e4347 | #ffb884 | 6.19:1 | OK |
+| On Muted / Muted | #2e4347 | #c0d1c2 | 6.54:1 | OK |
+| Secondary / Background (Text-Safe test, fix 2) | #f5df98 | #fff8d4 | 1.24:1 | FAIL (Fill-Only) -- fix 1/2 |
 
 ### `lib-cl-r136-neutral` -- CL-ranked #136, mid-tone neutral
 
-Source (rank 136 of nice-color-palettes/1000.json): `#e0eff1, #7db4b5, #ffffff, #680148, #000000`
+Source (rank 136 of nice-color-palettes@4.0.0/1000.json): `#e0eff1, #7db4b5, #ffffff, #680148, #000000`
 
 | Role | Hex | Derived? |
 |---|---|---|
 | Primary / Foreground | #000000 | transcribed (darkest source colour) |
-| Background | #ffffff | transcribed (lightest source colour) |
-| Secondary | #7db4b5 | transcribed (mid-lightness remaining colour) |
+| Background | #ffffff | transcribed (the source own lightest colour, HSL L 100) |
+| Secondary | #7db4b5 | transcribed (true median-by-lightness of the 3 remaining colours) |
 | Accent | (none) | no source colour met S>40%/25%<L<75%; left blank, not invented |
-| Muted | #e0eff1 | transcribed (leftover source colour) |
+| Muted | #e0eff1 | transcribed (the lighter of the 2 leftover colours, HSL L 91 vs 21 for #680148) -- already the lightest-tint pick, unchanged by fix 5/12 |
 | Rule Hair | #CCCCCC | derived (fixed constant, see mapping notes above) |
 
 | Pair | Foreground | Background | Ratio | Result |
@@ -520,44 +606,38 @@ Source (rank 136 of nice-color-palettes/1000.json): `#e0eff1, #7db4b5, #ffffff, 
 | On Accent / Accent | (blank) | (blank) | n/a | n/a (no accent) |
 | Foreground / Background | #000000 | #ffffff | 21.00:1 | OK |
 | On Muted / Muted | #000000 | #e0eff1 | 17.79:1 | OK |
-
-### `lib-cl-r137-neutral` -- CL-ranked #137, mid-tone neutral
-
-Source (rank 137 of nice-color-palettes/1000.json): `#b1e6d1, #77b1a9, #3d7b80, #270a33, #451a3e`
-
-| Role | Hex | Derived? |
-|---|---|---|
-| Primary / Foreground | #270a33 | transcribed (darkest source colour) |
-| Background | #ffffff | derived -- lightest source colour's HSL L<90, substituted #FFFFFF per mapping rule |
-| Secondary | #3d7b80 | transcribed (mid-lightness remaining colour) |
-| Accent | (none) | no source colour met S>40%/25%<L<75%; left blank, not invented |
-| Muted | #77b1a9 | transcribed (leftover source colour) |
-| Rule Hair | #CCCCCC | derived (fixed constant, see mapping notes above) |
-
-| Pair | Foreground | Background | Ratio | Result |
-|---|---|---|---|---|
-| On Primary / Primary | #ffffff | #270a33 | 17.83:1 | OK |
-| On Secondary / Secondary | #ffffff | #3d7b80 | 4.84:1 | OK |
-| On Accent / Accent | (blank) | (blank) | n/a | n/a (no accent) |
-| Foreground / Background | #270a33 | #ffffff | 17.83:1 | OK |
-| On Muted / Muted | #270a33 | #77b1a9 | 7.34:1 | OK |
+| Secondary / Background (Text-Safe test, fix 2) | #7db4b5 | #ffffff | 2.32:1 | FAIL (Fill-Only) -- fix 1/2 |
 
 ## Notes
 
 - All 15 rows pass every manifest-required On-X pair at >=4.5:1 and Foreground/Background at
   >=7:1; most clear 10:1+ in practice, a side effect of filter (a) itself always seeding a
   near-black or very-dark Primary/Foreground.
-- 6 of 15 admitted palettes carry an Accent (ranks 6, 14, 21, 49, 108, 116); the other 9 have
-  none, because no source colour in them met the S>40%/25%<L<75% saturated-hue test -- these
-  ship as accent-less palettes (Accent/On Accent left blank) rather than promoting a
+- 7 of 15 admitted palettes carry an Accent (ranks 6, 13, 14, 21, 49, 108, 116); the other 8
+  have none, because no source colour in them met the S>40%/25%<L<75% saturated-hue test --
+  these ship as accent-less palettes (Accent/On Accent left blank) rather than promoting a
   low-saturation or out-of-range tone to Accent, matching the `lib-carbon-mono` /
   `lib-radix-burgundy` precedent.
 - No admitted palette's Accent falls in the 200-230 deg default-blue-slop range (rule c);
   the rejection log above shows rule (b) -- more than one saturated hue -- as the single most
   common rejection reason in this corpus slice, well ahead of (a), (c), or (d).
-- The palette identity (5 source hexes) is transcribed exactly as fetched in every row; the
-  only value not directly transcribed is a substituted #FFFFFF Background, used in 10 of 15
-  rows where the source's own lightest colour was under HSL L 90 (flagged per-row above,
-  "derived"). Every admitted palette had a genuine 5th leftover source colour for Muted, so
-  the #F2F2F2 synthetic-neutral fallback (documented in the mapping rules) was never actually
-  triggered in this batch -- it remains available for a future batch where it is needed.
+- **Corrected (fix 3)**: the palette identity (5 source hexes) is **not** transcribed exactly
+  as fetched in every row. Only `lib-cl-r14-red` and `lib-cl-r49-orange` carry all 5 source
+  hexes untouched. Every other row drops or substitutes at least one value: 10 of 15 rows
+  substitute a derived `#ffffff` Background where the source's own lightest colour was under
+  HSL L 90 (`lib-cl-r6-orange`, `lib-cl-r21-red`, `lib-cl-r33-neutral`, `lib-cl-r60-neutral`,
+  `lib-cl-r65-neutral`, `lib-cl-r90-neutral`, `lib-cl-r108-red`, `lib-cl-r116-red`,
+  `lib-cl-r121-neutral`, `lib-cl-r137` (dropped)); and 6 of the 15 admitted rows now substitute
+  a derived `#F2F2F2` Muted where no leftover source colour was a usable light tint
+  (`lib-cl-r6-orange`, `lib-cl-r13-lime`, `lib-cl-r14-red`, `lib-cl-r21-red`,
+  `lib-cl-r49-orange`, `lib-cl-r116-red` -- six rows, see the per-row "Derived?" column above
+  for the exact reason in each). Every "Derived?" column above states plainly whether each
+  role's hex is transcribed or derived; the "transcribed exactly as fetched in every row"
+  sentence from the original evidence is false and has been replaced by this row-accurate
+  statement.
+- **Corrected (fix 5, two-colour midpoint rule)**: whenever exactly 2 source colours remain
+  after Primary/Foreground, Background and Accent are assigned (every accent-bearing row),
+  Secondary is the *lighter* of the two, not a literal "midpoint" (there is no middle value of
+  a 2-item set). This "upper median" reading was applied consistently across all 7 accent rows
+  but was never written down in the pre-registration text; it is recorded here as the rule
+  that was actually used.

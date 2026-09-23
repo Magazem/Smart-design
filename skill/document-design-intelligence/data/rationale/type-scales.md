@@ -32,8 +32,10 @@ the most heavily sourced of the three directions sharing the key.
 | `h1` | 20 | 22 | 1.10 (22/20) | "H1 (name, 3 steps) 20pt/22pt" |
 
 Modular-scale method: [modularscale.com](https://www.modularscale.com/) (fetched, research/70),
-Major Third = 1.25 as a standard named ratio; H1 takes three ratio steps per
-modularscale.com's own worked practice. Sits inside Jobscan's 10-12pt body / 14-16pt heading
+Major Third = 1.25 as a standard named ratio. "H1 takes three ratio steps" is this project's own
+derived convention (research/70), not a modularscale.com practice — the fetched page's only
+heading-size guidance is a UI instruction ("type the target value @ position on the scale like
+36@5"), with no "steps" claim (research/85 audit, fix 16). Sits inside Jobscan's 10-12pt body / 14-16pt heading
 ATS range for `body`/`h2`; H1 exceeds 16pt by design, since a name conventionally sits above
 the section-heading band and ATS text-extraction is unaffected by point size (research/70's
 own caveat, restated from research/69).
@@ -48,4 +50,5 @@ own caveat, restated from research/69).
 | `h1` | 25 | 28 | 1.12 (28/25) | "H1 (name, 3 steps) 24.9pt->25pt/28pt" |
 
 Perfect Fourth = 1.333, also from modularscale.com's ratio table, chosen for Direction 4
-because it carries no ATS point-size ceiling (research/70: "a more expressive jump").
+because it carries no ATS point-size ceiling (research/70: "a more expressive jump"). As above,
+the "3 steps" H1 convention is this project's derived convention, not a modularscale.com claim.

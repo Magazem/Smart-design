@@ -115,3 +115,105 @@ Expected state after M fixes 1–5 (and 7 by either option): 15 palette rows who
 roles all clear 4.5:1 against Background, evidence prose that matches the data, and a filter
 description that fully determines the admitted set. Type-scale data needs no numeric change.
 Only prose and provenance fixes remain there (16–18, 21), plus the reachability ruling (19).
+
+## Fixes applied (2026-09-23)
+
+Orchestrator ruled on the FIX LIST above; this section records what was actually changed.
+
+- **FIX 1 (1a–1k) + FIX 2** — done. `Text-Safe Roles` / `Fill-Only Roles` recomputed for every
+  admitted row using `contrast_ratio(role, Background) >= 4.5` per role (`foreground`/`primary`
+  always Text-Safe; `secondary`/`accent` independently tested), the same rule
+  `make_brand_kit.derive_palette_row` already uses. All 11 flagged rows (`r14`, `r21`, `r60`,
+  `r65`, `r90`, `r108`, `r116`, `r121`, `r124`, `r134`, `r136`) now match the FIX list's exact
+  corrected values; `r6`, `r33`, `r49` were already correct and are unchanged. The evidence's
+  Mapping section now states the per-role rule instead of "always includes secondary", and a
+  "Secondary / Background (Text-Safe test)" row was added to every per-row contrast table.
+  New test `scripts/tests/test_palette_roles.py` asserts this for every row of
+  `data/base/palettes.csv` (not just this batch); it passes clean against the corrected data
+  (138 subtests, 0 violations) — no other row in the base or authority batches needed a fix.
+- **FIX 3** — done. Evidence's false "5 source hexes transcribed in every row" claim replaced
+  with an accurate per-row account (only `r14`/`r49` keep all 5; the rest substitute a derived
+  Background and/or Muted, each flagged in its own "Derived?" column).
+- **FIX 4** — done (prose only, no ruling to change data). Evidence's false "Rule Brand matches
+  every row with no exception" claim corrected: accent-less base-library precedent is split
+  (`mono-ink`/`lib-carbon-mono`/`lib-radix-burgundy` use Primary; `cv-dach-formal`/
+  `deck-high-contrast` are blank). This batch keeps Rule Brand blank for its 8 accent-less rows
+  (FIX 13 advisory not applied — no ruling requested a data change here).
+- **FIX 5** + unregistered-rule ruling — done. Muted is now "lightest non-background tint among
+  unused source colours, else derived `#F2F2F2`", applied literally to all 15 rows. Changed
+  rows: `r6`, `r13`, `r14`, `r21`, `r49`, `r116` → derived `#F2F2F2` (no tint leftover); `r60`,
+  `r121`, `r134` → swapped to the lighter leftover colour that the original first-in-source-order
+  pick had skipped. `r33`, `r65`, `r90`, `r108`, `r124`, `r136` were already the lightest-tint
+  pick and are unchanged. This also resolves FIX 12 for all 7 originally-flagged dark-Muted rows
+  (plus `r134`, which the audit's <40-lightness threshold had not flagged but the literal rule
+  still corrects). The two-colour Secondary "upper median" (lighter-of-2) rule is declared under
+  a new "Rules applied that were not pre-registered" passage in the Mapping section and in the
+  Notes, with its effect (unchanged outcome, just documented).
+- **FIX 6** — done. Rank-75 log entry corrected: rule (a) actually passes (`#605063` vs
+  `#FFFFFF` = 7.43:1); the reject stands on rule (d) instead, which was already failing, so the
+  admit/reject outcome is unchanged.
+- **FIX 7** — ruling (b) as written: pre-registration wins. Rank 13 is **admitted** (mapped per
+  the pre-registered rules: Primary/Foreground `#1c140d`, Background `#ffffff`, Secondary
+  `#f2e9e1`, Accent `#cbe86b`, Muted derived `#F2F2F2`), and rank 137 is **dropped** to keep
+  exactly 15 rows (first 15 admitted in rank order). `ranked-colourlovers.csv`,
+  `-evidence.md` and the provenance CSV all now carry `lib-cl-r13-lime` in place of
+  `lib-cl-r137-neutral`. No rule (e) was added.
+- **FIX 8 / 9** — done. Evidence now cites `bin/fetch.js` (curl'd, HTTP 200) as the ordering
+  proof — it pages the `api/palettes/top` endpoint in order and drops only short/duplicate
+  palettes, never re-sorting by votes. Provenance `Ranking Metric` changed on all 15 rows to
+  "COLOURlovers top-palettes order as packaged by nice-color-palettes (array position)",
+  dropping the unsupported "(by votes...)" wording.
+- **FIX 10** — done. Provenance `Source URL` pinned to
+  `https://unpkg.com/nice-color-palettes@4.0.0/1000.json` on all 15 rows; re-verified with
+  `curl -sIL` this session — `200 OK`. Evidence's Source section now also states the
+  100/200/500-entry cross-check confirming ranks ≤500 are exact, stable API positions.
+- **FIX 11** — done. Re-probed `https://`, `http://` and apex forms of
+  `www.colourlovers.com/api/palettes/top` this session: all three returned **403**
+  (Cloudflare), not the previously quoted 410 "gone" JSON body. Evidence now states this was
+  "observed once by the original researcher, not reproduced in audit (403 Cloudflare)",
+  per the not-reproducible ruling; the underlying conclusion (API not fetchable) is unaffected.
+- **FIX 12** — resolved as a consequence of the FIX 5 ruling above (literal lightest-tint rule
+  applied to all 15 rows), not as a separate hand-patch — no row was patched independently of
+  re-deriving Muted from the rule.
+- **FIX 13** — not applied (advisory; no ruling requested changing Rule Brand values). Evidence
+  now describes the split precedent accurately (see FIX 4) so this stays a documented choice,
+  not a false claim.
+- **FIX 14** — done. Dropped the meta tokens `ranked`, `popular` and the doctype list
+  (`brochure, poster, deck, one-pager`) from all 15 rows' Keywords — the doctype list was
+  identical across every row and told rows apart for nothing (batch-1 FIX 24 precedent).
+  Keywords now carry only the tone/lightness/hue descriptors.
+- **FIX 15** — done, and extended past the two rows the audit named as illustrative artefacts:
+  every row's tone tag was re-derived (accent hue if an accent exists, else Primary hue; warm if
+  hue <90° or ≥270°, else cool) and any row whose driving colour has HSL S <10% (achromatic) is
+  now tagged `neutral` instead of warm/cool. This changes `lib-cl-r33-neutral` (cool → neutral,
+  Primary S 4.4%), `lib-cl-r65-neutral` (cool → neutral, Primary S 8.8% — same defect as `r33`
+  and `r136` but not separately named in the audit's artefact list) and `lib-cl-r136-neutral`
+  (warm → neutral, Primary S 0%, pure black). No other row's driving colour is achromatic, so no
+  further tags changed; `r108`/`r116`'s hue-*name* ("red" on a dusty-pink/tan accent, A20
+  advisory) was left as-is — the ruling only covered warm/cool tags, not hue-name words.
+- **FIX 16** — done. Removed the modularscale.com attribution for "H1 takes three ratio steps"
+  from `ratio-families-evidence.md` §4 and from the pre-existing
+  `data/rationale/type-scales.md` (L35–36, L50–51) it was inherited from; both now state it is
+  this project's own derived convention (research/70), since the fetched page's only
+  heading-size guidance is the "36@5" UI instruction, not a steps claim.
+- **FIX 17** — done. `ratio-families-evidence.md` §4 no longer claims the −1/+1/+2/+3 step map
+  "generalises the existing hierarchy shape" — `cv-major-third` and `cv-editorial-fourth` in
+  fact use h2 = +1/h1 = +3 (not consecutive steps), and `print-office-generic` is not a modular
+  scale at all (two different implied ratios). The step map is now declared as this batch's own
+  derived convention.
+- **FIX 18** — done (advisory). The ratio blockquote in §1 now quotes the fetched markup
+  verbatim (`rS(...)` link text) instead of reformatted prose, and notes the quote omits named
+  ratios the live page also lists between/around the six used here.
+- **FIX 19** — left to the orchestrator, per instructions (reachability ruling, out of this
+  pass's scope).
+- **FIX 20 / 21** — left as-is (advisory, no ruling requested a change).
+
+Regeneration: `python3 research/load-base.py` (43 palettes, 812 total rows) then
+`python3 research/build-portable.py`, both clean. `python3 scripts/ddi.py check` from the skill
+dir: `OK: validated 16 table(s), 812 row(s)`. `python3 -m pytest -q` from the skill dir: **282
+passed, 1 skipped, 1 xfailed, 1523 subtests passed, 1 failed** — the 1 failure
+(`test_ascii_clean.py::TestAsciiOnlyStringLiterals`, a mis-encoded em-dash in `scripts/ddi.py`
+line 1482, unrelated to palettes/type-scales/provenance) predates this pass: this session never
+touched `ddi.py`, so it is reported as pre-existing/out-of-scope, not introduced by this fix
+batch. No failures were observed in `test_provenance.py` (the concurrent worker's file) this
+run.

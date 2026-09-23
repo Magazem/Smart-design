@@ -12,8 +12,17 @@ deck-projection / report-screen), per research/70's own citation method.
 fetched previously in research/70 and quoted in research/81's "Type scales" table). The static
 markup lists named ratios with numeric values:
 
-> minor second 15:16 (1.067), **minor third 5:6 (1.2)**, **major third 4:5 (1.25)**, **perfect
-> fourth 3:4 (1.333)**, perfect fifth 2:3 (1.5), golden section 1:1.618 (1.618)
+> <a href="javascript:rS(1.067)">15:16 – minor second</a>, <a href="javascript:rS(1.2)">5:6 –
+> minor third</a>, <a href="javascript:rS(1.25)">4:5 – major third</a>, <a
+> href="javascript:rS(1.333)">3:4 – perfect fourth</a>, <a href="javascript:rS(1.5)">2:3 – perfect
+> fifth</a>, <a href="javascript:rS(1.618)">1:1.618 – golden section</a>
+
+**Corrected (fix 18)**: the block above quotes the markup as it actually renders (named ratio as
+the link text, `rS(...)` supplying the decimal as a click-to-apply argument, not prose). The
+previous version of this evidence reformatted it as flowing prose ("minor third 5:6 (1.2)") and
+silently omitted named ratios that the live page also lists between/around these entries (e.g.
+"aug. fourth", "minor sixth") — this quote is a verbatim excerpt of the entries relevant to this
+task's three ratios, not the page's complete named-ratio list.
 
 The three ratios used here — **minor third = 1.2**, **major third = 1.25**, **perfect fourth =
 1.333** — are exactly the three named in the task brief and are all present, with these numeric
@@ -66,12 +75,25 @@ them for a body-text hierarchy).
 
 ## 4. Step method (modular-scale steps from base body)
 
-Per `data/rationale/type-scales.md` and research/70's own worked method — quoted there as
-"H1 takes three ratio steps" ("Dominant elements (the name/H1) take three ratio steps rather than
-one — a standard modular-scale practice modularscale.com itself describes") — this task applies
-the same integer-step convention uniformly across all three ratios and three mediums, generalising
-the existing hierarchy shape (sub-body role one step down; heading roles one, two, three steps up)
-rather than re-deriving a bespoke step count per medium:
+**Corrected (fix 16)**: `data/rationale/type-scales.md` and research/70 describe "H1 takes three
+ratio steps" as "a standard modular-scale practice modularscale.com itself describes". The fetched
+copy of modularscale.com (§1 above) contains no such statement anywhere in its markup; its only
+heading-size guidance is "If you know what size you want a heading to be, type the target value @
+position on the scale like 36@5" — a UI instruction, not a claim about how many steps a heading
+should take. The "H1 = three steps" convention is this project's own derived convention,
+inherited from research/70, and is not attributable to modularscale.com; the attribution is
+removed here and in `data/rationale/type-scales.md` should be corrected the same way.
+
+**Corrected (fix 17)**: this task applies an integer step map (label/caption/body-dense = -1, h3 =
++1, h2 = +2, h1 = +3) uniformly across all three ratios and three mediums, describing it
+previously as "generalising the existing hierarchy shape (sub-body one step down; heading roles
+one, two, three steps up)". That is not what the existing ratio scales do: `cv-major-third` steps
+h2 = +1 and h1 = +3 (10.5 -> h2 13 -> h1 20, i.e. h2 and h1 are not consecutive steps apart), and
+`cv-editorial-fourth` does the same (10.5 -> h2 14 -> h1 25); `print-office-generic` (12/16/24) is
+not a modular scale at all (16/12 = 1.333 but 24/16 = 1.5, two different ratios, so it cannot be
+read as any consistent step count). The -1/+1/+2/+3 step map used in this batch is therefore this
+task's own derived convention, not a generalisation of a precedent that already used it -- it is
+declared as such here, not as an extension of existing practice:
 
 | Role | Step (n) from body | Applies to |
 |---|---|---|
