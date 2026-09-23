@@ -139,3 +139,4 @@ This file is the live checklist. It is updated and committed after every milesto
 - 2026-09-24 Repo Keeper: cover-letter + letter L2, invoice preview URLs + items csv (48, url+preview filled), 82a round 4. Suite 4 failed (doctypes column parity) from uncommitted resolver Family Default work, not this commit.
 - 2026-09-24 Repo Keeper: 82b shortfall sources + adoption committed.
 - 2026-09-24 Repo Keeper: deck agreement + generalized agreement.py committed (cv header 0.70 reproduces).
+- 2026-09-24 Repo Keeper: resolver follow-up (language-aware family default, Family Default column, lettre keywords); 303 passed.

@@ -61,7 +61,7 @@ tables["doctypes"] = {
     "columns": ["doc_key", "Display Name", "Keywords", "Artifact Class", "Brand Scope",
                 "Reasoning Key", "Page Format Key", "Render Target Keys",
                 "Constraint Set Keys", "Structure Key", "Region Key", "Default Language",
-                "Family"],
+                "Family", "Family Default"],
     "key_column": "doc_key",
     "role": "entry",
     # research/64 D-E: the language a doctype's document is normally authored in --
@@ -78,7 +78,10 @@ tables["doctypes"] = {
     # `searchable_columns` -- it groups doctypes, it does not describe one for BM25.
     "enums": {"Artifact Class": ["canvas", "flow", "hybrid"],
               "Default Language": ["en", "fr", "de"],
-              "Family": FAMILIES},
+              "Family": FAMILIES,
+              # research/88: `y` marks the doctype a plain, unspecific request for its family
+              # resolves to (at most one per family); blank = not designated
+              "Family Default": ["", "y"]},
     "foreign_keys": {
         "Reasoning Key": "doc-reasoning.doc_category",
         "Page Format Key": "page-formats.page_format_key",

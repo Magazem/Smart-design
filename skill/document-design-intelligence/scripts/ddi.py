@@ -427,6 +427,7 @@ HANDOFF_EXCLUSIONS = {
         # exists so `ddi.py designs`/the loader can group doctypes by family; no
         # handoff builder has any reason to read it off a resolved doctypes row.
         "Family": "catalogue grouping, not a render value",
+        "Family Default": "resolver routing flag (research/88), not a render value",
         "Keywords": _IDENTITY,
         "Page Format Key": _ROUTING,
         "Reasoning Key": _ROUTING,

@@ -16,7 +16,8 @@
         "Structure Key",
         "Region Key",
         "Default Language",
-        "Family"
+        "Family",
+        "Family Default"
       ],
       "key_column": "doc_key",
       "role": "entry",
@@ -49,6 +50,10 @@
           "deck",
           "one-pager",
           "infographic"
+        ],
+        "Family Default": [
+          "",
+          "y"
         ]
       },
       "foreign_keys": {
@@ -99,7 +104,8 @@
         "Structure Key",
         "Region Key",
         "Default Language",
-        "Family"
+        "Family",
+        "Family Default"
       ]
     },
     "doc-reasoning": {

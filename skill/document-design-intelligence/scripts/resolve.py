@@ -378,6 +378,88 @@ def _resolve_entry(entry_rows, key_column, searchable_columns, query, brand, des
     return row, diag
 
 
+#: research/88: tiny stopword sets for en/fr/de query-language detection. Tokens are
+#: lower-cased and diacritic-folded (`fuer` and `fur` both appear for German u-umlaut).
+#: Deliberately small: it only has to separate three languages on a short request, and it
+#: is consulted ONLY for the family-default step, never for ranking. English is the default
+#: on a tie or no signal.
+_LANG_WORDS = {
+    "en": {"the", "a", "an", "for", "my", "me", "make", "write", "need", "to", "of", "and", "with",
+           "i", "please", "create", "build", "design", "help", "our", "on", "in"},
+    "fr": {"le", "la", "les", "un", "une", "des", "de", "du", "pour", "mon", "ma", "mes", "fais",
+           "moi", "redige", "ecris", "ecrire", "je", "veux", "besoin", "et", "avec", "poste",
+           "d", "l", "au", "aux", "cree", "creer"},
+    "de": {"ein", "eine", "einen", "einem", "der", "die", "das", "fuer", "fur", "erstelle",
+           "schreibe", "mein", "meine", "und", "mit", "ich", "brauche", "zu", "bitte", "von",
+           "fuers", "erstellen"},
+}
+
+_LETTER_CUE_RE = re.compile(r"\b(us|usa|u\.s\.|letter|american)\b|8\.5\s*x\s*11", re.IGNORECASE)
+
+
+def _detect_language(query):
+    """'en' | 'fr' | 'de' from stopword counts; 'en' on a tie or no signal."""
+    tokens = re.split(r"[^a-z0-9]+", BM25._fold_diacritics(str(query or "").lower()))
+    counts = {lang: sum(1 for t in tokens if t in words) for lang, words in _LANG_WORDS.items()}
+    best = max(counts, key=lambda l: (counts[l], l == "en"))
+    return best if counts[best] > counts["en"] else "en"
+
+
+def _family_default(entry_rows, key_column, diag, designs_rows, query=""):
+    """research/88: an `ambiguous` abstention whose top candidates all belong to ONE
+    Family means the query carried nothing that separates that family's variants (a
+    discriminating term would have opened the BM25 margin). Resolve to a designated
+    doctype of that family, else the abstention stands. Returns (row, query_language) or
+    (None, None). In order:
+      1. language: if the query is French/German and exactly ONE family doctype has that
+         Default Language, take it (cv-dach for German, cv-france for French);
+      2. the family's `Family Default` = y doctype (data, at most one per family);
+      3. derived: the family doctype whose Reasoning Key is the rank-1 design's and whose
+         Region Key is blank, if exactly one.
+    A US/letter cue then swaps a flagged/derived doctype for its letter-size sibling (same
+    family, Page Format Key `letter-<x>` where the default's is `a4-<x>`)."""
+    if diag.get("reason") != "ambiguous":
+        return None, None
+    top = diag.get("top_score") or 0
+    keys = [c["key"] for c in diag.get("candidates", [])
+            if top and (top - c["score"]) / top < _MIN_MARGIN_RATIO]
+    by_key = {r.get(key_column, ""): r for r in entry_rows}
+    cands = [by_key[k] for k in keys if k in by_key]
+    families = {r.get("Family", "") for r in cands}
+    scopes = {r.get("Brand Scope", "") for r in cands}
+    if len(cands) < 2 or len(families) != 1 or "" in families or len(scopes) != 1:
+        return None, None
+    family = families.pop()
+    pool = [r for r in entry_rows if r.get("Family", "") == family and r.get("Brand Scope", "") in scopes]
+
+    lang = _detect_language(query)
+    chosen = None
+    if lang != "en":
+        same = [r for r in pool if r.get("Default Language", "") == lang]
+        if len(same) == 1:
+            chosen = same[0]
+    if chosen is None:
+        flagged = [r for r in pool if r.get("Family Default", "") == "y"]
+        if len(flagged) == 1:
+            chosen = flagged[0]
+    if chosen is None:
+        rank1 = [d for d in designs_rows if d.get("Family", "") == family and d.get("Rank", "") == "1"]
+        if len(rank1) == 1:
+            derived = [r for r in pool if not r.get("Region Key", "")
+                       and r.get("Reasoning Key", "") == rank1[0].get("Reasoning Key", "")]
+            if len(derived) == 1:
+                chosen = derived[0]
+    if chosen is None:
+        return None, None
+
+    fmt = chosen.get("Page Format Key", "")
+    if fmt.startswith("a4-") and _LETTER_CUE_RE.search(str(query)):
+        sibling = [r for r in pool if r.get("Page Format Key", "") == "letter-" + fmt[3:]]
+        if len(sibling) == 1:
+            chosen = sibling[0]
+    return chosen, (lang if lang != "en" else None)
+
+
 # ============ stage 2+: pure FK walk ============
 
 #: FKs that are validated but never walked: a back-pointer whose target is only
@@ -736,6 +818,16 @@ def main(argv=None):
             entry_rows, key_column, searchable_columns, args.query, args.brand, description_column
         )
 
+    if entry_row is None and args.query and not args.doctype:
+        default_row, query_lang = _family_default(
+            entry_rows, key_column, diag, all_rows.get("designs", []), args.query)
+        if default_row is not None:
+            entry_row = default_row
+            diag = dict(diag, method="family-default", reason=None,
+                        note="query named no variant of the family; resolved to its designated default")
+            if query_lang:
+                diag["query_language"] = query_lang
+
     if entry_row is None:
         _print_abstain(args.query or args.doctype, diag, args.json)
         return 2
@@ -763,6 +855,8 @@ def main(argv=None):
         brand_reasoning_key = original_entry_row.get("Reasoning Key", "")
 
     language = _resolve_language(entry_spec, entry_row, args.lang)
+    if diag.get("query_language") and not args.lang:
+        language = {"value": diag["query_language"], "source": "query"}
 
     rows_by_key = {
         name: {r.get(spec["key_column"], ""): r for r in all_rows[name]}
