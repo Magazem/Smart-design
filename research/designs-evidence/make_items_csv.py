@@ -25,8 +25,13 @@ HERE = Path(__file__).resolve().parent
 FAMILIES = {
     "cv": [("GH", "cv-corpus-github.md"), ("NPM", "cv-corpus-npm-ms.md")],
     "deck": [("NPM", "deck-corpus-npm.md"), (None, "deck-corpus-lo-ms.md")],
-    # LO is corroborate-only (no coded table); the file records no preview URLs.
+    # LO is corroborate-only (no coded table).
     "invoice": [(None, "invoice-corpus.md")],
+}
+
+# Items with no per-item page get the catalogue they were listed on (evidence file, "Source").
+CATALOGUE_URL = {
+    ("invoice", "MS"): "https://create.microsoft.com/en-us/templates/invoices",
 }
 
 LINK = re.compile(r"\[([^\]]*)\]\(([^)]*)\)")
@@ -125,7 +130,9 @@ def main():
             got = extract(label, HERE / name)
             print(f"{fam}: {name}: {len(got)} coded items")
             items += got
-        ids = [i["id"] for i in items]
+        for i in items:
+            i["url"] = i["url"] or CATALOGUE_URL.get((fam, i["id"].split(":")[0]), "")
+        ids =[i["id"] for i in items]
         dup = {x for x in ids if ids.count(x) > 1}
         if dup:
             sys.exit(f"{fam}: duplicate ids {sorted(dup)}")

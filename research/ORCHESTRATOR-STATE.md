@@ -126,3 +126,14 @@ This file is the live checklist. It is updated and committed after every milesto
   FILE is authoritative over any message. cv round-2 second coder (seed "82a:cv", header only, from cv-items.csv) in bg.
 - 2026-09-24 Repo Keeper: invoice corpus + invoice-items.csv (48 = 40 GH + 8 MS; preview_url blank, not recorded in evidence).
 - 2026-09-24 Repo Keeper: README + release CI (tests + ddi-portable zip); added pip install pytest to CI test step.
+- 2026-09-24 later: 82b adopted (research/82b-ADOPTED.md). Hired Design Researcher 3 (82b corpora: infographic IIB,
+  proposal/report MS, flyer/poster recount, memo pool, form ABS). DECK FALSIFIER FIRED (research/designs-evidence/
+  deck-agreement.md): heading/colour/title-layout/admissible < 0.80 -> Opus Reviewer writes 82a-deck.md, then recode
+  + fresh second coder "82a:deck". agreement.py generalized (n=0 = error). Resolver: cv family-default landed
+  (uncommitted); follow-up in progress: language-aware default (DE CV regressed to English), "Family Default"
+  doctypes column for brochure/flyer/report/deck, lettre keyword gap. Orchestrator no longer runs git writes —
+  Repo Keeper only. Do not interrupt a teammate on a bare idle notification; check team_members first.
+- CV GATE PASSED on round 2: header 17/20 = 0.85 (cv-second-coder-r2.md vs recode r2a). cv F.c FILL started (bg agent):
+  outputs research/library/{doc-styles,doc-reasoning}/cv.csv, research/designs/cv.csv, research/provenance/cv.csv,
+  cv-agreement-r2.md, fill decisions; removes the test_designs xfail when convention ranks last.
+- 2026-09-24 Repo Keeper: cover-letter + letter L2, invoice preview URLs + items csv (48, url+preview filled), 82a round 4. Suite 4 failed (doctypes column parity) from uncommitted resolver Family Default work, not this commit.

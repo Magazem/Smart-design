@@ -339,6 +339,81 @@ below the 10-item L2 floor (this matches the per-family sources table's own expe
 no admissibility pass is computed for LO; the 4 on-topic titles above are the full corroboration
 record. Not fetched further (no preview download needed since these items are not scored).
 
+## Item preview URLs
+
+Full preview-image URL used to code each of the 48 items (40 GH + 8 MS), for reproducibility and
+for the second coder (no codes shown here — this table only maps id → source). GH "Repo URL" is
+the `https://github.com/<owner>/<repo>` page; "Preview URL" is the exact asset fetched (raw file,
+external host, or GitHub attachment CDN), matching what §3.3 and research/82a C6 require to be
+disclosed. MS "Catalogue URL" is the single category page each thumbnail was embedded in.
+
+### GH (GitHub)
+
+| id | Repo URL | Preview URL |
+|---|---|---|
+| GH:004 | https://github.com/edisonneza/jspdf-invoice-template | https://raw.githubusercontent.com/edisonneza/jspdf-invoice-template/demo/images/portrait_mode.PNG |
+| GH:005 | https://github.com/anvilco/html-pdf-invoice-template | https://user-images.githubusercontent.com/69169/115467239-0ac27c00-a1e6-11eb-836b-190bf0ab264d.png |
+| GH:007 | https://github.com/leonieziechmann/invoice-pro | https://raw.githubusercontent.com/leonieziechmann/invoice-pro/main/thumbnail.png |
+| GH:009 | https://github.com/rimiti/html-invoice-template | https://raw.githubusercontent.com/rimiti/html-invoice-template/master/preview.png |
+| GH:010 | https://github.com/kimai/invoice-templates | https://raw.githubusercontent.com/kimai/invoice-templates/main/din5008-invoice/screenshot.png |
+| GH:011 | https://github.com/nirajrajgor/html-invoice-templates | https://raw.githubusercontent.com/nirajrajgor/html-invoice-templates/master/assets/invoice-1-2x.jpg |
+| GH:012 | https://github.com/ntjess/typst-invoice-template | https://raw.githubusercontent.com/ntjess/typst-invoice-template/main/sample-use.gif |
+| GH:013 | https://github.com/mageplaza/pdf-invoice-templates | https://i.imgur.com/PHQUA1W.jpg |
+| GH:014 | https://github.com/barbosa89/invoice-template | https://raw.githubusercontent.com/barbosa89/invoice-template/master/invoice.png |
+| GH:016 | https://github.com/Inambe/html-invoice-template | https://raw.githubusercontent.com/Inambe/html-invoice-template/master/screenshot.png |
+| GH:019 | https://github.com/sahrullahh/invoice-template-html | https://raw.githubusercontent.com/sahrullahh/invoice-template-html/master/preview.png |
+| GH:021 | https://github.com/d-shannon/bootstrap-invoice-template | https://raw.githubusercontent.com/d-shannon/bootstrap-invoice-template/master/responsive.png |
+| GH:024 | https://github.com/scyrencop/invoice-html5 | https://i.imgur.com/CXfCiq1.png |
+| GH:027 | https://github.com/YasinDehfuli/Financial-Factor-Template | https://raw.githubusercontent.com/YasinDehfuli/Financial-Factor-Template/master/assets/images/factor-informal.png |
+| GH:028 | https://github.com/thejhh/finnish-invoice-template | https://raw.githubusercontent.com/thejhh/finnish-invoice-template/master/invoice.pdf |
+| GH:030 | https://github.com/mdbootstrap/bootstrap-invoice | https://mdbootstrap.com/img/Marketing/github/invoice/basic.png |
+| GH:035 | https://github.com/panshak/html-js-invoice-template | https://i.postimg.cc/vHcD2zSG/Invoice.png |
+| GH:038 | https://github.com/achase90/LatexInvoice | https://raw.githubusercontent.com/achase90/LatexInvoice/master/exampleOutput/Invoice.png |
+| GH:043 | https://github.com/paperplaneapp/html-invoice | https://raw.githubusercontent.com/paperplaneapp/html-invoice/master/preview.jpg |
+| GH:054 | https://github.com/my-dao/Salesforce-PDF-Invoice-Template | https://raw.githubusercontent.com/my-dao/Salesforce-PDF-Invoice-Template/master/images/invoice-template-screenshot.png |
+| GH:057 | https://github.com/koodilehto/invoice-latex | https://raw.githubusercontent.com/koodilehto/invoice-latex/master/example/invoice.pdf |
+| GH:058 | https://github.com/Al-shwaib/-invoice-template | https://raw.githubusercontent.com/Al-shwaib/-invoice-template/main/Screenshot.png |
+| GH:060 | https://github.com/subsetsoftwares/invoice-template | https://raw.githubusercontent.com/subsetsoftwares/invoice-template/main/public/sample-screenshot.png |
+| GH:061 | https://github.com/alifeee/invoice_template | https://raw.githubusercontent.com/alifeee/invoice_template/main/images/invoice.png |
+| GH:063 | https://github.com/ryota2357/typst-invoice-template | https://raw.githubusercontent.com/ryota2357/typst-invoice-template/main/main.pdf |
+| GH:066 | https://github.com/WilstonOreo/invoist | https://raw.githubusercontent.com/WilstonOreo/invoist/main/example.png |
+| GH:068 | https://github.com/NikosAlexandris/invoice_el | https://raw.githubusercontent.com/NikosAlexandris/invoice_el/master/custom_invoice_mwe_el.pdf |
+| GH:071 | https://github.com/shamshi1988/simple-html-invoice | https://raw.githubusercontent.com/shamshi1988/simple-html-invoice/master/images/invoice.png |
+| GH:075 | https://github.com/sudhakar0897/ExcelInvoice | https://raw.githubusercontent.com/sudhakar0897/ExcelInvoice/master/demo_sales.pdf |
+| GH:080 | https://github.com/invoicemaker/invoice-templates | https://raw.githubusercontent.com/invoicemaker/invoice-templates/main/blank-invoice-template.pdf |
+| GH:082 | https://github.com/RoyalZSoftware/invoice-template | https://raw.githubusercontent.com/RoyalZSoftware/invoice-template/main/resources/example.png |
+| GH:088 | https://github.com/adfaure/invoice-template | https://raw.githubusercontent.com/adfaure/invoice-template/main/example.pdf |
+| GH:090 | https://github.com/amattu2/invoice-template | https://raw.githubusercontent.com/amattu2/invoice-template/master/demo.png |
+| GH:096 | https://github.com/chaitaligharge7/Invoice-template-angular | https://raw.githubusercontent.com/chaitaligharge7/Invoice-template-angular/main/screenshots/FullscreenView.png |
+| GH:097 | https://github.com/BrangyCastro/invoice-template-react | https://raw.githubusercontent.com/BrangyCastro/invoice-template-react/main/src/ejemplo.png |
+| GH:099 | https://github.com/mariarobertap/invoice-template-html | https://user-images.githubusercontent.com/75685022/193709613-5064e74e-e479-4830-a7db-6b7463e1d063.png |
+| GH:106 | https://github.com/YoussefHarizi/html-invoice-template | https://raw.githubusercontent.com/YoussefHarizi/html-invoice-template/master/preview.png |
+| GH:119 | https://github.com/kawshar798/Modern-simple-html-invoice-template | https://live.staticflickr.com/65535/50247454087_e31eeb2383_b.jpg |
+| GH:128 | https://github.com/alyf-de/typst-demo | https://raw.githubusercontent.com/alyf-de/typst-demo/main/editor_screenshot.png |
+| GH:130 | https://github.com/christopherkenny/ctk-invoice | https://raw.githubusercontent.com/christopherkenny/ctk-invoice/main/template_1.png |
+
+Note on GH:013: the README's own first image is a decorative badge/GIF; the second README image
+(`i.imgur.com/PHQUA1W.jpg`, the actual filled-in sample invoice) was used instead, per research/82a
+C6 (documented-but-wrong preview replaced by the item's own next published image, disclosed).
+GH:005 and GH:099 host their preview on `user-images.githubusercontent.com` (GitHub's attachment
+CDN), not in-repo — same disclosed situation the cv-corpus precedent flagged for its GH:023/GH:071.
+
+### MS (Microsoft Create)
+
+Catalogue URL for all 8 (single category page, redirect per research/82a C5):
+`https://create.microsoft.com/en-us/templates/invoices` → `https://excel.cloud.microsoft/create/en/invoice-templates/?source=create_flow`
+
+| id | Preview URL (thumbnail, `.webp`) |
+|---|---|
+| MS:001 | https://createcatalog.public.onecdn.static.microsoft/catalog-assets/en-us/cc8f8a79-96c3-4a3f-9398-5fdcfa9b27e9/thumbnails/400/sales-invoice-%2528simple-lines-design%2529-purple-modern-simple-0-1-3aaf969e58e2.webp |
+| MS:002 | https://createcatalog.public.onecdn.static.microsoft/catalog-assets/en-us/ba55235e-4140-4e28-abf8-bb45d8db4934/thumbnails/400/small-business-sales-invoice-pink-modern-simple-0-1-bfa4c23d75bf.webp |
+| MS:003 | https://createcatalog.public.onecdn.static.microsoft/catalog-assets/en-us/7c5c0318-8bc0-4ec9-8be3-2683dbf8adae/thumbnails/400/simple-invoice-blue-modern-simple-0-1-0f311b272d39.webp |
+| MS:004 | https://createcatalog.public.onecdn.static.microsoft/catalog-assets/en-us/cc4028ec-32a3-4310-9127-8050fd0e7c05/thumbnails/400/service-invoice-%2528simple-design%2529-blue-modern-simple-0-1-0ebbdb7f2680.webp |
+| MS:005 | https://createcatalog.public.onecdn.static.microsoft/catalog-assets/en-us/94db67f1-b638-4ed2-a9a2-e77a9221d8db/thumbnails/400/simple-business-invoice-modern-simple-0-1-56d7638cd3c9.webp |
+| MS:006 | https://createcatalog.public.onecdn.static.microsoft/catalog-assets/en-us/0cd9a688-672a-433e-b120-43762e48bced/thumbnails/400/modern-corporate-purple-%2526-black-timesheet-invoice-purple-modern-simple-corporate-0-1-338bdb8ed5c2.webp |
+| MS:007 | https://createcatalog.public.onecdn.static.microsoft/catalog-assets/en-us/02f1e98d-bd90-4353-a769-f6709a432f3c/thumbnails/400/service-invoice-%2528blocky-design%2529-gray-modern-simple-0-1-a0bb748f006a.webp |
+| MS:008 | https://createcatalog.public.onecdn.static.microsoft/catalog-assets/en-us/395984f7-f6bd-448f-8fb2-8127ff281a77/thumbnails/400/simple-corporate-purple-%2526-black-standard-invoice-modern-simple-corporate-0-1-9e89e2116d58.webp |
+
 ## Cross-listed `quote` items (§3.2, logged not counted here)
 
 Two items encountered in the GH walk (not counted toward invoice N; flagged for the `quote` family
