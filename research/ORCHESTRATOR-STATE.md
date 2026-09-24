@@ -217,3 +217,9 @@ This file is the live checklist. It is updated and committed after every milesto
 - 2026-09-24 Repo Keeper: poster A1 pool (N=15) + flyer pool (7, corroboration).
 - 2026-09-24 Repo Keeper: invoice recode under 82a-general.
 - 2026-09-24 Repo Keeper: fill_family.py engine + pptx embed constraint fix + memo GitHub pool + C33 (verified in clean worktree).
+- Second coders DONE: brochure/flyer/memo/form (bg, n=10/10/10/4), letter 19 + cover-letter 14 (DR3; letter sensitivity
+  excl. MSL:001,003,005,009, LOL:001,021,027,046; cover-letter excl. MSC:007), deck r2 27 (bg; sens. excl. 6 worked examples),
+  proposal 12 (PASSED), poster 14 + report 16 (Opus Reviewer; sens. excl. poster GH:019, report GH:025).
+  Agreement computation (bg, agreement.py gains recode overrides) running for brochure/flyer/memo/form/letter/cover-letter/
+  deck/poster; report waits on its recode (bg a8f9613). Invoice second coder r2 = DR3 in progress. Proposal fill = Implementer.
+- 2026-09-24 Repo Keeper: second coders (brochure/flyer/memo/form/letter/cover-letter/poster), whitepaper GitHub, poster recode; report + deck r2 second coders held (still being written).
