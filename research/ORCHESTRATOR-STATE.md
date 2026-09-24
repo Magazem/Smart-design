@@ -196,3 +196,10 @@ This file is the live checklist. It is updated and committed after every milesto
   only -> may second-code letter with a C12 sensitivity run excluding MSL:001-004. Memo pool now N=12 (Overleaf memo
   template via A4). C32 (faint watermarks) ruled.
 - 2026-09-24 Repo Keeper: 82b corpora set (one-pager corroboration, memo updates) + 82a C32.
+- 2026-09-25: fifth limit reset. USER RULE: after a reset wake agents in TWO WAVES (critical path first), not all at once.
+  Wave 1 woken: Skill Implementer (R6), Design Researcher (C32/C31 + proposal GH), Repo Keeper (docs commit),
+  bg invoice recode, bg deck second coder r2.
+  Wave 2 (wake after wave 1 settles): Design Researcher 2 (quote task 01a0d3f6-6ac1), bg brochure/flyer/memo/form second
+  coder (ab50711954cfbe31e, was at flyer images), bg report/poster recode (a8f9613b3136549de children; tmp-rprc/),
+  Design Researcher 3 + Opus Reviewer (second coders; waiting on recodes anyway).
+- 2026-09-24 Repo Keeper: deck recode (82a-deck) + letter/cover-letter/proposal recodes (82a-general).
