@@ -215,3 +215,4 @@ This file is the live checklist. It is updated and committed after every milesto
   Proposal now joins the fill queue (fill_family.py when Skill Implementer lands it).
 - 2026-09-24 Repo Keeper: proposal second coder + agreement (gate passes).
 - 2026-09-24 Repo Keeper: poster A1 pool (N=15) + flyer pool (7, corroboration).
+- 2026-09-24 Repo Keeper: invoice recode under 82a-general.
