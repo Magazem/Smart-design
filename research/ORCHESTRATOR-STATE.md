@@ -223,3 +223,8 @@ This file is the live checklist. It is updated and committed after every milesto
   Agreement computation (bg, agreement.py gains recode overrides) running for brochure/flyer/memo/form/letter/cover-letter/
   deck/poster; report waits on its recode (bg a8f9613). Invoice second coder r2 = DR3 in progress. Proposal fill = Implementer.
 - 2026-09-24 Repo Keeper: second coders (brochure/flyer/memo/form/letter/cover-letter/poster), whitepaper GitHub, poster recode; report + deck r2 second coders held (still being written).
+- ORCHESTRATOR RULE (learned): creating a board task with an owner already wakes that teammate. Do NOT follow it with
+  team_interrupt_agent — that repeatedly cut off the turn that had just picked the task up. Interrupt only when
+  team_members shows the owner idle AND the task is still pending after their idle notice.
+- Opus Reviewer -> R7 audit of the cv fill + fill_family.py (research/92). The cv fill was bg-authored and never reviewed.
+- 2026-09-24 Repo Keeper: quote GitHub (+1) + report and deck r2 second coders.
