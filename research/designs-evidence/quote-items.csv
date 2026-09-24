@@ -1,0 +1,4 @@
+id,name,url,preview_url
+QP:001,Tiefseetauchner/TiefLetter (Typst Universe tiefletter 0.2.2) - offer class,https://github.com/Tiefseetauchner/TiefLetter,https://raw.githubusercontent.com/Tiefseetauchner/TiefLetter/main/examples/offer.jpg
+QP:002,DeVinci-FabLab/Invoice-templates - templates/devis (quote template),https://github.com/DeVinci-FabLab/Invoice-templates,https://raw.githubusercontent.com/DeVinci-FabLab/Invoice-templates/main/docs/assets/example.jpg
+QP:003,NikosAlexandris/invoice_el - Quote / Invoice letterhead (scrlttr2),https://github.com/NikosAlexandris/invoice_el,https://raw.githubusercontent.com/NikosAlexandris/invoice_el/master/custom_invoice_mwe_el.pdf
