@@ -365,7 +365,7 @@ invoice-tabular
 note-interne
 
 ## Designs
-cv: cv-editorial
+cv: cv-ats-strict
 invoice: invoice-tabular
 """
 
@@ -395,7 +395,7 @@ class TestDesignsSection(MakeBrandKitTestCase):
         tf = get("data/typefaces.csv")[0]["typeface_key"]
         designs = {r["design_key"]: r for r in _csv_rows(self.skill_dir, "designs.csv")}
         base = {r["doc_category"]: r for r in _csv_rows(self.skill_dir, "doc-reasoning.csv")}
-        for fam, dk in (("cv", "cv-editorial"), ("invoice", "invoice-tabular")):
+        for fam, dk in (("cv", "cv-ats-strict"), ("invoice", "invoice-tabular")):
             row, src = rr[f"ens-{fam}"], base[designs[dk]["Reasoning Key"]]
             self.assertEqual(row["Palette Key"], pal)
             self.assertEqual(row["Typeface Key"], tf)
@@ -412,13 +412,13 @@ class TestDesignsSection(MakeBrandKitTestCase):
         self.assertNotIn("data/doc-reasoning.csv", names)
 
     def _fails(self, designs_line, needle):
-        text = DESIGNS_BRAND_MD.replace("cv: cv-editorial", designs_line)
+        text = DESIGNS_BRAND_MD.replace("cv: cv-ats-strict", designs_line)
         code, out = self._run([str(self._write_brand_md(text)), "--dry-run"])
         self.assertEqual(code, 1, out)
         self.assertIn(needle, out)
 
     def test_unknown_family_rejected(self):
-        self._fails("banana: cv-editorial", "unknown family 'banana'")
+        self._fails("banana: cv-ats-strict", "unknown family 'banana'")
 
     def test_unknown_design_rejected(self):
         self._fails("cv: no-such-design", "unknown design 'no-such-design'")
@@ -427,17 +427,17 @@ class TestDesignsSection(MakeBrandKitTestCase):
         self._fails("cv: invoice-tabular", "family")
 
     def test_duplicate_family_rejected(self):
-        self._fails("cv: cv-editorial" + chr(10) + "cv: cv-editorial", "listed twice")
+        self._fails("cv: cv-ats-strict" + chr(10) + "cv: cv-ats-strict", "listed twice")
 
     def test_malformed_line_rejected(self):
-        self._fails("cv-editorial", "## Designs")
+        self._fails("cv-ats-strict", "## Designs")
 
 SCALES_BRAND_MD = GENERIC_BRAND_MD.split("## Doctypes")[0] + """## Doctypes
 cv-uk
 slide-deck-projection
 
 ## Designs
-cv: cv-editorial
+cv: cv-ats-strict
 deck: deck-generic
 
 ## Type scales
@@ -505,3 +505,49 @@ class TestTypeScalesSection(MakeBrandKitTestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestSafeStackFallbacks(MakeBrandKitTestCase):
+    """research/87 follow-up: heading and body keep SEPARATE safe-stack fallbacks; a library
+    pairing's row is copied, free families are classified from the library's own rows."""
+
+    def _typefaces(self, heading, body):
+        text = GENERIC_BRAND_MD.replace("heading: Manrope", f"heading: {heading}").replace(
+            "body: Inter", f"body: {body}")
+        code, out = self._run([str(self._write_brand_md(text))])
+        self.assertEqual(code, 0, out)
+        with zipfile.ZipFile(self.outputs / "ens-brand-kit.zip") as zf:
+            return list(csv.DictReader(io.StringIO(zf.read("data/typefaces.csv").decode("utf-8")))), out
+
+    def _library(self, heading, body):
+        return next(r for r in _csv_rows(self.skill_dir, "typefaces.csv")
+                    if r["Heading Family"] == heading and r["Body Family"] == body)
+
+    def test_library_pairing_copies_both_fallbacks(self):
+        rows, _ = self._typefaces("Libre Baskerville", "Libre Franklin")
+        lib = self._library("Libre Baskerville", "Libre Franklin")
+        # the library row is the source of truth: a serif heading fallback, a sans body one
+        self.assertIn(lib["Safe Stack Fallback"].lower(), mbk.SERIF_FALLBACKS)
+        self.assertEqual(rows[0]["Safe Stack Fallback"], lib["Safe Stack Fallback"])
+        self.assertEqual(rows[0]["Safe Stack Body Fallback"], lib["Safe Stack Body Fallback"])
+        self.assertNotEqual(rows[0]["Safe Stack Fallback"], rows[0]["Safe Stack Body Fallback"] or "Arial")
+        self.assertEqual(rows[0]["Embedding Licence"], lib["Embedding Licence"])
+
+    def test_library_families_raise_no_classification_warning(self):
+        for h, b in (("Libre Baskerville", "Libre Franklin"), ("Vollkorn", "Montserrat")):
+            with self.subTest(pair=(h, b)):
+                _, out = self._typefaces(h, b)
+                self.assertNotIn("classification list", out)
+
+    def test_free_families_get_a_fallback_by_category(self):
+        # Libre Franklin is only known from a library row's body fallback; Lora is in the
+        # static serif list; neither pairing exists as a library row.
+        rows, _ = self._typefaces("Lora", "Libre Franklin")
+        self.assertEqual(rows[0]["Safe Stack Fallback"], "Georgia")
+        self.assertEqual(rows[0]["Safe Stack Body Fallback"], "Arial")
+        self.assertEqual(rows[0]["Category Contrast"], "serif-sans")
+
+    def test_sans_pair_keeps_single_fallback(self):
+        rows, _ = self._typefaces("Manrope", "Inter")
+        self.assertEqual(rows[0]["Safe Stack Fallback"], "Arial")
+        self.assertIn(rows[0]["Safe Stack Body Fallback"], ("", "Arial"))

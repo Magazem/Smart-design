@@ -939,22 +939,26 @@ class TestCvRegionRowCoverage(unittest.TestCase):
 
 class TestDdiDesigns(unittest.TestCase):
     """`ddi.py designs --doctype <key>` against the REAL data/base library
-    (research/80-v05-plan.md section 6 P1.5) -- cv-uk's family (cv) has 6
-    authored designs, and cv-uk's own Reasoning Key (cv-us-uk-designed) is
-    designs.csv's rank-1 row, so it must be marked as this doctype's default."""
+    (research/80-v05-plan.md section 6 P1.5) -- cv-uk's family (cv) has 12
+    authored designs after the Phase 4 research/82 re-rank
+    (research/designs-evidence/cv-fill.md), and cv-uk's own Reasoning Key
+    (cv-us-uk-designed) is designs.csv's rank-10 row (merged into the ranked
+    archetype it codes to; it stays this doctype's default regardless of
+    numeric rank, research/82 §6's fitness-default rule), so it must be
+    marked as this doctype's default."""
 
     def test_unknown_doctype_is_a_clear_error_nonzero_exit(self):
         proc = _run(["designs", "--doctype", "not-a-real-doctype"])
         self.assertNotEqual(proc.returncode, 0)
         self.assertIn("not-a-real-doctype", proc.stdout)
 
-    def test_lists_all_six_cv_designs_in_rank_order(self):
+    def test_lists_all_twelve_cv_designs_in_rank_order(self):
         proc = _run(["designs", "--doctype", "cv-uk", "--json"])
         self.assertEqual(proc.returncode, 0, proc.stderr)
         payload = json.loads(proc.stdout)
         self.assertEqual(payload["family"], "cv")
         keys = [d["design_key"] for d in payload["designs"]]
-        self.assertEqual(len(keys), 6)
+        self.assertEqual(len(keys), 12)
         ranks = [d["rank"] for d in payload["designs"]]
         self.assertEqual([int(r) for r in ranks], sorted(int(r) for r in ranks))
 
@@ -968,24 +972,24 @@ class TestDdiDesigns(unittest.TestCase):
     def test_each_design_carries_evidence_and_resolved_style_palette_typeface(self):
         proc = _run(["designs", "--doctype", "cv-uk", "--json"])
         payload = json.loads(proc.stdout)
-        editorial = next(d for d in payload["designs"] if d["design_key"] == "cv-editorial")
-        self.assertTrue(editorial["style_key"])
-        self.assertTrue(editorial["palette_key"])
-        self.assertTrue(editorial["typeface_key"])
-        self.assertIn("Typewolf", editorial["evidence"])
+        europass = next(d for d in payload["designs"] if d["design_key"] == "cv-eu-europass")
+        self.assertTrue(europass["style_key"])
+        self.assertTrue(europass["palette_key"])
+        self.assertTrue(europass["typeface_key"])
+        self.assertIn("Europass", europass["evidence"])
 
     def test_query_reranks_by_bm25_ties_broken_by_rank(self):
-        proc = _run(["designs", "--doctype", "cv-uk", "--query", "editorial creative portfolio", "--json"])
+        proc = _run(["designs", "--doctype", "cv-uk", "--query", "europass multilingual language grid", "--json"])
         self.assertEqual(proc.returncode, 0, proc.stderr)
         payload = json.loads(proc.stdout)
         self.assertEqual(payload["method"], "bm25")
-        self.assertEqual(payload["designs"][0]["design_key"], "cv-editorial")
+        self.assertEqual(payload["designs"][0]["design_key"], "cv-eu-europass")
 
     def test_text_output_contains_display_name_and_rank_and_evidence_class(self):
         proc = _run(["designs", "--doctype", "cv-uk"])
         self.assertEqual(proc.returncode, 0, proc.stderr)
         self.assertIn("CV -- Harvard reverse-chronological", proc.stdout)
-        self.assertIn("rank 1 of 6", proc.stdout)
+        self.assertIn("rank 10 of 12", proc.stdout)
         self.assertIn("authority", proc.stdout)
 
 
@@ -1061,15 +1065,21 @@ class TestHandoffDesignLine(unittest.TestCase):
             path = self._resolved_path(tmp, ["--doctype", "cv-uk"])
             proc = _run(["handoff", "--json", str(path), "--format", "docx"])
         self.assertEqual(proc.returncode, 0, proc.stderr)
-        self.assertIn("design: CV -- Harvard reverse-chronological (rank 1 of 6, authority)",
+        self.assertIn("design: CV -- Harvard reverse-chronological (rank 10 of 12, authority)",
                        proc.stdout)
 
     def test_overridden_design_line_when_design_flag_used(self):
+        # cv-editorial was retired at the Phase 4 cv re-rank (research/82 §9: its own
+        # layout evidence -- a Typewolf font page, not a coded archetype -- didn't match
+        # any admissible K>=2 archetype and it lost the tie-break for the family's single
+        # non-default convention slot to cv-dach-tabular; see cv-fill.md). cv-dach-tabular
+        # is the surviving non-default convention design and exercises the same override
+        # path (a design_key that is not the doctype's own default).
         with tempfile.TemporaryDirectory() as tmp:
-            path = self._resolved_path(tmp, ["--doctype", "cv-uk", "--design", "cv-editorial"])
+            path = self._resolved_path(tmp, ["--doctype", "cv-uk", "--design", "cv-dach-tabular"])
             proc = _run(["handoff", "--json", str(path), "--format", "pptx"])
         self.assertEqual(proc.returncode, 0, proc.stderr)
-        self.assertIn("design: CV, editorial / creative-industry (rank 6 of 6, authority)",
+        self.assertIn("design: CV, DACH tabellarisch (rank 12 of 12, convention)",
                        proc.stdout)
 
     def test_present_on_all_four_formats(self):
@@ -1077,7 +1087,7 @@ class TestHandoffDesignLine(unittest.TestCase):
             path = self._resolved_path(tmp, ["--doctype", "cv-uk"])
             for fmt in ("docx", "pptx", "pdf", "png"):
                 proc = _run(["handoff", "--json", str(path), "--format", fmt])
-                self.assertIn("design: CV -- Harvard reverse-chronological (rank 1 of 6, authority)",
+                self.assertIn("design: CV -- Harvard reverse-chronological (rank 10 of 12, authority)",
                               proc.stdout, f"format={fmt}")
 
     def test_no_design_line_when_no_designs_table_in_data_dir(self):

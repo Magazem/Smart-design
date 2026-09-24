@@ -88,6 +88,12 @@ scripts/ddi.py resolve --query "<request>" --json`, then `ddi.py handoff`, rende
 
 ## 7. Brand kit from the grand library (no code)
 
-Pick ONE palette (never mix roles across palettes), ONE typeface pairing (max 2
-families) and the pairing's own type scale; use them as in step 3. Invent no hex,
-family or size outside those three tables.
+Interview first (field, three tone adjectives, colours/logo, families, languages, formats).
+Pick ONE palette whose tone fits (never mix roles across palettes); if the user has a brand
+colour, make it the single accent and take the other roles from one neutral palette, keeping
+text in text-safe roles at >= 4.5:1. Pick ONE typeface pairing (max 2 families) with its own
+type scale per medium (print/projection/screen). For every family the brand needs choose a
+design from that family's table (rank 1 unless Best-for fits the tone). Then write the
+user's `brand.md` (slug, palette hexes, typeface names, doctypes, one design per family,
+scales). Invent no hex, family or size outside the tables you used. Procedure with commands:
+`references/brand-kit-builder.md` in the skill.

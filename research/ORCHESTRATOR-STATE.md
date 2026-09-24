@@ -181,3 +181,8 @@ This file is the live checklist. It is updated and committed after every milesto
   Deferred to v0.5.x: cover-letter + proposal GitHub corpora, IIB extension. Independence roster: Opus Reviewer is
   excluded from invoice and has worked-example exposure on deck/invoice/letter/cover-letter (no second-coder role there).
 - 2026-09-24 Repo Keeper: research/91 family status + release bar, form authorities, 82a C29 (docs only).
+- 2026-09-24/25: fourth limit reset. cv F.c FILL DONE (12 designs; cv-editorial retired; cv-dach-tabular re-classed
+  convention; gate 874 rows; 308 passed excl. in-flight resolver tests) — uncommitted; Repo Keeper task 01a0d1a2 does
+  the combined commit verified in a temporary clean worktree. Resumed bg recoders (invoice, letter/cover-letter,
+  brochure/flyer/memo/form, report/poster/proposal) and all 6 teammates via team_interrupt_agent.
+- 2026-09-24 Repo Keeper: combined commit cv designs (12 ranked) + brand-kit guide/example/fallbacks; verified in clean worktree.

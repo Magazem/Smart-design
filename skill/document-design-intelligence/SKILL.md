@@ -61,6 +61,9 @@ file. Only the rendering changes.
 
 Write one `brand.md`, run `scripts/make_brand_kit.py` on it, get a brand kit
 back. See `README.md` in the project repository for the full workflow.
+`references/brand-kit-builder.md` is the step-by-step procedure (interview, palette,
+typefaces, type scales, a design per family, build, merge, verify), with every choice
+tied to a library row; `examples/generic-law-firm-brand.md` is a worked example.
 
 ## Attribution
 

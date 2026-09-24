@@ -639,12 +639,35 @@ def _title_words(slug: str) -> str:
     return " ".join(w.capitalize() for w in slug.split("-"))
 
 
-def _classify_family(name: str) -> str | None:
+#: Safe-stack fallbacks that are serif faces; any other library fallback is sans.
+SERIF_FALLBACKS = {"georgia", "times new roman", "cambria", "garamond", "palatino linotype",
+                   "book antiqua", "constantia", "courier new"}
+DEFAULT_FALLBACK = {"sans": "Arial", "serif": "Georgia"}
+
+
+def library_family_fallbacks(library_typefaces: list[dict]) -> dict[str, str]:
+    """{family (lower): safe-stack fallback} read off data/base/typefaces.csv: a Heading Family
+    maps to its Safe Stack Fallback, a Body Family to its Safe Stack Body Fallback (else the
+    heading one). This is how families like 'Libre Franklin' are known without a hard-coded list."""
+    out: dict[str, str] = {}
+    for r in library_typefaces:
+        head_fb = r.get("Safe Stack Fallback", "").strip()
+        body_fb = r.get("Safe Stack Body Fallback", "").strip() or head_fb
+        for fam, fb in ((r.get("Heading Family", ""), head_fb), (r.get("Body Family", ""), body_fb)):
+            if fam.strip() and fb:
+                out.setdefault(fam.strip().lower(), fb)
+    return out
+
+
+def _classify_family(name: str, library_fallbacks: dict[str, str] | None = None) -> str | None:
     key = name.strip().lower()
     if key in SANS_FAMILIES:
         return "sans"
     if key in SERIF_FAMILIES:
         return "serif"
+    fb = (library_fallbacks or {}).get(key)
+    if fb:
+        return "serif" if fb.strip().lower() in SERIF_FALLBACKS else "sans"
     return None
 
 
@@ -697,8 +720,17 @@ def derive_palette_row(spec: dict) -> tuple[dict, list[tuple[str, str, str, floa
     return row, contrast_report
 
 
-def derive_typefaces_row(spec: dict, font_substitutes: list[dict]) -> tuple[dict, list[str]]:
-    """Build the typefaces.csv row. Returns (row, warnings)."""
+def derive_typefaces_row(spec: dict, font_substitutes: list[dict],
+                         library_typefaces: list[dict] | None = None) -> tuple[dict, list[str]]:
+    """Build the typefaces.csv row. Returns (row, warnings).
+
+    Heading and body keep SEPARATE safe-stack fallbacks. If (Heading, Body) is a row of
+    data/base/typefaces.csv, its Safe Stack Fallback / Safe Stack Body Fallback / Safe Stack
+    Availability / Embedding Licence / Has Tabular Figures are copied. Otherwise each family's
+    fallback is: a font-substitutes row, else the fallback the library gives that family in some
+    other pairing, else its category default (serif -> Georgia, sans -> Arial)."""
+    library_typefaces = library_typefaces or []
+    library_fb = library_family_fallbacks(library_typefaces)
     slug = spec["slug"]
     tf = spec["typefaces"]
     heading, body, mono = tf["heading"], tf["body"], tf.get("mono", "")
@@ -707,7 +739,7 @@ def derive_typefaces_row(spec: dict, font_substitutes: list[dict]) -> tuple[dict
     families = [f for f in (heading, body, mono) if f]
     family_count = len(set(f.lower() for f in families))
 
-    cats = {f: _classify_family(f) for f in families}
+    cats = {f: _classify_family(f, library_fb) for f in families}
     for f, c in cats.items():
         if c is None:
             warnings.append(
@@ -736,7 +768,22 @@ def derive_typefaces_row(spec: dict, font_substitutes: list[dict]) -> tuple[dict
                     return sub
         return None
 
-    fallback = _substitute_for(heading) or _substitute_for(body) or "Arial"
+    lib_row = next((r for r in library_typefaces
+                    if r.get("Heading Family", "").strip().lower() == heading.strip().lower()
+                    and r.get("Body Family", "").strip().lower() == body.strip().lower()), None)
+
+    def _fallback_for(family: str) -> str:
+        return (_substitute_for(family) or library_fb.get(family.strip().lower())
+                or DEFAULT_FALLBACK[resolved_cats.get(family) or "sans"])
+
+    if lib_row:
+        fallback = lib_row.get("Safe Stack Fallback", "") or _fallback_for(heading)
+        body_fallback = lib_row.get("Safe Stack Body Fallback", "")
+    else:
+        fallback = _fallback_for(heading)
+        body_fallback = _fallback_for(body)
+        if body_fallback == fallback:
+            body_fallback = ""
 
     key_bits = "-".join(re.sub(r"[^a-z0-9]+", "", f.lower()) for f in (heading, body) if f)
     typeface_key = f"{slug}-{key_bits}"
@@ -753,9 +800,10 @@ def derive_typefaces_row(spec: dict, font_substitutes: list[dict]) -> tuple[dict
         "Category Contrast": category_contrast,
         "Family Count": str(family_count),
         "Safe Stack Fallback": fallback,
-        "Safe Stack Availability": "os-bundled",
-        "Embedding Licence": "unknown",
-        "Has Tabular Figures": "unknown",
+        "Safe Stack Body Fallback": body_fallback,
+        "Safe Stack Availability": (lib_row or {}).get("Safe Stack Availability") or "os-bundled",
+        "Embedding Licence": (lib_row or {}).get("Embedding Licence") or "unknown",
+        "Has Tabular Figures": (lib_row or {}).get("Has Tabular Figures") or "unknown",
         # Only reference the print scale this script would itself emit as
         # data/type-scales.csv -- pointing at "<slug>-print" when no
         # ## Document defaults type-scale line was given leaves the FK
@@ -939,6 +987,14 @@ def uploads_dir() -> Path:
     return Path(os.environ.get("DDI_UPLOADS_DIR", DEFAULT_UPLOADS_DIR))
 
 
+def load_library_typefaces(skill_dir: Path) -> list[dict]:
+    path = skill_dir / "data" / "base" / "typefaces.csv"
+    if not path.is_file():
+        return []
+    with path.open(encoding="utf-8", newline="") as f:
+        return [r for r in csv.DictReader(f) if r.get("Brand Scope", "generic") == "generic"]
+
+
 def load_font_substitutes(skill_dir: Path) -> list[dict]:
     path = skill_dir / "data" / "base" / "font-substitutes.csv"
     if not path.is_file():
@@ -1052,7 +1108,7 @@ def main(argv: list[str] | None = None) -> int:
             logo_arcname = f"assets/{logo_path.name}"
 
         palette_row, contrast_report = derive_palette_row(spec)
-        typefaces_row, font_warnings = derive_typefaces_row(spec, font_substitutes)
+        typefaces_row, font_warnings = derive_typefaces_row(spec, font_substitutes, load_library_typefaces(skill_dir))
         doctype_rows = derive_doctype_rows(spec, base_doctypes)
         typescale_rows = derive_typescale_rows(spec)
         typeface_rows = [typefaces_row]

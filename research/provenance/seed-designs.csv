@@ -1,10 +1,4 @@
 prov_key,Table,Row Key,Evidence Class,Source Name,Source URL,Ranking Metric,Rank Value,Retrieved,Fetch
-designs:cv-us-uk-designed:1,designs,cv-us-uk-designed,authority,Butterick's Practical Typography -- Résumés,https://practicaltypography.com/resumes.html,,,2026-09-23,fetched
-designs:cv-eu-europass:1,designs,cv-eu-europass,authority,Europass -- Create your CV (official),https://europass.europa.eu/en/create-europass-cv,,,2026-09-23,fetched
-designs:cv-dach-tabular:1,designs,cv-dach-tabular,authority,Typewolf -- PT Serif suggested pairing,https://www.typewolf.com/pt-serif,,,2026-09-23,fetched
-designs:cv-editorial:1,designs,cv-editorial,authority,Typewolf -- Fraunces page (illustrative pairings),https://www.typewolf.com/fraunces,,,2026-09-23,fetched
-designs:cv-ats-strict:1,designs,cv-ats-strict,convention,,,,,2026-09-23,
-designs:cv-academic:1,designs,cv-academic,convention,,,,,2026-09-23,
 designs:cover-letter-professional:1,designs,cover-letter-professional,convention,,,,,2026-09-23,
 designs:letter-formal:1,designs,letter-formal,convention,,,,,2026-09-23,
 designs:memo-internal:1,designs,memo-internal,convention,,,,,2026-09-23,

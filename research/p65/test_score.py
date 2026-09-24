@@ -77,20 +77,20 @@ class TestScorer(unittest.TestCase):
         text = (FIX / "T1-pass.md").read_text(encoding="utf-8")
         unnamed = text.replace("cv-us-uk-designed", "x").replace("CV -- Harvard reverse-chronological", "a design")
         self.assertIn("2_named_design", failed(score.score(unnamed, "T1", PACK)))
-        asked = unnamed + ("\nWhich design would you like: CV -- Europass-compatible, or CV, editorial / "
-                           "creative-industry (cv-editorial)?\n")
+        asked = unnamed + ("\nWhich design would you like: CV -- Europass-compatible, or CV, DACH "
+                           "tabellarisch (cv-dach-tabular)?\n")
         self.assertNotIn("2_named_design", failed(score.score(asked, "T1", PACK)))
 
     def test_design_override_values_come_from_the_grand_library(self):
-        # cv-editorial's palette accent (#0F62FE) is in the pack but not in the cv-uk block
+        # cv-eu-europass's palette accent (#1A65A6) is in the pack but not in the cv-uk block
         text = (FIX / "T1-pass.md").read_text(encoding="utf-8")
-        plain = text.replace("#005EA2", "#0F62FE")
+        plain = text.replace("#005EA2", "#1A65A6")
         self.assertIn("1_out_of_pack_values", failed(score.score(plain, "T1", PACK)))
-        named = plain.replace("cv-us-uk-designed", "cv-editorial")
+        named = plain.replace("cv-us-uk-designed", "cv-eu-europass")
         r = score.score(named, "T1", PACK)
         self.assertEqual(r["clauses"]["1_out_of_pack_values"]["evidence"]["hex_not_in_pack"], [])
         self.assertEqual(r["clauses"]["1_out_of_pack_values"]["evidence"]["design_overrides_applied"],
-                         ["cv-editorial"])
+                         ["cv-eu-europass"])
 
     def test_prompts_are_present_verbatim_sources(self):
         for t in ("T1", "T2", "T3"):

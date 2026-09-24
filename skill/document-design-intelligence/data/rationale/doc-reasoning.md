@@ -86,6 +86,34 @@ A4: Direction 3 'Europass-Compatible Multilingual' (research/69 sec 3, research/
 
 A4: Direction 4 'Editorial / Creative-Industry CV' (research/70 sec 'Direction 4 -- Editorial / Creative-Industry CV'; new direction, not in 69). Typewolf's IBM Plex Sans page (fetched) shows the Andrea Arqués and Alyssa Martin creative-portfolio sites live-pairing Plex-family sans with expressive serifs/grotesques; Typewolf's Fraunces page (fetched) shows Flask & Field pairing Fraunces with DM Mono in production -- both real illustrative sites per 70, explicitly NOT Fonts In Use citations (70 searched fontsinuse.com directly and found no résumé-tagged entries). IBM Carbon colour overview (search-derived, hexes corroborated after a truncated direct fetch) grounds text Gray 100 #161616 (18.1:1 on white) and accent Blue 60 #0f62fe (5.0:1 on white -- clears AA 4.5 but with less margin than the other three directions' accents, per 70's own caveat, so Blue 60 is restricted to headline-size text/rules and Fill-Only Roles in cv-editorial's palette row, not Text-Safe Roles). No Doc Condition/ats-strict binding: 70 explicitly scopes this direction OUT of ats-strict/government/DACH-formal targets, and it carries no cv-regions.csv row of its own (industry overlay, not region-keyed per 70's own 'Fits' note), so it is authored but not wired as any doctype's default per the Manager's decision.
 
+### `cv-serif-plain-centered` -- confidence (none)
+
+(none given)
+
+### `cv-sans-accent-ruled` -- confidence (none)
+
+(none given)
+
+### `cv-sans-mono-split` -- confidence (none)
+
+(none given)
+
+### `cv-serif-accent-plain-left` -- confidence (none)
+
+(none given)
+
+### `cv-sans-accent-plain-centered` -- confidence (none)
+
+(none given)
+
+### `cv-serif-mono-split` -- confidence (none)
+
+(none given)
+
+### `cv-sans-accent-split` -- confidence (none)
+
+(none given)
+
 ---
 
 The draft also carries 4 ENS rows (`ens-formulaire`, `ens-marketing`, `ens-office-document`, `ens-slides`). They are not in `data/base/`

@@ -99,7 +99,7 @@ python3 scripts/make_brand_kit.py brand.md               # writes <slug>-brand-k
 python3 scripts/merge_brand_kit.py <slug>-brand-kit.zip  # writes document-design-intelligence-<slug>.zip
 ```
 
-Upload the merged ZIP as your skill. Text colours are derived and contrast-checked; a kit that fails the gate is not written. See
+An AI can build a kit for you by following [`references/brand-kit-builder.md`](skill/document-design-intelligence/references/brand-kit-builder.md); a complete example is [`examples/generic-law-firm-brand.md`](skill/document-design-intelligence/examples/generic-law-firm-brand.md). Upload the merged ZIP as your skill. Text colours are derived and contrast-checked; a kit that fails the gate is not written. See
 [`examples/ens-brand.md`](skill/document-design-intelligence/examples/ens-brand.md).
 
 ## How designs are ranked, and what that does not mean

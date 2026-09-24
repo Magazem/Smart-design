@@ -15,11 +15,13 @@ checks the catalogue is internally consistent:
   6. within a family, `convention`-evidence designs rank after every
      non-convention design.
 
-Rule 6 is EXPECTED TO FAIL on the current seed data: cv has convention
-designs at ranks 3-4 (cv-ats-strict, cv-academic) ABOVE authority designs at
-ranks 5-6 (cv-dach-tabular, cv-editorial). Per the brief this is marked
-`expectedFailure` rather than weakened -- seed ranks predate research/82;
-Phase 4's cv re-rank removes this xfail.
+Rule 6 USED TO FAIL on the seed data: cv had convention designs at ranks 3-4
+(cv-ats-strict, cv-academic) ABOVE authority designs at ranks 5-6
+(cv-dach-tabular, cv-editorial). Phase 4's cv re-rank (research/82,
+research/designs-evidence/cv-fill.md) ranks cv's two convention designs
+(cv-academic, cv-dach-tabular) last (11-12 of 12), so the `expectedFailure`
+marker is removed -- Rule 6 is now a real, passing assertion for cv and
+every other family.
 """
 import csv
 import unittest
@@ -114,9 +116,7 @@ class TestDesignKeyIsFamilyPrefixed(unittest.TestCase):
 
 
 class TestConventionRanksAfterNonConvention(unittest.TestCase):
-    @unittest.expectedFailure
     def test_convention_designs_never_outrank_non_convention_designs(self):
-        # seed ranks predate research/82; Phase 4 cv re-rank removes this xfail
         for family, rows in DESIGNS_BY_FAMILY.items():
             ordered = sorted(rows, key=lambda r: int(r["Rank"]))
             evidence_in_rank_order = [r["Evidence Class"] for r in ordered]

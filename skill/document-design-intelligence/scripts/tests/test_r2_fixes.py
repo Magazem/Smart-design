@@ -59,7 +59,7 @@ class TestF1BrandDesign(R2Case):
         data = self.merged()
         base = self.resolved(data, "--brand", "ens", "--doctype", "ens-cv-uk")
         over = self.resolved(data, "--brand", "ens", "--doctype", "ens-cv-uk",
-                             "--design", "cv-ats-strict")
+                             "--design", "cv-serif-plain-centered")
         keys = lambda r, t: [x["key"] for x in r["resolved"][t]]  # noqa: E731
         self.assertEqual(keys(base, "palettes"), keys(over, "palettes"))
         self.assertEqual(keys(base, "typefaces"), keys(over, "typefaces"))
@@ -68,7 +68,7 @@ class TestF1BrandDesign(R2Case):
     def test_loaded_data_not_mutated_by_override(self):
         data = self.merged()
         before = (data / "base" / "doc-reasoning.csv").read_bytes()
-        self.resolved(data, "--brand", "ens", "--doctype", "ens-cv-uk", "--design", "cv-ats-strict")
+        self.resolved(data, "--brand", "ens", "--doctype", "ens-cv-uk", "--design", "cv-serif-plain-centered")
         self.assertEqual(before, (data / "base" / "doc-reasoning.csv").read_bytes())
 
 
@@ -82,7 +82,7 @@ class TestF2DesignKey(R2Case):
     def test_kit_rows_set_design_key(self):
         self.merged()
         rr = {r["doc_category"]: r for r in self.kit["doc-reasoning.csv"]}
-        self.assertEqual(rr["ens-cv"]["Design Key"], "cv-editorial")
+        self.assertEqual(rr["ens-cv"]["Design Key"], "cv-ats-strict")
         self.assertEqual(rr["ens-invoice"]["Design Key"], "invoice-tabular")
 
     def test_designs_default_marker_for_brand_doctype(self):
@@ -90,7 +90,7 @@ class TestF2DesignKey(R2Case):
         code, out, _ = self.ddi("designs", "--doctype", "ens-cv-uk", "--json", "--data-dir", str(data))
         self.assertEqual(code, 0)
         defaults = [d["design_key"] for d in json.loads(out)["designs"] if d["is_default"]]
-        self.assertEqual(defaults, ["cv-editorial"])
+        self.assertEqual(defaults, ["cv-ats-strict"])
 
     def test_handoff_design_line_for_brand_doctype(self):
         data = self.merged()
@@ -112,7 +112,8 @@ class TestF4Bm25(R2Case):
         code, out, _ = self.ddi("designs", "--doctype", "cv-uk", "--query", "cv", "--json")
         d = json.loads(out)
         self.assertEqual(d["method"], "rank")
-        self.assertEqual([x["rank"] for x in d["designs"]], sorted(x["rank"] for x in d["designs"]))
+        ranks = [int(x["rank"]) for x in d["designs"]]
+        self.assertEqual(ranks, sorted(ranks))
         self.assertNotIn("score", d["designs"][0])
 
     def test_discriminating_term_still_bm25(self):
@@ -148,7 +149,7 @@ class TestAdvisories(R2Case):
 
     def test_headers_case_insensitive(self):
         text = (DESIGNS_BRAND_MD.replace("## Designs", "## DESIGNS")
-                .replace("cv: cv-editorial", "CV: cv-editorial"))
+                .replace("cv: cv-ats-strict", "CV: cv-ats-strict"))
         code, out = self._run([str(self._write_brand_md(text)), "--dry-run"])
         self.assertEqual(code, 0, out)
 
