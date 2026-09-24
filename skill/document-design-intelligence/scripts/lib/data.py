@@ -244,6 +244,21 @@ def load_table_rows(data_dir, spec, problems, table_name=None):
             if not brand_path.exists():
                 continue  # a brand need not override every table
             header, rows = read_csv_rows(brand_path, problems)
+            if header is not None and header != columns and header == columns[:len(header)]:
+                # research/89 F1: a brand kit built before trailing column(s) were appended to
+                # this table (e.g. doctypes."Family Default") must still load. The header is an
+                # exact PREFIX of the manifest's columns, so the missing cells are padded blank
+                # and a tier-2 advisory is logged against this kit only -- never a tier-1 refusal
+                # that would disable generic and other-brand queries. If a padded column is not
+                # nullable, the per-row enum/FK checks flag THAT brand's rows (per-key
+                # degradation), which is the right blast radius.
+                missing = columns[len(header):]
+                problems.add(brand_path,
+                             f"brand kit predates column(s) {missing}: padded with blank "
+                             "(rebuild the kit with make_brand_kit.py to silence this)",
+                             tier=2, table=table_name)
+                rows = [list(r) + [""] * len(missing) for r in rows]
+                header = list(columns)
             if header is None or not check_header(brand_path, header, columns, problems):
                 continue
             for line_no, row in enumerate(rows, start=2):

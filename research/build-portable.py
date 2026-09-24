@@ -691,7 +691,11 @@ Match the request to a family by intent (e.g. "Lebenslauf", "note interne"):
 Open `DDI-LIBRARY.md` `## Family: <family>` and pick the doctype whose keywords
 and region/language fit (family `cv`: `cv-us`, `cv-uk`, `cv-dach`, ...). CV with
 no country stated: ask once for the target country, or use `cv-generic` and say
-so. Write in the user's language; a doctype's `language:` is only a default.
+so. A French CV with no country cue is `cv-france`; with Belgium/Switzerland/
+Quebec use `cv-eu-generic` in French; German is `cv-dach`. Name particles
+("de la", "von der") are not language cues. Plain "brochure"/"flyer" means A4 unless
+the user says US/Letter; a request naming two documents (a CV and a cover letter):
+ask which first. Write in the user's language; a doctype's `language:` is only a default.
 
 ## 2. Pick a design
 

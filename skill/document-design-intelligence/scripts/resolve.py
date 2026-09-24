@@ -394,74 +394,116 @@ _LANG_WORDS = {
            "fuers", "erstellen"},
 }
 
-_LETTER_CUE_RE = re.compile(r"\b(us|usa|u\.s\.|letter|american)\b|8\.5\s*x\s*11", re.IGNORECASE)
+#: research/89 F3: fr/de stopwords that are also name particles ("Maria de la Cruz", "Anna von
+#: der Leyen"). Skipped when the NEXT token in the original query is Capitalised.
+_NAME_PARTICLES = {"de", "du", "la", "le", "des", "von", "van", "der", "zu", "di", "da"}
+#: research/89 F3: a language beats English only with this many DISTINCT signal tokens.
+_MIN_LANG_SIGNALS = 2
+
+#: research/89 F4: US paper-size cue. Case-sensitive for US/USA so the pronoun "us" never
+#: matches; "U.S." carries no trailing \b (it can never match after the final dot).
+_LETTER_CUE_RE = re.compile(
+    r"\bUS\b|\bUSA\b|\bU\.S\.(?:A\.)?"
+    r"|(?i:\bamerican\b|\bletter[- ]?(?:size|sized|paper|format|sheet)s?\b|8\.5\s*[x\u00d7]\s*11)")
+
+#: research/89 F2: on the folded text `_named_families` searches (punctuation already spaces,
+#: so "u.s." is "u s"), these uses of "letter" are a paper size, not the letter family.
+_PAPER_LETTER_RE = re.compile(
+    r"\b(?:us|u s|usa|american) letter\b|\bletter (?:size|sized|paper|format|sheet)s?\b")
+
+#: research/89 F6/F7: head nouns that name a family without being its Family token. Small on
+#: purpose: only unambiguous document nouns (never "paper", "page", "brief", "angebot").
+_FAMILY_ALIASES = {
+    "slides": "deck", "slide": "deck", "presentation": "deck", "powerpoint": "deck",
+    "resume": "cv", "curriculum vitae": "cv", "lebenslauf": "cv",
+    "white paper": "whitepaper", "one pager": "one-pager",
+    "devis": "quote", "facture": "invoice", "rechnung": "invoice",
+}
+
+#: research/89 F9 (orchestrator ruling): a French request carrying one of these cues is not
+#: for the French market -- the family's `eu-generic` regional doctype is taken, language fr.
+_NON_HOME_REGION_CUES = {
+    "fr": {"belgique", "belgium", "bruxelles", "brussels", "wallonie", "suisse", "switzerland",
+           "geneve", "lausanne", "romandie", "quebec", "canada", "montreal", "luxembourg"},
+}
+
+
+def _folded_tokens(query):
+    return [t for t in re.split(r"[^a-z0-9]+", BM25._fold_diacritics(str(query or "").lower())) if t]
 
 
 def _detect_language(query):
-    """'en' | 'fr' | 'de' from stopword counts; 'en' on a tie or no signal."""
-    tokens = re.split(r"[^a-z0-9]+", BM25._fold_diacritics(str(query or "").lower()))
-    counts = {lang: sum(1 for t in tokens if t in words) for lang, words in _LANG_WORDS.items()}
-    best = max(counts, key=lambda l: (counts[l], l == "en"))
-    return best if counts[best] > counts["en"] else "en"
+    """('en' | 'fr' | 'de', evidence) -- evidence is the list of matched stopwords. A language
+    beats English only with >= _MIN_LANG_SIGNALS distinct signals AND more than English has
+    (research/89 F3); a name particle directly before a Capitalised word is not a signal.
+    Consulted for every --query resolution (research/89 F5), never for ranking."""
+    raw = re.findall(r"[^\W_]+", str(query or ""))
+    folded = [re.sub(r"[^a-z0-9]", "", BM25._fold_diacritics(t.lower())) for t in raw]
+    hits = {lang: [] for lang in _LANG_WORDS}
+    for i, tok in enumerate(folded):
+        if tok in _NAME_PARTICLES and i + 1 < len(raw) and raw[i + 1][:1].isupper():
+            continue
+        for lang, words in _LANG_WORDS.items():
+            if tok in words and tok not in hits[lang]:
+                hits[lang].append(tok)
+    best = max((l for l in hits if l != "en"), key=lambda l: (len(hits[l]), l))
+    if len(hits[best]) >= _MIN_LANG_SIGNALS and len(hits[best]) > len(hits["en"]):
+        return best, hits[best]
+    return "en", hits["en"]
+
+
+def _named_families(entry_rows, query):
+    """Every family the query names explicitly, in text order (research/88 round 3; research/89
+    F2, F6, F7). A family is named by its own Family token (hyphen, space or nothing between
+    words; optional plural s) or by an alias in _FAMILY_ALIASES, as a whole word. Longer names
+    match first and are masked, so "cover letter" names cover-letter and not letter; paper-size
+    uses of "letter" are masked before matching. Why a code rule and not data: an explicit
+    family noun is the strongest signal a request carries, but BM25 weighs it like any keyword,
+    so incidental words other families list ("paper", "one page", "A4") could outvote it."""
+    families = {r.get("Family", "") for r in entry_rows if r.get("Family", "")}
+    text = " " + re.sub(r"[^a-z0-9]+", " ", BM25._fold_diacritics(str(query or "").lower())) + " "
+    text = _PAPER_LETTER_RE.sub(lambda m: " " * len(m.group(0)), text)
+    patterns = [(f, r"[ ]?".join(re.escape(w) for w in f.split("-"))) for f in families]
+    patterns += [(f, re.escape(alias)) for alias, f in _FAMILY_ALIASES.items() if f in families]
+    patterns.sort(key=lambda p: -len(p[1]))
+    found = []
+    for family, pat in patterns:
+        m = re.search(r"(?<![a-z0-9])" + pat + r"s?(?![a-z0-9])", text)
+        if m:
+            if family not in [f for _, f in found]:
+                found.append((m.start(), family))
+            text = text[:m.start()] + " " * (m.end() - m.start()) + text[m.end():]
+    return [f for _, f in sorted(found)]
 
 
 def _named_family(entry_rows, query):
-    """research/88 round 3: the ONE family the query names explicitly, else None.
-
-    A family is named when its own name (hyphen/space/none between words, optional plural
-    s) appears in the query as a whole word. Longer names are matched first and their text
-    masked, so "cover letter" names cover-letter, not letter. Zero or two-plus families named
-    -> None and ordinary BM25 stands. Why: an explicit family noun is the strongest signal a
-    request carries, but BM25 weighs it like any keyword, so incidental words ("paper",
-    "one page", "A4") that other families list in their Keywords outvoted it (flyer ->
-    whitepaper). Data alternative rejected: "paper"/"one page" are legitimate keywords of
-    whitepaper/one-pager, and dropping them would make those families unreachable."""
-    families = sorted({r.get("Family", "") for r in entry_rows if r.get("Family", "")},
-                      key=lambda f: -len(f))
-    text = " " + re.sub(r"[^a-z0-9]+", " ", BM25._fold_diacritics(str(query or "").lower())) + " "
-    named = []
-    for family in families:
-        words = family.split("-")
-        m = re.search(r"(?<![a-z0-9])" + r"[ ]?".join(re.escape(w) for w in words) + r"s?(?![a-z0-9])", text)
-        if m:
-            named.append(family)
-            text = text[:m.start()] + " " + text[m.end():]
+    """Backwards-compatible single-family form: the one named family, else None."""
+    named = _named_families(entry_rows, query)
     return named[0] if len(named) == 1 else None
 
 
-def _family_default(entry_rows, key_column, diag, designs_rows, query=""):
-    """research/88: an `ambiguous` abstention whose top candidates all belong to ONE
-    Family means the query carried nothing that separates that family's variants (a
-    discriminating term would have opened the BM25 margin). Resolve to a designated
-    doctype of that family, else the abstention stands. Returns (row, query_language) or
-    (None, None). In order:
-      1. language: if the query is French/German and exactly ONE family doctype has that
-         Default Language, take it (cv-dach for German, cv-france for French);
-      2. the family's `Family Default` = y doctype (data, at most one per family);
-      3. derived: the family doctype whose Reasoning Key is the rank-1 design's and whose
-         Region Key is blank, if exactly one.
-    A US/letter cue then swaps a flagged/derived doctype for its letter-size sibling (same
-    family, Page Format Key `letter-<x>` where the default's is `a4-<x>`)."""
-    if diag.get("reason") != "ambiguous":
-        return None, None
-    top = diag.get("top_score") or 0
-    keys = [c["key"] for c in diag.get("candidates", [])
-            if top and (top - c["score"]) / top < _MIN_MARGIN_RATIO]
-    by_key = {r.get(key_column, ""): r for r in entry_rows}
-    cands = [by_key[k] for k in keys if k in by_key]
-    families = {r.get("Family", "") for r in cands}
-    scopes = {r.get("Brand Scope", "") for r in cands}
-    if len(cands) < 2 or len(families) != 1 or "" in families or len(scopes) != 1:
-        return None, None
-    family = families.pop()
-    pool = [r for r in entry_rows if r.get("Family", "") == family and r.get("Brand Scope", "") in scopes]
-
-    lang = _detect_language(query)
+def _choose_default(pool, family, designs_rows, lang="en", query=""):
+    """The doctype a plain, unspecific request for `family` resolves to, or None. In order
+    (research/88 round 2, research/89 F9/F11):
+      1. language: `lang` is fr/de and exactly ONE pool doctype has that Default Language --
+         unless the query carries a non-home-region cue for that language (Belgique, Suisse,
+         Quebec, ...), in which case the family's `eu-generic` regional doctype is taken;
+      2. the family's `Family Default = y` doctype (data, at most one per family);
+      3. derived: Region Key blank and Reasoning Key == the family's rank-1 design's, if one;
+      4. a single-doctype family's only row.
+    A US/letter cue in the query then swaps an `a4-<x>` pick for its `letter-<x>` sibling."""
     chosen = None
     if lang != "en":
-        same = [r for r in pool if r.get("Default Language", "") == lang]
-        if len(same) == 1:
-            chosen = same[0]
+        tokens = set(_folded_tokens(query))
+        # the fold also collapses German digraphs (ue -> u), so fold the cues the same way
+        cues = {BM25._fold_diacritics(c) for c in _NON_HOME_REGION_CUES.get(lang, set())}
+        if tokens & cues:
+            eu = [r for r in pool if r.get("Region Key", "") == "eu-generic"]
+            chosen = eu[0] if len(eu) == 1 else None
+        if chosen is None:
+            same = [r for r in pool if r.get("Default Language", "") == lang]
+            if len(same) == 1:
+                chosen = same[0]
     if chosen is None:
         flagged = [r for r in pool if r.get("Family Default", "") == "y"]
         if len(flagged) == 1:
@@ -473,15 +515,40 @@ def _family_default(entry_rows, key_column, diag, designs_rows, query=""):
                        and r.get("Reasoning Key", "") == rank1[0].get("Reasoning Key", "")]
             if len(derived) == 1:
                 chosen = derived[0]
+    if chosen is None and len(pool) == 1:
+        chosen = pool[0]
     if chosen is None:
-        return None, None
-
+        return None
     fmt = chosen.get("Page Format Key", "")
     if fmt.startswith("a4-") and _LETTER_CUE_RE.search(str(query)):
         sibling = [r for r in pool if r.get("Page Format Key", "") == "letter-" + fmt[3:]]
         if len(sibling) == 1:
             chosen = sibling[0]
-    return chosen, (lang if lang != "en" else None)
+    return chosen
+
+
+def _family_pool(entry_rows, family, scopes):
+    return [r for r in entry_rows if r.get("Family", "") == family and r.get("Brand Scope", "") in scopes]
+
+
+def _family_default(entry_rows, key_column, diag, designs_rows, query="", lang="en"):
+    """research/88: an `ambiguous` abstention whose top candidates all belong to ONE Family means
+    the query carried nothing that separates that family's variants. Resolve to the family's
+    designated default (`_choose_default`), else None and the abstention stands. `lang` is the
+    effective language (--lang if given, else the detected query language: research/89 F11)."""
+    if diag.get("reason") != "ambiguous":
+        return None
+    top = diag.get("top_score") or 0
+    keys = [c["key"] for c in diag.get("candidates", [])
+            if top and (top - c["score"]) / top < _MIN_MARGIN_RATIO]
+    by_key = {r.get(key_column, ""): r for r in entry_rows}
+    cands = [by_key[k] for k in keys if k in by_key]
+    families = {r.get("Family", "") for r in cands}
+    scopes = {r.get("Brand Scope", "") for r in cands}
+    if len(cands) < 2 or len(families) != 1 or "" in families or len(scopes) != 1:
+        return None
+    family = families.pop()
+    return _choose_default(_family_pool(entry_rows, family, scopes), family, designs_rows, lang, query)
 
 
 # ============ stage 2+: pure FK walk ============
@@ -713,8 +780,21 @@ def _resolution_payload(resolved, tables_spec, diag, entry_key, language):
         "pass": diag.get("pass"),
         "resolved": out_tables,
         "language": language,
+        "diagnostics": _diagnostics(diag),
         "next_step": _PREFLIGHT_HINT,
     }
+
+
+def _diagnostics(diag):
+    """research/89 F8: the resolver's assumptions, so a caller can tell the user "I assumed a
+    generic CV" / "I assumed French" and offer to switch. Only keys that apply are present."""
+    out = {}
+    for k in ("named_family", "note", "query_language", "query_language_evidence"):
+        if diag.get(k):
+            out[k] = diag[k]
+    if diag.get("candidates"):
+        out["candidates"] = diag["candidates"][:3]
+    return out
 
 
 def _resolve_language(entry_spec, entry_row, lang_override):
@@ -742,6 +822,9 @@ def _print_resolved(resolved, tables_spec, diag, as_json, entry_key, language):
     header += ")"
     print(header)
     print(f"language: {language['value']} (source={language['source']})")
+    for k, v in _diagnostics(diag).items():
+        if k != "candidates":
+            print(f"assumed: {k} = {v}")
     for table_name, rows in resolved.items():
         spec = tables_spec[table_name]
         key_column = spec["key_column"]
@@ -767,10 +850,18 @@ def _print_abstain(query, diag, as_json):
     if no_match:
         print(f'[NO MATCH] "{query}" does not match any doctype in the library -- nothing to suggest')
         return
-    print(f'[ABSTAIN] no confident match for "{query}"')
-    print("  top candidates -- ask the user which one they meant:")
+    if diag.get("reason") == "multiple-families":
+        print(f'[ABSTAIN] "{query}" names {len(diag["named_families"])} document families '
+              f"({', '.join(diag['named_families'])}) -- ask which to make first, or make each:")
+    else:
+        print(f'[ABSTAIN] no confident match for "{query}"')
+        print("  top candidates -- ask the user which one they meant:")
     for c in diag["candidates"]:
-        line = f"    {c['key']!r} \"{c['display']}\"  score={c['score']}"
+        line = f"    {c['key']!r} \"{c['display']}\""
+        if "score" in c:
+            line += f"  score={c['score']}"
+        if c.get("family"):
+            line += f"  family={c['family']}"
         description = c.get("description", "")
         if description and description != c["display"]:
             line += f"  -- {description}"
@@ -838,30 +929,79 @@ def main(argv=None):
         entry_row = matches[0] if len(matches) == 1 else None
         diag = {"method": "doctype-direct", "candidates": [], "pass": None}
     else:
-        named = _named_family(entry_rows, args.query)
-        if named:
-            narrowed = [r for r in entry_rows if r.get("Family", "") == named]
-            entry_row, diag = _resolve_entry(
-                narrowed, key_column, searchable_columns, args.query, args.brand, description_column)
-            if entry_row is not None or diag.get("reason") == "ambiguous":
-                entry_rows = narrowed
+        q_lang, q_evidence = _detect_language(args.query)
+        eff_lang = args.lang or q_lang
+        # an exact doctype key / Display Name is the strongest signal of all: never narrowed away
+        named_all = [] if _identity_match(entry_rows, key_column, args.query) is not None             else _named_families(entry_rows, args.query)
+        scope = {args.brand} if args.brand else {"generic"}
+        designs_rows = all_rows.get("designs", [])
+        if len(named_all) >= 2:
+            # research/89 F7: never silently pick one of two named documents
+            cands = []
+            for fam in named_all:
+                pool = _family_pool(entry_rows, fam, scope) or _family_pool(entry_rows, fam, {"generic"})
+                row = _choose_default(pool, fam, designs_rows, eff_lang, args.query) or (pool[0] if pool else None)
+                if row is not None:
+                    cands.append({"key": row.get(key_column, ""), "display": row.get("Display Name", ""),
+                                  "description": row.get(description_column, ""), "family": fam})
+            entry_row, diag = None, {"method": "named-family", "reason": "multiple-families",
+                                     "named_families": named_all, "candidates": cands, "pass": None}
+        else:
+            named = named_all[0] if named_all else None
+            if named:
+                narrowed = [r for r in entry_rows if r.get("Family", "") == named]
+                entry_row, diag = _resolve_entry(
+                    narrowed, key_column, searchable_columns, args.query, args.brand, description_column)
                 diag["named_family"] = named
+                if entry_row is None and diag.get("reason") != "ambiguous":
+                    # research/89 F6/F12: a named family with no keyword hit (plurals, bare nouns)
+                    # goes to that family's default rather than to a search over other families
+                    pool = _family_pool(entry_rows, named, scope) or _family_pool(entry_rows, named, {"generic"})
+                    entry_row = _choose_default(pool, named, designs_rows, eff_lang, args.query)
+                    if entry_row is not None:
+                        diag = dict(diag, method="family-default", reason=None,
+                                    note="query named the family but no variant; resolved to its designated default")
+                entry_rows = narrowed
             else:
-                named = None
-        if not named:
-            entry_row, diag = _resolve_entry(
-                entry_rows, key_column, searchable_columns, args.query, args.brand, description_column
-            )
+                entry_row, diag = _resolve_entry(
+                    entry_rows, key_column, searchable_columns, args.query, args.brand, description_column
+                )
+        if q_lang != "en":
+            diag["query_language"] = q_lang
+            diag["query_language_evidence"] = q_evidence
+        if (entry_row is not None and not args.lang and eff_lang == "fr"
+                and diag.get("method") == "bm25"
+                and set(_folded_tokens(args.query))
+                & {BM25._fold_diacritics(c) for c in _NON_HOME_REGION_CUES["fr"]}):
+            # research/89 F9 ruling: a French request with a Belgian/Swiss/Canadian cue is not for
+            # the French market, even when BM25 matched a keyword ("suisse" -> cv-dach): take the
+            # family's eu-generic doctype, language fr
+            fam_pool = _family_pool(entry_rows, entry_row.get("Family", ""), {entry_row.get("Brand Scope", "")})
+            eu = [r for r in fam_pool if r.get("Region Key", "") == "eu-generic"]
+            if len(eu) == 1 and eu[0] is not entry_row:
+                entry_row = eu[0]
+                diag = dict(diag, method="family-default",
+                            note="French request with a non-France cue: resolved to the EU-generic doctype")
 
-    if entry_row is None and args.query and not args.doctype:
-        default_row, query_lang = _family_default(
-            entry_rows, key_column, diag, all_rows.get("designs", []), args.query)
+    if entry_row is not None and args.query and not args.doctype:
+        # research/89 F10: an explicit A4 cue swaps a letter-size pick back to its a4 sibling
+        # (symmetric to the US/letter cue in _choose_default); never when a US cue is also present
+        fmt = entry_row.get("Page Format Key", "")
+        if (fmt.startswith("letter-") and re.search(r"\bA4\b", str(args.query), re.IGNORECASE)
+                and not _LETTER_CUE_RE.search(str(args.query))):
+            sib = [r for r in _family_pool(entry_rows, entry_row.get("Family", ""), {entry_row.get("Brand Scope", "")})
+                   if r.get("Page Format Key", "") == "a4-" + fmt[7:]]
+            if len(sib) == 1:
+                entry_row = sib[0]
+                diag = dict(diag, note="explicit A4 cue: swapped to the A4 sibling")
+
+    if entry_row is None and args.query and not args.doctype and diag.get("reason") == "ambiguous":
+        default_row = _family_default(entry_rows, key_column, diag, all_rows.get("designs", []),
+                                      args.query, args.lang or diag.get("query_language", "en"))
         if default_row is not None:
             entry_row = default_row
             diag = dict(diag, method="family-default", reason=None,
                         note="query named no variant of the family; resolved to its designated default")
-            if query_lang:
-                diag["query_language"] = query_lang
 
     if entry_row is None:
         _print_abstain(args.query or args.doctype, diag, args.json)
@@ -891,6 +1031,8 @@ def main(argv=None):
 
     language = _resolve_language(entry_spec, entry_row, args.lang)
     if diag.get("query_language") and not args.lang:
+        # research/89 F5: a detected French/German request gets its headings in that language
+        # on every path, not only the family-default one; --lang always wins.
         language = {"value": diag["query_language"], "source": "query"}
 
     rows_by_key = {

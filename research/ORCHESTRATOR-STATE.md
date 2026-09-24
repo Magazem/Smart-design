@@ -191,3 +191,4 @@ This file is the live checklist. It is updated and committed after every milesto
   Anyone who has read research/91-family-status.md or 82b-shortfall-sources.md is exposed on the families they quote.
   Second coders for brochure/flyer/memo/form: fresh bg agent (seeds "82a:<family>").
 - 2026-09-24 Repo Keeper: RELEASE-NOTES v0.5.0 draft; docs: infographic, memo corpus, brochure/flyer/form/memo recodes (82a-general), 82a C30/C31.
+- 2026-09-24 Repo Keeper: R5 resolver fixes per research/89 (verified in clean worktree).

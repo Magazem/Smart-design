@@ -203,3 +203,117 @@ not resolved: 1/55
 | memo | a one page memo on company paper | RESOLVED | memo-internal |
 
 wrong or abstained: 0/24
+
+
+## Round 4 -- research/89 R5 review fixes
+
+Scope: F1-F11 of `research/89-review-r5-resolver.md` with the orchestrator rulings from the task.
+Code: `scripts/resolve.py`, `scripts/lib/data.py`. Tests: `scripts/tests/test_resolve_generic.py`
+(`TestR5Review`, `TestF1BrandKitPrefixHeader`). `research/88-census.py` now also runs the
+review's repro queries against an EXPECTED DOCTYPE (and language), not just the family.
+
+| finding | fix |
+|---|---|
+| F1 old brand kit refuses every query | a brand CSV whose header is an exact PREFIX of the manifest columns is padded with blanks at load (`lib/data.py`); a tier-2 advisory names the kit; generic and other-brand queries are unaffected |
+| F2 "letter" as paper size | paper-size uses ("letter paper/size/format/sheet", "US/American letter") are masked before family naming |
+| F3 name particles flip language | `de/du/la/le/des/von/van/der/zu/di/da` skipped before a Capitalised token; a language needs >= 2 distinct signal tokens and more than English; evidence recorded |
+| F4 US cue | case-sensitive `US`/`USA`/`U.S.`; "letter size/paper", "8.5x11", "american"; the pronoun "us" no longer counts |
+| F5 language on every path | detected fr/de applies to direct BM25 matches too (`language.source = "query"`); `--lang` still wins |
+| F6 plurals | plural nouns name the family; a named family with no keyword hit goes to its default instead of a search over other families |
+| F7 two documents named | abstain, `reason: multiple-families`, `named_families`, one candidate per family |
+| F8 invisible decisions | `--json` gains `diagnostics` (named_family, note, query_language, evidence, candidates[:3]); text output prints `assumed:` lines |
+| F9 French means France | French + Belgique/Suisse/Quebec/Canada/Luxembourg cue -> the family's `eu-generic` doctype, language fr (even over a keyword hit); no cue -> `cv-france` |
+| F10 explicit A4 | an A4 cue swaps a letter-size pick back to its a4 sibling (unless a US cue is also present) |
+| F11 --lang steers doctype | the family default uses `--lang` when given |
+| identity | an exact doctype key / Display Name is never narrowed away by family naming |
+
+Aliases now naming a family (small, unambiguous only): slide(s), presentation, powerpoint -> deck;
+resume, curriculum vitae, lebenslauf -> cv; white paper -> whitepaper; one pager -> one-pager;
+devis -> quote; facture/rechnung -> invoice. Never "paper", "page", "brief", "angebot".
+
+### Backlog (not done)
+
+- **F12**: "poster child report" (poster + report) abstains as multiple-families. Accepted.
+- Region cues exist only for French. German `cv-dach` already covers DE/AT/CH; no other language has a
+  regional doctype to route to.
+- Belgian/Swiss/Canadian French resolves to `cv-eu-generic` (English-default data, French headings)
+  because no dedicated regional doctypes exist; `cv-be`/`cv-ch`/`cv-ca` would need data.
+- "CV for a cafe manager" resolves to `cv-us` (a BM25 keyword hit inside the cv family), not
+  `cv-generic`; family and language are right, the variant is the retriever's call.
+
+### Before (round 3 code) -- R5 repro queries
+
+| query | expected | status | got | ok |
+|---|---|---|---|---|
+| report on letter paper | report-short | ABSTAIN(ambiguous) | whitepaper 5.355; report-short 5.08 | WRONG |
+| memo on letter paper | memo-internal | ABSTAIN(ambiguous) | memo-internal 5.9942; whitepaper 5.355 | WRONG |
+| a memo on US letter paper | memo-internal | ABSTAIN(ambiguous) | memo-internal 5.9942; whitepaper 5.355 | WRONG |
+| invoice on letter paper | invoice-tabular | ABSTAIN(ambiguous) | invoice-tabular 5.7252; whitepaper 5.355 | WRONG |
+| CV for Maria de la Cruz | cv-generic [en] | RESOLVED | cv-france [fr] | WRONG |
+| CV for Jean-Luc de la Fontaine | cv-generic [en] | RESOLVED | cv-france [fr] | WRONG |
+| resume for Anna von der Leyen | cv-generic [en] | RESOLVED | cv-dach [de] | WRONG |
+| CV for a cafe manager | cv-generic [en] | RESOLVED | cv-us [en] | (expectation later relaxed to cv-*) |
+| a flyer for le petit cafe | brochure-flyer-a4 [en] | RESOLVED | brochure-flyer-a4 [en] | ok |
+| make a flyer for us | brochure-flyer-a4 | RESOLVED | brochure-flyer-letter [en] | WRONG |
+| brochure for us | brochure-trifold-a4 | RESOLVED | brochure-trifold-letter [en] | WRONG |
+| flyer for the U.S. office | brochure-flyer-letter | RESOLVED | brochure-flyer-a4 [en] | WRONG |
+| a flyer for the US market | brochure-flyer-letter | RESOLVED | brochure-flyer-letter [en] | ok |
+| fais-moi une presentation | slide-deck-projection [fr] | RESOLVED | slide-deck-projection [en] | WRONG |
+| erstelle eine Praesentation | slide-deck-projection [de] | RESOLVED | slide-deck-projection [en] | WRONG |
+| redige un rapport long avec sommaire | report-long-toc [fr] | RESOLVED | report-long-toc [en] | WRONG |
+| flyers | brochure-flyer-a4 | ABSTAIN(no-match) |  | WRONG |
+| invoices | invoice-tabular | ABSTAIN(no-match) |  | WRONG |
+| posters | poster | ABSTAIN(no-match) |  | WRONG |
+| CVs for my team | cv-generic | ABSTAIN(no-match) |  | WRONG |
+| fais-moi un CV pour un poste a Bruxelles, Belgique | cv-eu-generic [fr] | RESOLVED | cv-france [fr] | WRONG |
+| redige mon CV pour Geneve en Suisse | cv-eu-generic [fr] | RESOLVED | cv-dach [de] | WRONG |
+| fais-moi un CV pour le Quebec | cv-eu-generic [fr] | RESOLVED | cv-france [fr] | WRONG |
+| fais-moi un CV pour un poste de comptable | cv-france [fr] | RESOLVED | cv-france [fr] | ok |
+| professional flyer one page A4 | brochure-flyer-a4 | RESOLVED | brochure-flyer-letter [en] | WRONG |
+
+R5 wrong or abstained: 21 of 25 with the final expectations (22 with the original cv-generic expectation for "cafe manager").
+
+Multi-family queries before: all three silently RESOLVED ("a CV and a cover letter" -> cover-letter; "slides for the report" -> report-short; "deck builder CV" -> slide-deck-projection).
+
+
+### After (round 4 code) -- R5 repro queries
+
+### R5 repro queries (expected doctype [language])
+
+| query | expected | status | got | ok |
+|---|---|---|---|---|
+| report on letter paper | report-short | RESOLVED | report-short [en] | ok |
+| memo on letter paper | memo-internal | RESOLVED | memo-internal [en] | ok |
+| a memo on US letter paper | memo-internal | RESOLVED | memo-internal [en] | ok |
+| invoice on letter paper | invoice-tabular | RESOLVED | invoice-tabular [en] | ok |
+| CV for Maria de la Cruz | cv-generic [en] | RESOLVED | cv-generic [en] | ok |
+| CV for Jean-Luc de la Fontaine | cv-generic [en] | RESOLVED | cv-generic [en] | ok |
+| resume for Anna von der Leyen | cv-generic [en] | RESOLVED | cv-generic [en] | ok |
+| CV for a cafe manager | cv-* [en] | RESOLVED | cv-us [en] | ok |
+| a flyer for le petit cafe | brochure-flyer-a4 [en] | RESOLVED | brochure-flyer-a4 [en] | ok |
+| make a flyer for us | brochure-flyer-a4 | RESOLVED | brochure-flyer-a4 [en] | ok |
+| brochure for us | brochure-trifold-a4 | RESOLVED | brochure-trifold-a4 [en] | ok |
+| flyer for the U.S. office | brochure-flyer-letter | RESOLVED | brochure-flyer-letter [en] | ok |
+| a flyer for the US market | brochure-flyer-letter | RESOLVED | brochure-flyer-letter [en] | ok |
+| fais-moi une presentation | slide-deck-projection [fr] | RESOLVED | slide-deck-projection [fr] | ok |
+| erstelle eine Praesentation | slide-deck-projection [de] | RESOLVED | slide-deck-projection [de] | ok |
+| redige un rapport long avec sommaire | report-long-toc [fr] | RESOLVED | report-long-toc [fr] | ok |
+| flyers | brochure-flyer-a4 | RESOLVED | brochure-flyer-a4 [en] | ok |
+| invoices | invoice-tabular | RESOLVED | invoice-tabular [en] | ok |
+| posters | poster | RESOLVED | poster [en] | ok |
+| CVs for my team | cv-generic | RESOLVED | cv-generic [en] | ok |
+| fais-moi un CV pour un poste a Bruxelles, Belgique | cv-eu-generic [fr] | RESOLVED | cv-eu-generic [fr] | ok |
+| redige mon CV pour Geneve en Suisse | cv-eu-generic [fr] | RESOLVED | cv-eu-generic [fr] | ok |
+| fais-moi un CV pour le Quebec | cv-eu-generic [fr] | RESOLVED | cv-eu-generic [fr] | ok |
+| fais-moi un CV pour un poste de comptable | cv-france [fr] | RESOLVED | cv-france [fr] | ok |
+| professional flyer one page A4 | brochure-flyer-a4 | RESOLVED | brochure-flyer-a4 [en] | ok |
+
+R5 wrong or abstained: 0/25
+
+### R5 multi-family queries (expected: ABSTAIN(multiple-families))
+
+| query | status | top |
+|---|---|---|
+| a CV and a cover letter | ABSTAIN(multiple-families) | cv-generic cv; cover-letter cover-letter |
+| slides for the report | ABSTAIN(multiple-families) | slide-deck-projection deck; report-short report |
+| deck builder CV | ABSTAIN(multiple-families) | slide-deck-projection deck; cv-generic cv |

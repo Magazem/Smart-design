@@ -53,7 +53,7 @@ python3 scripts/ddi.py handoff --json r.json --format docx    # exact values for
 python3 scripts/ddi.py preflight my-document.pdf              # check a finished .pdf/.docx/.pptx
 ```
 
-`resolve` picks the document type and returns every value; `designs` lists the ranked designs
+`resolve` picks the document type and returns every value (a plain "make me a CV" resolves to a generic default; `--json` `diagnostics` says what was assumed, and a request naming two documents abstains so you can ask which first); `designs` lists the ranked designs
 for that type (add `--design <key>` to `resolve` to use one); `handoff` turns the result into
 the numbers a renderer needs; `preflight` checks the rendered file against the rules.
 
