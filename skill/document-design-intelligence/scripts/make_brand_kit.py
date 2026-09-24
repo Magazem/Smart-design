@@ -236,10 +236,12 @@ SECTION_RE = re.compile(r"^##\s+(.+?)\s*$")
 H1_RE = re.compile(r"^#\s+(?!#)")
 DOC_DEFAULT_RE = re.compile(r"^(page-format|type-scale)\s+([a-z][a-z0-9-]*)\s*:\s*(.+)$")
 
-TOP_LEVEL_KEYS = {"slug", "logo"}
+TOP_LEVEL_KEYS = {"slug", "logo", "print-background"}
 PALETTE_ROLES = ("primary", "secondary", "accent", "background", "foreground", "muted")
 TYPEFACE_KEYS = {"heading", "body", "mono"}
-ALLOWED_SECTIONS = {"Palette", "Typefaces", "Doctypes", "Voice", "Document defaults", "Designs", "Type scales"}
+ALLOWED_SECTIONS = {"Palette", "Typefaces", "Doctypes", "Voice", "Document defaults", "Designs", "Type scales",
+                    "Languages"}
+LANGUAGES = ("en", "fr", "de")
 TYPESCALE_ROLES = ("label", "caption", "body", "body-dense", "lead", "h3", "h2", "h1")
 
 DESIGN_LINE_RE = re.compile(r"^([a-z][a-z0-9-]*)\s*:\s*([a-z0-9][a-z0-9-]*)$")
@@ -414,6 +416,7 @@ def parse_brand_md(text: str, base_doctypes: dict[str, dict] | None = None,
     type_scale = {}
     designs = {}
     scale_choices = {}
+    languages = []
 
     section = None  # None, "Palette", "Typefaces", "Doctypes", "Voice", "Document defaults"
     seen_h1 = False
@@ -497,6 +500,19 @@ def parse_brand_md(text: str, base_doctypes: dict[str, dict] | None = None,
             if name in doctypes:
                 raise BrandKitError(f"brand.md:{line_no}: doctype '{name}' listed twice")
             doctypes.append(name)
+            continue
+
+        if section == "Languages":
+            # research/90 F6: `## Languages` -- one or more of en/fr/de, comma- or line-separated;
+            # the FIRST is the kit's default document language.
+            for token in [t.strip().lower() for t in stripped.split(",") if t.strip()]:
+                if token not in LANGUAGES:
+                    raise BrandKitError(
+                        f"brand.md:{line_no}: unknown language '{token}' in ## Languages "
+                        f"(allowed: {', '.join(LANGUAGES)})")
+                if token in languages:
+                    raise BrandKitError(f"brand.md:{line_no}: language '{token}' listed twice")
+                languages.append(token)
             continue
 
         if section == "Designs":
@@ -589,6 +605,8 @@ def parse_brand_md(text: str, base_doctypes: dict[str, dict] | None = None,
 
         raise BrandKitError(f"brand.md:{line_no}: line outside any recognised section: {stripped!r}")
 
+    if top.get("print-background", "white") not in ("white", "keep"):
+        raise BrandKitError("brand.md: print-background must be 'white' or 'keep'")
     if "slug" not in top:
         raise BrandKitError("brand.md: missing required 'slug: <value>' line")
     slug = top["slug"]
@@ -628,6 +646,8 @@ def parse_brand_md(text: str, base_doctypes: dict[str, dict] | None = None,
         "type_scale": type_scale,
         "designs": designs,
         "scale_choices": scale_choices,
+        "languages": languages,
+        "print_background": top.get("print-background", "white"),
     }
 
 
@@ -671,21 +691,39 @@ def _classify_family(name: str, library_fallbacks: dict[str, str] | None = None)
     return None
 
 
-def derive_palette_row(spec: dict) -> tuple[dict, list[tuple[str, str, str, float]]]:
-    """Build the palettes.csv row and the list of (label, fg, bg, ratio)
-    contrast pairs actually checked by the schema's derived rules.
+def _library_palette_match(p: dict, library_palettes: list[dict] | None):
+    """The library palette row a brand palette builds on: every role except `accent` (a brand
+    colour may replace it) equals a generic row's, case-insensitively. None if no row matches."""
+    for r in library_palettes or []:
+        if all(r.get(k.capitalize(), "").lower() == p[k].lower()
+               for k in ("primary", "secondary", "background", "foreground", "muted")):
+            return r
+    return None
 
-    On-colours: white/black only, via lib.color.on_color — never typed.
-    Rule Hair/Strong/Brand: not collected from the user; deterministically
-    set to Muted/Foreground/Primary respectively (documented assumption,
-    see module docstring — this differs from a hand-picked hairline colour
-    like ENS's real #B9C4BC, which this format has no field for).
-    Text-Safe / Fill-Only / Category Marker roles: computed from
-    contrast_ratio(role, Background) >= 4.5 among {primary, secondary,
-    accent} only; Category Marker Roles is the intersection of Text-Safe
-    with {secondary, accent}.
+
+NON_TEXT_CONTRAST = 3.0     # WCAG 1.4.11: thin rules, icons and other non-text marks
+RULE_HAIR_MIN = 1.5         # CONVENTION (research/90 F4): a hairline must be at least this visible
+
+
+def derive_palette_row(spec: dict, library_palettes: list[dict] | None = None,
+                       background: str | None = None, key_suffix: str = "core"
+                       ) -> tuple[dict, list[tuple[str, str, str, float]]]:
+    """Build the palettes.csv row and the list of (label, fg, bg, ratio) contrast pairs
+    actually checked.
+
+    On-colours: white/black only, via lib.color.on_color -- never typed.
+    Text-Safe / Fill-Only: contrast_ratio(role, Background) >= 4.5 over foreground, primary,
+    secondary, accent (research/90 F5: foreground is body text, so it is text-safe when it
+    passes); Category Marker Roles = the text-safe secondary/accent.
+    Rule Strong = foreground. Rule Hair: the source library palette's own value when the brand
+    builds on one (all roles but accent match a library row); otherwise the first of muted,
+    secondary, foreground whose contrast against Background is >= RULE_HAIR_MIN (CONVENTION,
+    not from a cited source). Rule Brand = accent when accent is text-safe, else primary.
+    `background` overrides the palette's Background (the print variant, key_suffix "print").
     """
-    p = spec["palette"]
+    p = dict(spec["palette"])
+    if background:
+        p["background"] = background
     on = {role: color.on_color(p[role]) for role in ("primary", "secondary", "accent", "muted")}
 
     pairs = [
@@ -694,17 +732,33 @@ def derive_palette_row(spec: dict) -> tuple[dict, list[tuple[str, str, str, floa
         ("On Accent/Accent", on["accent"], p["accent"]),
         ("Foreground/Background", p["foreground"], p["background"]),
         ("On Muted/Muted", on["muted"], p["muted"]),
+        ("Primary/Background", p["primary"], p["background"]),
+        ("Secondary/Background", p["secondary"], p["background"]),
+        ("Accent/Background", p["accent"], p["background"]),
     ]
     contrast_report = [(label, fg, bg, color.contrast_ratio(fg, bg)) for label, fg, bg in pairs]
 
-    text_safe = [r for r in ("primary", "secondary", "accent") if color.contrast_ratio(p[r], p["background"]) >= 4.5]
+    text_safe = [r for r in ("foreground", "primary", "secondary", "accent")
+                 if color.contrast_ratio(p[r], p["background"]) >= 4.5]
     fill_only = [r for r in ("primary", "secondary", "accent") if r not in text_safe]
     category_marker = [r for r in text_safe if r in ("secondary", "accent")]
 
+    lib = _library_palette_match(p, library_palettes)
+    if lib and lib.get("Rule Hair"):
+        rule_hair, hair_source = lib["Rule Hair"], f"library palette {lib.get('palette_key', '')}"
+    else:
+        rule_hair, hair_source = p["foreground"], "foreground (no neutral reached the minimum)"
+        for role in ("muted", "secondary", "foreground"):
+            if color.contrast_ratio(p[role], p["background"]) >= RULE_HAIR_MIN:
+                rule_hair, hair_source = p[role], f"palette {role}"
+                break
+    hair_ratio = color.contrast_ratio(rule_hair, p["background"])
+    rule_brand = p["accent"] if "accent" in text_safe else p["primary"]
+
     slug = spec["slug"]
     row = {
-        "palette_key": f"{slug}-core",
-        "Display Name": f"{_title_words(slug)} Core",
+        "palette_key": f"{slug}-{key_suffix}",
+        "Display Name": f"{_title_words(slug)} {key_suffix.capitalize()}",
         "Keywords": f"{slug}, {_title_words(slug).lower()}, brand palette",
         "Brand Scope": slug,
         "Primary": p["primary"], "On Primary": on["primary"],
@@ -712,12 +766,44 @@ def derive_palette_row(spec: dict) -> tuple[dict, list[tuple[str, str, str, floa
         "Accent": p["accent"], "On Accent": on["accent"],
         "Background": p["background"], "Foreground": p["foreground"],
         "Muted": p["muted"], "On Muted": on["muted"],
-        "Rule Hair": p["muted"], "Rule Strong": p["foreground"], "Rule Brand": p["primary"],
+        "Rule Hair": rule_hair, "Rule Strong": p["foreground"], "Rule Brand": rule_brand,
         "Text-Safe Roles": ";".join(text_safe),
         "Fill-Only Roles": ";".join(fill_only),
         "Category Marker Roles": ";".join(category_marker),
     }
+    row["__notes__"] = {"rule_hair": (rule_hair, hair_ratio, hair_source), "library_match": lib,
+                        "text_safe": text_safe, "fill_only": fill_only}
     return row, contrast_report
+
+
+def palette_report_lines(row: dict, contrast_report: list, tag: str = "") -> list[str]:
+    """Dry-run lines for one palette (research/90 F2/F4): every checked pair, then explicit NOTE
+    lines for a demoted role. Only On-colour and Foreground/Background pairs can FAIL; a role
+    pair under 4.5:1 is not a failure, it is a fill-only demotion."""
+    lines = [f"-- {row['palette_key']}{tag}: contrast pairs (lib/color.contrast_ratio) --"]
+    notes = row.get("__notes__", {})
+    for label, fg, bg, ratio in contrast_report:
+        if label in ("Primary/Background", "Secondary/Background", "Accent/Background"):
+            role = label.split("/")[0].lower()
+            kind = "text-safe" if role in notes.get("text_safe", []) else "fill-only"
+            lines.append(f"  {label}: {fg} on {bg} = {ratio:.2f}:1 [{kind}, text threshold 4.5:1]")
+        else:
+            verdict = "OK" if ratio >= 4.5 - 1e-9 else "FAIL"
+            lines.append(f"  {label}: {fg} on {bg} = {ratio:.2f}:1 [{verdict}, threshold 4.5:1]")
+    for role in notes.get("fill_only", []):
+        ratio = next(r for lab, _f, _b, r in contrast_report if lab == f"{role.capitalize()}/Background")
+        hexv = row[role.capitalize()]
+        extra = ""
+        if ratio < NON_TEXT_CONTRAST:
+            extra = (f"; non-text contrast {ratio:.2f} < {NON_TEXT_CONTRAST:g}:1 (WCAG 1.4.11), so avoid it "
+                     "for thin rules and icons too")
+        lines.append(f"  NOTE {role} {hexv} = {ratio:.2f}:1 on background: {role} demoted to fill-only "
+                     f"({ratio:.2f}:1) -- kept as the brand colour, never set text in it{extra}")
+    hv, hr, hs = notes.get("rule_hair", ("", 0, ""))
+    if hv:
+        lines.append(f"  Rule Hair {hv} = {hr:.2f}:1 on background (source: {hs}; derived hairlines use the "
+                     f"first palette neutral >= {RULE_HAIR_MIN:g}:1 -- CONVENTION, not a cited standard)")
+    return lines
 
 
 def derive_typefaces_row(spec: dict, font_substitutes: list[dict],
@@ -847,6 +933,14 @@ def derive_library_typescale_rows(spec: dict, base_scale_rows: list[dict]) -> li
                     "Medium": medium, "Role": r["Role"],
                     "Size pt": r["Size pt"], "Leading Ratio": r["Leading Ratio"],
                 })
+        # research/90 F5: form-print (invoice, quote, form) carries a `legal` role that the
+        # library print scales lack; map it to the scale's caption so fine print keeps a size
+        mine = [r for r in rows if r["scale_key"] == key]
+        roles = {r["Role"] for r in mine}
+        cap = next((r for r in mine if r["Role"] == "caption"), None)
+        if medium == "print" and "legal" not in roles and cap is not None:
+            rows.append({"scale_row_key": f"{key}-{medium}-legal", "scale_key": key, "Medium": medium,
+                         "Role": "legal", "Size pt": cap["Size pt"], "Leading Ratio": cap["Leading Ratio"]})
     return rows
 
 
@@ -859,6 +953,15 @@ def _generic_catalog_entry(base_row: dict) -> dict:
         page_format_hint=base_row["Page Format Key"] or None,
         constraint_hint=split(base_row["Constraint Set Keys"]),
     )
+
+
+def _kit_language(spec: dict, base_row: dict | None) -> str:
+    """research/90 F6: the base row's language, except that a generic-English base row takes the
+    brand's first `## Languages` entry when one is given."""
+    base = base_row["Default Language"] if base_row else "en"
+    if spec.get("languages") and base == "en":
+        return spec["languages"][0]
+    return base
 
 
 def derive_doctype_rows(spec: dict, base_doctypes: dict[str, dict] | None = None) -> list[dict]:
@@ -879,8 +982,11 @@ def derive_doctype_rows(spec: dict, base_doctypes: dict[str, dict] | None = None
             # keyword doubles that term's frequency in the search index.
             # doctypes."Keywords" is a declared distinct_token_columns entry, so
             # the emitted row would otherwise fail the gate it is checked against.
+            # research/90 F6: a base-derived row KEEPS the base doctype's own (multilingual)
+            # keywords and adds the brand's, so `resolve --brand` finds it in fr/de queries
             "Keywords": ", ".join(dict.fromkeys(
-                [doctype, doctype.replace("-", " "), slug])),
+                [k.strip() for k in (base_row["Keywords"].split(",") if base_row else []) if k.strip()]
+                + [doctype, doctype.replace("-", " "), slug])),
             "Artifact Class": cat["artifact_class"],
             "Brand Scope": slug,
             "Reasoning Key": (base_row["Reasoning Key"] if base_row
@@ -897,7 +1003,7 @@ def derive_doctype_rows(spec: dict, base_doctypes: dict[str, dict] | None = None
             # documented fallback for a doctype whose own Display Name carries
             # no market/language signal (rationale/doctypes.md), and adding
             # brand-markdown language parsing is out of this fix's scope.
-            "Default Language": base_row["Default Language"] if base_row else "en",
+            "Default Language": _kit_language(spec, base_row),
         })
     return rows
 
@@ -985,6 +1091,57 @@ def outputs_dir() -> Path:
 
 def uploads_dir() -> Path:
     return Path(os.environ.get("DDI_UPLOADS_DIR", DEFAULT_UPLOADS_DIR))
+
+
+def load_library_palettes(skill_dir: Path) -> list[dict]:
+    path = skill_dir / "data" / "base" / "palettes.csv"
+    if not path.is_file():
+        return []
+    with path.open(encoding="utf-8", newline="") as f:
+        return [r for r in csv.DictReader(f) if r.get("Brand Scope", "generic") == "generic"]
+
+
+def load_constraints(skill_dir: Path) -> list[dict]:
+    path = skill_dir / "data" / "base" / "constraints.csv"
+    if not path.is_file():
+        return []
+    with path.open(encoding="utf-8", newline="") as f:
+        return list(csv.DictReader(f))
+
+
+def contrast_requirements(constraint_rows: list[dict], set_keys: list[str]) -> list[tuple[str, str, float]]:
+    """(constraint_key, scope, minimum ratio) for every contrast check in the given constraint
+    sets (research/90 F11): rows whose Check names a contrast validator and whose Threshold is a
+    number -- projection 7.0, print-legibility body 4.5 / large text 3.0."""
+    out = []
+    for r in constraint_rows:
+        if r.get("Set Key") in set_keys and r.get("Check", "").startswith("validate-contrast"):
+            try:
+                out.append((r["constraint_key"], r.get("Parameter", ""), float(r["Threshold"])))
+            except (TypeError, ValueError):
+                continue
+    return out
+
+
+def contrast_lines_for_doctype(doctype_key: str, palette_row: dict, requirements: list) -> list[str]:
+    """Per-doctype medium-specific contrast report (research/90 F11). Body text is the
+    foreground on the background; each text-safe role is a possible text colour. Advisory: a
+    role under a threshold is not blocking, it is fill/large-mark only for that medium."""
+    from_bg = palette_row["Background"]
+    lines = []
+    for ckey, scope, need in requirements:
+        results = []
+        for role in [x for x in palette_row["Text-Safe Roles"].split(";") if x]:
+            ratio = color.contrast_ratio(palette_row[role.capitalize()], from_bg)
+            results.append((role, ratio))
+        bad = [f"{r} {v:.2f}" for r, v in results if v < need - 1e-9]
+        label = f"{ckey} ({scope or 'all text'}) >= {need:g}:1"
+        if bad:
+            lines.append(f"  WARN {doctype_key}: {label}: below threshold -> {', '.join(bad)}; "
+                         "use those roles for fills and large marks only in this medium")
+        else:
+            lines.append(f"  {doctype_key}: {label}: every text-safe role passes")
+    return lines
 
 
 def load_library_typefaces(skill_dir: Path) -> list[dict]:
@@ -1107,7 +1264,15 @@ def main(argv: list[str] | None = None) -> int:
             logo_bytes = logo_path.read_bytes()
             logo_arcname = f"assets/{logo_path.name}"
 
-        palette_row, contrast_report = derive_palette_row(spec)
+        library_palettes = load_library_palettes(skill_dir)
+        palette_row, contrast_report = derive_palette_row(spec, library_palettes)
+        fg_bg = next(r for lab, _f, _b, r in contrast_report if lab == "Foreground/Background")
+        if fg_bg < 4.5 - 1e-9:
+            # the gate below refuses to emit (derived contrast rule); say why in plain words first
+            print(f"STOP: foreground {spec['palette']['foreground']} on background "
+                  f"{spec['palette']['background']} is {fg_bg:.2f}:1, below the 4.5:1 body-text floor -- "
+                  "change the foreground or background (a failing brand ACCENT is kept as fill-only; "
+                  "body text is not negotiable)")
         typefaces_row, font_warnings = derive_typefaces_row(spec, font_substitutes, load_library_typefaces(skill_dir))
         doctype_rows = derive_doctype_rows(spec, base_doctypes)
         typescale_rows = derive_typescale_rows(spec)
@@ -1138,9 +1303,32 @@ def main(argv: list[str] | None = None) -> int:
             if any(rr["doc_category"] == fam_key for rr in reasoning_rows):
                 r["Reasoning Key"] = fam_key
 
+        # research/90 F5: a tinted (non-white, light) brand background becomes the page colour of
+        # printed letters and invoices. Print-medium families get a `<slug>-print` palette variant
+        # with a white Background (same roles, contrast re-derived) unless brand.md says
+        # `print-background: keep`. Only emitted when a ## Designs row would use it.
+        palette_rows = [palette_row]
+        print_palette_note = None
+        tinted = (spec["palette"]["background"].lower() != "#ffffff"
+                  and color.contrast_ratio(spec["palette"]["background"], "#FFFFFF") < 1.3)
+        if tinted and spec["print_background"] == "white" and reasoning_rows:
+            print_families = {r["Family"] for r in doctype_rows if doctype_medium(r) == "print"}
+            users = [rr for rr in reasoning_rows if rr["doc_category"][len(slug) + 1:] in print_families]
+            if users:
+                print_row, print_report = derive_palette_row(
+                    spec, library_palettes, background="#FFFFFF", key_suffix="print")
+                palette_rows.append(print_row)
+                for rr in users:
+                    rr["Palette Key"] = print_row["palette_key"]
+                print_palette_note = (
+                    f"NOTE background {spec['palette']['background']} is a light tint: print-medium "
+                    f"families use palette {print_row['palette_key']} with a #FFFFFF page background "
+                    "(a tinted page prints as a tinted sheet with an unprintable white margin); "
+                    "add `print-background: keep` to brand.md to keep the tint")
+
         tables = manifest["tables"]
         csv_files = {
-            "palettes.csv": rows_to_csv(tables["palettes"]["columns"], [palette_row]),
+            "palettes.csv": rows_to_csv(tables["palettes"]["columns"], palette_rows),
             "typefaces.csv": rows_to_csv(tables["typefaces"]["columns"], typeface_rows),
             "doctypes.csv": rows_to_csv(tables["doctypes"]["columns"], doctype_rows),
         }
@@ -1149,10 +1337,26 @@ def main(argv: list[str] | None = None) -> int:
         if typescale_rows:
             csv_files["type-scales.csv"] = rows_to_csv(tables["type-scales"]["columns"], typescale_rows)
 
-        print(f"-- {slug}: contrast pairs (lib/color.contrast_ratio) --")
-        for label, fg, bg, ratio in contrast_report:
-            verdict = "OK" if ratio >= 4.5 - 1e-9 else "FAIL"
-            print(f"  {label}: {fg} on {bg} = {ratio:.2f}:1 [{verdict}, threshold 4.5:1]")
+        for line in palette_report_lines(palette_row, contrast_report):
+            print(line)
+        if print_palette_note:
+            print("  " + print_palette_note)
+            for line in palette_report_lines(palette_rows[1], print_report, " (print variant)"):
+                print(line)
+
+        constraint_rows = load_constraints(skill_dir)
+        reported = set()
+        for r in doctype_rows:
+            reqs = contrast_requirements(constraint_rows, r["Constraint Set Keys"].split(";"))
+            if reqs and r["doc_key"] not in reported:
+                reported.add(r["doc_key"])
+                target = palette_rows[-1] if (len(palette_rows) > 1 and doctype_medium(r) == "print") else palette_row
+                for line in contrast_lines_for_doctype(r["doc_key"], target, reqs):
+                    print(line)
+        if spec["languages"]:
+            print(f"  languages: {', '.join(spec['languages'])} (default document language "
+                  f"{spec['languages'][0]}; other languages are reached with `--lang` or a query "
+                  "in that language)")
 
         for w in font_warnings:
             print(f"WARNING: {w}")
@@ -1201,7 +1405,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.dry_run:
             print(
                 f"\nDRY-RUN OK: would generate {slug}-brand-kit.zip "
-                f"(palettes=1 typefaces={len(typeface_rows)} doctypes={len(doctype_rows)} type-scales={len(typescale_rows)})"
+                f"(palettes={len(palette_rows)} typefaces={len(typeface_rows)} doctypes={len(doctype_rows)} type-scales={len(typescale_rows)})"
             )
             return 0
 
@@ -1217,7 +1421,7 @@ def main(argv: list[str] | None = None) -> int:
 
         print(
             f"\nOK: {out_path} "
-            f"(palettes=1 typefaces={len(typeface_rows)} doctypes={len(doctype_rows)} type-scales={len(typescale_rows)})"
+            f"(palettes={len(palette_rows)} typefaces={len(typeface_rows)} doctypes={len(doctype_rows)} type-scales={len(typescale_rows)})"
         )
         return 0
 

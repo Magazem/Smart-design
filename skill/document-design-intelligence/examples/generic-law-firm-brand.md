@@ -30,7 +30,7 @@ deck: deck-generic
 
 ## Type scales
 print: lib-major-third-print
-projection: lib-minor-third-projection
+projection: lib-perfect-fourth-projection
 
 ## Voice
 Formal, precise, plain English. No emoji, no gradients, no exclamation marks. Accent red

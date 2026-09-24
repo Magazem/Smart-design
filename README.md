@@ -99,7 +99,7 @@ python3 scripts/make_brand_kit.py brand.md               # writes <slug>-brand-k
 python3 scripts/merge_brand_kit.py <slug>-brand-kit.zip  # writes document-design-intelligence-<slug>.zip
 ```
 
-An AI can build a kit for you by following [`references/brand-kit-builder.md`](skill/document-design-intelligence/references/brand-kit-builder.md); a complete example is [`examples/generic-law-firm-brand.md`](skill/document-design-intelligence/examples/generic-law-firm-brand.md). Upload the merged ZIP as your skill. Text colours are derived and contrast-checked; a kit that fails the gate is not written. See
+An AI can build a kit for you by following [`references/brand-kit-builder.md`](skill/document-design-intelligence/references/brand-kit-builder.md); a complete example is [`examples/generic-law-firm-brand.md`](skill/document-design-intelligence/examples/generic-law-firm-brand.md). Upload the merged ZIP as your skill. Text colours are derived and contrast-checked; a kit whose body text fails 4.5:1 is not written. A brand colour that fails text contrast (like the lime accent above, about 1.8:1 on its background) is kept as a fill-only accent: the dry run says so, and handoffs tell the renderer never to set text in it. Only families with several ranked designs offer a real choice of design; most families carry one convention design today. See
 [`examples/ens-brand.md`](skill/document-design-intelligence/examples/ens-brand.md).
 
 ## How designs are ranked, and what that does not mean

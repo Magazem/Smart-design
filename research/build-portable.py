@@ -755,14 +755,14 @@ scripts/ddi.py resolve --query "<request>" --json`, then `ddi.py handoff`, rende
 ## 7. Brand kit from the grand library (no code)
 
 Interview first (field, three tone adjectives, colours/logo, families, languages, formats).
-Pick ONE palette whose tone fits (never mix roles across palettes); if the user has a brand
-colour, make it the single accent and take the other roles from one neutral palette, keeping
-text in text-safe roles at >= 4.5:1. Pick ONE typeface pairing (max 2 families) with its own
-type scale per medium (print/projection/screen). For every family the brand needs choose a
-design from that family's table (rank 1 unless Best-for fits the tone). Then write the
-user's `brand.md` (slug, palette hexes, typeface names, doctypes, one design per family,
-scales). Invent no hex, family or size outside the tables you used. Procedure with commands:
-`references/brand-kit-builder.md` in the skill.
+1. Palette: ONE row, all six roles (highest-scoring row with a cited source; never mix rows). A
+brand colour becomes the single accent over one neutral row (`print-neutral`, `lib-govuk-ink`);
+if it fails 4.5:1 keep it as a fill-only accent, never for text. Body text must pass 4.5:1.
+2. Typefaces: ONE pairing, max 2 families, its fallbacks as listed; tell the user Word uses the
+fallback. 3. Type scale per medium: print = the pairing's scale, projection =
+`lib-perfect-fourth-projection`. 4. A design per family (rank 1 unless Best-for fits the tone;
+say when only a convention design exists). 5. Write `brand.md` (slug, palette, typefaces,
+doctypes, designs, scales, languages). Invent no hex, family or size outside those rows.
 """
     return text
 

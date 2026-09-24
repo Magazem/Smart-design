@@ -391,7 +391,9 @@ class TestDesignsSection(MakeBrandKitTestCase):
         self.assertIn("data/doc-reasoning.csv", names)
         rr = {r["doc_category"]: r for r in get("data/doc-reasoning.csv")}
         self.assertEqual(set(rr), {"ens-cv", "ens-invoice"})
-        pal = get("data/palettes.csv")[0]["palette_key"]
+        # research/90 F5: the ENS test palette has a tinted background (#F7F8F5), so print families
+        # use the white-background print variant `ens-print`, not `ens-core`
+        pal = next(r["palette_key"] for r in get("data/palettes.csv") if r["palette_key"] == "ens-print")
         tf = get("data/typefaces.csv")[0]["typeface_key"]
         designs = {r["design_key"]: r for r in _csv_rows(self.skill_dir, "designs.csv")}
         base = {r["doc_category"]: r for r in _csv_rows(self.skill_dir, "doc-reasoning.csv")}
@@ -462,6 +464,11 @@ class TestTypeScalesSection(MakeBrandKitTestCase):
             got = {r["Role"]: r for r in t["data/type-scales.csv"]
                    if r["scale_key"] == f"ens-{medium}"}
             want = {r["Role"]: r for r in base if r["scale_key"] == src}
+            if medium == "print" and "legal" not in want:
+                # research/90 F5: fine print keeps a size -- legal is mapped to the scale's caption
+                self.assertEqual((got["legal"]["Size pt"], got["legal"]["Leading Ratio"]),
+                                 (want["caption"]["Size pt"], want["caption"]["Leading Ratio"]))
+                want = dict(want, legal=got["legal"])
             self.assertEqual(set(got), set(want))
             for role, r in got.items():
                 self.assertEqual(r["Medium"], medium)

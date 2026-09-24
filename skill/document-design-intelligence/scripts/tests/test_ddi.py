@@ -368,6 +368,8 @@ class TestHandoffEndToEndOnRealData(unittest.TestCase):
                 _, values = self._section_values(
                     self._sections(self._handoff(doctype)), "palette ")
                 for line in values:
+                    if line.startswith(("text-safe roles", "fill-only roles", "instruction:")):
+                        continue  # research/90 F3: role-usage lines follow the hex lines
                     self.assertRegex(line, r"^[A-Za-z ]+: #[0-9A-Fa-f]{6}$", line)
 
     def test_constraint_set_keys_line_names_the_sets(self):
@@ -637,7 +639,9 @@ class TestPdfHandoffCarriesTypeScaleAndPalette(unittest.TestCase):
         self.assertTrue(size_lines and all("pt" in l for l in size_lines), size_lines)
         _, palette_lines = self._section_values(sections, "palette ")
         self.assertTrue(
-            palette_lines and all(re.match(r"^[A-Za-z ]+: #[0-9A-Fa-f]{6}$", l) for l in palette_lines),
+            palette_lines and all(re.match(r"^[A-Za-z ]+: #[0-9A-Fa-f]{6}$", l)
+                                  or l.startswith(("text-safe roles", "fill-only roles", "instruction:"))
+                                  for l in palette_lines),
             palette_lines)
 
     def test_poster_pdf_gets_sizes_headings_and_palette(self):

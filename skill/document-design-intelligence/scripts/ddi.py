@@ -522,8 +522,6 @@ HANDOFF_EXCLUSIONS = {
     "palettes": {fmt: {
         "Display Name": _IDENTITY, "Keywords": _IDENTITY, "Brand Scope": _IDENTITY,
         "Category Marker Roles": "not yet wired: backlog palettes columns (research/66 S2 DEFECT)",
-        "Fill-Only Roles": "not yet wired: backlog palettes columns (research/66 S2 DEFECT)",
-        "Text-Safe Roles": "not yet wired: backlog palettes columns (research/66 S2 DEFECT)",
         "Muted": "not yet wired: backlog palettes columns (research/66 S2 DEFECT)",
         "On Accent": "not yet wired: backlog palettes columns (research/66 S2 DEFECT)",
         "On Muted": "not yet wired: backlog palettes columns (research/66 S2 DEFECT)",
@@ -596,23 +594,15 @@ HANDOFF_EXCLUSIONS = {
             "Best For": _IDENTITY, "Brand Scope": _IDENTITY, "Display Name": _IDENTITY, "Keywords": _IDENTITY,
             "Scale Key": _ROUTING,
             "Category Contrast": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
-            "Embedding Licence": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
             "Family Count": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
             "Has Tabular Figures": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
             "Mono Family": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
             "Safe Stack Availability": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
-            "Body Family": "not applicable: docx's only render target (docx-office) is "
-                          "safe-stack; the embed branch's family columns are unreachable "
-                          "with today's data",
-            "Heading Family": "not applicable: docx's only render target (docx-office) is "
-                             "safe-stack; the embed branch's family columns are unreachable "
-                             "with today's data",
         },
         "pptx": {
             "Best For": _IDENTITY, "Brand Scope": _IDENTITY, "Display Name": _IDENTITY, "Keywords": _IDENTITY,
             "Scale Key": _ROUTING,
             "Category Contrast": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
-            "Embedding Licence": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
             "Family Count": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
             "Has Tabular Figures": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
             "Mono Family": "not yet wired: backlog typefaces columns (research/66 S2 DEFECT)",
@@ -923,6 +913,71 @@ def _doc_style_lines(resolved):
     return lines
 
 
+
+#: research/90 F10: fonts are named for EVERY docx/pptx handoff, even when the doctype has no
+#: render target of that format (flyers, invoices: pdf-only), using the format's default rule.
+#: pptx embeds only when the typeface's licence allows it (the library's `installable` and
+#: `editable` values); anything else, including a brand kit's `unknown`, falls back.
+DEFAULT_FONT_RULE = {"docx": "safe-stack", "pptx": "embed"}
+EMBED_LICENCES = {"installable", "editable"}
+
+
+def _font_lines_for(resolved, fmt):
+    """The `fonts:` block of the docx/pptx handoff (research/90 F10)."""
+    v = HANDOFF_VOCAB
+    typeface_row = _first_row(resolved, v["typeface_table"])
+    render_rows = [r for r in resolved.get(v["render_target_table"], [])
+                   if r.get(v["render_target_format_column"]) == fmt]
+    lines = ["  fonts: (embed vs. safe-stack per render target's Font Rule)"]
+    if not typeface_row:
+        return lines + [f"    {NOT_PRESENT}"]
+    entries = [(r.get(v["render_target_engine_column"], ""), r.get(v["render_target_font_rule_column"], ""))
+               for r in render_rows]
+    if not entries:
+        entries = [(f"no {fmt} render target for this doctype", DEFAULT_FONT_RULE.get(fmt, "safe-stack"))]
+        lines.append(f"    note: this doctype has no {fmt} render target; the default {fmt} font "
+                     f"rule ({entries[0][1]}) is applied")
+    licence = typeface_row.get("Embedding Licence", "")
+    for engine, rule in entries:
+        why = ""
+        if fmt == "pptx" and rule == "embed" and licence not in EMBED_LICENCES:
+            rule, why = "safe-stack", (f"  [Embedding Licence '{licence or 'unknown'}' does not allow "
+                                       "embedding; safe-stack fallback instead]")
+        if rule == "embed":
+            families = " / ".join(
+                typeface_row.get(c, "") for c in v["typeface_family_columns"] if typeface_row.get(c, ""))
+            lines.append(f"    {engine} ({rule}): {families or NOT_PRESENT}")
+        else:
+            heading_fallback = typeface_row.get(v["typeface_fallback_column"], "")
+            body_fallback = typeface_row.get(v["typeface_body_fallback_column"], "")
+            brand = " / ".join(
+                typeface_row.get(c, "") for c in v["typeface_family_columns"] if typeface_row.get(c, ""))
+            if heading_fallback or body_fallback:
+                lines.append(f"    {engine} ({rule}): headings {heading_fallback or NOT_PRESENT} "
+                             f"/ body {body_fallback or heading_fallback or NOT_PRESENT}"
+                             f"  (brand fonts {brand}: install them or accept the fallback){why}")
+            else:
+                lines.append(f"    {engine} ({rule}): {NOT_PRESENT}{why}")
+    return lines
+
+
+def _palette_usage_lines(palette_row):
+    """research/90 F3: which palette roles may carry text and which are fills only, in EVERY
+    handoff format, so a renderer never sets text in a fill-only brand colour."""
+    if not palette_row:
+        return []
+    safe = [t for t in palette_row.get("Text-Safe Roles", "").split(";") if t]
+    fill = [t for t in palette_row.get("Fill-Only Roles", "").split(";") if t]
+    if not safe and not fill:
+        return []
+    lines = [f"    text-safe roles (may carry text on Background): {', '.join(safe) or 'none'}",
+             f"    fill-only roles: {', '.join(fill) or 'none'}"]
+    if fill:
+        lines.append("    instruction: never set text in a fill-only role; use it for fills, "
+                     "blocks and large marks only")
+    return lines
+
+
 def _build_docx_lines(resolved, language):
     v = HANDOFF_VOCAB
     lines = []
@@ -944,30 +999,7 @@ def _build_docx_lines(resolved, language):
         lines.append(f"    {NOT_PRESENT}")
 
     typeface_row = _first_row(resolved, v["typeface_table"])
-    render_rows = [r for r in resolved.get(v["render_target_table"], [])
-                   if r.get(v["render_target_format_column"]) == "docx"]
-    # research/66 D8: docx printed both the family columns AND the safe-stack
-    # fallback unconditionally -- pdf/png already branch on the render target's
-    # own Font Rule (embed vs. safe-stack); this matches that.
-    lines.append("  fonts: (embed vs. safe-stack per render target's Font Rule)")
-    if typeface_row and render_rows:
-        for row in render_rows:
-            engine = row.get(v["render_target_engine_column"], "")
-            rule = row.get(v["render_target_font_rule_column"], "")
-            if rule == "embed":
-                families = " / ".join(
-                    typeface_row.get(c, "") for c in v["typeface_family_columns"] if typeface_row.get(c, ""))
-                lines.append(f"    {engine} ({rule}): {families or NOT_PRESENT}")
-            else:
-                heading_fallback = typeface_row.get(v["typeface_fallback_column"], "")
-                body_fallback = typeface_row.get(v["typeface_body_fallback_column"], "")
-                if heading_fallback or body_fallback:
-                    lines.append(f"    {engine} ({rule}): headings {heading_fallback or NOT_PRESENT} "
-                                 f"/ body {body_fallback or heading_fallback or NOT_PRESENT}")
-                else:
-                    lines.append(f"    {engine} ({rule}): {NOT_PRESENT}")
-    else:
-        lines.append(f"    {NOT_PRESENT}")
+    lines.extend(_font_lines_for(resolved, "docx"))
 
     scale_rows = resolved.get(v["type_scale_table"], [])
     lines.append("  font sizes (docx-js half-points -- OOXML `sz` / docx `size`; UNSOURCED "
@@ -1003,6 +1035,7 @@ def _build_docx_lines(resolved, language):
                 shown = True
         if not shown:
             lines.append(f"    {NOT_PRESENT}")
+        lines.extend(_palette_usage_lines(palette_row))
     else:
         lines.append(f"    {NOT_PRESENT}")
 
@@ -1038,30 +1071,7 @@ def _build_pptx_lines(resolved, language):
         lines.append(f"    {PPTX_DEFAULT_LAYOUT_NAME}: {PPTX_DEFAULT_LAYOUT_IN[0]}in x {PPTX_DEFAULT_LAYOUT_IN[1]}in")
 
     typeface_row = _first_row(resolved, v["typeface_table"])
-    render_rows = [r for r in resolved.get(v["render_target_table"], [])
-                   if r.get(v["render_target_format_column"]) == "pptx"]
-    # research/66 D8: pptx printed both the family columns AND the safe-stack
-    # fallback unconditionally -- pdf/png already branch on the render target's
-    # own Font Rule (embed vs. safe-stack); this matches that.
-    lines.append("  fonts: (embed vs. safe-stack per render target's Font Rule)")
-    if typeface_row and render_rows:
-        for row in render_rows:
-            engine = row.get(v["render_target_engine_column"], "")
-            rule = row.get(v["render_target_font_rule_column"], "")
-            if rule == "embed":
-                families = " / ".join(
-                    typeface_row.get(c, "") for c in v["typeface_family_columns"] if typeface_row.get(c, ""))
-                lines.append(f"    {engine} ({rule}): {families or NOT_PRESENT}")
-            else:
-                heading_fallback = typeface_row.get(v["typeface_fallback_column"], "")
-                body_fallback = typeface_row.get(v["typeface_body_fallback_column"], "")
-                if heading_fallback or body_fallback:
-                    lines.append(f"    {engine} ({rule}): headings {heading_fallback or NOT_PRESENT} "
-                                 f"/ body {body_fallback or heading_fallback or NOT_PRESENT}")
-                else:
-                    lines.append(f"    {engine} ({rule}): {NOT_PRESENT}")
-    else:
-        lines.append(f"    {NOT_PRESENT}")
+    lines.extend(_font_lines_for(resolved, "pptx"))
 
     scale_rows = resolved.get(v["type_scale_table"], [])
     lines.append("  font sizes (pptxgenjs pt -- research/23 pptx:561-564,576, no conversion):")
@@ -1092,6 +1102,7 @@ def _build_pptx_lines(resolved, language):
                 shown = True
         if not shown:
             lines.append(f"    {NOT_PRESENT}")
+        lines.extend(_palette_usage_lines(palette_row))
     else:
         lines.append(f"    {NOT_PRESENT}")
 
@@ -1190,6 +1201,7 @@ def _build_pdf_lines(resolved, language):
                 shown = True
         if not shown:
             lines.append(f"    {NOT_PRESENT}")
+        lines.extend(_palette_usage_lines(palette_row))
     else:
         lines.append(f"    {NOT_PRESENT}")
 
@@ -1286,6 +1298,7 @@ def _build_png_lines(resolved, language):
                 shown = True
         if not shown:
             lines.append(f"    {NOT_PRESENT}")
+        lines.extend(_palette_usage_lines(palette_row))
     else:
         lines.append(f"    {NOT_PRESENT}")
 
@@ -1638,9 +1651,13 @@ def cmd_designs(argv):
 
 def _library_key_values(table_name, row):
     if table_name == "palettes":
-        return [f"Primary: {row.get('Primary', '') or NOT_PRESENT}",
-                f"Accent: {row.get('Accent', '') or NOT_PRESENT}",
-                f"Background: {row.get('Background', '') or NOT_PRESENT}"]
+        # research/90 F9: every role a brand.md needs (primary, secondary, accent, background,
+        # foreground, muted), so a builder copies one row without opening the CSV
+        roles = [f"{r}: {row.get(r, '') or NOT_PRESENT}"
+                 for r in ("Primary", "Secondary", "Accent", "Background", "Foreground", "Muted")]
+        usage = [f"Text-Safe Roles: {row.get('Text-Safe Roles', '') or NOT_PRESENT}",
+                 f"Fill-Only Roles: {row.get('Fill-Only Roles', '') or 'none'}"]
+        return roles + usage
     if table_name == "typefaces":
         return [f"Heading Family: {row.get('Heading Family', '') or NOT_PRESENT}",
                 f"Body Family: {row.get('Body Family', '') or NOT_PRESENT}",

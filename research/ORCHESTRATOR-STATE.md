@@ -207,3 +207,4 @@ This file is the live checklist. It is updated and committed after every milesto
   Repo Keeper uses file mtime age instead. Wave 2 woken: Design Researcher 2 (quote), bg brochure/flyer/memo/form second
   coder, bg report/poster recode. DR3 + Opus Reviewer stay idle until invoice/letter/report/poster recodes finish.
 - 2026-09-24 Repo Keeper: letter + cover-letter GitHub L1 corpora (C31/C32 applied).
+- 2026-09-24 Repo Keeper: R6 brand-kit fixes per research/90 (verified in clean worktree).
