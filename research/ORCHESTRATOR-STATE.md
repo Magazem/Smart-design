@@ -210,3 +210,7 @@ This file is the live checklist. It is updated and committed after every milesto
 - 2026-09-24 Repo Keeper: R6 brand-kit fixes per research/90 (verified in clean worktree).
 - 2026-09-24 Repo Keeper: proposal GitHub L1 corpus.
 - 2026-09-24 Repo Keeper: quote corpus (corroboration only).
+- PROPOSAL GATE PASSED (proposal-agreement.md): identity columns 1.0, heading 0.80, colour 1.0, header 1.0, admissible 1.0
+  (n=10 GitHub ids; the 2 MS ids are a corroboration corpus). Variants rules_boxes/density dropped from filling.
+  Proposal now joins the fill queue (fill_family.py when Skill Implementer lands it).
+- 2026-09-24 Repo Keeper: proposal second coder + agreement (gate passes).
