@@ -174,3 +174,10 @@ This file is the live checklist. It is updated and committed after every milesto
   not gated. R6 fix task queued for Implementer after R5 fixes (rulings in task). HIGH F1 (families have 1 design)
   is Phase 4's job. C28: routing/address/metadata blocks never make columns in any family (memo MSM:006/OLM:009 -> 1).
 - 2026-09-24 Repo Keeper: reviews R5/R6, memo A1 pool, 82a C28 (docs only).
+- *** RELEASE BAR ADOPTED (research/91-family-status.md, orchestrator ruling 2026-09-24) *** v0.5.0 ships when:
+  cv loaded; deck, invoice, letter, report, poster gated (or failing feature dropped + disclosed) and filled;
+  quote<-invoice and whitepaper<-report borrowed (82b A5); every other family = seed + whatever passed, shortfall
+  disclosed; R5 F1-F3 + R6 F2/F3/F6 fixed; full suite green; P6.5 trial run + scored; fresh release zip.
+  Deferred to v0.5.x: cover-letter + proposal GitHub corpora, IIB extension. Independence roster: Opus Reviewer is
+  excluded from invoice and has worked-example exposure on deck/invoice/letter/cover-letter (no second-coder role there).
+- 2026-09-24 Repo Keeper: research/91 family status + release bar, form authorities, 82a C29 (docs only).

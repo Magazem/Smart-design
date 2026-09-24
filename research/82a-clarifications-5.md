@@ -20,3 +20,7 @@ C28 (extends C22a to all families, 2026-09-24) Routing / address / metadata bloc
     family, wherever they sit. `columns` counts running body text only. Applies to memo (MSM:006, OLM:009 -> 1),
     invoice, quote and any family coded later; already-coded items affected only by this rule are recoded in place
     with a note.
+C29 (form, 2026-09-24) Thresholds are applied LITERALLY at the boundary (S >= 0.20 is chromatic, including exactly
+    0.2000): NHS codes 1|sans|one-accent|box as coded; the grey-reading is kept only as the disclosed sensitivity.
+    C7 (all-cells table) targets DATA tables; a grid of answer boxes on a form is field style `box`, not C7
+    (ABS contact grid admissible).
