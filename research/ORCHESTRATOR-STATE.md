@@ -203,3 +203,7 @@ This file is the live checklist. It is updated and committed after every milesto
   coder (ab50711954cfbe31e, was at flyer images), bg report/poster recode (a8f9613b3136549de children; tmp-rprc/),
   Design Researcher 3 + Opus Reviewer (second coders; waiting on recodes anyway).
 - 2026-09-24 Repo Keeper: deck recode (82a-deck) + letter/cover-letter/proposal recodes (82a-general).
+- c9e9d8f (docs): deck recode, letter/cover-letter/proposal recodes. USER REJECTED `sleep 60` stability checks ->
+  Repo Keeper uses file mtime age instead. Wave 2 woken: Design Researcher 2 (quote), bg brochure/flyer/memo/form second
+  coder, bg report/poster recode. DR3 + Opus Reviewer stay idle until invoice/letter/report/poster recodes finish.
+- 2026-09-24 Repo Keeper: letter + cover-letter GitHub L1 corpora (C31/C32 applied).
