@@ -208,3 +208,4 @@ This file is the live checklist. It is updated and committed after every milesto
   coder, bg report/poster recode. DR3 + Opus Reviewer stay idle until invoice/letter/report/poster recodes finish.
 - 2026-09-24 Repo Keeper: letter + cover-letter GitHub L1 corpora (C31/C32 applied).
 - 2026-09-24 Repo Keeper: R6 brand-kit fixes per research/90 (verified in clean worktree).
+- 2026-09-24 Repo Keeper: proposal GitHub L1 corpus.
