@@ -163,3 +163,14 @@ This file is the live checklist. It is updated and committed after every milesto
 - 2026-09-24 Repo Keeper: proposal MS + report MS corpora; 82a round 5.
 - 2026-09-24 Repo Keeper: P6.5 harness research/p65 committed (10 passed; not yet run against a model).
 - 2026-09-24 Repo Keeper: flyer MS recount under 82b, poster MS P.4, 82a C27.
+- 2026-09-24: third limit reset. Last commit 02eed1e. Resumed bg: cv F.c fill (partial on disk; will repoint
+  cv-editorial fixtures), invoice/letter+cover-letter/brochure+flyer+memo+form header+colour recoders (82a-general).
+  All 6 teammates re-queued via team_interrupt_agent. Big uncommitted set (cv fill + brand-kit guide + make_brand_kit
+  fallback fix) -> ONE combined Repo Keeper job when cv fill + Implementer both report green.
+- research/89 (R5 resolver review) done: HIGH F1 old brand kits break ALL queries (new nullable column), F2 "letter paper",
+  F3 name particles trigger language. Fix task queued for Implementer (after font-fallback task) with rulings in the task.
+- research/90 (R6 brand-kit review): tooling works end to end, but: brand colour failing contrast not surfaced,
+  handoff lacks text-safe roles, bilingual brands unreachable, invisible derived hairlines, medium contrast thresholds
+  not gated. R6 fix task queued for Implementer after R5 fixes (rulings in task). HIGH F1 (families have 1 design)
+  is Phase 4's job. C28: routing/address/metadata blocks never make columns in any family (memo MSM:006/OLM:009 -> 1).
+- 2026-09-24 Repo Keeper: reviews R5/R6, memo A1 pool, 82a C28 (docs only).

@@ -15,3 +15,8 @@ C27 (answers flyer/poster question, 2026-09-24) An A1 pool (several catalogues e
     then pool). The pool must reach >=10 on-topic items AFTER dedup, else it stays corroboration-only.
     Flyer pool (LO + Typst + GH flyer/typst) and poster pool (MS 8 + Typst 8) are assembled by the GitHub
     worker, who alone can dedup against GitHub items.
+C28 (extends C22a to all families, 2026-09-24) Routing / address / metadata blocks — sender, recipient, TO/FROM/
+    CC/DATE/SUBJECT, issuer, bill-to/ship-to, reference/number/date panels — NEVER make a column or sidebar in ANY
+    family, wherever they sit. `columns` counts running body text only. Applies to memo (MSM:006, OLM:009 -> 1),
+    invoice, quote and any family coded later; already-coded items affected only by this rule are recoded in place
+    with a note.
