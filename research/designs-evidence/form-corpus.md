@@ -99,3 +99,6 @@ Order 2 vs 3 is decided by key alphabetical, since both have one source (`…one
 - **ABS is the first print-form authority.** It addresses Fm.5's caveat that the existing authorities are screen-only. It still prescribes **boxed** answer spaces (0.5 pt) with dotted eye-guide lines, not underline fields. Evidence for `underline` remains absent from every authority read.
 - DSFR and AGDS/GOLD (82b §1f: 403/timeout) were not retried; they are outside this task's list.
 - Bias: four public-sector sources (US, UK ×2, Australia), English. ABS measurements are tuned to its scanning software ("Your measurements may differ"). Authority is not popularity (§13).
+
+### Fm.8.7 Orchestrator ruling C29 (2026-09-24), recorded
+Thresholds are literal at the boundary. NHS stays `1|sans|one-accent|box` (the grey reading is a disclosed sensitivity only). The ABS contact grid counts as answer boxes (field style `box`), not a C7 table. **Form ships 3 authority designs** (Fm.8.5 order).
