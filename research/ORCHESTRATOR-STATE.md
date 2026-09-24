@@ -192,3 +192,7 @@ This file is the live checklist. It is updated and committed after every milesto
   Second coders for brochure/flyer/memo/form: fresh bg agent (seeds "82a:<family>").
 - 2026-09-24 Repo Keeper: RELEASE-NOTES v0.5.0 draft; docs: infographic, memo corpus, brochure/flyer/form/memo recodes (82a-general), 82a C30/C31.
 - 2026-09-24 Repo Keeper: R5 resolver fixes per research/89 (verified in clean worktree).
+- ROSTER update: Design Researcher 3 clean on invoice + cover-letter; on letter exposed to MSL:001-004 first-round codes
+  only -> may second-code letter with a C12 sensitivity run excluding MSL:001-004. Memo pool now N=12 (Overleaf memo
+  template via A4). C32 (faint watermarks) ruled.
+- 2026-09-24 Repo Keeper: 82b corpora set (one-pager corroboration, memo updates) + 82a C32.

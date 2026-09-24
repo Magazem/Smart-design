@@ -32,3 +32,9 @@ C31 (cover-letter on-topic test, 2026-09-25) The cover-letter family = letters a
     letter / job application letter. Journal/manuscript-submission cover letters are a different document (academic
     correspondence): they are OFF-TOPIC for cover-letter and cross-listed to `letter` (82b A4). A corpus walk that
     loses items to this test continues down the ranking to restore N=40 on-topic, per §3.
+C32 (faint watermarks, 2026-09-25) A single faint watermark (seal, crest, "DRAFT") behind running text is NOT A3
+    "busy fill" when BOTH hold, measured with lib/color.contrast_ratio: (a) watermark vs page background <= 1.3:1,
+    and (b) body text vs the watermark-tinted area >= 4.5:1. Such items are admissible; the watermark is ignored for
+    colour use (like editor artefacts, C20) and is never reproduced in filling. Either test failing -> A3 stands.
+    "DRAFT" stamps are editor artefacts and always ignored. Journal reviewer-response letters stay on-topic for
+    letter (correspondence), disclosed.

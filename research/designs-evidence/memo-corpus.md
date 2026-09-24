@@ -112,3 +112,31 @@ MS = Microsoft's editorial Word selection, decorative (5 of 7 carry header/foote
 
 ### M.6.7 Second coder (82a C10/C11; 82a-general D.6: ordinary §7 gate)
 Ids (11): MSM:001-007, OLM:002, OLM:008, OLM:009, OLM:010, in `memo-items-pool.csv`. For Overleaf, the csv preview_url is the template page, because the image URL is signed and expires. The family-wide sample is drawn by the orchestrator after the GitHub memos are merged. The authorities (MA:001-002) are not sampled.
+
+
+## M.7 A4 addition: Overleaf "Memo Template" found via `tagged/handout` (Design Researcher 3, 2026-09-24)
+
+Orchestrator ruling (2026-09-24): add the item to the memo pool **if** it passes the memo on-topic test. It was found during the one-pager sweep (`one-pager-corpus.md` OP.5). Overleaf lists it under `tagged/handout`, and its own tags are formal-letter, handout, newsletter and research-diary. It is **not** tagged `memo`, so the M.6 tag query did not return it.
+
+- **On-topic test (M.6.1, unchanged):** title "Memo Template"; description "this simple memo template is perfect for communicating either internally within an organization or with outside partners"; page 1 is the memo (To/From/Subject/Date, then body). It **passes**, and it is not a duplicate of any pool item.
+- Fetched: [https://www.overleaf.com/latex/templates/memo-template/xfgfwnxzcgkf](https://www.overleaf.com/latex/templates/memo-template/xfgfwnxzcgkf), HTTP 200. The preview is the page-1 image `writelatex.s3.amazonaws.com/published_ver/2324.jpeg` (signed URL, 794×1123), kept in the temp dir.
+
+| id | source | template | columns | head | body | colour | header | rules | dens | adm | header-note | colour-note |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| OLH:001 | Overleaf tagged/handout (A4) | [Memo Template](https://www.overleaf.com/latex/templates/memo-template/xfgfwnxzcgkf) | 1 | serif | serif | mono | ruled | rules | standard | y | Overleaf logo top-right excluded (B1b); title = first header line "To:" (all header lines the same size); rule y=316 (`hlines.py`) spans 76% of page and ≈100% of live width (x 96-697), directly below the Date line and above the first body paragraph, no text between | bg white; the green Overleaf logo is excluded (B1b); black text only → 0 clusters |
+
+Admissible: no A1-A8 hit (one serif family; black on white).
+
+### M.7.1 Recomputed frequency (supersedes M.6.4; the pool becomes MS 7 + Overleaf 5 = **N = 12**)
+Ranking Metric: `prevalence:pool(ms-create-memos+overleaf-memo):k/12`. Script output:
+
+| archetype `columns\|heading\|colour\|header` | k | share = k/12 | exemplars | sources |
+|---|---|---|---|---|
+| `1\|serif\|mono\|ruled` | 4 | 4/12 = 0.333 | MSM:002, OLM:002, OLM:008, OLH:001 | MSM+OLH+OLM |
+| `1\|sans\|one-accent\|plain-left` | 3 | 3/12 = 0.250 | MSM:001, MSM:006, OLM:010 | MSM+OLM |
+| `1\|sans\|one-accent\|ruled` | 2 | 2/12 = 0.167 | MSM:004, MSM:007 | MSM |
+| `1\|serif\|fill-blocks\|plain-left` | 1 | 1/12 = 0.083 | MSM:003 | MSM |
+| `1\|sans\|fill-blocks\|ruled` | 1 | 1/12 = 0.083 | MSM:005 | MSM |
+| `1\|sans\|multi\|plain-left` | 1 | 1/12 = 0.083 | OLM:009 | OLM |
+
+N=12 admissible=12 distinct=6 k>=2=3 singletons=3. The M.6.4 tie at 3/11 is broken: `1|serif|mono|ruled` now leads with 4/12 (MS 1 + Overleaf 3). Coarsening is still not triggered (12 admissible < 15). The GitHub memos are still to be merged by the GitHub worker. `memo-items-pool.csv` now has 12 rows (OLH:001 preview_url = the template page, because the image URL is signed).
