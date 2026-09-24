@@ -11,3 +11,16 @@ OLM:008,Sample Policy Memo for Cornell INFO 1200,https://www.overleaf.com/latex/
 OLM:009,SINTEF Project Memo,https://www.overleaf.com/latex/templates/sintef-project-memo/ttnmmkyprcdf,https://www.overleaf.com/latex/templates/sintef-project-memo/ttnmmkyprcdf
 OLM:010,SINTEF Memo,https://www.overleaf.com/latex/templates/sintef-memo/yzjhpwzywbwm,https://www.overleaf.com/latex/templates/sintef-memo/yzjhpwzywbwm
 OLH:001,Memo Template,https://www.overleaf.com/latex/templates/memo-template/xfgfwnxzcgkf,https://www.overleaf.com/latex/templates/memo-template/xfgfwnxzcgkf
+GM:001,nogula/tufte-memo,https://github.com/nogula/tufte-memo,https://raw.githubusercontent.com/nogula/tufte-memo/main/thumbnail.png
+GM:002,tonguetoquill/typst-usaf-memo,https://github.com/tonguetoquill/typst-usaf-memo,https://raw.githubusercontent.com/tonguetoquill/typst-usaf-memo/main/thumbnail.png
+GM:003,christopherkenny/ctk-memo,https://github.com/christopherkenny/ctk-memo,https://raw.githubusercontent.com/christopherkenny/ctk-memo/main/template_1.png
+GM:005,hagenlauer/memo-template,https://github.com/hagenlauer/memo-template,https://raw.githubusercontent.com/hagenlauer/memo-template/master/example.pdf
+GM:006,trentonknight/CG_MEMO_TEMPLATE,https://github.com/trentonknight/CG_MEMO_TEMPLATE,https://raw.githubusercontent.com/trentonknight/CG_MEMO_TEMPLATE/master/CGmemoTemp.pdf
+GM:007,CBMM/cbmm-memo-cover,https://github.com/CBMM/cbmm-memo-cover,https://raw.githubusercontent.com/CBMM/cbmm-memo-cover/master/cover.pdf
+GM:011,yuta-ubiquitous/latex_template_memo,https://github.com/yuta-ubiquitous/latex_template_memo,https://raw.githubusercontent.com/yuta-ubiquitous/latex_template_memo/master/template_memo.pdf
+GM:012,cculpepper/EETechMemoTemplate,https://github.com/cculpepper/EETechMemoTemplate,https://raw.githubusercontent.com/cculpepper/EETechMemoTemplate/github/template.pdf
+GM:013,flpvr/LaTeX-Legal-Memo,https://github.com/flpvr/LaTeX-Legal-Memo,https://raw.githubusercontent.com/flpvr/LaTeX-Legal-Memo/master/Legal%20memo.pdf
+GM:015,noaa-ocs-modeling/TechMemoTemplate,https://github.com/noaa-ocs-modeling/TechMemoTemplate,https://raw.githubusercontent.com/noaa-ocs-modeling/TechMemoTemplate/main/examples/TechMemoTemplate.pdf
+GM:017,uksrc/uksrc-memo-template,https://github.com/uksrc/uksrc-memo-template,https://raw.githubusercontent.com/uksrc/uksrc-memo-template/main/uksrc-memo-example.pdf
+GM:021,andreschwerz/ata-memorando-utfpr-latex-template,https://github.com/andreschwerz/ata-memorando-utfpr-latex-template,https://raw.githubusercontent.com/andreschwerz/ata-memorando-utfpr-latex-template/master/memo.pdf
+GM:023,yuan-sq/MCM-letter-template,https://github.com/yuan-sq/MCM-letter-template,https://raw.githubusercontent.com/yuan-sq/MCM-letter-template/main/assets/demo/memo-preview-01.png

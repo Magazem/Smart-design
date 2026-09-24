@@ -216,3 +216,4 @@ This file is the live checklist. It is updated and committed after every milesto
 - 2026-09-24 Repo Keeper: proposal second coder + agreement (gate passes).
 - 2026-09-24 Repo Keeper: poster A1 pool (N=15) + flyer pool (7, corroboration).
 - 2026-09-24 Repo Keeper: invoice recode under 82a-general.
+- 2026-09-24 Repo Keeper: fill_family.py engine + pptx embed constraint fix + memo GitHub pool + C33 (verified in clean worktree).

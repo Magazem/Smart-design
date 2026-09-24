@@ -140,3 +140,63 @@ Ranking Metric: `prevalence:pool(ms-create-memos+overleaf-memo):k/12`. Script ou
 | `1\|sans\|multi\|plain-left` | 1 | 1/12 = 0.083 | OLM:009 | OLM |
 
 N=12 admissible=12 distinct=6 k>=2=3 singletons=3. The M.6.4 tie at 3/11 is broken: `1|serif|mono|ruled` now leads with 4/12 (MS 1 + Overleaf 3). Coarsening is still not triggered (12 admissible < 15). The GitHub memos are still to be merged by the GitHub worker. `memo-items-pool.csv` now has 12 rows (OLH:001 preview_url = the template page, because the image URL is signed).
+
+
+## M.8 GitHub memos added to the pool (Design Researcher, 2026-09-24; 82b A1, 82a C27)
+Search (sole GitHub-API user, one call each, 8 s apart, `curl -s -A smart-design-research`, sort stars desc, per_page 100; retrieved 2026-09-24): `memo+typst` (total_count 15), `memo+template+typst` (6), `memorandum+template` (12), `memo+template+latex` (36). Union of distinct repos returned: 59; on-topic memo-template candidates: 23; **codeable (preview at the source, C2/C3): 13; uncodeable 10 (reasons below)**. Off-topic (not candidates): Spanish/French "memoria/mémoire" thesis templates, LaTeX `memoir` class books, memory-game and similar, HTML e-mail and credit-memo generators. Previews: README `thumbnail.png` / committed example PDF (page 1 rendered at 80 dpi, temp dir) as in poster/report corpora.
+Dedup against `memo-items-pool.csv` (MS Create memos, Overleaf `tagged/memo` and `tagged/handout`): none of the 13 is a duplicate (no MS/Overleaf item shares repo or template; Typst Universe `tufte-memo` is the same package as GM:001 and is counted once).
+Coding: 82 section 4 with header/colour per research/82a-general.md and C28 (routing blocks are never columns); thumbnails/page-1 renders; contrast values are estimates (C9). Ranking Metric string for the enlarged pool: `prevalence:pool(ms-create-memos+overleaf-memo+github-memo):k/25`. Ids `GM:<repo order>`; items file: `memo-items-pool.csv` (13 rows appended).
+
+### M.8.1 Coded GitHub items
+| id | repo | stars | columns | head | body | colour | header | rules | dens | adm | note | preview |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| GM:001 | [nogula/tufte-memo](https://github.com/nogula/tufte-memo) | 44 | 2-sidebar | sans | serif | mono | plain-left | none | standard | y | Tufte-style usage guide (memo template demo): title + author/role block left, margin sidenotes = narrow secondary column (2-sidebar); no rule; dark text only | https://raw.githubusercontent.com/nogula/tufte-memo/main/thumbnail.png |
+| GM:002 | [tonguetoquill/typst-usaf-memo](https://github.com/tonguetoquill/typst-usaf-memo) | 10 | 1 | serif | serif | one-accent | plain-centered | none | standard | y | AF 33-337 memo: centred blue org lines (seal excluded), MEMORANDUM FOR / FROM routing blocks (C28, not columns); blue org text x2 + blue link = one cluster | https://raw.githubusercontent.com/tonguetoquill/typst-usaf-memo/main/thumbnail.png |
+| GM:003 | [christopherkenny/ctk-memo](https://github.com/christopherkenny/ctk-memo) | 1 | 1 | serif | serif | mono | ruled | rules | standard | y | centred small-caps "Research Memo" title + author; full-width rule directly above it under the running header (borderline: alternative plain-centered) | https://raw.githubusercontent.com/christopherkenny/ctk-memo/main/template_1.png |
+| GM:005 | [hagenlauer/memo-template](https://github.com/hagenlauer/memo-template) | 1 | 1 | serif | serif | mono | ruled | rules | airy | y | centred bold "Memorandum" + crest right (excluded) + To/From/Subject/Date; full-width rule under the meta block (76% of page, ~100% of live width) precedes plain-centered | https://raw.githubusercontent.com/hagenlauer/memo-template/master/example.pdf |
+| GM:006 | [trentonknight/CG_MEMO_TEMPLATE](https://github.com/trentonknight/CG_MEMO_TEMPLATE) | 1 | 1 | sans | sans | mono | plain-left | none | airy | y | USCG letterhead: logo (excluded) + address; MEMORANDUM caps title left; From/To/Subj italic labels | https://raw.githubusercontent.com/trentonknight/CG_MEMO_TEMPLATE/master/CGmemoTemp.pdf |
+| GM:007 | [CBMM/cbmm-memo-cover](https://github.com/CBMM/cbmm-memo-cover) | 1 | 1 | sans | sans | mono | ruled | rules | airy | y | CBMM memo cover page: logo + full-width rule, "CBMM Memo No." line, centred bold title/authors/abstract, footer rule + NSF logo; memo-no line counted in the header block (borderline) | https://raw.githubusercontent.com/CBMM/cbmm-memo-cover/master/cover.pdf |
+| GM:011 | [yuta-ubiquitous/latex_template_memo](https://github.com/yuta-ubiquitous/latex_template_memo) | 0 | 1 | serif | serif | mono | plain-centered | rules | airy | y | minimal Japanese-article-style memo skeleton: centred title, right-aligned author, running-head rule; low information (repo name says memo) | https://raw.githubusercontent.com/yuta-ubiquitous/latex_template_memo/master/template_memo.pdf |
+| GM:012 | [cculpepper/EETechMemoTemplate](https://github.com/cculpepper/EETechMemoTemplate) | 0 | 1 | serif | serif | mono | ruled | rules | airy | y | EEE technical memo: large left serif title, From/Partner/To/Date/Subject block, light rule under it (~100% of live width); missing-logo placeholder ignored | https://raw.githubusercontent.com/cculpepper/EETechMemoTemplate/github/template.pdf |
+| GM:013 | [flpvr/LaTeX-Legal-Memo](https://github.com/flpvr/LaTeX-Legal-Memo) | 0 | 1 | serif | serif | mono | plain-left | none | standard | y | no title: To/From/Date/RE block with right-aligned labels, block centre ~12% left of page centre; RE bold | https://raw.githubusercontent.com/flpvr/LaTeX-Legal-Memo/master/Legal%20memo.pdf |
+| GM:015 | [noaa-ocs-modeling/TechMemoTemplate](https://github.com/noaa-ocs-modeling/TechMemoTemplate) | 0 | 1 | sans | sans | mono | ruled | rules | airy | y | NOAA tech-memo cover: bold sans title with a full-width rule directly below; seal and wordmark excluded; cover only (running page not previewed) | https://raw.githubusercontent.com/noaa-ocs-modeling/TechMemoTemplate/main/examples/TechMemoTemplate.pdf |
+| GM:017 | [uksrc/uksrc-memo-template](https://github.com/uksrc/uksrc-memo-template) | 0 | 1 | serif | serif | one-accent | plain-centered | boxes | airy | y | UKSRC memo cover: logo excluded, centred navy title + magenta subtitle (1 element), all-cells metadata table with navy label cells; page 1 is a cover | https://raw.githubusercontent.com/uksrc/uksrc-memo-template/main/uksrc-memo-example.pdf |
+| GM:021 | [andreschwerz/ata-memorando-utfpr-latex-template](https://github.com/andreschwerz/ata-memorando-utfpr-latex-template) | 0 | 1 | serif | serif | mono | plain-centered | rules | dense | y | Brazilian memorando: centred institution block with logos (excluded); "Memorando No" line left + date right below it (borderline for split); header/footer rules | https://raw.githubusercontent.com/andreschwerz/ata-memorando-utfpr-latex-template/master/memo.pdf |
+| GM:023 | [yuan-sq/MCM-letter-template](https://github.com/yuan-sq/MCM-letter-template) | 0 | 1 | sans | sans | mono | plain-centered | rules | dense | n | A3 all text is set on a starfield photo background (the template option shown); preview is a macOS window mockup (ignored); centred bold title, TO/FROM/DATE meta | https://raw.githubusercontent.com/yuan-sq/MCM-letter-template/main/assets/demo/memo-preview-01.png |
+
+Uncodeable / not counted (candidate memo repos): gael-close/quarto-tech-memo (preview is a red-outlined layout collage of placeholders (C2)); jschaf/army-memos (no preview); maitagorri/TeX-memo-template (logo asset only); EIGSEP/EIGSEP-Memo-Templates (no preview); uk-gov-mirror/MetOffice.brand-latex (no preview; mixed memo/beamer branding kit); jdc-pub/technical (no preview); monaqa/typst-class-memo (no preview); jasonelaw/bes-typst-memo (letterhead asset only (not a memo page)); jnkatz/caltech-memo (no preview); trcook/latex_response_paper_template (no preview).
+
+### M.8.2 Exclusions (GitHub part)
+| id | rule | evidence |
+|---|---|---|
+| GM:023 | A3 | A3 all text is set on a starfield photo background (the template option shown); preview is a macOS window mockup (ignored); centred bold title, TO/FROM/DATE meta |
+
+GitHub part: coded 13, admissible 12, excluded 1. Stars are shown but are not a rank metric (thin/no metric: the memo pool is prevalence).
+
+### M.8.3 Recomputed frequency, enlarged pool (supersedes M.7.1): N = 25 (MS 7 + Overleaf 5 + GitHub 13)
+k counts every item of the archetype (denominator N includes inadmissible); admissible k in the third column.
+| archetype `columns\|heading\|colour\|header` | k | admissible k | share k/25 | exemplars | sources |
+|---|---|---|---|---|---|
+| `1\|serif\|mono\|ruled` | 7 | 7 | 0.280 | MSM:002, OLM:002, OLM:008, OLH:001, GM:003, GM:005, GM:012 | GM+MSM+OLH+OLM |
+| `1\|sans\|one-accent\|plain-left` | 3 | 3 | 0.120 | MSM:001, MSM:006, OLM:010 | MSM+OLM |
+| `1\|sans\|mono\|ruled` | 2 | 2 | 0.080 | GM:007, GM:015 | GM |
+| `1\|sans\|one-accent\|ruled` | 2 | 2 | 0.080 | MSM:004, MSM:007 | MSM |
+| `1\|serif\|mono\|plain-centered` | 2 | 2 | 0.080 | GM:011, GM:021 | GM |
+| `1\|serif\|one-accent\|plain-centered` | 2 | 2 | 0.080 | GM:002, GM:017 | GM |
+| `1\|sans\|fill-blocks\|ruled` | 1 | 1 | 0.040 | MSM:005 | MSM |
+| `1\|sans\|mono\|plain-left` | 1 | 1 | 0.040 | GM:006 | GM |
+| `1\|sans\|multi\|plain-left` | 1 | 1 | 0.040 | OLM:009 | OLM |
+| `1\|serif\|fill-blocks\|plain-left` | 1 | 1 | 0.040 | MSM:003 | MSM |
+| `1\|serif\|mono\|plain-left` | 1 | 1 | 0.040 | GM:013 | GM |
+| `2-sidebar\|sans\|mono\|plain-left` | 1 | 1 | 0.040 | GM:001 | GM |
+| `1\|sans\|mono\|plain-centered` | 1 | 0 | 0.040 | GM:023[x] | GM |
+
+13 distinct archetypes; admissible 24/25; archetypes with admissible k>=2: 6; singleton admissible archetypes 6. Coarsening trigger (>=15 admissible, >50% of admissible items singletons, <5 archetypes with k>=2): not triggered (admissible 24).
+Variant modes over admissible items: body [('serif', 13), ('sans', 11)]; rules [('rules', 17), ('none', 4), ('boxes', 3)]; density [('airy', 17), ('standard', 6), ('dense', 1)].
+
+### M.8.4 Bias and second-coder
+GitHub memos skew to LaTeX/Typst, military/agency and university technical memos (USAF, USCG, NOAA, SKAO, CBMM, EEE labs) and to English/Portuguese/Japanese; MS memos are Word-decorative; the pool now mixes three populations with equal item weight (prevalence, not usage). GitHub stars (44 max) are not used.
+Second-coder ids (GitHub part, C10 sample is family-wide and drawn by the orchestrator): GM:001 GM:002 GM:003 GM:005 GM:006 GM:007 GM:011 GM:012 GM:013 GM:015 GM:017 GM:021 GM:023. Pool-only sample under `random.Random("82:memo")` over all 25 ids: GM:015 GM:007 GM:012 GM:017 GM:023 GM:005 OLH:001 MSM:004 OLM:008 GM:006
+
+### M.8.5 Ambiguities
+1. GM:001 is a usage guide rendered with the template (thumbnail); sidenotes make a secondary column, coded 2-sidebar (metadata blocks never do, C28). 2. GM:003 and GM:007 header ruled is judgement-borderline (running-head rule, memo-no line). 3. GM:015/GM:017 are cover pages of a memo series; page 1 is the only preview. 4. GM:011 has almost no memo structure; kept because the repo is named as a memo template. 5. GM:021 (Portuguese memorando) is a Brazilian institutional memo; header centre vs split borderline. 6. Memo family fail constraints: none beyond A1-A8.

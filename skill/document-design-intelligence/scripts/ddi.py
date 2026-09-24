@@ -958,6 +958,13 @@ def _font_lines_for(resolved, fmt):
                              f"  (brand fonts {brand}: install them or accept the fallback){why}")
             else:
                 lines.append(f"    {engine} ({rule}): {NOT_PRESENT}{why}")
+    if fmt == "pptx":
+        # research/87 F10 / research/90 F10: the `pptx-font-embedded` check passes on embedded fonts
+        # OR a declared safe-stack fallback; python-pptx cannot embed, so say how to declare
+        lines.append("    declare: python-pptx cannot embed fonts. Using the safe-stack fallback (licence "
+                     "forbids embedding, or the renderer cannot embed)? set the deck's core property "
+                     "keywords to include `ddi-font-rule=safe-stack` (prs.core_properties.keywords); "
+                     "`pptx-font-embedded` then passes. Otherwise embed the fonts.")
     return lines
 
 

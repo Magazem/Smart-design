@@ -641,11 +641,52 @@ def _pptx_slop_facts(zf):
     }
 
 
+#: research/87 F10 / research/90 F10: python-pptx cannot embed fonts, so a bare "fonts must be
+#: embedded" check was unsatisfiable for that renderer. `pptx-font-embedded`
+#: (constraints.csv, Threshold `present-or-declared`) passes when every referenced font is
+#: embedded OR the file DECLARES the safe-stack fallback: the deck's core-properties `keywords`
+#: contain this token (python-pptx: `prs.core_properties.keywords = "ddi-font-rule=safe-stack"`),
+#: which the pptx handoff instructs whenever the typeface's licence forbids embedding or the
+#: renderer cannot embed.
+FONT_RULE_DECLARATION = "ddi-font-rule=safe-stack"
+
+
+def _pptx_font_rule_declared(zf):
+    """True if docProps/core.xml keywords (or a docProps/custom.xml property) carries the
+    safe-stack declaration."""
+    for member in ("docProps/core.xml", "docProps/custom.xml"):
+        try:
+            data = zf.read(member).decode("utf-8", "replace")
+        except KeyError:
+            continue
+        if FONT_RULE_DECLARATION in data or "ddi-font-rule" in data and "safe-stack" in data:
+            return True
+    return False
+
+
+def pptx_font_verdict(fonts, declared):
+    """The `pptx-font-embedded` verdict: PASS iff every referenced font is embedded, or the
+    safe-stack fallback is declared; FAIL only when neither holds."""
+    embedded = sum(1 for f in fonts if f["embedded"])
+    all_embedded = bool(fonts) and embedded == len(fonts)
+    if all_embedded:
+        detail = f"{embedded}/{len(fonts)} fonts embedded"
+    elif declared:
+        detail = (f"{embedded}/{len(fonts)} fonts embedded; safe-stack fallback declared "
+                  f"({FONT_RULE_DECLARATION})")
+    else:
+        detail = (f"{embedded}/{len(fonts)} fonts embedded and no `{FONT_RULE_DECLARATION}` declaration -- "
+                  "embed the fonts, or declare the safe-stack fallback")
+    return {"check": "pptx-font-embedded", "detail": detail, "pass": all_embedded or declared}
+
+
 def preflight_pptx(path):
     with zipfile.ZipFile(path) as zf:
         fonts_out = _pptx_fonts(zf)
         slop = _pptx_slop_facts(zf)
-    return {"file_type": "pptx", "fonts": fonts_out, "slop": slop}
+        declared = _pptx_font_rule_declared(zf)
+    return {"file_type": "pptx", "fonts": fonts_out, "slop": slop, "font_rule_declared": declared,
+            "verdicts": [pptx_font_verdict(fonts_out, declared)]}
 
 
 # ============ output formatting ============
@@ -731,6 +772,10 @@ def _print_human_pptx(result, path):
     print("  fonts referenced:")
     for font in result["fonts"]:
         print(f"    {font['name']}: embedded={'yes' if font['embedded'] else 'no'}")
+    print("  verdicts:")
+    for verdict in result.get("verdicts", []):
+        mark = "PASS" if verdict["pass"] else "FAIL"
+        print(f"    [{mark}] {verdict['check']}: {verdict['detail']}")
     _print_human_slop(result.get("slop"))
 
 

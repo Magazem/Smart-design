@@ -213,3 +213,14 @@ wasn't in scope for this patch.
 fail: 7 (all ATS structural FACTs, plus PPTX embedding). warn: 31 (everything CONVENTION-tagged,
 including the compounding-risk legal-text rows, which are my own judgment calls layered on
 top of report 03 rather than report-03-sourced facts).
+
+## Revision (research/87 F10, research/90 F10) -- `pptx-font-embedded` relaxed
+
+python-pptx cannot embed fonts, so a bare "`ppt/fonts/*` present" check could never pass for the
+renderer this project's own pptx handoff targets, while the `fail` severity blocked delivery. The row
+is now `Parameter target=ppt/fonts;flag=p:embeddedFont;or=declared-safe-stack`, `Threshold
+present-or-declared`, severity still `fail`: it passes when every referenced font is embedded OR the
+file declares the safe-stack fallback (core-property keywords `ddi-font-rule=safe-stack`), which the
+pptx handoff instructs when the typeface's licence forbids embedding or the renderer cannot embed.
+It fails only when neither holds. Verdict: `preflight.py` `pptx-font-embedded`
+(`scripts/tests/test_pptx_font_rule.py`).

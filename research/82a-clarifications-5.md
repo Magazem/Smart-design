@@ -38,3 +38,9 @@ C32 (faint watermarks, 2026-09-25) A single faint watermark (seal, crest, "DRAFT
     colour use (like editor artefacts, C20) and is never reproduced in filling. Either test failing -> A3 stands.
     "DRAFT" stamps are editor artefacts and always ignored. Journal reviewer-response letters stay on-topic for
     letter (correspondence), disclosed.
+C33 (corpus growth after second-coder sampling, 2026-09-25) The §7 sample is drawn from the coded ids that exist
+    when the second coder is assigned. Items added to the family afterwards by the SAME first coder under the SAME
+    rules (e.g. memo pool 11 -> 25 via Overleaf + GitHub) do not invalidate the gate: agreement measures rule
+    reliability, not corpus completeness. Disclose the sample frame and the later additions in the agreement file.
+    If a DIFFERENT first coder adds items, draw a supplementary sample (seed "82a:<family>:supp") of
+    max(3, ceil(25% of the added items)) from the additions only.

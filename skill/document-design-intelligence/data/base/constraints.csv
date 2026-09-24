@@ -18,7 +18,7 @@ deck-text-density,projection,artifact-class:canvas,validate-text-density,,words_
 deck-chart-series-max,projection,artifact-class:canvas,validate-chart-series,,max_series,7,warn
 proj-contrast-margin,projection,artifact-class:canvas,validate-contrast-screen,,wcag_ratio_min,7.0,warn
 deck-aspect-ratio-default,projection,artifact-class:canvas,validate-aspect-ratio,,ratio,16:9,warn
-pptx-font-embedded,projection,format:pptx,validate-font-embedded,,target=ppt/fonts;flag=p:embeddedFont,present,fail
+pptx-font-embedded,projection,format:pptx,validate-font-embedded,,target=ppt/fonts;flag=p:embeddedFont;or=declared-safe-stack,present-or-declared,fail
 report-measure-cpl,report-typography,artifact-class:flow,validate-measure,body-paragraph,cpl_min=45;cpl_max=75,45-75,warn
 report-leading-ratio,report-typography,artifact-class:flow,validate-leading-ratio,,ratio_min=1.20;ratio_max=1.45,1.20-1.45,warn
 report-running-heads,report-typography,artifact-class:flow,validate-running-heads,,distinct_odd_even_headers,present,warn
