@@ -1,0 +1,8 @@
+id,name,url,preview_url
+FP:LO01,LibreOffice: Real Estate Brochure/Flyer (also LOB:004),https://extensions.libreoffice.org/en/extensions/show/real-estate-brochure-flyer,https://extensions.libreoffice.org/assets/screenshots/z/real-estate-brochure-flyer_7980c33f-11a4-43ae-9cfa-9658851cdb57.png
+FP:LO02,LibreOffice: Family Picnic Flyer Template,https://extensions.libreoffice.org/en/extensions/show/family-picnic-flyer-template,https://extensions.libreoffice.org/assets/screenshots/z/family-picnic-flyer-template_7c399f0a-5d92-4660-899e-bc1a10e810ce.jpeg
+FP:LO03,"LibreOffice: A5 - Explosion pour flyer, carte, invitation",https://extensions.libreoffice.org/en/extensions/show/99197,https://extensions.libreoffice.org/assets/screenshots/1011/explosions.png
+FP:TY01,Typst Universe: impaginato,https://typst.app/universe/package/impaginato,https://packages.typst.org/preview/thumbnails/impaginato-0.1.0.webp
+FP:TY02,Typst Universe: tuhi-alumni-vuw,https://typst.app/universe/package/tuhi-alumni-vuw,https://packages.typst.org/preview/thumbnails/tuhi-alumni-vuw-0.1.0.webp
+FP:GH01,GitHub: hes-so/HEIAFR-flyer-tb-template,https://github.com/hes-so/HEIAFR-flyer-tb-template,https://raw.githubusercontent.com/hes-so/HEIAFR-flyer-tb-template/main/thumbnail.png
+FP:GH02,GitHub: royfrancis/quarto-typst-flyer,https://github.com/royfrancis/quarto-typst-flyer,https://raw.githubusercontent.com/royfrancis/quarto-typst-flyer/main/preview.webp

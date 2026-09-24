@@ -214,3 +214,4 @@ This file is the live checklist. It is updated and committed after every milesto
   (n=10 GitHub ids; the 2 MS ids are a corroboration corpus). Variants rules_boxes/density dropped from filling.
   Proposal now joins the fill queue (fill_family.py when Skill Implementer lands it).
 - 2026-09-24 Repo Keeper: proposal second coder + agreement (gate passes).
+- 2026-09-24 Repo Keeper: poster A1 pool (N=15) + flyer pool (7, corroboration).

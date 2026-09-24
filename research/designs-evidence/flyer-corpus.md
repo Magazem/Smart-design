@@ -168,3 +168,15 @@ Variant modes over the 6 admissible items: body sans 4 / serif 1 / mono 1; rules
 
 ### F.11.6 Second coder
 The family-wide sample must be redrawn by the orchestrator over the 20 ids: the 16 in F.8 plus MSFP:007, MSFP:009, MSFP:010 and MSFW:017. The F.8 sample formula over 16 ids is superseded.
+
+
+## F.12 A1 pool (82b A1 / 82a C27): LibreOffice + Typst Universe + GitHub `flyer+typst` — Design Researcher, 2026-09-24
+Task rule: the pool is coded as a corpus only if it reaches >=10 on-topic items AFTER dedup; otherwise it stays corroboration-only.
+
+Sources (all fetched 2026-09-24):
+- **LibreOffice `q=flyer`** (F.7): 4 items. On-topic for flyer: Real Estate Brochure/Flyer (title names flyer; also counted as LOB:004 in the brochure pool, cross-listed under 82b A4), Family Picnic Flyer Template, A5 - Explosion pour flyer/carte/invitation. **Dépliant en trois colonnes** is a tri-fold leaflet (brochure) and is not counted. => 3.
+- **Typst Universe** (`https://packages.typst.org/preview/index.json`, 4796 package versions, 1619 packages, 818 templates; thumbnails `https://packages.typst.org/preview/thumbnails/<name>-<version>.webp`). Category `flyer` holds 6 templates, but only **impaginato** ("A practical flyer to print and cut at home") is a flyer; basic-postcard = postcard, caidan = food menu, cram-snap / knowledge-key / simple-cheatsheet = cheat sheets (other families). A keyword scan for flyer / leaflet / handout adds **tuhi-alumni-vuw** ("alumni profile flyers", category office). => 2.
+- **GitHub `flyer+typst`** (`https://api.github.com/search/repositories?q=flyer+typst&sort=stars&order=desc&per_page=100`; total_count 5): hes-so/HEIAFR-flyer-tb-template (thumbnail.png), royfrancis/quarto-typst-flyer (preview.webp) are flyer templates with previews. Not counted: next-generation-cartographers/ngc-flyer (no preview), px-y-nakahira/typst-iop-workshop-flyer (only an `images/` dir, no preview), royfrancis/shiny-flyer (a Shiny generator app, not a fixed design: off-topic per section 3.2). => 2. Dedup against Typst Universe: neither GitHub repo is a Universe package (Universe repositories: impaginato has none, tuhi-alumni-vuw = vuw-scps/tuhi-alumni-vuw). None duplicates a MS flyer.
+- Total distinct on-topic pool members: **3 + 2 + 2 = 7 < 10**.
+
+**Verdict: the flyer A1 pool does NOT reach 10, so it is corroboration-only (not coded, no `prevalence:` string, no k/N).** Members are listed in `flyer-items-pool.csv` (7 rows: id, name, url, preview_url). The flyer family keeps its single L2 corpus (MS Create, N=20). Observation only (not coded): impaginato's thumbnail shows a two-up A5 sheet with a bold caps sans headline over justified text; tuhi-alumni-vuw's thumbnail was not viewed. Shortfall unchanged.
