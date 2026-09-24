@@ -186,3 +186,8 @@ This file is the live checklist. It is updated and committed after every milesto
   the combined commit verified in a temporary clean worktree. Resumed bg recoders (invoice, letter/cover-letter,
   brochure/flyer/memo/form, report/poster/proposal) and all 6 teammates via team_interrupt_agent.
 - 2026-09-24 Repo Keeper: combined commit cv designs (12 ranked) + brand-kit guide/example/fallbacks; verified in clean worktree.
+- INDEPENDENCE ROSTER (keep current): Opus Reviewer is EXPOSED on brochure, flyer, memo, form, invoice, deck, letter,
+  cover-letter (read codes while writing research/91 and 82a-general/82a-deck). Clean on report, poster, proposal.
+  Anyone who has read research/91-family-status.md or 82b-shortfall-sources.md is exposed on the families they quote.
+  Second coders for brochure/flyer/memo/form: fresh bg agent (seeds "82a:<family>").
+- 2026-09-24 Repo Keeper: RELEASE-NOTES v0.5.0 draft; docs: infographic, memo corpus, brochure/flyer/form/memo recodes (82a-general), 82a C30/C31.

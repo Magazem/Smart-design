@@ -24,3 +24,11 @@ C29 (form, 2026-09-24) Thresholds are applied LITERALLY at the boundary (S >= 0.
     0.2000): NHS codes 1|sans|one-accent|box as coded; the grey-reading is kept only as the disclosed sensitivity.
     C7 (all-cells table) targets DATA tables; a grid of answer boxes on a form is field style `box`, not C7
     (ABS contact grid admissible).
+C30 RATIFIED (infographic-corpus-iib.md I.8.4, 2026-09-25) Charts are MARKS, not illustrations: data-encoding
+    graphics (bars, lines, dots, maps used as data) count as §B elements/shapes and never make `image-hero`; only
+    pictorial imagery (photos, illustrations) can. Applies to every family.
+C31 (cover-letter on-topic test, 2026-09-25) The cover-letter family = letters accompanying an application
+    (job, internship, scholarship, programme admission) — the skill's doctype keywords are cover letter / motivation
+    letter / job application letter. Journal/manuscript-submission cover letters are a different document (academic
+    correspondence): they are OFF-TOPIC for cover-letter and cross-listed to `letter` (82b A4). A corpus walk that
+    loses items to this test continues down the ranking to restore N=40 on-topic, per §3.
