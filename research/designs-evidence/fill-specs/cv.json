@@ -82,6 +82,40 @@
    "Emphasis Mechanism": "weight",
    "Field Style": "none",
    "Checklist": "Keep single column;Centre the name and contact line on the page;Reserve the accent colour for the name/header only, never small print;Omit photo;Emphasize by weight and size, not colour fills"
+  },
+  {
+   "style_key": "cv-sans-accent-ruled",
+   "Display Name": "CV, sans ruled header",
+   "Keywords": "cv, resume, sans, one accent, ruled header, single column, ats-safe",
+   "Best For": "Single-column CVs with a full-width rule directly under the header block (name, title, contacts) and one restrained accent colour",
+   "Not For": "DACH tabular CVs, Europass multilingual CVs, marketing collateral",
+   "Brand Scope": "generic",
+   "Rule Hair pt": "0.5",
+   "Rule Strong pt": "1",
+   "Rule Brand pt": "1",
+   "Corner Radius mm": "0",
+   "Table Rules": "hairline",
+   "Table Fills": "none",
+   "Emphasis Mechanism": "weight",
+   "Field Style": "none",
+   "Checklist": "Keep single column;Set a full-width rule directly under the header block (name, title, contacts);Reserve the accent colour for the name/header and that rule, never small print;Omit photo;Emphasize by weight and size, not colour fills"
+  },
+  {
+   "style_key": "cv-serif-mono-split",
+   "Display Name": "CV, serif split header",
+   "Keywords": "cv, resume, serif, split header, name left contact right, single column, ats-safe",
+   "Best For": "Single-column CVs with a serif name flush left and a contact block flush right on the same header row, monochrome ink",
+   "Not For": "DACH tabular CVs, Europass multilingual CVs, marketing collateral",
+   "Brand Scope": "generic",
+   "Rule Hair pt": "0.5",
+   "Rule Strong pt": "1",
+   "Rule Brand pt": "0",
+   "Corner Radius mm": "0",
+   "Table Rules": "hairline",
+   "Table Fills": "none",
+   "Emphasis Mechanism": "weight",
+   "Field Style": "none",
+   "Checklist": "Keep single column;Set the name flush left and the contact block flush right on the same header row;Omit photo;Emphasize by weight and size, not colour;Reserve hairline rules for section dividers only"
   }
  ],
  "reasoning": {
@@ -93,60 +127,9 @@
    "Severity": "fail"
   },
   "anti_tokens": {
-   "default": "multi-column;text-box;icon-only-skill-bar;photo;graphic-timeline;emoji",
-   "no_photo": "multi-column;text-box;icon-only-skill-bar;graphic-timeline;emoji"
+   "default": "multi-column;text-box;icon-only-skill-bar;photo;graphic-timeline;emoji"
   },
-  "rows": [
-   {
-    "doc_category": "cv-serif-plain-centered",
-    "Style Key": "cv-serif-plain-centered",
-    "Palette Key": "lib-carbon-mono",
-    "Typeface Key": "safe-serif-times",
-    "Anti-Pattern Tokens": "default"
-   },
-   {
-    "doc_category": "cv-sans-accent-ruled",
-    "Style Key": "cv-europass",
-    "Palette Key": "lib-atlassian-ink",
-    "Typeface Key": "lib-roboto",
-    "Anti-Pattern Tokens": "default"
-   },
-   {
-    "doc_category": "cv-sans-mono-split",
-    "Style Key": "cv-sans-mono-split",
-    "Palette Key": "lib-carbon-mono",
-    "Typeface Key": "lib-roboto",
-    "Anti-Pattern Tokens": "no_photo"
-   },
-   {
-    "doc_category": "cv-serif-accent-plain-left",
-    "Style Key": "cv-restrained",
-    "Palette Key": "lib-atlassian-ink",
-    "Typeface Key": "safe-serif-times",
-    "Anti-Pattern Tokens": "default"
-   },
-   {
-    "doc_category": "cv-sans-accent-plain-centered",
-    "Style Key": "cv-sans-accent-plain-centered",
-    "Palette Key": "lib-atlassian-ink",
-    "Typeface Key": "lib-roboto",
-    "Anti-Pattern Tokens": "default"
-   },
-   {
-    "doc_category": "cv-serif-mono-split",
-    "Style Key": "cv-sans-accent-plain-centered",
-    "Palette Key": "lib-carbon-mono",
-    "Typeface Key": "safe-serif-times",
-    "Anti-Pattern Tokens": "default"
-   },
-   {
-    "doc_category": "cv-sans-accent-split",
-    "Style Key": "cv-sans-mono-split",
-    "Palette Key": "lib-atlassian-ink",
-    "Typeface Key": "lib-roboto",
-    "Anti-Pattern Tokens": "no_photo"
-   }
-  ]
+  "rows": []
  },
  "designs": [
   {
@@ -156,9 +139,9 @@
    "Keywords": "cv, résumé, serif, centered name, single column, restrained, ats-safe",
    "Best For": "Single-column résumés wanting a centred serif name heading with no colour-coded meaning -- the single most frequent admissible layout in the coded corpora",
    "Not For": "DACH tabular CVs, Europass multilingual CVs, slide decks, marketing collateral",
-   "Evidence Class": "ranked",
    "archetype": "1|serif|mono|plain-centered",
-   "l3": []
+   "l3": [],
+   "style_row": "cv-serif-plain-centered"
   },
   {
    "design_key": "cv-eu-europass",
@@ -167,7 +150,6 @@
    "Keywords": "cv, europass, eu, multilingual, cross-border, single column, language grid",
    "Best For": "EU cross-border or Europass-targeted CVs matching the official tool's section order and language-proficiency grid",
    "Not For": "DACH tabular CVs, editorial CVs, ATS-strict US/UK CVs",
-   "Evidence Class": "authority",
    "archetype": "1|sans|one-accent|plain-left",
    "l3": [
     {
@@ -183,9 +165,9 @@
    "Keywords": "cv, resume, sans, one accent, ruled header, single column, ats-safe",
    "Best For": "Single-column CVs with a full-width rule directly under the header block (name, title, contacts) and one restrained accent colour",
    "Not For": "DACH tabular CVs, Europass multilingual CVs, marketing collateral",
-   "Evidence Class": "ranked",
    "archetype": "1|sans|one-accent|ruled",
-   "l3": []
+   "l3": [],
+   "style_row": "cv-sans-accent-ruled"
   },
   {
    "design_key": "cv-sans-mono-split",
@@ -194,9 +176,9 @@
    "Keywords": "cv, resume, sans, split header, name left contact right, single column, ats-safe, photo permitted",
    "Best For": "Single-column CVs with the name flush left and a contact block flush right on the same header row, monochrome ink, photo permitted as a modest avatar",
    "Not For": "DACH tabular CVs, Europass multilingual CVs, marketing collateral",
-   "Evidence Class": "ranked",
    "archetype": "1|sans|mono|split",
-   "l3": []
+   "l3": [],
+   "style_row": "cv-sans-mono-split"
   },
   {
    "design_key": "cv-ats-strict",
@@ -205,7 +187,6 @@
    "Keywords": "cv, resume, ats-safe, restrained, single column, no colour blocks",
    "Best For": "ATS-scanned CVs, cover letters bound to ats-strict, any doctype needing a parseable single-column structure",
    "Not For": "slide decks, marketing collateral, colour-coded sections",
-   "Evidence Class": "ranked",
    "archetype": "1|sans|mono|plain-left",
    "l3": []
   },
@@ -216,7 +197,6 @@
    "Keywords": "cv, resume, serif, one accent, plain left-aligned header, single column, ats-safe",
    "Best For": "Single-column CVs with a left-aligned serif name heading, no header rule, and one restrained accent colour",
    "Not For": "DACH tabular CVs, Europass multilingual CVs, marketing collateral",
-   "Evidence Class": "ranked",
    "archetype": "1|serif|one-accent|plain-left",
    "l3": []
   },
@@ -227,9 +207,9 @@
    "Keywords": "cv, resume, sans, one accent, centered name, single column, ats-safe",
    "Best For": "Single-column CVs with a centred sans name heading and one restrained accent colour",
    "Not For": "DACH tabular CVs, multi-accent marketing collateral",
-   "Evidence Class": "ranked",
    "archetype": "1|sans|one-accent|plain-centered",
-   "l3": []
+   "l3": [],
+   "style_row": "cv-sans-accent-plain-centered"
   },
   {
    "design_key": "cv-serif-mono-split",
@@ -238,9 +218,9 @@
    "Keywords": "cv, resume, serif, split header, name left contact right, single column, ats-safe",
    "Best For": "Single-column CVs with a serif name flush left and a contact block flush right on the same header row, monochrome ink",
    "Not For": "DACH tabular CVs, Europass multilingual CVs, marketing collateral",
-   "Evidence Class": "ranked",
    "archetype": "1|serif|mono|split",
-   "l3": []
+   "l3": [],
+   "style_row": "cv-serif-mono-split"
   },
   {
    "design_key": "cv-sans-accent-split",
@@ -249,7 +229,6 @@
    "Keywords": "cv, resume, sans, split header, one accent, name left contact right, single column, ats-safe, photo permitted",
    "Best For": "Single-column CVs with a sans name flush left and a contact block flush right on the same header row, one restrained accent colour, photo permitted as a modest avatar",
    "Not For": "DACH tabular CVs, Europass multilingual CVs, marketing collateral",
-   "Evidence Class": "ranked",
    "archetype": "1|sans|one-accent|split",
    "l3": []
   },
@@ -260,7 +239,6 @@
    "Keywords": "cv, résumé, harvard, us, uk, reverse-chronological, single column, restrained, serif-sans, ats-safe",
    "Best For": "US/UK résumés wanting Butterick/Harvard-OCS-grounded typographic hierarchy while staying ATS-safe and single column",
    "Not For": "DACH tabular CVs, Europass multilingual CVs, slide decks, marketing collateral",
-   "Evidence Class": "authority",
    "archetype": "1|serif|one-accent|ruled",
    "l3": [
     {
@@ -276,9 +254,9 @@
    "Keywords": "academic cv, publication list, long-form, restrained, no page limit",
    "Best For": "academic CVs, publication-heavy CVs, research profiles",
    "Not For": "single-page ATS-strict CVs, marketing documents",
-   "Evidence Class": "convention",
    "archetype": null,
-   "l3": []
+   "l3": [],
+   "own_archetype": "1|serif|mono|plain-left"
   },
   {
    "design_key": "cv-dach-tabular",
@@ -287,87 +265,12 @@
    "Keywords": "cv, lebenslauf, dach, germany, austria, switzerland, tabular, two-column, photo, formal",
    "Best For": "DACH-market Lebenslauf wanting the culturally expected tabular label/content layout with a formal headshot",
    "Not For": "ATS-strict single-column CVs, Europass CVs, editorial CVs",
-   "Evidence Class": "convention",
    "archetype": null,
-   "l3": []
-  }
- ],
- "fill_rule_provenance": [
-  {
-   "table": "doc-styles",
-   "row_key": "cv-serif-plain-centered",
-   "evidence_class": "ranked",
-   "source_name": "GH+NPM cv corpora, fill applied per rule",
-   "corpus": "GH"
-  },
-  {
-   "table": "doc-styles",
-   "row_key": "cv-sans-mono-split",
-   "evidence_class": "ranked",
-   "source_name": "GH cv corpus, fill applied per rule",
-   "corpus": "GH"
-  },
-  {
-   "table": "doc-styles",
-   "row_key": "cv-sans-accent-plain-centered",
-   "evidence_class": "ranked",
-   "source_name": "GH cv corpus, fill applied per rule",
-   "corpus": "GH"
-  },
-  {
-   "table": "doc-reasoning",
-   "row_key": "cv-serif-plain-centered",
-   "evidence_class": "ranked",
-   "source_name": "cv corpus archetype, fill applied per rule",
-   "corpus": "GH"
-  },
-  {
-   "table": "doc-reasoning",
-   "row_key": "cv-sans-accent-ruled",
-   "evidence_class": "ranked",
-   "source_name": "cv corpus archetype, fill applied per rule",
-   "corpus": "NPM"
-  },
-  {
-   "table": "doc-reasoning",
-   "row_key": "cv-sans-mono-split",
-   "evidence_class": "ranked",
-   "source_name": "cv corpus archetype, fill applied per rule",
-   "corpus": "GH"
-  },
-  {
-   "table": "doc-reasoning",
-   "row_key": "cv-serif-accent-plain-left",
-   "evidence_class": "ranked",
-   "source_name": "cv corpus archetype, fill applied per rule",
-   "corpus": "GH"
-  },
-  {
-   "table": "doc-reasoning",
-   "row_key": "cv-sans-accent-plain-centered",
-   "evidence_class": "ranked",
-   "source_name": "cv corpus archetype, fill applied per rule",
-   "corpus": "GH"
-  },
-  {
-   "table": "doc-reasoning",
-   "row_key": "cv-serif-mono-split",
-   "evidence_class": "ranked",
-   "source_name": "cv corpus archetype, fill applied per rule",
-   "corpus": "GH"
-  },
-  {
-   "table": "doc-reasoning",
-   "row_key": "cv-sans-accent-split",
-   "evidence_class": "ranked",
-   "source_name": "cv corpus archetype, fill applied per rule",
-   "corpus": "GH"
+   "l3": [],
+   "own_archetype": "1|serif|mono|plain-left",
+   "pending": "R7-10 (research/82a-r7-rulings.md): not shipped until the research/82 section 12 F6 render check (ATS text extraction of its label/content body table) passes; the check was not run"
   }
  ],
  "fill_rule_metric": "fill-rule:research/82§8",
- "fill_rule_value": "n/a (fill-rule, not a ranking)",
- "convention_provenance": [
-  "cv-academic",
-  "cv-dach-tabular"
- ]
+ "fill_rule_value": "n/a (fill-rule, not a ranking)"
 }

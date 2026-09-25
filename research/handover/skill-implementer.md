@@ -1,40 +1,48 @@
-# Handover -- Skill Implementer (rewritten 2026-09-25)
+# Handover -- Skill Implementer (rewritten 2026-09-25, after R7)
 
 ## fill_family.py (research/designs-evidence/) -- internals
-- Two layers. ENGINE (rules): `md_tables` -> `load_corpus`/`discover_corpora` (coded tables in
-  `<family>-corpus*.md`, columns aliased via `CANON`) -> `apply_recodes` (last-tagged `header/colour/...`
-  column wins, enum-guarded by `_VALID`) -> `combined_table` -> `rank_step1` (combined share, then per-corpus
-  shares in config order, corpora count, best pos, key; cap 9). DECISIONS: `fill-specs/<family>.json`
-  (corpora cfg, identity, recodes, dropped_*, doc_styles, reasoning rows, designs with archetype/l3,
-  fill_rule_provenance). `build()` = spec + engine (ranks, provenance shares) -> 4 CSVs + `<family>-fill-log.md`.
-- Section-8 rules in code: `dropped_variants`, `family_default_style`, `propose_style`, `reuse_candidates`,
-  `propose_palette` (+`palette_evidence_rank`: fetched authority < search-corroborated < ranked < convention),
-  `propose_typeface` (medium rule, then pairing fallback R2), all combined in `section8_proposal(Library)`.
-  Rules ratification draft: research/82a-clarifications-6.md (R1-R4).
-- Modes: `--check` (diff vs committed, cv must be byte-identical), `--write`, `--dry-run`, `--borrow-from SRC`.
-- Palette/typeface picks need per-item hexes/fonts the coded tables lack: hue-bin and safe-stack branches inert.
+- ENGINE decides, SPEC only holds wording + ratified overrides (R7-4). Flow: `md_tables` -> `load_corpus` ->
+  `apply_recodes` -> `combined_table` (k = ADMISSIBLE only, N unchanged; `inadm` tallied for the log) ->
+  `rank_step1` (combined, then shares in `corpus_order` = level, N desc, id) -> `plan_designs` (which spec
+  designs ship, rank, class; cap 10 TOTAL; matched default outside cap takes the last ranked slot; unmatched
+  default counts inside the cap; identity-duplicate retirement via `own_archetype`; `pending` skipped) ->
+  `resolve_family` (section-8 proposals per shipped design, new reasoning rows filled from the engine's
+  first candidates, `blank_bias`, `violations`) -> `build` (4 CSVs + `<family>-fill-log.md`).
+- Spec fields now: corpora, identity, recodes, date, doc_styles (authored NEW rows only), reasoning.defaults +
+  anti_tokens.default, `reasoning.rows` = [] (only override rows), designs (wording, archetype, l3,
+  `style_row`, `own_archetype`, `pending`, `override`). No Rank / Evidence Class / fill_rule_provenance.
+- `--check`: prints VIOLATION lines then diffs CSVs; `--write` refuses while violations stand.
+  `_override_ok`: file under research/ exists, first 20 lines have no "draft"/"not ratified", a line starts
+  with the rule id. 82a-clarifications-6.md is still DRAFT -> not citable.
+- `Library(family)` hides the family's own previous rows (research/library/doc-styles/<family>.csv), so a
+  re-run never reuses its own output. `_lib_rows` dedupes identical rows (base already holds library rows).
+- Reuse (`reuse_candidates(proposal, styles, family)`): mapping equal, no column/photo contradiction, no
+  region/standard token (`FAMILY_SPECIFIC`), `<family>-` keys first then byte order.
+- Typeface: declared-font branch (`font` column, OS_BUNDLED) else class/popularity/medium rule; pairing
+  fallback = DRAFT R2 (unratified, logged as such). cv/proposal corpora have no font column: logged "not evaluable".
+- Modes: `--check`, `--write`, `--dry-run`, `--borrow-from SRC`.
 
 ## Test layout
-- Skill: `skill/document-design-intelligence/scripts/tests/` (full run ~75 s): test_resolve_generic (resolver
-  R5), test_r2_fixes, test_r6_brandkit + test_make_brand_kit (brand kits), test_pptx_font_rule, test_ddi/
-  test_column_parity (handoff), test_portable_sync/test_portable_content (portable pack), test_type_scale_roles.
-- Research: `research/designs-evidence/test_fill_family.py` (engine + cv byte regression), `research/p65/`
-  (portable-pack trial scorer; needs portable/DDI-LIBRARY.md in current layout).
+- Skill: `skill/document-design-intelligence/scripts/tests/` (full run ~65 s, 328 tests).
+- Research: `research/designs-evidence/test_fill_family.py` (57, incl. TestR7Rules), `research/p65/` (10).
 
 ## Windows / shell quirks
-- git-bash `/tmp` != python's temp dir; use repo-relative temp files. Big heredocs with `'''` or `\n` break
-  (real newline, `\b` -> 0x08): write patches with the Write tool, run, delete (research/.tmp_*).
-- ASCII-only string literals in scripts/*.py (test_ascii_clean): `--`, no em dash. `resolve.BM25` folds
-  "ue"->"u" (Quebec->qubec): fold cue lists identically. I run no git; Repo Keeper commits.
+- The Bash tool collapses `\\` in heredocs, so `\b` regexes become 0x08 bytes and `"\x00"` a NUL: write patch
+  scripts with the Write tool (research/.tmp_*), or use chr(92). After any patch run
+  `grep -c $'\x08' fill_family.py`-style checks (I ran a python count of chr(8)/chr(0)).
+- git-bash `/tmp` != python's temp dir. ASCII-only literals in skill scripts/*.py. I run no git.
 
 ## Regeneration order (always)
-`python3 research/build-manifest.py` -> `python3 research/load-base.py` -> `python3 research/build-portable.py`
--> `ddi.py check` -> full pytest (skill dir) + test_fill_family.py + research/p65. New family files must be
-added to LIBRARY_INPUTS_ENABLED / PROVENANCE_INPUTS_ENABLED in load-base.py and the family's seed rows removed
-from provenance/seed-designs.csv (duplicate keys fail the gate).
+`fill_family.py --family X --write` -> `python3 research/build-manifest.py` -> `research/load-base.py` ->
+`research/build-portable.py` -> `ddi.py check` -> skill pytest + test_fill_family.py + research/p65.
+New family files go into LIBRARY_INPUTS_ENABLED / PROVENANCE_INPUTS_ENABLED in load-base.py; seed rows of the
+family come out of provenance/seed-designs.csv (duplicate keys fail the gate).
 
-## Status / left half-done
-- cv filled (georgia->times print-scale fix applied); proposal filled. quote<-invoice, whitepaper<-report
-  twins confirmed, borrowing never run. Other families: dry-run only, no specs.
-- NOT started: 01a0da67 (R7 engine fixes + re-run cv/proposal, per research/92-review-r7-cv-fill.md and
-  research/82a-r7-rulings.md) then 01a0da64 (letter + cover-letter fills). Start with R7.
+## Status
+- R7 done (task 01a0da67): cv 10 designs (was 12), proposal 6 (ranks unchanged). See the "Re-run 2026-09-25"
+  sections of cv-fill.md (section 9) and proposal-fill.md. cv-dach-tabular PENDING (F6 render check not run).
+- Open for the orchestrator: (1) unmatched default cv-academic counted inside the cap of 10 (alt: exempt -> 11);
+  (2) cv-serif-accent-plain-left now reuses cv-academic-plain ("no page limit; list publications");
+  (3) draft R2 pairing fallback still used by proposal, unratified.
+- Next: 01a0da64 letter + cover-letter fills (write fill-specs, `own_archetype`/`style_row` as needed, then
+  `--check` must show 0 violations before `--write`). quote<-invoice, whitepaper<-report twins: borrowing never run.

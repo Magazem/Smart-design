@@ -1,6 +1,13 @@
-# research/82a-clarifications-6 -- fill engine rules (DRAFT for orchestrator ratification)
+# research/82a-clarifications-6 -- fill engine rules
 
-Status: **DRAFT, not ratified.** Written 2026-09-25 by the Skill Implementer after the `proposal` fill
+Status: **RATIFIED by the orchestrator, 2026-09-25**, with the rulings in "Orchestrator ratification"
+at the end.
+- R1, R2 and R3 are binding.
+- R4 is guidance.
+- R1 is read together with 82a-r7-rulings R7-3. They agree: fetched authority comes before
+  search-corroborated authority, then ranked, then convention.
+
+Written 2026-09-25 by the Skill Implementer after the `proposal` fill
 (research/designs-evidence/proposal-fill.md) and the `cv` print-scale correction. Amends research/82
 section 8 only where a rule was silent or ambiguous; corrections to a family's results are listed at the
 end. Once ratified these rules are what `research/designs-evidence/fill_family.py` implements (they are
@@ -86,3 +93,22 @@ this from the start. The engine's reuse list is printed beside the decision so a
 2. R2 step 4 could instead be limited to sans/serif classes; today it applies to any class mismatch.
 3. Per-item declared fonts (the safe-stack branch) and per-item accent hexes (the hue-bin tie-break) are
    still not coded; adding two columns to the coded tables would make both branches evaluable.
+
+## Orchestrator ratification (2026-09-25)
+
+Open points:
+1. Search-corroborated vs fetched stays palette-only until another table needs it.
+2. R2 step 4 (pairing fallback: keep the heading class, relax the body class) applies to any class
+   mismatch. It is RATIFIED as written.
+3. Declared fonts and per-item hexes are deferred to v0.5.x. The branches stay implemented and tested
+   on fixtures.
+
+Decisions raised by the R7 re-run:
+- R6 **Cap.** Every doctype default (fitness) counts INSIDE the cap of 10. Ranked slots are
+  therefore 10 minus the number of defaults that do not appear among the ranked archetypes. This is
+  the literal reading of R7-7.
+- R7 **Audience-specific tokens.** 82a-r7-rulings R7-8 also covers audience-specific guidance.
+  "academic", "publications" and "no page limit" contradict a design that is not academic. The
+  Europass checklist contradicts a design that is not Europass. The DACH photo/date rules contradict
+  a design that is not DACH. Such a design gets its own style row, instead of reusing a row that
+  carries those tokens.

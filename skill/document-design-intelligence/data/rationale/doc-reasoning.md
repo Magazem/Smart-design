@@ -90,11 +90,11 @@ A4: Direction 4 'Editorial / Creative-Industry CV' (research/70 sec 'Direction 4
 
 (none given)
 
-### `cv-sans-accent-ruled` -- confidence (none)
+### `cv-sans-mono-split` -- confidence (none)
 
 (none given)
 
-### `cv-sans-mono-split` -- confidence (none)
+### `cv-sans-accent-ruled` -- confidence (none)
 
 (none given)
 
@@ -107,10 +107,6 @@ A4: Direction 4 'Editorial / Creative-Industry CV' (research/70 sec 'Direction 4
 (none given)
 
 ### `cv-serif-mono-split` -- confidence (none)
-
-(none given)
-
-### `cv-sans-accent-split` -- confidence (none)
 
 (none given)
 

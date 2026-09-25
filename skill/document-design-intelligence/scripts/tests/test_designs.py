@@ -19,7 +19,7 @@ Rule 6 USED TO FAIL on the seed data: cv had convention designs at ranks 3-4
 (cv-ats-strict, cv-academic) ABOVE authority designs at ranks 5-6
 (cv-dach-tabular, cv-editorial). Phase 4's cv re-rank (research/82,
 research/designs-evidence/cv-fill.md) ranks cv's two convention designs
-(cv-academic, cv-dach-tabular) last (11-12 of 12), so the `expectedFailure`
+(now only cv-academic after the R7 re-run) last (10 of 10), so the `expectedFailure`
 marker is removed -- Rule 6 is now a real, passing assertion for cv and
 every other family.
 """

@@ -2,35 +2,88 @@
 
 Evidence: cv-corpus-github.md, cv-corpus-npm-ms.md; recodes: cv-header-recode.md (32 code overrides applied); identity features: columns|heading|colour|header.
 
-## Engine ranking (section 6, step 1)
+Spec overrides (entries carrying a ratified `override`): **0**; spec-vs-engine violations: **0**.
 
-| # | archetype | combined | K | adm | GH | NPM | decided design |
+
+## Engine ranking (section 6, step 1; k counts ADMISSIBLE exemplars only, C21)
+
+| # | archetype | combined | K | inadm (not counted) | GH | NPM | shipped design (rank) |
 |---|---|---|---|---|---|---|---|
-| 1 | `1|serif|mono|plain-centered` | 0.1250 | 10 | 10 | 8/40 | 2/40 | cv-serif-plain-centered |
-| 2 | `1|sans|one-accent|plain-left` | 0.1000 | 8 | 8 | 5/40 | 3/40 | cv-eu-europass |
-| 3 | `1|sans|one-accent|ruled` | 0.0750 | 6 | 4 | 0/40 | 6/40 | cv-sans-accent-ruled |
-| 4 | `1|sans|mono|split` | 0.0500 | 4 | 4 | 4/40 | 0/40 | cv-sans-mono-split |
-| 5 | `1|sans|mono|plain-left` | 0.0500 | 4 | 4 | 1/40 | 3/40 | cv-ats-strict |
-| 6 | `1|serif|one-accent|plain-left` | 0.0375 | 3 | 3 | 2/40 | 1/40 | cv-serif-accent-plain-left |
-| 7 | `1|sans|one-accent|plain-centered` | 0.0250 | 2 | 2 | 2/40 | 0/40 | cv-sans-accent-plain-centered |
-| 8 | `1|serif|mono|split` | 0.0250 | 2 | 2 | 2/40 | 0/40 | cv-serif-mono-split |
-| 9 | `1|sans|one-accent|split` | 0.0250 | 2 | 2 | 2/40 | 0/40 | cv-sans-accent-split |
+| 1 | `1|serif|mono|plain-centered` | 0.1250 | 10 | 0 | 8/40 | 2/40 | cv-serif-plain-centered (1) |
+| 2 | `1|sans|one-accent|plain-left` | 0.1000 | 8 | 0 | 5/40 | 3/40 | cv-eu-europass (2) |
+| 3 | `1|sans|mono|split` | 0.0500 | 4 | 0 | 4/40 | 0/40 | cv-sans-mono-split (3) |
+| 4 | `1|sans|mono|plain-left` | 0.0500 | 4 | 0 | 1/40 | 3/40 | cv-ats-strict (4) |
+| 5 | `1|sans|one-accent|ruled` | 0.0500 | 4 | 2 | 0/40 | 4/40 | cv-sans-accent-ruled (5) |
+| 6 | `1|serif|one-accent|plain-left` | 0.0375 | 3 | 0 | 2/40 | 1/40 | cv-serif-accent-plain-left (6) |
+| 7 | `1|sans|one-accent|plain-centered` | 0.0250 | 2 | 0 | 2/40 | 0/40 | cv-sans-accent-plain-centered (7) |
+| 8 | `1|serif|mono|split` | 0.0250 | 2 | 0 | 2/40 | 0/40 | cv-serif-mono-split (8) |
+| 9 | `1|sans|one-accent|split` | 0.0250 | 2 | 0 | 2/40 | 0/40 | (not shipped) |
+| 10 | `1|serif|one-accent|plain-centered` | 0.0250 | 2 | 0 | 1/40 | 1/40 | (not shipped) |
+| 11 | `1|sans|fill-blocks|plain-left` | 0.0250 | 2 | 0 | 1/40 | 1/40 | (not shipped) |
+| 12 | `1|sans|multi|plain-left` | 0.0250 | 2 | 0 | 0/40 | 2/40 | (not shipped) |
+| 13 | `1|serif|one-accent|ruled` | 0.0250 | 2 | 0 | 0/40 | 2/40 | cv-us-uk-designed (9) |
+| 14 | `1|sans|one-accent|image-hero` | 0.0250 | 2 | 0 | 0/40 | 2/40 | (not shipped) |
 
-Order check: designs whose archetype is in the engine's step-1 list appear in the engine's order: **yes**
+Cap: 10 designs in total; ranked slots this family = 8.
 
-## Section 8 proposals beside the decided fill
+## Plan: what ships, in rank order
 
-- `cv-serif-plain-centered` (1|serif|mono|plain-centered): style proposal hairline/none/weight/rule-brand 0pt; reuse candidates: cv-sans-accent-plain-centered, cv-sans-mono-split, cv-serif-plain-centered; palette candidates: lib-carbon-mono, lib-radix-sand, cv-dach-formal; typeface candidates: safe-serif-times; decided: style `cv-serif-plain-centered`, palette `lib-carbon-mono`, typeface `safe-serif-times`
+1. `cv-serif-plain-centered` -- ranked -- class `ranked` -- archetype `1|serif|mono|plain-centered`
+2. `cv-eu-europass` -- ranked -- class `ranked` -- archetype `1|sans|one-accent|plain-left`
+3. `cv-sans-mono-split` -- ranked -- class `ranked` -- archetype `1|sans|mono|split`
+4. `cv-ats-strict` -- ranked -- class `ranked` -- archetype `1|sans|mono|plain-left`
+5. `cv-sans-accent-ruled` -- ranked -- class `ranked` -- archetype `1|sans|one-accent|ruled`
+6. `cv-serif-accent-plain-left` -- ranked -- class `ranked` -- archetype `1|serif|one-accent|plain-left`
+7. `cv-sans-accent-plain-centered` -- ranked -- class `ranked` -- archetype `1|sans|one-accent|plain-centered`
+8. `cv-serif-mono-split` -- ranked -- class `ranked` -- archetype `1|serif|mono|split`
+9. `cv-us-uk-designed` -- ranked -- class `ranked` -- archetype `1|serif|one-accent|ruled`
+10. `cv-academic` -- default -- class `convention`
+
+### Outside the cap
+
+- `cv-sans-accent-split`: archetype `1|sans|one-accent|split` is outside the 8 ranked slots (cap 10 counts every default, R6)
+
+### Pending (not shipped)
+
+- `cv-dach-tabular`: R7-10 (research/82a-r7-rulings.md): not shipped until the research/82 section 12 F6 render check (ATS text extraction of its label/content body table) passes; the check was not run
+
+## Section 8 proposals beside the resolved fill
+
+- `cv-serif-plain-centered` (1|serif|mono|plain-centered): style proposal hairline/none/weight/rule-brand 0pt; reuse candidates: none (new row); palette candidates: lib-carbon-mono, lib-radix-sand, cv-dach-formal; typeface candidates: safe-serif-times; resolved: style `cv-serif-plain-centered`, palette `lib-carbon-mono`, typeface `safe-serif-times`
+  - declared-font branch not evaluable: the corpus carries no declared fonts
   - `safe-serif-georgia` rejected: Scale Key `report-screen` is medium ['screen'], not print (medium rule)
-- `cv-eu-europass` (1|sans|one-accent|plain-left): style proposal hairline/none/weight/rule-brand 0pt; reuse candidates: cv-sans-accent-plain-centered, cv-sans-mono-split, cv-serif-plain-centered; palette candidates: lib-atlassian-ink, lib-carbon-forest, lib-carbon-purple; typeface candidates: lib-roboto, lib-open-sans, lib-lato; decided: style `?`, palette `?`, typeface `?`
-- `cv-sans-accent-ruled` (1|sans|one-accent|ruled): style proposal hairline/none/weight/rule-brand 1pt; reuse candidates: cv-europass; palette candidates: lib-atlassian-ink, lib-carbon-forest, lib-carbon-purple; typeface candidates: lib-roboto, lib-open-sans, lib-lato; decided: style `cv-europass`, palette `lib-atlassian-ink`, typeface `lib-roboto`
-- `cv-sans-mono-split` (1|sans|mono|split): style proposal hairline/none/weight/rule-brand 0pt; reuse candidates: cv-sans-accent-plain-centered, cv-sans-mono-split, cv-serif-plain-centered; palette candidates: lib-carbon-mono, lib-radix-sand, cv-dach-formal; typeface candidates: lib-roboto, lib-open-sans, lib-lato; decided: style `cv-sans-mono-split`, palette `lib-carbon-mono`, typeface `lib-roboto`
-- `cv-ats-strict` (1|sans|mono|plain-left): style proposal hairline/none/weight/rule-brand 0pt; reuse candidates: cv-sans-accent-plain-centered, cv-sans-mono-split, cv-serif-plain-centered; palette candidates: lib-carbon-mono, lib-radix-sand, cv-dach-formal; typeface candidates: lib-roboto, lib-open-sans, lib-lato; decided: style `?`, palette `?`, typeface `?`
-- `cv-serif-accent-plain-left` (1|serif|one-accent|plain-left): style proposal none/none/weight/rule-brand 0pt; reuse candidates: cv-academic-plain, cv-restrained, deck-bold-minimal, letter-formal-grid; palette candidates: lib-atlassian-ink, lib-carbon-forest, lib-carbon-purple; typeface candidates: safe-serif-times; decided: style `cv-restrained`, palette `lib-atlassian-ink`, typeface `safe-serif-times`
+- `cv-eu-europass`: seeded design -- keeps its base reasoning row (section 9)
+- `cv-sans-mono-split` (1|sans|mono|split): style proposal hairline/none/weight/rule-brand 0pt; reuse candidates: none (new row); palette candidates: lib-carbon-mono, lib-radix-sand, cv-dach-formal; typeface candidates: lib-roboto, lib-open-sans, lib-lato; resolved: style `cv-sans-mono-split`, palette `lib-carbon-mono`, typeface `lib-roboto`
+  - `photo` tie 2:2 between `yes` and `no` broken by the higher-placed exemplar (pos/N)
+  - declared-font branch not evaluable: the corpus carries no declared fonts
+- `cv-ats-strict`: seeded design -- keeps its base reasoning row (section 9)
+- `cv-sans-accent-ruled` (1|sans|one-accent|ruled): style proposal hairline/none/weight/rule-brand 1pt; reuse candidates: none (new row); palette candidates: lib-atlassian-ink, lib-carbon-forest, lib-carbon-purple; typeface candidates: lib-roboto, lib-open-sans, lib-lato; resolved: style `cv-sans-accent-ruled`, palette `lib-atlassian-ink`, typeface `lib-roboto`
+  - declared-font branch not evaluable: the corpus carries no declared fonts
+- `cv-serif-accent-plain-left` (1|serif|one-accent|plain-left): style proposal none/none/weight/rule-brand 0pt; reuse candidates: cv-restrained, deck-bold-minimal, letter-formal-grid, letter-restrained; palette candidates: lib-atlassian-ink, lib-carbon-forest, lib-carbon-purple; typeface candidates: safe-serif-times; resolved: style `cv-restrained`, palette `lib-atlassian-ink`, typeface `safe-serif-times`
+  - declared-font branch not evaluable: the corpus carries no declared fonts
   - `safe-serif-georgia` rejected: Scale Key `report-screen` is medium ['screen'], not print (medium rule)
-- `cv-sans-accent-plain-centered` (1|sans|one-accent|plain-centered): style proposal hairline/none/weight/rule-brand 0pt; reuse candidates: cv-sans-accent-plain-centered, cv-sans-mono-split, cv-serif-plain-centered; palette candidates: lib-atlassian-ink, lib-carbon-forest, lib-carbon-purple; typeface candidates: lib-roboto, lib-open-sans, lib-lato; decided: style `cv-sans-accent-plain-centered`, palette `lib-atlassian-ink`, typeface `lib-roboto`
-- `cv-serif-mono-split` (1|serif|mono|split): style proposal hairline/none/weight/rule-brand 0pt; reuse candidates: cv-sans-accent-plain-centered, cv-sans-mono-split, cv-serif-plain-centered; palette candidates: lib-carbon-mono, lib-radix-sand, cv-dach-formal; typeface candidates: safe-serif-times; decided: style `cv-sans-accent-plain-centered`, palette `lib-carbon-mono`, typeface `safe-serif-times`
+- `cv-sans-accent-plain-centered` (1|sans|one-accent|plain-centered): style proposal hairline/none/weight/rule-brand 0pt; reuse candidates: none (new row); palette candidates: lib-atlassian-ink, lib-carbon-forest, lib-carbon-purple; typeface candidates: lib-roboto, lib-open-sans, lib-lato; resolved: style `cv-sans-accent-plain-centered`, palette `lib-atlassian-ink`, typeface `lib-roboto`
+  - declared-font branch not evaluable: the corpus carries no declared fonts
+- `cv-serif-mono-split` (1|serif|mono|split): style proposal hairline/none/weight/rule-brand 0pt; reuse candidates: none (new row); palette candidates: lib-carbon-mono, lib-radix-sand, cv-dach-formal; typeface candidates: safe-serif-times; resolved: style `cv-serif-mono-split`, palette `lib-carbon-mono`, typeface `safe-serif-times`
+  - declared-font branch not evaluable: the corpus carries no declared fonts
   - `safe-serif-georgia` rejected: Scale Key `report-screen` is medium ['screen'], not print (medium rule)
-- `cv-sans-accent-split` (1|sans|one-accent|split): style proposal hairline/none/weight/rule-brand 0pt; reuse candidates: cv-sans-accent-plain-centered, cv-sans-mono-split, cv-serif-plain-centered; palette candidates: lib-atlassian-ink, lib-carbon-forest, lib-carbon-purple; typeface candidates: lib-roboto, lib-open-sans, lib-lato; decided: style `cv-sans-mono-split`, palette `lib-atlassian-ink`, typeface `lib-roboto`
-- `cv-us-uk-designed` (1|serif|one-accent|ruled): style proposal hairline/none/weight/rule-brand 1pt; reuse candidates: cv-europass; palette candidates: lib-atlassian-ink, lib-carbon-forest, lib-carbon-purple; typeface candidates: safe-serif-times; decided: style `?`, palette `?`, typeface `?`
-  - `safe-serif-georgia` rejected: Scale Key `report-screen` is medium ['screen'], not print (medium rule)
+- `cv-us-uk-designed`: seeded design -- keeps its base reasoning row (section 9)
+- `cv-academic`: seeded design -- keeps its base reasoning row (section 9)
+
+## Bias tokens blanked because the design contradicts them (R7-8)
+
+- `cv-sans-mono-split` Typeface Bias Terms: `safe stack` (typeface `lib-roboto` is not a safe-* row)
+- `cv-sans-mono-split` Typeface Bias Terms: `ubiquitous` (typeface `lib-roboto` is not a safe-* row)
+- `cv-sans-mono-split` Typeface Bias Terms: `no embedding required` (typeface `lib-roboto` is not a safe-* row)
+- `cv-sans-accent-ruled` Palette Bias Terms: `monochrome` (colour use is one-accent)
+- `cv-sans-accent-ruled` Palette Bias Terms: `ink on white` (colour use is one-accent)
+- `cv-sans-accent-ruled` Typeface Bias Terms: `safe stack` (typeface `lib-roboto` is not a safe-* row)
+- `cv-sans-accent-ruled` Typeface Bias Terms: `ubiquitous` (typeface `lib-roboto` is not a safe-* row)
+- `cv-sans-accent-ruled` Typeface Bias Terms: `no embedding required` (typeface `lib-roboto` is not a safe-* row)
+- `cv-serif-accent-plain-left` Palette Bias Terms: `monochrome` (colour use is one-accent)
+- `cv-serif-accent-plain-left` Palette Bias Terms: `ink on white` (colour use is one-accent)
+- `cv-sans-accent-plain-centered` Palette Bias Terms: `monochrome` (colour use is one-accent)
+- `cv-sans-accent-plain-centered` Palette Bias Terms: `ink on white` (colour use is one-accent)
+- `cv-sans-accent-plain-centered` Typeface Bias Terms: `safe stack` (typeface `lib-roboto` is not a safe-* row)
+- `cv-sans-accent-plain-centered` Typeface Bias Terms: `ubiquitous` (typeface `lib-roboto` is not a safe-* row)
+- `cv-sans-accent-plain-centered` Typeface Bias Terms: `no embedding required` (typeface `lib-roboto` is not a safe-* row)

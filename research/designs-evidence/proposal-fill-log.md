@@ -2,22 +2,57 @@
 
 Evidence: proposal-corpus-github.md; recodes: none (0 code overrides applied); identity features: columns|heading|colour|header.
 
-## Engine ranking (section 6, step 1)
+Spec overrides (entries carrying a ratified `override`): **0**; spec-vs-engine violations: **0**.
 
-| # | archetype | combined | K | adm | GH | decided design |
+
+## Engine ranking (section 6, step 1; k counts ADMISSIBLE exemplars only, C21)
+
+| # | archetype | combined | K | inadm (not counted) | GH | shipped design (rank) |
 |---|---|---|---|---|---|---|
-| 1 | `1|serif|mono|plain-centered` | 0.4250 | 17 | 17 | 17/40 | proposal-serif-centered |
-| 2 | `1|sans|mono|plain-centered` | 0.2500 | 10 | 9 | 10/40 | proposal-sans-centered |
-| 3 | `1|sans|mono|plain-left` | 0.1250 | 5 | 5 | 5/40 | proposal-sans-plain-left |
-| 4 | `1|serif|mono|ruled` | 0.0750 | 3 | 3 | 3/40 | proposal-serif-ruled |
-| 5 | `1|sans|one-accent|plain-centered` | 0.0500 | 2 | 2 | 2/40 | proposal-sans-accent-centered |
+| 1 | `1|serif|mono|plain-centered` | 0.4250 | 17 | 0 | 17/40 | proposal-serif-centered (1) |
+| 2 | `1|sans|mono|plain-centered` | 0.2250 | 9 | 1 | 9/40 | proposal-sans-centered (2) |
+| 3 | `1|sans|mono|plain-left` | 0.1250 | 5 | 0 | 5/40 | proposal-sans-plain-left (3) |
+| 4 | `1|serif|mono|ruled` | 0.0750 | 3 | 0 | 3/40 | proposal-serif-ruled (4) |
+| 5 | `1|sans|one-accent|plain-centered` | 0.0500 | 2 | 0 | 2/40 | proposal-sans-accent-centered (5) |
 
-Order check: designs whose archetype is in the engine's step-1 list appear in the engine's order: **yes**
+Cap: 10 designs in total; ranked slots this family = 5.
 
-## Section 8 proposals beside the decided fill
+## Plan: what ships, in rank order
 
-- `proposal-serif-centered` (1|serif|mono|plain-centered): style proposal none/none/weight/rule-brand 0pt; reuse candidates: cv-academic-plain, cv-restrained, deck-bold-minimal, letter-formal-grid; typeface candidates by class+popularity: lib-merriweather-merriweather-sans, ofl-source-sans-serif, lib-noto-serif-noto-sans; decided: style `proposal-plain-centered`, palette `lib-carbon-mono`, typeface `safe-serif-times`
-- `proposal-sans-centered` (1|sans|mono|plain-centered): style proposal hairline/none/weight/rule-brand 0pt; reuse candidates: cv-sans-accent-plain-centered, cv-sans-mono-split, cv-serif-plain-centered; typeface candidates by class+popularity: lib-roboto, lib-open-sans, lib-inter; decided: style `proposal-plain-centered`, palette `lib-carbon-mono`, typeface `lib-roboto`
-- `proposal-sans-plain-left` (1|sans|mono|plain-left): style proposal none/none/weight/rule-brand 0pt; reuse candidates: cv-academic-plain, cv-restrained, deck-bold-minimal, letter-formal-grid; typeface candidates by class+popularity: lib-roboto, lib-open-sans, lib-inter; decided: style `report-classic-serif`, palette `lib-carbon-mono`, typeface `lib-roboto`
-- `proposal-serif-ruled` (1|serif|mono|ruled): style proposal header-and-total/none/weight/rule-brand 1pt; reuse candidates: none (new row); typeface candidates by class+popularity: lib-merriweather-merriweather-sans, ofl-source-sans-serif, lib-noto-serif-noto-sans; decided: style `proposal-ruled`, palette `lib-carbon-mono`, typeface `safe-serif-times`
-- `proposal-sans-accent-centered` (1|sans|one-accent|plain-centered): style proposal none/none/weight/rule-brand 0pt; reuse candidates: cv-academic-plain, cv-restrained, deck-bold-minimal, letter-formal-grid; typeface candidates by class+popularity: lib-roboto, lib-open-sans, lib-inter; decided: style `proposal-plain-centered`, palette `lib-atlassian-ink`, typeface `lib-roboto`
+1. `proposal-serif-centered` -- ranked -- class `ranked` -- archetype `1|serif|mono|plain-centered`
+2. `proposal-sans-centered` -- ranked -- class `ranked` -- archetype `1|sans|mono|plain-centered`
+3. `proposal-sans-plain-left` -- ranked -- class `ranked` -- archetype `1|sans|mono|plain-left`
+4. `proposal-serif-ruled` -- ranked -- class `ranked` -- archetype `1|serif|mono|ruled`
+5. `proposal-sans-accent-centered` -- ranked -- class `ranked` -- archetype `1|sans|one-accent|plain-centered`
+6. `proposal-narrative` -- default -- class `convention`
+
+## Section 8 proposals beside the resolved fill
+
+- `proposal-serif-centered` (1|serif|mono|plain-centered): style proposal header-and-total/none/weight/rule-brand 0pt; reuse candidates: report-classic-serif; palette candidates: lib-carbon-mono, lib-radix-sand, cv-dach-formal; typeface candidates: safe-serif-times; resolved: style `report-classic-serif`, palette `lib-carbon-mono`, typeface `safe-serif-times`
+  - rules/boxes dropped by the gate -> family default Table Rules `header-and-total`
+  - declared-font branch not evaluable: the corpus carries no declared fonts
+  - `safe-serif-georgia` rejected: Scale Key `report-screen` is medium ['screen'], not print (medium rule)
+- `proposal-sans-centered` (1|sans|mono|plain-centered): style proposal header-and-total/none/weight/rule-brand 0pt; reuse candidates: report-classic-serif; palette candidates: lib-carbon-mono, lib-radix-sand, cv-dach-formal; typeface candidates: lib-roboto, lib-open-sans, lib-lato; resolved: style `report-classic-serif`, palette `lib-carbon-mono`, typeface `lib-roboto`
+  - `rules boxes` tie 3:3 between `none` and `rules` broken by the higher-placed exemplar (pos/N)
+  - rules/boxes dropped by the gate -> family default Table Rules `header-and-total`
+  - declared-font branch not evaluable: the corpus carries no declared fonts
+  - no row pairs a sans heading with a serif body: body variant relaxed, heading class kept (rule R2, research/82a-clarifications-6.md)
+- `proposal-sans-plain-left` (1|sans|mono|plain-left): style proposal header-and-total/none/weight/rule-brand 0pt; reuse candidates: report-classic-serif; palette candidates: lib-carbon-mono, lib-radix-sand, cv-dach-formal; typeface candidates: lib-roboto, lib-open-sans, lib-lato; resolved: style `report-classic-serif`, palette `lib-carbon-mono`, typeface `lib-roboto`
+  - rules/boxes dropped by the gate -> family default Table Rules `header-and-total`
+  - declared-font branch not evaluable: the corpus carries no declared fonts
+  - no row pairs a sans heading with a serif body: body variant relaxed, heading class kept (rule R2, research/82a-clarifications-6.md)
+- `proposal-serif-ruled` (1|serif|mono|ruled): style proposal header-and-total/none/weight/rule-brand 1pt; reuse candidates: none (new row); palette candidates: lib-carbon-mono, lib-radix-sand, cv-dach-formal; typeface candidates: safe-serif-times; resolved: style `proposal-ruled`, palette `lib-carbon-mono`, typeface `safe-serif-times`
+  - rules/boxes dropped by the gate -> family default Table Rules `header-and-total`
+  - declared-font branch not evaluable: the corpus carries no declared fonts
+  - `safe-serif-georgia` rejected: Scale Key `report-screen` is medium ['screen'], not print (medium rule)
+- `proposal-sans-accent-centered` (1|sans|one-accent|plain-centered): style proposal header-and-total/none/weight/rule-brand 0pt; reuse candidates: report-classic-serif; palette candidates: lib-atlassian-ink, lib-carbon-forest, lib-carbon-purple; typeface candidates: lib-roboto, lib-open-sans, lib-lato; resolved: style `report-classic-serif`, palette `lib-atlassian-ink`, typeface `lib-roboto`
+  - rules/boxes dropped by the gate -> family default Table Rules `header-and-total`
+  - declared-font branch not evaluable: the corpus carries no declared fonts
+  - no row pairs a sans heading with a serif body: body variant relaxed, heading class kept (rule R2, research/82a-clarifications-6.md)
+- `proposal-narrative`: seeded design -- keeps its base reasoning row (section 9)
+
+## Bias tokens blanked because the design contradicts them (R7-8)
+
+- `proposal-sans-centered` Typeface Bias Terms: `safe serif stack` (typeface `lib-roboto` is not a safe-* row)
+- `proposal-sans-plain-left` Typeface Bias Terms: `safe serif stack` (typeface `lib-roboto` is not a safe-* row)
+- `proposal-sans-accent-centered` Typeface Bias Terms: `safe serif stack` (typeface `lib-roboto` is not a safe-* row)

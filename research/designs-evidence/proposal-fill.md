@@ -168,3 +168,22 @@ proposal is not implemented (`palette_class` exists but is not wired); palette p
 the analysis in section 3. Finding for the cv fill: `safe-serif-georgia`'s Scale Key is
 `report-screen` (screen), which the section 8 medium rule would have rejected for a print CV, yet three cv
 reasoning rows use it (`cv-serif-plain-centered`, `cv-serif-mono-split`, `cv-serif-accent-plain-left`).
+
+## Re-run 2026-09-25 under R7 (research/82a-r7-rulings.md)
+
+Regenerated with the fixed engine from `fill-specs/proposal.json` (0 overrides; the spec keeps only the
+authored wording and the one new style row `proposal-ruled`). Generated log: `proposal-fill-log.md`.
+
+Ranks and classes are unchanged (5 ranked designs plus the convention default `proposal-narrative`,
+6 total, inside the cap). Corpus GH has 1 inadmissible item in `1|sans|mono|plain-centered`; it is no
+longer counted there (k 10 -> 9), so the provenance row of `proposal-sans-centered` changes from
+`0.250 (10/40)` to `0.225 (9/40)` (rank 2 either way).
+
+| row | field | old | new |
+|---|---|---|---|
+| proposal-serif-centered, proposal-sans-centered, proposal-sans-accent-centered | Style Key | proposal-plain-centered (new row) | report-classic-serif (existing row; family default; the engine's reuse rule R7-5 matches it, so the new row is no longer authored and is dropped) |
+| proposal-sans-* rows (3) | Typeface Bias Terms | "safe serif stack" | blank (R7-8: heading is sans / typeface is not a safe row) |
+| all | Palette Key, Typeface Key | unchanged | unchanged (carbon-mono / atlassian-ink; safe-serif-times / lib-roboto via the draft pairing fallback) |
+
+The pairing fallback (sans heading with a serif body -> keep the heading class) still comes from the
+unratified draft 82a-clarifications-6 R2; the log labels it "draft rule R2, unratified". No spec cites it.

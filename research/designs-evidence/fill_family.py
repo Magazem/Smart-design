@@ -12,15 +12,16 @@ WHAT IS RULE, WHAT IS DECISION.  The script has two layers, kept apart on purpos
    proposes the section-8 fill from the base library rows: doc-style reuse-or-new, typeface by class
    and Google Fonts popularity, palette by hexes-derived class.  `--dry-run` prints exactly this for
    ANY family from current evidence and writes nothing.
-2. DECISIONS (research/designs-evidence/fill-specs/<family>.json, authored by a human worker).  Every
-   judgment the rules leave open -- which archetype a seeded/L3 design merges into, design names and
-   Best-for wording, checklists, which library rows were picked where a rule ties or a gap needed the
-   family default, the fetched provenance URLs -- lives there, with the engine's own proposal shown next
-   to it in the decisions log so a reviewer sees every place the two differ.
+2. DECISIONS (research/designs-evidence/fill-specs/<family>.json, authored by a human worker): only what the
+   rules leave open -- names and wording, which archetype a seeded/L3 design codes to, `own_archetype` of
+   unmatched seeds, authored text of NEW style rows (`style_row`), `pending` designs, fetched provenance URLs.
+   Rank, Evidence Class, which designs ship, and every style / palette / typeface key are the ENGINE's
+   (R7-4): a spec value that differs from the engine's proposal fails `--check` and blocks `--write`
+   unless its entry carries `"override": "<82a file> <rule id>"` naming an existing ratified rule.
 
-`--write` = decisions + engine-derived parts (ranks, shares, provenance values) -> the four section-9
-CSVs and `<family>-fill-log.md` (the generated decisions log; cv's hand-written cv-fill.md is a different, older file).  For cv the committed CSVs are reproduced
-byte-for-byte (test_fill_family.py).  Stdlib only.
+`--write` = spec + engine -> the four section-9 CSVs and `<family>-fill-log.md` (the generated decisions log:
+engine ranking, plan, proposals, retirements, blanked bias tokens, violations). For cv and proposal the
+committed CSVs are reproduced byte-for-byte (test_fill_family.py). Stdlib only.
 """
 from __future__ import annotations
 
@@ -112,7 +113,8 @@ def _is_admissible(cell: str) -> bool:
 
 #: column-name aliases across the families' coded tables -> one canonical feature name
 CANON = {"head": "heading", "adm": "admissible", "dens": "density", "rules": "rules boxes",
-         "bg": "background", "title": "title layout", "body class": "body"}
+         "bg": "background", "title": "title layout", "body class": "body",
+         "declared font": "font", "font family": "font", "theme font": "font", "fonts": "font"}
 
 #: identity-feature slots (section 4): a family uses the first present name of each slot
 IDENTITY_SLOTS = [("columns", "panels", "background"), ("heading",), ("colour",),
@@ -273,32 +275,43 @@ def archetype(item: Item, identity: list) -> str:
 # ================================================================================== ranking (6)
 
 def combined_table(items: list, corpora: list, identity: list):
-    """{archetype: stats} -- k per corpus, share = k/N (all coded items in the denominator),
-    combined = unweighted mean over corpora (0 where absent), K, admissible K, exemplars."""
+    """{archetype: stats}. C21 / R7-1: k counts ADMISSIBLE exemplars only; every coded item (inadmissible
+    included) stays in the denominator N. An inadmissible exemplar never enters `ex` (so it never breaks a
+    tie, never sets a variant value) and never appears in a count; it is only tallied in `inadm` for the
+    log. share = k/N, combined = unweighted mean over corpora (0 where absent), K = sum of k."""
     n_of = {c["id"]: c["n"] for c in corpora}
     table = {}
     for it in items:
         a = archetype(it, identity)
-        row = table.setdefault(a, {"k": {c["id"]: 0 for c in corpora}, "adm": 0, "ex": []})
+        row = table.setdefault(a, {"k": {c["id"]: 0 for c in corpora}, "adm": 0, "inadm": 0, "ex": []})
+        if not it.admissible:
+            row["inadm"] += 1
+            continue
         row["k"][it.corpus] += 1
-        row["adm"] += it.admissible
+        row["adm"] += 1
         row["ex"].append(it)
     for a, row in table.items():
         row["share"] = {cid: row["k"][cid] / n_of[cid] for cid in n_of}
         row["combined"] = sum(row["share"].values()) / len(n_of)
         row["K"] = sum(row["k"].values())
-        row["best_pos"] = min(e.pos for e in row["ex"])
+        row["best_pos"] = min((e.pos for e in row["ex"]), default=10 ** 9)
         row["ncorpora"] = sum(1 for cid in n_of if row["k"][cid])
     return table
 
 
+def corpus_order(corpora: list) -> list:
+    """R7-6: the fixed order in which per-corpus shares break a tie, independent of the order the spec
+    lists the corpora: higher evidence level first (L1 > L2 > L3 > L4), then the larger on-topic N, then
+    corpus id in byte order."""
+    return sorted(corpora, key=lambda c: (c.get("level", "L1"), -c["n"], c["id"]))
+
+
 def rank_step1(table: dict, corpora: list, cap: int):
-    """Section 6 step 1: ranked, K>=2, at least one admissible exemplar, combined share desc; ties:
-    higher L1 share -> higher L2 share -> present in more corpora -> best native position ->
-    archetype alphabetical. Returns (ordered, dropped_by_cap)."""
-    order = [c["id"] for c in corpora]      # L1 corpora first, in the family's configured order (section 10:
-    #                                         the primary L1 corpus decides "higher L1 share" first)
-    eligible = [(a, r) for a, r in table.items() if r["K"] >= 2 and r["adm"] >= 1]
+    """Section 6 step 1: ranked, K>=2 admissible exemplars, combined share desc; ties: per-corpus shares
+    in `corpus_order` (R7-6) -> present in more corpora -> best native position -> archetype code in byte
+    order. Returns (ordered, dropped_by_cap)."""
+    order = [c["id"] for c in corpus_order(corpora)]
+    eligible = [(a, r) for a, r in table.items() if r["K"] >= 2]
 
     def key(pair):
         a, r = pair
@@ -313,27 +326,40 @@ def rank_step1(table: dict, corpora: list, cap: int):
 def _lib_rows(name: str, sub: str = ""):
     """Rows of a base library table plus every research/library/<sub>/*.csv (new rows a family fill
     ADDED earlier), base first."""
-    rows = []
+    rows, seen = [], set()
     for path in [SKILL_DATA / f"{name}.csv"] + sorted((LIB / (sub or name)).glob("*.csv")):
         if path.is_file():
             with path.open(encoding="utf-8-sig", newline="") as f:
-                rows += list(csv.DictReader(f))
+                for r in csv.DictReader(f):
+                    sig = tuple(r.items())      # base tables already carry the library rows: read each once (F17)
+                    if sig not in seen:
+                        seen.add(sig)
+                        rows.append(r)
     return rows
 
 
-def modal_variant(exemplars: list, feature: str):
-    """Modal value of a variant feature over an archetype's items; ties -> the value of the item with
-    the best native position (proxy for 'highest-metric exemplar')."""
+def modal_variant(exemplars: list, feature: str, n_of: dict | None = None, notes: list | None = None):
+    """Modal value of a variant feature over an archetype's ADMISSIBLE exemplars (R7-1). A tie goes to the
+    value held by the exemplar highest in its own corpus's native order: positions are compared as
+    pos / N of the exemplar's corpus (R7 F4: raw positions of different corpora are not comparable);
+    the tie is logged in `notes`."""
+    n_of = n_of or {}
     counts = {}
     for it in exemplars:
+        if not it.admissible:
+            continue
         v = it.feats.get(feature)
         if v:
             counts.setdefault(v, [0, 10 ** 9])
             counts[v][0] += 1
-            counts[v][1] = min(counts[v][1], it.pos)
+            counts[v][1] = min(counts[v][1], it.pos / n_of.get(it.corpus, 1))
     if not counts:
         return None
-    return sorted(counts.items(), key=lambda kv: (-kv[1][0], kv[1][1]))[0][0]
+    ranked = sorted(counts.items(), key=lambda kv: (-kv[1][0], kv[1][1], kv[0]))
+    if notes is not None and len(ranked) > 1 and ranked[0][1][0] == ranked[1][1][0]:
+        notes.append(f"`{feature}` tie {ranked[0][1][0]}:{ranked[1][1][0]} between `{ranked[0][0]}` and "
+                     f"`{ranked[1][0]}` broken by the higher-placed exemplar (pos/N)")
+    return ranked[0][0]
 
 
 STYLE_TABLE_RULES_HEADER_TOTAL = {"invoice", "quote", "report", "whitepaper", "proposal"}
@@ -376,14 +402,16 @@ def family_default_style(family: str):
 
 
 def propose_style(family: str, arch: str, exemplars: list, identity: list,
-                  dropped: frozenset = frozenset(), default_style: dict | None = None) -> dict:
+                  dropped: frozenset = frozenset(), default_style: dict | None = None,
+                  n_of: dict | None = None) -> dict:
     """Section 8 'Style' mapping, mechanically: rules/boxes, colour use and header treatment ->
     doc-styles columns; the checklist lines that carry columns/photo/boxes. A variant the agreement
     gate DROPPED (`dropped`) is not read from the corpus: the family default's value is used and the
-    reason is recorded in `notes` (section 7, last sentence)."""
+    reason is recorded in `notes` (section 7, last sentence). Modal values are read over admissible
+    exemplars only (R7-1)."""
     feats = dict(zip(identity, arch.split("|")))
     notes, checklist = [], []
-    rb = modal_variant(exemplars, "rules boxes") or modal_variant(exemplars, "rules")
+    rb = modal_variant(exemplars, "rules boxes", n_of, notes) or modal_variant(exemplars, "rules", n_of, notes)
     if "rules boxes" in dropped and default_style:
         table_rules = default_style["Table Rules"]
         notes.append(f"rules/boxes dropped by the gate -> family default Table Rules `{table_rules}`")
@@ -401,16 +429,42 @@ def propose_style(family: str, arch: str, exemplars: list, identity: list,
     rule_brand = "1" if header == "ruled" else "0"
     if feats.get("columns", "1") == "1":
         checklist.append("Keep single column")
+    photo = None
     if "photo" in dropped:
         notes.append("photo dropped by the gate -> no photo line (family default)")
-    elif modal_variant(exemplars, "photo") == "no":
-        checklist.append("Omit photo")
+    else:
+        photo = modal_variant(exemplars, "photo", n_of, notes)
+        if photo == "no":
+            checklist.append("Omit photo")
     return {"Table Rules": table_rules, "Table Fills": "none", "Emphasis Mechanism": emphasis,
             "Field Style": "none", "Rule Brand pt": rule_brand, "Checklist": checklist,
-            "modal rules/boxes": rb, "notes": notes}
+            "modal rules/boxes": rb, "photo": photo, "notes": notes}
 
 
-def reuse_candidates(proposal: dict, styles: list) -> list:
+#: R7-8: words that tie a library row to one region, standard or programme. A style row carrying one
+#: cannot be reused for a design that is not that thing (it would import, e.g., the Europass section order).
+FAMILY_SPECIFIC = re.compile(r"\b(europass|eu framework|dach|lebenslauf|tabellarisch\w*|harvard|din 5008|"
+                             r"gov\.uk|france|gulf|gcc|academic|publications?|page limit)\b", re.I)
+_PHOTO_OMIT = re.compile(r"\b(omit|no|without|avoid)\b[^;]*\bphoto", re.I)
+_PHOTO_ALLOW = re.compile(r"\bphoto\b[^;]*\b(permitted|allowed|included|required)|\b(include|with|add)\b[^;]*\b"
+                          r"(photo|headshot)", re.I)
+
+
+def photo_contradiction(checklist: str, photo: str | None) -> bool:
+    """R7-5 / section 8: a design coded photo=yes contradicts a checklist that omits it, photo=no
+    contradicts one that permits/requires it."""
+    if photo == "yes":
+        return bool(_PHOTO_OMIT.search(checklist))
+    if photo == "no":
+        return bool(_PHOTO_ALLOW.search(checklist))
+    return False
+
+
+def reuse_candidates(proposal: dict, styles: list, family: str = "") -> list:
+    """Existing doc-styles the mapping may reuse (section 8): Table Rules, Fills, Emphasis, Field Style and
+    (Rule Brand>0) equal, and no checklist line contradicts the design: column count, photo (R7-5), or a
+    region/standard token (R7-8). Several matches: rows prefixed with the family being filled first (R7-5:
+    `<family>-`, not a hard-coded prefix), then key in byte order."""
     out, seen = [], set()
     for r in styles:
         if r["style_key"] in seen:
@@ -424,8 +478,13 @@ def reuse_candidates(proposal: dict, styles: list) -> list:
         cl = r["Checklist"].lower()
         if "Keep single column" in proposal["Checklist"] and "multi-column" in cl and "avoid" not in cl:
             continue
+        if photo_contradiction(r["Checklist"], proposal.get("photo")):
+            continue
+        if FAMILY_SPECIFIC.search(r["Checklist"] + " " + r.get("Keywords", "") + " " + r.get("Best For", "")):
+            continue
         out.append(r["style_key"])
-    return sorted(out, key=lambda k: (not k.startswith("cv-"), k))   # family-prefixed first, then alphabetical
+    prefix = f"{family}-" if family else "\x00"
+    return sorted(out, key=lambda k: (not k.startswith(prefix), k))
 
 
 def _hex_hsl(hexv: str):
@@ -494,10 +553,9 @@ def palette_serves(colour: str, row: dict) -> bool:
 
 def palette_evidence_rank() -> dict:
     """{palette_key: rank} from every provenance row: 0 authority fetched, 1 authority search-corroborated
-    (or any other Fetch), 2 ranked, 3 convention, 4 no provenance. FETCHED authority outranks
-    search-corroborated authority: the class order authority > ranked > convention (section 8) is read as
-    evidence strength, and a legacy backfill row that is only search-corroborated is weaker than a
-    fetched design-system token page (fill engine rule R1, research/82a-clarifications-6.md)."""
+    (or any other Fetch), 2 ranked, 3 convention, 4 no provenance. Section 8 order: evidence class first
+    (authority, then ranked), fetched before search-corroborated (82a R7-3 and
+    82a-clarifications-6 R1)."""
     best = {}
     files = list(PROV.glob("*.csv")) + [SKILL_DATA / "provenance.csv"]
     for path in files:
@@ -566,17 +624,28 @@ def family_medium(family: str) -> str:
     return {"deck": "projection", "infographic": "screen"}.get(family, "print")
 
 
+#: OS/Office-bundled faces (section 8 typeface branch 1) -> the class of the `safe-*` row that serves them
+OS_BUNDLED = {"arial": "sans", "helvetica": "sans", "calibri": "sans", "verdana": "sans", "tahoma": "sans",
+              "segoe ui": "sans", "trebuchet ms": "sans", "times new roman": "serif", "times": "serif",
+              "georgia": "serif", "cambria": "serif", "garamond": "serif", "courier new": "mono"}
+
+
 def propose_typeface(arch: str, identity: list, typefaces: list, pop: dict, modal_body: str | None = None,
-                     medium: str = "print", media: dict | None = None) -> tuple:
-    """Section 8 'Typeface': candidates are rows whose Category Contrast (heading-body) equals the
-    archetype's heading class and its modal body class; ordered by lowest Google Fonts popularity of the
-    Heading Family (a row with none sorts last), then installable/editable licence, then key. Then:
-      * MEDIUM RULE: the row's Scale Key must have the family's medium, else the next candidate;
-      * PAIRING FALLBACK (rule R2): if no row matches heading AND body, keep the IDENTITY feature and
-        relax the VARIANT one -- candidates by heading class alone (section 4: variants never split
-        archetypes; a default-typeface fallback would make different archetypes resolve identically).
-    (The safe-stack branch -- modal declared font OS/Office-bundled -- needs per-item declared fonts the
-    coded tables do not carry; safe rows compete as ordinary candidates.)
+                     medium: str = "print", media: dict | None = None, modal_font: str | None = None,
+                     font_evaluable: bool = False) -> tuple:
+    """Section 8 'Typeface'.
+      * DECLARED-FONT BRANCH (R7-9): if the modal declared font of the archetype's exemplars
+        (`modal_font`) is OS/Office-bundled, the candidates are the `safe-*` rows of that class (the row
+        whose Heading Family is that font first). If it is not bundled the ordinary branch runs; if the
+        corpus carries no declared fonts (`font_evaluable` False) the branch is logged as not evaluable.
+      * ORDINARY BRANCH: rows whose Category Contrast (heading-body) equals the archetype's heading class
+        and its modal body class (a row with the body class only when the corpus codes one); ordered by
+        lowest Google Fonts popularity of the Heading Family (a row with none sorts last), then
+        installable/editable licence, then key.
+      * MEDIUM RULE (R7-2): the row's Scale Key must have the family's medium, else the next candidate;
+        this holds for the declared-font branch too.
+      * PAIRING FALLBACK (rule R2, research/82a-clarifications-6.md, ratified): if no row matches
+        heading AND body, keep the IDENTITY feature and relax the VARIANT one; the relaxation is logged.
     Returns ([keys, best first, max 3], [notes])."""
     heading = dict(zip(identity, arch.split("|"))).get("heading", "")
     media = media or {}
@@ -612,6 +681,20 @@ def propose_typeface(arch: str, identity: list, typefaces: list, pop: dict, moda
         cc = r.get("Category Contrast", "")
         return tuple(cc.split("-")) if cc.count("-") == 1 else (None, None)
 
+    if modal_font:
+        fclass = OS_BUNDLED.get(modal_font.strip().lower())
+        if fclass:
+            safe = [r for r in generic if r["typeface_key"].startswith("safe-") and classes(r)[0] == fclass]
+            safe.sort(key=lambda r: (r["Heading Family"].lower() != modal_font.strip().lower(), r["typeface_key"]))
+            found = usable([(0, 0, r["typeface_key"], r) for r in safe])
+            if found:
+                notes.append(f"declared-font branch: modal font `{modal_font}` is OS/Office-bundled -> safe {fclass} row")
+                return found[:3], notes
+        else:
+            notes.append(f"declared-font branch: modal font `{modal_font}` is not OS/Office-bundled -> ordinary branch")
+    elif not font_evaluable:
+        notes.append("declared-font branch not evaluable: the corpus carries no declared fonts")
+
     strict = [r for r in generic if classes(r)[0] == heading and (modal_body is None or classes(r)[1] == modal_body)]
     found = usable(rank(strict))
     if not found and modal_body is not None:
@@ -619,15 +702,17 @@ def propose_typeface(arch: str, identity: list, typefaces: list, pop: dict, moda
         found = usable(rank(relaxed))
         if found:
             notes.append(f"no row pairs a {heading} heading with a {modal_body} body: body variant relaxed, "
-                         f"heading class kept (rule R2)")
+                         f"heading class kept (rule R2, research/82a-clarifications-6.md)")
     return found[:3], notes
 
 
 class Library:
-    """The library tables the section-8 proposals read, loaded once."""
+    """The library tables the section-8 proposals read, loaded once. When `family` is given, the rows that
+    family's PREVIOUS fill wrote are hidden (a re-run must not reuse its own earlier output)."""
 
-    def __init__(self):
-        self.styles = _lib_rows("doc-styles")
+    def __init__(self, family: str = ""):
+        own = own_output_keys(family, "doc-styles", "style_key") if family else set()
+        self.styles = [r for r in _lib_rows("doc-styles") if r["style_key"] not in own]
         self.typefaces = _lib_rows("typefaces")
         self.palettes = _lib_rows("palettes")
         self.pop = google_popularity()
@@ -636,19 +721,24 @@ class Library:
 
 
 def section8_proposal(family: str, arch: str, exemplars: list, identity: list, lib: "Library",
-                      dropped: frozenset, default_style: dict | None) -> dict:
+                      dropped: frozenset, default_style: dict | None, n_of: dict | None = None,
+                      font_evaluable: bool = False) -> dict:
     """Everything section 8 derives by rule for one archetype: style (gate-dropped variants read from the
     family default), reuse candidates, palette candidates (evidence strength -> hue bin -> contrast -> A7
-    -> key), typeface candidates (class, popularity, medium rule, pairing fallback) and the notes each
-    rule left."""
+    -> key), typeface candidates (declared font, class, popularity, medium rule, pairing fallback) and the
+    notes each rule left. Exemplars are the archetype's ADMISSIBLE items."""
     feats = dict(zip(identity, arch.split("|")))
-    style = propose_style(family, arch, exemplars, identity, dropped, default_style)
-    modal_body = None if "body" in dropped else modal_variant(exemplars, "body")
+    style = propose_style(family, arch, exemplars, identity, dropped, default_style, n_of)
+    tnotes0 = []
+    modal_body = None if "body" in dropped else modal_variant(exemplars, "body", n_of, tnotes0)
+    modal_font = modal_variant(exemplars, "font", n_of, tnotes0)
     typefaces, tnotes = propose_typeface(arch, identity, lib.typefaces, lib.pop, modal_body,
-                                         family_medium(family), lib.media)
+                                         family_medium(family), lib.media, modal_font,
+                                         font_evaluable or any("font" in e.feats for e in exemplars))
     palettes = propose_palette(feats.get("colour", ""), lib.palettes, lib.evidence)
-    return {"style": style, "reuse": reuse_candidates(style, lib.styles), "palettes": palettes,
-            "typefaces": typefaces, "modal_body": modal_body, "notes": style["notes"] + tnotes}
+    return {"style": style, "reuse": reuse_candidates(style, lib.styles, family), "palettes": palettes,
+            "typefaces": typefaces, "modal_body": modal_body, "modal_font": modal_font,
+            "notes": style["notes"] + tnotes0 + tnotes}
 
 
 # ================================================================================== building (9)
@@ -689,36 +779,326 @@ def engine_state(spec: dict):
     return items, changes, table
 
 
+# ------------------------------------------------------------------ the engine decides (R7-4, R7-7)
+
+CAP = 10          # section 6 / C29: the family's list has at most 10 designs, contiguous ranks 1..N
+
+
+def protected_reasoning_keys(family: str) -> set:
+    """Reasoning Keys that some generic doctype of the family points at: those designs are doctype
+    defaults ('never changed and never promoted', section 6) and are always shipped (R7-7)."""
+    with (SKILL_DATA / "doctypes.csv").open(encoding="utf-8", newline="") as f:
+        return {r["Reasoning Key"] for r in csv.DictReader(f)
+                if r["Family"] == family and r.get("Brand Scope", "generic") == "generic"}
+
+
+def own_output_keys(family: str, sub: str, col: str) -> set:
+    """Keys of the rows this family's PREVIOUS fill wrote to research/library/<sub>/<family>.csv. The base
+    library already contains them after load-base.py; a re-run must not see its own earlier output."""
+    path = LIB / sub / f"{family}.csv"
+    if not path.is_file():
+        return set()
+    with path.open(encoding="utf-8-sig", newline="") as f:
+        return {r[col] for r in csv.DictReader(f)}
+
+
+def plan_designs(family: str, spec: dict, table: dict) -> dict:
+    """The section-6 list, decided by rule. `spec["designs"]` are the human decisions (names, wording,
+    which archetype a seeded/L3 design codes to); the ENGINE decides which of them ship and in what order:
+
+    * step 1: archetypes with K>=2 admissible exemplars in `rank_step1` order (R7-1, R7-6);
+    * a design that codes to a step-1 archetype MERGES there (rank of the archetype, class `ranked`, its
+      authority stays an extra provenance row). Two designs on one archetype: the doctype default first,
+      then the one with L3 sources, then key; the other is retired (identity duplicate, R7-7);
+    * L3 designs outside step 1 take L3 slots, unmatched doctype defaults are exempt from the L4 cap but
+      still count towards the cap of 10 (R7-7), one non-default convention design takes the L4 slot after
+      an identity-duplicate check on its own archetype (`own_archetype`, values only, never taste), ties
+      by key;
+    * total <= 10. A doctype default whose archetype falls outside the cap takes the place of the last
+      ranked slot (R7-7);
+    * `pending` designs (R7-10) are not shipped and are listed.
+    Returns {"shipped": [...], "retired": [...], "pending": [...], "outside": [...], "missing": [...],
+    "eligible": [...], "cap1": int}."""
+    corpora = spec["corpora"]
+    eligible, _ = rank_step1(table, corpora, cap=10 ** 6)
+    protected = protected_reasoning_keys(family)
+    live, pending = [], []
+    for d in spec["designs"]:
+        (pending if d.get("pending") else live).append(d)
+
+    def prot(d):
+        return d["Reasoning Key"] in protected
+
+    retired, outside = [], []
+    by_arch = {}
+    for d in live:
+        if d.get("archetype") in eligible:
+            by_arch.setdefault(d["archetype"], []).append(d)
+    winner = {}
+    for a, ds in by_arch.items():
+        ds.sort(key=lambda d: (not prot(d), not d["l3"], d["design_key"]))
+        winner[a] = ds[0]
+        retired += [(x["design_key"], f"identity duplicate of `{ds[0]['design_key']}` ({a})") for x in ds[1:]]
+    merged_keys = {d["design_key"] for ds in by_arch.values() for d in ds}
+    rest = [d for d in live if d["design_key"] not in merged_keys]
+    l3_un = sorted([d for d in rest if d["l3"]], key=lambda d: d["design_key"])[:3]
+    un_prot = sorted([d for d in rest if prot(d) and d not in l3_un], key=lambda d: d["design_key"])
+    conv = sorted([d for d in rest if not prot(d) and d not in l3_un], key=lambda d: d["design_key"])
+    for d in rest:
+        if d not in l3_un and d not in un_prot and d not in conv:
+            retired.append((d["design_key"], "more than 3 unmatched L3 designs"))
+    # identity-duplicate retirement of the unmatched convention designs (R7-7): by identity values alone
+    taken = {d.get("own_archetype") or d.get("archetype") for d in l3_un + un_prot} - {None}
+    l4 = None
+    for d in conv:
+        own = d.get("own_archetype") or d.get("archetype")
+        if d.get("archetype") and d["archetype"] not in eligible and not d["l3"]:
+            outside.append((d["design_key"], f"archetype `{d['archetype']}` has fewer than 2 admissible exemplars"))
+            continue
+        if own and own in taken:
+            retired.append((d["design_key"], f"identity duplicate: own archetype `{own}` is already shipped"))
+        elif l4 is None:
+            l4 = d
+            taken.add(own)
+        else:
+            retired.append((d["design_key"], "the single L4 convention slot is taken"))
+    # R6 (82a-clarifications-6): every doctype default counts INSIDE the cap of 10. Ranked slots k = 10 minus
+    # the reserved slots (unmatched L3 / defaults / L4) minus the matched defaults whose archetype is not
+    # among the first k ranked archetypes: the largest k for which everything fits.
+    reserved = len(l3_un) + len(un_prot) + (1 if l4 else 0)
+    k = min(max(CAP - reserved, 0), len(eligible))
+    while True:
+        forced = [a for a in eligible[k:] if a in winner and prot(winner[a])]
+        if k + len(forced) + reserved <= CAP or k == 0:
+            break
+        k -= 1
+    cap1 = k
+    chosen = eligible[:k] + forced
+    ranked_out = [a for a in eligible[k:] if a in winner and a not in forced]
+    outside += [(winner[a]["design_key"], f"archetype `{a}` is outside the {k} ranked slots (cap {CAP} counts "
+                 f"every default, R6)") for a in ranked_out]
+    missing = [a for a in chosen if a not in winner]
+    shipped = []
+    for a in chosen:
+        if a in winner:
+            shipped.append({"design": winner[a], "archetype": a, "class": "ranked", "slot": "ranked"})
+    for d in l3_un:
+        shipped.append({"design": d, "archetype": d.get("archetype"), "class": "authority", "slot": "L3"})
+    for d in un_prot:
+        shipped.append({"design": d, "archetype": None, "class": "convention", "slot": "default"})
+    if l4:
+        shipped.append({"design": l4, "archetype": None, "class": "convention", "slot": "L4"})
+    for n, s_ in enumerate(shipped, 1):
+        s_["rank"] = n
+    return {"shipped": shipped, "retired": retired, "pending": [(d["design_key"], d["pending"]) for d in pending],
+            "outside": outside, "missing": missing, "eligible": eligible, "cap1": cap1}
+
+
+def _override_ok(text: str) -> bool:
+    """R7-4: `"override": "<82a file> <rule id>"` must point at an existing ratified rule: the file exists
+    under research/, is not marked draft (a `RATIFIED` status wins over historical wording), and has a line that starts with the rule id."""
+    parts = (text or "").split()
+    if len(parts) < 2:
+        return False
+    path = RES / parts[0]
+    if not path.is_file():
+        return False
+    body = path.read_text(encoding="utf-8")
+    head = "\n".join(body.splitlines()[:20])
+    if "RATIFIED" not in head and ("not ratified" in head.lower() or "draft" in head.lower()):
+        return False
+    rid = re.escape(parts[1])
+    return bool(re.search(r"^[\s>*#-]*%s(\b|\s|$)" % rid, body, re.M))
+
+
+def base_reasoning_keys(family: str) -> set:
+    own = own_output_keys(family, "doc-reasoning", "doc_category")
+    return {r["doc_category"] for r in _lib_rows("doc-reasoning")} - own
+
+
+#: bias terms a design's own coding contradicts (R7-8): {feature test -> tokens to blank}
+def blank_bias(defaults: dict, feats: dict, typeface_key: str) -> tuple:
+    """Copy the family default's bias terms, blanking tokens the archetype contradicts (R7-8) and
+    returning [(column, token, reason)] for the log."""
+    out, blanked = dict(defaults), []
+
+    def cut(col, hit, reason):
+        kept = []
+        for t in [x.strip() for x in out.get(col, "").split(",") if x.strip()]:
+            if hit(t.lower()):
+                blanked.append((col, t, reason))
+            else:
+                kept.append(t)
+        out[col] = ", ".join(kept)
+    if feats.get("colour", "mono") != "mono":
+        cut("Palette Bias Terms", lambda t: t in {"monochrome", "ink on white"}, f"colour use is {feats.get('colour')}")
+    if feats.get("columns", "1") != "1":
+        cut("Style Bias Terms", lambda t: t == "single column", f"columns are {feats.get('columns')}")
+    if feats.get("colour") == "fill-blocks":
+        cut("Style Bias Terms", lambda t: t in {"no color blocks", "no colour blocks"}, "colour use is fill-blocks")
+    if not typeface_key.startswith("safe-"):
+        cut("Typeface Bias Terms", lambda t: bool(re.search(r"\bsafe\b|ubiquitous|no embedding", t)),
+            f"typeface `{typeface_key}` is not a safe-* row")
+    heading = feats.get("heading", "")
+    if heading == "sans":
+        cut("Typeface Bias Terms", lambda t: bool(re.search(r"\bserif\b", t)), "heading class is sans")
+    elif heading == "serif":
+        cut("Typeface Bias Terms", lambda t: bool(re.search(r"\bsans\b", t)), "heading class is serif")
+    return out, blanked
+
+
+STYLE_MAP_COLS = ("Table Rules", "Table Fills", "Emphasis Mechanism", "Field Style")
+
+
+def resolve_family(family: str, spec: dict) -> dict:
+    """Everything the engine decides for a family, in one object: evidence, plan, section-8 proposals,
+    the resolved reasoning/style rows, blanked tokens, and every place the spec disagrees with the engine
+    (`violations`; empty when the spec holds only ratified overrides)."""
+    items, changes, table = engine_state(spec)
+    corpora, identity = spec["corpora"], spec_identity(spec)
+    n_of = {c["id"]: c["n"] for c in corpora}
+    plan = plan_designs(family, spec, table)
+    lib = Library(family)
+    dropped = frozenset(dropped_variants(family, spec))
+    default_style = family_default_style(family)
+    font_ev = any("font" in it.feats for it in items)
+    seeds = base_reasoning_keys(family)
+    base_styles = {r["style_key"] for r in lib.styles}
+    tf_by_key = {r["typeface_key"]: r for r in lib.typefaces}
+    spec_rows = {r["doc_category"]: r for r in spec["reasoning"].get("rows", [])}
+    spec_styles = {(s["style_key"] if isinstance(s, dict) else s[0]): (s if isinstance(s, dict) else dict(zip(DOC_STYLES_COLS, s)))
+                   for s in spec.get("doc_styles", [])}
+    violations, props, rows, styles_out, blanked_log = [], {}, [], {}, []
+    defaults_row = default_reasoning_row(family)
+
+    def check(label, value, expected, holder):
+        if value != expected and not _override_ok(holder.get("override", "")):
+            violations.append(f"{label}: spec `{value}` != engine `{expected}` (needs an `override` citing a "
+                              f"ratified 82a rule)")
+
+    for a in plan["missing"]:
+        violations.append(f"engine ranks `{a}` but the spec decides no design for it")
+    for s_ in plan["shipped"]:
+        d, arch = s_["design"], s_["archetype"]
+        rk = d["Reasoning Key"]
+        if not arch or rk in seeds:
+            continue                                   # seeded row (section 9: no new rows) or convention
+        prop = section8_proposal(family, arch, table[arch]["ex"], identity, lib, dropped, default_style, n_of, font_ev)
+        props[d["design_key"]] = prop
+        row = spec_rows.get(rk, {})
+        # ---- style: reuse an existing row when the mapping matches one, else the authored new row
+        if prop["reuse"]:
+            style_key = prop["reuse"][0]
+            if d.get("style_row"):
+                check(f"{d['design_key']} style_row", d["style_row"], style_key, d)
+        else:
+            style_key = d.get("style_row") or ""
+            if not style_key or style_key not in spec_styles:
+                violations.append(f"{d['design_key']}: no existing style matches the mapping and the spec authors none "
+                                  f"(`style_row`)")
+            else:
+                for col in STYLE_MAP_COLS:
+                    check(f"{d['design_key']} new style `{style_key}` {col}", spec_styles[style_key][col],
+                          prop["style"][col], spec_styles[style_key])
+                if (float(spec_styles[style_key]["Rule Brand pt"] or 0) > 0) != (float(prop["style"]["Rule Brand pt"]) > 0):
+                    check(f"{d['design_key']} new style `{style_key}` Rule Brand", spec_styles[style_key]["Rule Brand pt"],
+                          prop["style"]["Rule Brand pt"], spec_styles[style_key])
+                styles_out[style_key] = spec_styles[style_key]
+        if "Style Key" in row:
+            check(f"{rk} Style Key", row["Style Key"], style_key, row)
+            style_key = row["Style Key"]
+        # ---- palette / typeface: the engine's first candidate, else the family default (gap)
+        pal = prop["palettes"][0][0] if prop["palettes"] else (defaults_row or {}).get("Palette Key", "")
+        tf = prop["typefaces"][0] if prop["typefaces"] else (defaults_row or {}).get("Typeface Key", "")
+        if not prop["palettes"]:
+            prop["notes"].append("palette-gap: no candidate -> family default palette")
+        if not prop["typefaces"]:
+            prop["notes"].append("scale-gap: no candidate -> family default typeface")
+        if "Palette Key" in row:
+            check(f"{rk} Palette Key", row["Palette Key"], pal, row)
+            pal = row["Palette Key"]
+        if "Typeface Key" in row:
+            check(f"{rk} Typeface Key", row["Typeface Key"], tf, row)
+            tf = row["Typeface Key"]
+        trow = tf_by_key.get(tf, {})
+        if trow and family_medium(family) not in lib.media.get(trow.get("Scale Key", ""), {family_medium(family)}):
+            violations.append(f"{rk}: typeface `{tf}` Scale Key `{trow.get('Scale Key')}` is not medium "
+                              f"{family_medium(family)} (medium rule, no override)")
+        feats = dict(zip(identity, arch.split("|")))
+        bias, blanked = blank_bias(spec["reasoning"]["defaults"], feats, tf)
+        blanked_log += [(rk,) + b for b in blanked]
+        toks = spec["reasoning"]["anti_tokens"]["default"].split(";")
+        if prop["style"].get("photo") == "yes" and "photo" in toks:
+            toks.remove("photo")
+        if feats.get("columns", "1") != "1" and "multi-column" in toks:
+            toks.remove("multi-column")
+        rows.append({"doc_category": rk, "Style Key": style_key, "Palette Key": pal, "Typeface Key": tf,
+                     "Style Bias Terms": bias["Style Bias Terms"], "Palette Bias Terms": bias["Palette Bias Terms"],
+                     "Typeface Bias Terms": bias["Typeface Bias Terms"], "Doc Conditions": bias["Doc Conditions"],
+                     "Anti-Pattern Tokens": ";".join(toks), "Severity": bias["Severity"], "Design Key": rk,
+                     "_arch": arch, "_design": d["design_key"]})
+    # rows the spec authors outright for unmatched designs with no seeded row (explicit keys, unchecked)
+    for s_ in plan["shipped"]:
+        d = s_["design"]
+        if not s_["archetype"] and d["Reasoning Key"] not in seeds and d["Reasoning Key"] in spec_rows:
+            r = spec_rows[d["Reasoning Key"]]
+            bias = spec["reasoning"]["defaults"]
+            rows.append({"doc_category": r["doc_category"], "Style Key": r["Style Key"], "Palette Key": r["Palette Key"],
+                         "Typeface Key": r["Typeface Key"], "Style Bias Terms": bias["Style Bias Terms"],
+                         "Palette Bias Terms": bias["Palette Bias Terms"], "Typeface Bias Terms": bias["Typeface Bias Terms"],
+                         "Doc Conditions": bias["Doc Conditions"], "Anti-Pattern Tokens": spec["reasoning"]["anti_tokens"]["default"],
+                         "Severity": bias["Severity"], "Design Key": r["doc_category"], "_arch": None, "_design": d["design_key"]})
+            if r["Style Key"] in spec_styles:
+                styles_out[r["Style Key"]] = spec_styles[r["Style Key"]]
+        elif not s_["archetype"] and d["Reasoning Key"] not in seeds:
+            violations.append(f"{d['design_key']}: no seeded reasoning row and no spec row")
+    overrides = sum(1 for r in spec["reasoning"].get("rows", []) if r.get("override")) + \
+        sum(1 for s in spec_styles.values() if s.get("override")) + sum(1 for d in spec["designs"] if d.get("override"))
+    return {"items": items, "changes": changes, "table": table, "plan": plan, "props": props, "rows": rows,
+            "styles": styles_out, "blanked": blanked_log, "violations": violations, "overrides": overrides,
+            "lib": lib, "dropped": dropped, "n_of": n_of}
+
+
+def default_reasoning_row(family: str):
+    """The doc-reasoning row of the family's doctype default (the source of bias terms, gap fallbacks)."""
+    with (SKILL_DATA / "doctypes.csv").open(encoding="utf-8", newline="") as f:
+        docs = [r for r in csv.DictReader(f) if r["Family"] == family and r.get("Brand Scope", "generic") == "generic"]
+    docs.sort(key=lambda r: r.get("Family Default", "") != "y")
+    reasoning = {r["doc_category"]: r for r in _lib_rows("doc-reasoning")}
+    for d in docs:
+        if d["Reasoning Key"] in reasoning:
+            return reasoning[d["Reasoning Key"]]
+    return None
+
+
+def best_corpus(table_row: dict, corpora: list) -> dict:
+    """The corpus a design's archetype is best represented in (highest share; ties in corpus_order)."""
+    ordered = corpus_order(corpora)
+    return max(ordered, key=lambda c: (round(table_row["share"][c["id"]], 6), -ordered.index(c)))
+
+
 def build(family: str) -> dict:
     """{relative path: text} for the four section-9 CSVs and the decisions log."""
     spec = load_spec(family)
     if spec is None:
         raise SystemExit(f"no fill-specs/{family}.json: only --dry-run is available for {family}")
-    items, changes, table = engine_state(spec)
-    corpora = spec["corpora"]
+    res = resolve_family(family, spec)
+    table, plan, corpora = res["table"], res["plan"], spec["corpora"]
     date = spec["date"]
     by_corpus = {c["id"]: c for c in corpora}
 
-    # ---- designs.csv: Rank = position in the decided list
-    designs = spec["designs"]
+    # ---- designs.csv: Rank and Evidence Class come from the engine's plan
     d_rows = [dict(zip(DESIGNS_COLS, [
-        d["design_key"], d["Display Name"], family, rank, d["Reasoning Key"], d["Keywords"], d["Best For"],
-        d["Not For"], d["Evidence Class"], "generic"])) for rank, d in enumerate(designs, 1)]
+        s["design"]["design_key"], s["design"]["Display Name"], family, s["rank"], s["design"]["Reasoning Key"],
+        s["design"]["Keywords"], s["design"]["Best For"], s["design"]["Not For"], s["class"], "generic"]))
+        for s in plan["shipped"]]
 
-    # ---- doc-styles.csv, doc-reasoning.csv (authored rows, engine-checked in the log)
-    ds_rows = [dict(zip(DOC_STYLES_COLS, s)) if isinstance(s, list) else s for s in spec["doc_styles"]]
-    rs = spec["reasoning"]
-    dr_rows = []
-    for row in rs["rows"]:
-        tokens = rs["anti_tokens"][row["Anti-Pattern Tokens"]]
-        dr_rows.append(dict(zip(DOC_REASONING_COLS, [
-            row["doc_category"], row["Style Key"], row["Palette Key"], row["Typeface Key"],
-            rs["defaults"]["Style Bias Terms"], rs["defaults"]["Palette Bias Terms"],
-            rs["defaults"]["Typeface Bias Terms"], rs["defaults"]["Doc Conditions"], tokens,
-            rs["defaults"]["Severity"], row["doc_category"]])))
+    # ---- doc-styles.csv, doc-reasoning.csv: new rows only, in the plan's order
+    ds_rows = [dict(zip(DOC_STYLES_COLS, [r[c] for c in DOC_STYLES_COLS])) for r in res["styles"].values()]
+    dr_rows = [{c: r[c] for c in DOC_REASONING_COLS} for r in res["rows"]]
 
-    # ---- provenance.csv: L3 authority rows, then one ranked row per corpus with k>0 (share from the
-    # engine's own table), then convention blanks; then the fill-rule rows
+    # ---- provenance.csv: L3 authority rows, ranked rows per corpus with k>0 (share from the engine's
+    # admissible-only table), convention blanks, borrowed rows; then the fill-rule rows
     p_rows = []
 
     def add(row_key, table_name, ev_class, source_name, url, metric, value):
@@ -727,11 +1107,12 @@ def build(family: str) -> dict:
             "%s:%s:%d" % (table_name, row_key, n), table_name, row_key, ev_class, source_name, url, metric,
             value, date, "" if ev_class == "convention" else "fetched"])))
 
-    for d in designs:
+    for s in plan["shipped"]:
+        d = s["design"]
         for l3 in d["l3"]:
             add(d["design_key"], "designs", "authority", l3["source_name"], l3["url"], "authority:doc", "")
-        if d["archetype"]:
-            row = table[d["archetype"]]
+        if s["class"] == "ranked":
+            row = table[s["archetype"]]
             for c in corpora:
                 if row["k"][c["id"]]:
                     add(d["design_key"], "designs", "ranked", c["source_name"], c["url"], c["metric"],
@@ -746,18 +1127,30 @@ def build(family: str) -> dict:
                         if r["Table"] == "designs" and r["Row Key"] == d["borrowed_from"]:
                             add(d["design_key"], "designs", r["Evidence Class"], "borrowed: " + r["Source Name"],
                                 r["Source URL"], "borrowed:" + r["Ranking Metric"], r["Rank Value"])
-        if d["Evidence Class"] == "convention":
+        if s["class"] == "convention":
             add(d["design_key"], "designs", "convention", "", "", "", "")
-    for fr in spec["fill_rule_provenance"]:
-        add(fr["row_key"], fr["table"], fr["evidence_class"], fr["source_name"], by_corpus[fr["corpus"]]["url"],
-            spec["fill_rule_metric"], spec["fill_rule_value"])
+    arch_of = {r["doc_category"]: r["_arch"] for r in res["rows"]}
+    style_user = {}
+    for r in res["rows"]:
+        if r["Style Key"] in res["styles"]:
+            style_user.setdefault(r["Style Key"], r["_arch"])
+    for key, arch in style_user.items():
+        if arch:
+            c = best_corpus(table[arch], corpora)
+            add(key, "doc-styles", "ranked", f"{c['id']} {family} corpus, fill applied per rule", c["url"],
+                spec["fill_rule_metric"], spec["fill_rule_value"])
+    for r in res["rows"]:
+        if r["_arch"]:
+            c = best_corpus(table[r["_arch"]], corpora)
+            add(r["doc_category"], "doc-reasoning", "ranked", f"{c['id']} {family} corpus archetype, fill applied per rule",
+                c["url"], spec["fill_rule_metric"], spec["fill_rule_value"])
 
     return {
         f"library/doc-styles/{family}.csv": _csv_text(DOC_STYLES_COLS, ds_rows),
         f"library/doc-reasoning/{family}.csv": _csv_text(DOC_REASONING_COLS, dr_rows),
         f"designs/{family}.csv": _csv_text(DESIGNS_COLS, d_rows),
         f"provenance/{family}.csv": _csv_text(PROV_COLS, p_rows),
-        f"designs-evidence/{family}-fill-log.md": decisions_log(family, spec, items, changes, table),
+        f"designs-evidence/{family}-fill-log.md": decisions_log(family, spec, res),
     }
 
 
@@ -770,52 +1163,60 @@ def _csv_text(cols, rows) -> str:
     return buf.getvalue()
 
 
-def decisions_log(family: str, spec: dict, items: list, changes: list, table: dict) -> str:
-    """`<family>-fill-log.md`: the engine's own ranking and section-8 proposals, laid beside the
-    decisions the spec records, and every place they differ (a reviewer reads this, not the code)."""
-    corpora, identity = spec["corpora"], spec_identity(spec)
-    order, beyond = rank_step1(table, corpora, cap=spec.get("step1_cap", 9))
-    designs = spec["designs"]
-    spec_order = [d["archetype"] for d in designs if d["archetype"] in order]
-    lib, dropped = Library(), frozenset(dropped_variants(family, spec))
-    default_style = family_default_style(family)
+def decisions_log(family: str, spec: dict, res: dict) -> str:
+    """`<family>-fill-log.md`: the engine's ranking, plan and section-8 proposals beside what shipped,
+    every retirement / cap decision, every blanked bias token and every spec-vs-engine disagreement."""
+    corpora, identity, table, plan = spec["corpora"], spec_identity(spec), res["table"], res["plan"]
+    shipped_by_arch = {s["archetype"]: s for s in plan["shipped"] if s["archetype"]}
     out = [f"# {family} -- fill decisions log (generated by fill_family.py; do not hand-edit)", "",
            f"Evidence: {', '.join(c['file'] for c in corpora)}; recodes: {', '.join(spec.get('recodes', [])) or 'none'} "
-           f"({len(changes)} code overrides applied); identity features: {'|'.join(identity)}.", "",
-           "## Engine ranking (section 6, step 1)", "",
-           "| # | archetype | combined | K | adm | " + " | ".join(c["id"] for c in corpora) + " | decided design |",
-           "|---|---|---|---|---|" + "---|" * (len(corpora) + 1)]
-    by_arch = {d["archetype"]: d["design_key"] for d in designs if d["archetype"]}
-    for n, a in enumerate(order, 1):
+           f"({len(res['changes'])} code overrides applied); identity features: {'|'.join(identity)}.", "",
+           f"Spec overrides (entries carrying a ratified `override`): **{res['overrides']}**; "
+           f"spec-vs-engine violations: **{len(res['violations'])}**.", ""]
+    for v in res["violations"]:
+        out.append(f"- VIOLATION: {v}")
+    out += ["", "## Engine ranking (section 6, step 1; k counts ADMISSIBLE exemplars only, C21)", "",
+            "| # | archetype | combined | K | inadm (not counted) | " + " | ".join(c["id"] for c in corpus_order(corpora))
+            + " | shipped design (rank) |",
+            "|---|---|---|---|---|" + "---|" * (len(corpora) + 1)]
+    for n, a in enumerate(plan["eligible"], 1):
         r = table[a]
-        out.append(f"| {n} | `{a}` | {r['combined']:.4f} | {r['K']} | {r['adm']} | " +
-                   " | ".join(f"{r['k'][c['id']]}/{c['n']}" for c in corpora) + f" | {by_arch.get(a, '(none)')} |")
-    out += ["", "Order check: designs whose archetype is in the engine's step-1 list appear in the engine's order: "
-            + ("**yes**" if spec_order == [a for a in order if a in spec_order] else "**NO -- see below**"), ""]
-    if spec_order != [a for a in order if a in spec_order]:
-        out.append(f"- decided: {spec_order}\n- engine:  {[a for a in order if a in spec_order]}")
-    missing = [a for a in order if a not in by_arch]
-    if missing:
-        out += ["Engine step-1 archetypes with no decided design (cap, merge or omission is a recorded decision): "
-                + ", ".join(f"`{a}`" for a in missing), ""]
-    out += ["## Section 8 proposals beside the decided fill", ""]
-    for d in designs:
-        a = d["archetype"]
-        if not a:
+        s = shipped_by_arch.get(a)
+        out.append(f"| {n} | `{a}` | {r['combined']:.4f} | {r['K']} | {r['inadm']} | " +
+                   " | ".join(f"{r['k'][c['id']]}/{c['n']}" for c in corpus_order(corpora)) +
+                   f" | {(s['design']['design_key'] + ' (' + str(s['rank']) + ')') if s else '(not shipped)'} |")
+    out += ["", f"Cap: {CAP} designs in total; ranked slots this family = {plan['cap1']}.", "",
+            "## Plan: what ships, in rank order", ""]
+    for s in plan["shipped"]:
+        out.append(f"{s['rank']}. `{s['design']['design_key']}` -- {s['slot']} -- class `{s['class']}`"
+                   + (f" -- archetype `{s['archetype']}`" if s["archetype"] else ""))
+    for label, lst in (("Retired (identity duplicate / slot rule)", plan["retired"]),
+                       ("Outside the cap", plan["outside"]), ("Pending (not shipped)", plan["pending"])):
+        if lst:
+            out += ["", f"### {label}", ""] + [f"- `{k}`: {why}" for k, why in lst]
+    if plan["missing"]:
+        out += ["", "### Ranked archetypes with no decided design", ""] + [f"- `{a}`" for a in plan["missing"]]
+    out += ["", "## Section 8 proposals beside the resolved fill", ""]
+    rowmap = {r["doc_category"]: r for r in res["rows"]}
+    for s in plan["shipped"]:
+        d = s["design"]
+        prop = res["props"].get(d["design_key"])
+        if not prop:
+            out.append(f"- `{d['design_key']}`: seeded design -- keeps its base reasoning row (section 9)")
             continue
-        exemplars = table[a]["ex"]
-        prop = section8_proposal(family, a, exemplars, identity, lib, dropped, default_style)
+        r = rowmap.get(d["Reasoning Key"])
         st = prop["style"]
-        rr = next((r for r in spec["reasoning"]["rows"] if r["doc_category"] == d["Reasoning Key"]), None)
-        pal = ", ".join(f"{k}" for k, _ev in prop["palettes"][:3]) or "none"
-        out.append(f"- `{d['design_key']}` ({a}): style proposal {st['Table Rules']}/{st['Table Fills']}/"
+        pal = ", ".join(k for k, _e in prop["palettes"][:3]) or "none"
+        out.append(f"- `{d['design_key']}` ({s['archetype']}): style proposal {st['Table Rules']}/{st['Table Fills']}/"
                    f"{st['Emphasis Mechanism']}/rule-brand {st['Rule Brand pt']}pt; reuse candidates: "
                    f"{', '.join(prop['reuse'][:4]) or 'none (new row)'}; palette candidates: {pal}; "
                    f"typeface candidates: {', '.join(prop['typefaces']) or 'none'}; "
-                   f"decided: style `{rr['Style Key'] if rr else '?'}`, palette `{rr['Palette Key'] if rr else '?'}`, "
-                   f"typeface `{rr['Typeface Key'] if rr else '?'}`")
+                   f"resolved: style `{r['Style Key']}`, palette `{r['Palette Key']}`, typeface `{r['Typeface Key']}`")
         for note in prop["notes"]:
             out.append(f"  - {note}")
+    if res["blanked"]:
+        out += ["", "## Bias tokens blanked because the design contradicts them (R7-8)", ""]
+        out += [f"- `{k}` {col}: `{tok}` ({why})" for k, col, tok, why in res["blanked"]]
     out.append("")
     return "\n".join(out)
 
@@ -877,6 +1278,14 @@ def outputs_root() -> Path:
 
 
 def cmd_write(family: str) -> int:
+    spec = load_spec(family)
+    if spec is not None:
+        bad = resolve_family(family, spec)["violations"]
+        if bad:
+            print(f"[{family}] refusing to write: the spec disagrees with the engine (R7-4):")
+            for v in bad:
+                print("  -", v)
+            return 1
     files = build(family)
     for rel, text in files.items():
         path = RES / rel
@@ -887,8 +1296,15 @@ def cmd_write(family: str) -> int:
 
 
 def cmd_check(family: str) -> int:
-    """Rebuild in memory and compare each CSV byte-for-byte with the committed file."""
+    """R7-4: FAIL when the spec differs from the engine's proposal without a ratified override; then rebuild
+    in memory and compare each CSV byte-for-byte with the committed file."""
     bad = 0
+    spec = load_spec(family)
+    if spec is None:
+        raise SystemExit(f"no fill-specs/{family}.json")
+    for v in resolve_family(family, spec)["violations"]:
+        print("VIOLATION", v)
+        bad += 1
     for rel, text in build(family).items():
         if rel.endswith(".md"):
             continue
@@ -935,20 +1351,21 @@ def dry_run(family: str) -> int:
         c.setdefault("n", len(c["items"]))
     table = combined_table(items, corpora, identity)
     used_identity = identity
-    cap = (spec or {}).get("step1_cap", 9)
+    cap = (spec or {}).get("step1_cap", CAP)
     order, dropped = rank_step1(table, corpora, cap=cap)
-    lib = Library()
+    lib = Library(family)
+    n_of = {c['id']: c['n'] for c in corpora}
     dropped_v = frozenset(dropped_variants(family, spec))
     default_style = family_default_style(family)
     if dropped_v:
         print(f"  variants dropped by the gate (family default used): {', '.join(sorted(dropped_v))}")
-    print(f"\n[{family}] proposed step-1 ranking (K>=2, >=1 admissible exemplar; cap {cap}):")
+    print(f"\n[{family}] proposed step-1 ranking (K>=2 admissible exemplars; cap {cap}):")
     for n, a in enumerate(order, 1):
         r = table[a]
         shares = " ".join(f"{c['id']}:{r['k'][c['id']]}/{c['n']}" for c in corpora if r["k"][c["id"]])
-        prop = section8_proposal(family, a, r["ex"], used_identity, lib, dropped_v, default_style)
+        prop = section8_proposal(family, a, r["ex"], used_identity, lib, dropped_v, default_style, n_of)
         st = prop["style"]
-        print(f"  {n:>2}. {a:<40} combined {r['combined']:.4f}  K={r['K']} adm={r['adm']}  {shares}")
+        print(f"  {n:>2}. {a:<40} combined {r['combined']:.4f}  K={r['K']} (inadmissible not counted: {r['inadm']})  {shares}")
         print(f"      style {st['Table Rules']}/{st['Emphasis Mechanism']}/brand {st['Rule Brand pt']}pt "
               f"reuse={','.join(prop['reuse'][:3]) or 'new'}  palette={','.join(k for k, _e in prop['palettes'][:2]) or '-'}  "
               f"typeface={','.join(prop['typefaces']) or '-'}")

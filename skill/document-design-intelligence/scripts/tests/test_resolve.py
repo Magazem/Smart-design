@@ -389,11 +389,11 @@ class TestDesignOverrideEndToEnd(unittest.TestCase):
         return proc
 
     def test_design_overrides_reasoning_key_and_is_included_in_resolved(self):
-        proc = self._run_real(["--doctype", "cv-uk", "--design", "cv-dach-tabular", "--json"])
+        proc = self._run_real(["--doctype", "cv-uk", "--design", "cv-academic", "--json"])
         self.assertEqual(proc.returncode, 0, proc.stderr)
         payload = json.loads(proc.stdout)
-        self.assertEqual(payload["resolved"]["doc-reasoning"][0]["key"], "cv-dach-tabular")
-        self.assertEqual(payload["resolved"]["designs"][0]["key"], "cv-dach-tabular")
+        self.assertEqual(payload["resolved"]["doc-reasoning"][0]["key"], "cv-academic")
+        self.assertEqual(payload["resolved"]["designs"][0]["key"], "cv-academic")
 
     def test_without_design_reasoning_key_is_the_doctypes_own_default(self):
         proc = self._run_real(["--doctype", "cv-uk", "--json"])
