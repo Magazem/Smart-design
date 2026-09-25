@@ -24,15 +24,12 @@
   fixed by fc99531). So check status before regenerating.
 
 ## Scripts I own
-- research/designs-evidence/make_items_csv.py (C11 items csv: cv, deck, invoice). It recognises tables
-  by header only; `CATALOGUE_URL` supplies the url for items without a page of their own (invoice MS).
-  make_items_csv_82ag.py is a separate recoder script; it isn't mine.
+- make_items_csv.py (C11 items csv: cv/deck/invoice; tables found by header only; `CATALOGUE_URL`
+  gives MS invoice rows a url). make_items_csv_82ag.py is the recoder's script, not mine.
 
-## Exposure / independence (per family)
-- While checking my own parsing I saw first-coder feature codes for a few rows:
-  cv (GH:001, NPM:001 row), deck (NPM:002, LO:001, MS:001 rows) and invoice (MS:002 row).
-  Treat me as EXPOSED for cv, deck and invoice: do not use me as a second coder for them.
-  I saw no codes for any other family.
+## Exposure / independence
+- EXPOSED for cv, deck and invoice: while checking parsing I saw first-coder codes for a few rows
+  (cv GH:001/NPM:001; deck NPM:002/LO:001/MS:001; invoice MS:002). Never a second coder there. No other family.
 
 ## Left half-done / open at handover
 - Uncommitted, still being written by the bg agreement agent: deck-agreement-r2.md, poster-agreement.md,
