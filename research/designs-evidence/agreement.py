@@ -287,7 +287,13 @@ def clean_feature_cell(raw):
     cell = re.split(r"\s*\(", cell, maxsplit=1)[0]
     cell = re.split(r"\s+[–—]\s+", cell, maxsplit=1)[0]
     cell = re.split(r"\s+--\s+", cell, maxsplit=1)[0]
-    return cell.strip()
+    cell = cell.strip()
+    # a value immediately followed by its own opening "**" (e.g. "multi **(disclosed low-
+    # confidence...)**") only has that trailing marker exposed once the parenthetical above is
+    # split off, since the first strip above only catches asterisks at the then-current end of
+    # the whole cell — repeat it now that the parenthetical/dash trailer is gone.
+    cell = re.sub(r"\*+$", "", cell).strip()
+    return cell
 
 
 def parse_yesno_cell(raw):
