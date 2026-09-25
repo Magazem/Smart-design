@@ -187,7 +187,7 @@ def read(name):
 # a batch stays out of the build until enabled. The orchestrator enables a batch by adding its filename once
 # reviewed; an unlisted file sits in research/library/ and is silently skipped (that
 # silence is the point of a review gate, not a bug).
-LIBRARY_INPUTS_ENABLED = ["ranked-pairings.csv", "authority-design-systems.csv", "ratio-families.csv", "ranked-colourlovers.csv", "cv.csv"]
+LIBRARY_INPUTS_ENABLED = ["ranked-pairings.csv", "authority-design-systems.csv", "ratio-families.csv", "ranked-colourlovers.csv", "cv.csv", "proposal.csv"]
 
 
 def load_library_extra(table):
@@ -850,7 +850,7 @@ CHANGES.append("designs: %d rows loaded from %d research/designs/<family>.csv fi
 # gate as LIBRARY_INPUTS_ENABLED applies: only a filename LISTED in
 # PROVENANCE_INPUTS_ENABLED loads. The list below is the reviewed set (the designs seed
 # plus the ranked/authority provenance batches).
-PROVENANCE_INPUTS_ENABLED = ["seed-designs.csv", "typefaces-ranked-pairings.csv", "palettes-authority-design-systems.csv", "type-scales-ratio-families.csv", "palettes-ranked-colourlovers.csv", "legacy-backfill.csv", "type-scales-i7-convention.csv", "cv.csv"]
+PROVENANCE_INPUTS_ENABLED = ["seed-designs.csv", "typefaces-ranked-pairings.csv", "palettes-authority-design-systems.csv", "type-scales-ratio-families.csv", "palettes-ranked-colourlovers.csv", "legacy-backfill.csv", "type-scales-i7-convention.csv", "cv.csv", "proposal.csv"]
 PROVENANCE_DIR = RES / "provenance"
 _prov_files = ([p for p in sorted(PROVENANCE_DIR.glob("*.csv"))
                if p.name in PROVENANCE_INPUTS_ENABLED] if PROVENANCE_DIR.is_dir() else [])

@@ -114,6 +114,26 @@ A4: Direction 4 'Editorial / Creative-Industry CV' (research/70 sec 'Direction 4
 
 (none given)
 
+### `proposal-serif-centered` -- confidence (none)
+
+(none given)
+
+### `proposal-sans-centered` -- confidence (none)
+
+(none given)
+
+### `proposal-sans-plain-left` -- confidence (none)
+
+(none given)
+
+### `proposal-serif-ruled` -- confidence (none)
+
+(none given)
+
+### `proposal-sans-accent-centered` -- confidence (none)
+
+(none given)
+
 ---
 
 The draft also carries 4 ENS rows (`ens-formulaire`, `ens-marketing`, `ens-office-document`, `ens-slides`). They are not in `data/base/`

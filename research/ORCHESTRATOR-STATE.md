@@ -228,3 +228,4 @@ This file is the live checklist. It is updated and committed after every milesto
   team_members shows the owner idle AND the task is still pending after their idle notice.
 - Opus Reviewer -> R7 audit of the cv fill + fill_family.py (research/92). The cv fill was bg-authored and never reviewed.
 - 2026-09-24 Repo Keeper: quote GitHub (+1) + report and deck r2 second coders.
+- 2026-09-25 Repo Keeper (resume after limit): proposal fill (6 designs) + invoice r2 second coder + whitepaper corpus + brochure/flyer/form/memo agreements + agreement.py; verified in clean worktree, one known fill_family dry-run test excluded.

@@ -109,7 +109,9 @@ ALIASES = {
     "column": "columns",
     "heading": "heading",
     "head": "heading",
+    "headingclass": "heading",
     "body": "body",
+    "bodyclass": "body",
     "colour": "colour",
     "color": "colour",
     "colouruse": "colour",
@@ -138,7 +140,9 @@ ALIASES = {
     # brochure
     "panelcount": "panel_count",
     "panels": "panel_count",
-    # form
+    # form (corpus files use the bare header "field"; second-coder files spell it out as
+    # "field style" — both must resolve to the same canonical key)
+    "field": "field_style",
     "fieldstyle": "field_style",
     # letter
     "letterheadposition": "letterhead_position",
@@ -198,12 +202,17 @@ def normalize_name(cell):
 
 
 def split_row(line):
+    """Split a markdown table row on "|", honoring markdown's own escape convention: a
+    backslash-escaped pipe (`\\|`) inside a cell is literal text, not a column separator (seen
+    in flyer-second-coder.md's MSF:012 row, which escapes pipes inside a quoted schedule
+    string). Escaped pipes are unescaped back to a plain "|" in the returned cell text."""
     line = line.strip()
     if line.startswith("|"):
         line = line[1:]
     if line.endswith("|"):
         line = line[:-1]
-    return [c.strip() for c in line.split("|")]
+    parts = re.split(r"(?<!\\)\|", line)
+    return [p.strip().replace("\\|", "|") for p in parts]
 
 
 def is_separator_row(cells):
@@ -269,6 +278,12 @@ def clean_feature_cell(raw):
     cell = raw.strip()
     cell = re.sub(r"^`|`$", "", cell)
     cell = cell.strip()
+    # markdown emphasis (recode files bold a changed value, e.g. "**image-hero**") is never
+    # part of the enum value itself — strip leading/trailing asterisks the same way backticks
+    # are stripped above, before the parenthetical/dash splits below.
+    cell = re.sub(r"^\*+", "", cell)
+    cell = re.sub(r"\*+$", "", cell)
+    cell = cell.strip()
     cell = re.split(r"\s*\(", cell, maxsplit=1)[0]
     cell = re.split(r"\s+[–—]\s+", cell, maxsplit=1)[0]
     cell = re.split(r"\s+--\s+", cell, maxsplit=1)[0]
@@ -305,6 +320,137 @@ def is_uncoded(value):
     if v.lower() in ("n/a", "na"):
         return True
     return False
+
+
+PAREN_RE = re.compile(r"\(([^)]*)\)")
+
+
+def strip_parenthetical(cell):
+    """Drop any parenthetical annotation from a header cell, e.g. "header (r1)" -> "header",
+    "colour (Fm.8.3)" -> "colour", "header (r1, F.11.2)" -> "header"."""
+    return PAREN_RE.sub("", cell).strip()
+
+
+def feature_alias_tokens(feature_key):
+    """Every normalized header-cell alias that resolves to this canonical feature key (reverse
+    lookup into ALIASES), e.g. feature_key="header" -> {"header", "headertreatment"}."""
+    return {norm for norm, key in ALIASES.items() if key == feature_key}
+
+
+def find_value_column(header, feature_key):
+    """Find the column in a header row that carries FEATURE_KEY's override/recode value.
+
+    Recode/verification files (research/*-recode-82ag.md) name their columns in one of three
+    ways, all handled here by stripping any parenthetical suffix and exact-matching the result
+    against the feature's alias set (never a prefix match, so a column like "header check
+    against 82a-general A" — much longer once stripped — is correctly never mistaken for the
+    value column itself):
+      - a direct/bare column, e.g. "header", "colour" (a fresh-to-82a-general coding with no
+        pre-recode value to diff against, e.g. memo's M.6, or a later verification addendum,
+        e.g. form's "colour (Fm.8.3)") -> used as-is;
+      - a translation-recode pair, e.g. "header (r1)" + "header (r2ag)" (brochure, flyer, form)
+        -> the "(r2ag)" column is the override value, the "(r1)" column (the pre-recode value)
+        is never selected as a value source, even if it is the only match in a table;
+      - a variant spelling of the "(r1)" tag with extra disclosure text in the parens, e.g.
+        "header (r1, F.11.2)" (flyer's second recode table) -> still recognized as "r1" (skip)
+        because the parenthetical is checked by substring, not exact match.
+    Returns the column index, or None if this header row has no usable column for this feature.
+    """
+    tokens = feature_alias_tokens(feature_key)
+    best = None  # (priority, idx); priority 2 = explicit "(r2ag)" override, 1 = direct/bare
+    for idx, cell in enumerate(header):
+        base = normalize_header(strip_parenthetical(cell))
+        if base not in tokens:
+            continue
+        m = PAREN_RE.search(cell)
+        paren = m.group(1).lower() if m else ""
+        if "r1" in paren and "r2ag" not in paren:
+            continue  # the pre-recode value is never usable as an override
+        priority = 2 if "r2ag" in paren else 1
+        if best is None or priority > best[0]:
+            best = (priority, idx)
+    return best[1] if best else None
+
+
+def load_override_map(path, feature_key):
+    """Parse every markdown table in PATH, return (overrides, tables_used) where overrides is
+    dict id -> override value for FEATURE_KEY, drawn from whichever table(s) in the file carry
+    both an "id" column and a usable value column for this feature (find_value_column). A file
+    may have more than one such table (e.g. an original recode table plus a later addendum
+    covering additional ids, or additional items added while the recode was in progress); later
+    tables' rows win on a repeated id (so a later addendum/correction supersedes an earlier one
+    for the same id)."""
+    with open(path, "r", encoding="utf-8") as f:
+        text = f.read()
+    tables = find_tables(text)
+    overrides = OrderedDict()
+    tables_used = 0
+    for header, rows in tables:
+        id_idx = None
+        for idx, cell in enumerate(header):
+            if normalize_header(cell) == "id":
+                id_idx = idx
+                break
+        if id_idx is None:
+            continue
+        val_idx = find_value_column(header, feature_key)
+        if val_idx is None:
+            continue
+        tables_used += 1
+        for row in rows:
+            if len(row) < len(header):
+                row = row + [""] * (len(header) - len(row))
+            if id_idx >= len(row) or not row[id_idx].strip():
+                continue
+            rid = clean_feature_cell(row[id_idx])
+            rid = re.sub(r"[`*]", "", rid).strip()
+            if not rid or val_idx >= len(row):
+                continue
+            raw_val = row[val_idx]
+            val = parse_yesno_cell(raw_val) if feature_key in YESNO_KEYS else clean_feature_cell(raw_val)
+            overrides[rid] = val
+    return overrides, tables_used
+
+
+def apply_overrides(first_by_id, override_specs, feature_keys, fh=sys.stdout):
+    """override_specs: list of (feature_key, path). For each spec, loads the override map and
+    replaces first_by_id[id][feature_key] with the override value for every id already present
+    in first_by_id (an override never introduces a new id — it only corrects a feature's value
+    for an id the corpus already coded). Prints an audit section listing, per spec, how many
+    override rows were found, how many matched an existing first-coder id, and every id where
+    the value actually changed (id, old, new) — a silent no-op recode (recoder confirmed the
+    original value) is reported too, just with old==new."""
+    if not override_specs:
+        return
+    print("\n## Overrides applied (recode files superseding first-coder values)\n")
+    for feature_key, path in override_specs:
+        if feature_key not in feature_keys:
+            print(f"- `{feature_key}` is not a tracked feature for this family — skipped "
+                  f"(no-op) for `{path}`.")
+            continue
+        overrides, tables_used = load_override_map(path, feature_key)
+        if tables_used == 0:
+            print(f"- `{feature_key}` from `{path}`: no usable column found for this feature — "
+                  f"skipped (no-op).")
+            continue
+        changed = []
+        matched = 0
+        for rid, val in overrides.items():
+            if rid not in first_by_id:
+                continue
+            matched += 1
+            old = first_by_id[rid].get(feature_key)
+            if old != val:
+                changed.append((rid, old, val))
+            first_by_id[rid][feature_key] = val
+        print(f"- `{feature_key}` from `{path}`: {len(overrides)} override row(s) found "
+              f"({tables_used} table(s)), {matched} matched an existing first-coder id, "
+              f"{len(changed)} value(s) changed.")
+        if changed:
+            print("\n  | id | old (r1) | new (recode) |", file=fh)
+            print("  |---|---|---|", file=fh)
+            for rid, old, new in changed:
+                print(f"  | {rid} | {old} | {new} |", file=fh)
 
 
 def load_coded_records(path, feature_keys, identity_keys, label=None):
@@ -563,6 +709,31 @@ def main():
         "--exclude", nargs="*", default=[],
         help="ids to drop for a sensitivity re-run (e.g. disclosed prior-exposure items).",
     )
+    ap.add_argument(
+        "--override", nargs="*", default=[], metavar="FEATURE=path",
+        help='Override the first-coder value of FEATURE, per id, from a recode/verification '
+             'file (research/*-recode-82ag.md-style: an "id" column plus a column for FEATURE, '
+             'see find_value_column). Repeatable, e.g. --override header=foo.md colour=foo.md. '
+             'Only ids already present in a --first file are affected.',
+    )
+    ap.add_argument(
+        "--recode", default=None,
+        help="Shorthand for --override header=PATH colour=PATH (a *-recode-82ag.md file "
+             "recoding header treatment + colour use under research/82a-general.md). A family "
+             "without one of those two features (e.g. form, whose header slot is field_style) "
+             "simply gets a no-op for the missing one.",
+    )
+    ap.add_argument(
+        "--override-features", default=None, metavar="F1,F2,...",
+        help="Comma-separated feature keys, used together with --override-file: a generic form "
+             "for a recode file that already overrides several features at once from one table "
+             "(e.g. deck-recode.md: --override-features heading,colour,title_layout,admissible "
+             "--override-file research/designs-evidence/deck-recode.md).",
+    )
+    ap.add_argument(
+        "--override-file", default=None,
+        help="Path used with --override-features.",
+    )
     args = ap.parse_args()
 
     # Evidence files carry em dashes, curly quotes etc.; force utf-8 stdout so this runs
@@ -584,6 +755,21 @@ def main():
     first_by_id, first_by_name, report = build_first_coder_index(first_specs, feature_keys, identity_keys)
     second_records, second_tables_used = load_coded_records(args.second, feature_keys, identity_keys, label=None)
 
+    override_specs = []
+    for spec in args.override:
+        if "=" not in spec:
+            ap.error(f'--override entries must be "FEATURE=path", got: {spec}')
+        feat, path = spec.split("=", 1)
+        override_specs.append((feat.strip(), path))
+    if args.recode:
+        override_specs.append(("header", args.recode))
+        override_specs.append(("colour", args.recode))
+    if args.override_features or args.override_file:
+        if not (args.override_features and args.override_file):
+            ap.error("--override-features and --override-file must be given together.")
+        for feat in args.override_features.split(","):
+            override_specs.append((feat.strip(), args.override_file))
+
     print(f"# Agreement computation — family: {args.family}\n")
     print(f"Identity features (gating): {', '.join(identity_keys)}, admissible.")
     print(f"Variant features (non-gating, dropped from filling on failure): {', '.join(variant_keys)}.\n")
@@ -593,6 +779,8 @@ def main():
               f"({n_tables} coded table(s) detected).")
     print(f"- Second coder `{args.second}`: {len(second_records)} coded rows found "
           f"({second_tables_used} coded table(s) detected).")
+
+    apply_overrides(first_by_id, override_specs, feature_keys)
 
     sample_ids = list(second_records.keys())
     print(f"\n## Sample\n\n{len(sample_ids)} ids: {', '.join(sample_ids)}\n")

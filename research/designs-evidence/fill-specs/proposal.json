@@ -1,0 +1,231 @@
+{
+ "family": "proposal",
+ "date": "2026-09-24",
+ "corpora": [
+  {
+   "id": "GH",
+   "file": "proposal-corpus-github.md",
+   "n": 40,
+   "level": "L1",
+   "source_name": "GH(proposal template latex) stars-desc search",
+   "url": "https://api.github.com/search/repositories?q=proposal+template+latex&sort=stars&order=desc&per_page=100",
+   "metric": "share:GH:k/40 by stars"
+  }
+ ],
+ "identity": [
+  "columns",
+  "heading",
+  "colour",
+  "header"
+ ],
+ "recodes": [],
+ "doc_styles": [
+  {
+   "style_key": "proposal-plain-centered",
+   "Display Name": "Proposal, centred title",
+   "Keywords": "proposal, centered title, single column, restrained, header-and-total tables",
+   "Best For": "Single-column proposals with a centred title block and no colour-coded meaning",
+   "Not For": "slide decks, one-page flyers, marketing collateral",
+   "Brand Scope": "generic",
+   "Rule Hair pt": "0.5",
+   "Rule Strong pt": "1",
+   "Rule Brand pt": "0",
+   "Corner Radius mm": "0",
+   "Table Rules": "header-and-total",
+   "Table Fills": "none",
+   "Emphasis Mechanism": "weight",
+   "Field Style": "none",
+   "Checklist": "headings H1-H3 only;Keep single column;Centre the title block on the page;Emphasize by weight and size, not colour;header-and-total rule on tables, no zebra"
+  },
+  {
+   "style_key": "proposal-ruled",
+   "Display Name": "Proposal, ruled title",
+   "Keywords": "proposal, ruled title, full-width rule, single column, restrained, header-and-total tables",
+   "Best For": "Single-column proposals whose title block is bounded by a full-width rule and no colour-coded meaning",
+   "Not For": "slide decks, one-page flyers, marketing collateral",
+   "Brand Scope": "generic",
+   "Rule Hair pt": "0.5",
+   "Rule Strong pt": "1",
+   "Rule Brand pt": "1",
+   "Corner Radius mm": "0",
+   "Table Rules": "header-and-total",
+   "Table Fills": "none",
+   "Emphasis Mechanism": "weight",
+   "Field Style": "none",
+   "Checklist": "headings H1-H3 only;Keep single column;Set a full-width rule directly under the title block;Emphasize by weight and size, not colour;header-and-total rule on tables, no zebra"
+  }
+ ],
+ "reasoning": {
+  "defaults": {
+   "Style Bias Terms": "narrative structure, formal, persuasive but restrained",
+   "Palette Bias Terms": "neutral ink, restrained accent",
+   "Typeface Bias Terms": "safe serif stack",
+   "Doc Conditions": "",
+   "Severity": "warn"
+  },
+  "anti_tokens": {
+   "default": "multi-column;gradient;stock-photo-cliche;emoji"
+  },
+  "rows": [
+   {
+    "doc_category": "proposal-serif-centered",
+    "Style Key": "proposal-plain-centered",
+    "Palette Key": "lib-carbon-mono",
+    "Typeface Key": "safe-serif-times",
+    "Anti-Pattern Tokens": "default"
+   },
+   {
+    "doc_category": "proposal-sans-centered",
+    "Style Key": "proposal-plain-centered",
+    "Palette Key": "lib-carbon-mono",
+    "Typeface Key": "lib-roboto",
+    "Anti-Pattern Tokens": "default"
+   },
+   {
+    "doc_category": "proposal-sans-plain-left",
+    "Style Key": "report-classic-serif",
+    "Palette Key": "lib-carbon-mono",
+    "Typeface Key": "lib-roboto",
+    "Anti-Pattern Tokens": "default"
+   },
+   {
+    "doc_category": "proposal-serif-ruled",
+    "Style Key": "proposal-ruled",
+    "Palette Key": "lib-carbon-mono",
+    "Typeface Key": "safe-serif-times",
+    "Anti-Pattern Tokens": "default"
+   },
+   {
+    "doc_category": "proposal-sans-accent-centered",
+    "Style Key": "proposal-plain-centered",
+    "Palette Key": "lib-atlassian-ink",
+    "Typeface Key": "lib-roboto",
+    "Anti-Pattern Tokens": "default"
+   }
+  ]
+ },
+ "designs": [
+  {
+   "design_key": "proposal-serif-centered",
+   "Display Name": "Proposal, serif centred title",
+   "Reasoning Key": "proposal-serif-centered",
+   "Keywords": "proposal, research proposal, grant proposal, thesis proposal, serif, centered title, single column, restrained, monochrome",
+   "Best For": "Research, grant and thesis proposals: a centred serif title block over single-column text in ink -- the most frequent admissible layout in the GitHub proposal corpus, which skews to academic and grant templates (a separate cover page appears in 24 of 39 admissible corpus items; a variant, not fitted)",
+   "Not For": "commercial sales or consultancy proposals needing a branded cover, slide-style pitch decks, tabular quotes",
+   "Evidence Class": "ranked",
+   "archetype": "1|serif|mono|plain-centered",
+   "l3": []
+  },
+  {
+   "design_key": "proposal-sans-centered",
+   "Display Name": "Proposal, sans centred title",
+   "Reasoning Key": "proposal-sans-centered",
+   "Keywords": "proposal, research proposal, application proposal, sans, centered title, single column, restrained, monochrome",
+   "Best For": "Research and application proposals wanting a centred sans title block in ink -- second most frequent layout in the GitHub corpus (academic and grant skew) (a separate cover page appears in 24 of 39 admissible corpus items; a variant, not fitted)",
+   "Not For": "commercial sales or consultancy proposals needing a branded cover, slide-style pitch decks, tabular quotes",
+   "Evidence Class": "ranked",
+   "archetype": "1|sans|mono|plain-centered",
+   "l3": []
+  },
+  {
+   "design_key": "proposal-sans-plain-left",
+   "Display Name": "Proposal, sans left-aligned title",
+   "Reasoning Key": "proposal-sans-plain-left",
+   "Keywords": "proposal, project proposal, sans, left-aligned title, single column, restrained, monochrome",
+   "Best For": "Proposals with a left-aligned sans title block and no colour-coded meaning (academic and grant skew of the GitHub corpus) (a separate cover page appears in 24 of 39 admissible corpus items; a variant, not fitted)",
+   "Not For": "commercial sales or consultancy proposals needing a branded cover, slide-style pitch decks, tabular quotes",
+   "Evidence Class": "ranked",
+   "archetype": "1|sans|mono|plain-left",
+   "l3": []
+  },
+  {
+   "design_key": "proposal-serif-ruled",
+   "Display Name": "Proposal, serif ruled title",
+   "Reasoning Key": "proposal-serif-ruled",
+   "Keywords": "proposal, project proposal, serif, ruled title, full-width rule, single column, restrained, monochrome",
+   "Best For": "Proposals whose serif title block is bounded by a full-width rule (thesis and institute templates; academic skew of the GitHub corpus) (a separate cover page appears in 24 of 39 admissible corpus items; a variant, not fitted)",
+   "Not For": "commercial sales or consultancy proposals needing a branded cover, slide-style pitch decks, tabular quotes",
+   "Evidence Class": "ranked",
+   "archetype": "1|serif|mono|ruled",
+   "l3": []
+  },
+  {
+   "design_key": "proposal-sans-accent-centered",
+   "Display Name": "Proposal, sans accent centred title",
+   "Reasoning Key": "proposal-sans-accent-centered",
+   "Keywords": "proposal, grant proposal, sans, one accent, centered title, single column",
+   "Best For": "Proposals with a centred sans title block and one restrained accent colour, as in national-funding application templates (2 corpus items; academic and grant skew) (a separate cover page appears in 24 of 39 admissible corpus items; a variant, not fitted)",
+   "Not For": "commercial sales or consultancy proposals needing a branded cover, slide-style pitch decks, tabular quotes",
+   "Evidence Class": "ranked",
+   "archetype": "1|sans|one-accent|plain-centered",
+   "l3": []
+  },
+  {
+   "design_key": "proposal-narrative",
+   "Display Name": "Proposal, narrative serif",
+   "Reasoning Key": "proposal-narrative",
+   "Keywords": "proposal, project proposal, business proposal, narrative, persuasive",
+   "Best For": "narrative business and project proposals (commercial and consultancy proposals outside the academic and grant skew of the GitHub corpus; convention only, no ranking evidence)",
+   "Not For": "slide decks, one-page flyers, tabular quotes",
+   "Evidence Class": "convention",
+   "archetype": null,
+   "l3": []
+  }
+ ],
+ "fill_rule_provenance": [
+  {
+   "table": "doc-styles",
+   "row_key": "proposal-plain-centered",
+   "evidence_class": "ranked",
+   "source_name": "GH proposal corpus, fill applied per rule",
+   "corpus": "GH"
+  },
+  {
+   "table": "doc-styles",
+   "row_key": "proposal-ruled",
+   "evidence_class": "ranked",
+   "source_name": "GH proposal corpus, fill applied per rule",
+   "corpus": "GH"
+  },
+  {
+   "table": "doc-reasoning",
+   "row_key": "proposal-serif-centered",
+   "evidence_class": "ranked",
+   "source_name": "proposal corpus archetype, fill applied per rule",
+   "corpus": "GH"
+  },
+  {
+   "table": "doc-reasoning",
+   "row_key": "proposal-sans-centered",
+   "evidence_class": "ranked",
+   "source_name": "proposal corpus archetype, fill applied per rule",
+   "corpus": "GH"
+  },
+  {
+   "table": "doc-reasoning",
+   "row_key": "proposal-sans-plain-left",
+   "evidence_class": "ranked",
+   "source_name": "proposal corpus archetype, fill applied per rule",
+   "corpus": "GH"
+  },
+  {
+   "table": "doc-reasoning",
+   "row_key": "proposal-serif-ruled",
+   "evidence_class": "ranked",
+   "source_name": "proposal corpus archetype, fill applied per rule",
+   "corpus": "GH"
+  },
+  {
+   "table": "doc-reasoning",
+   "row_key": "proposal-sans-accent-centered",
+   "evidence_class": "ranked",
+   "source_name": "proposal corpus archetype, fill applied per rule",
+   "corpus": "GH"
+  }
+ ],
+ "fill_rule_metric": "fill-rule:research/82§8",
+ "fill_rule_value": "n/a (fill-rule, not a ranking)",
+ "convention_provenance": [
+  "proposal-narrative"
+ ]
+}
