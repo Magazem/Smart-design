@@ -101,7 +101,7 @@
     "doc_category": "cv-serif-plain-centered",
     "Style Key": "cv-serif-plain-centered",
     "Palette Key": "lib-carbon-mono",
-    "Typeface Key": "safe-serif-georgia",
+    "Typeface Key": "safe-serif-times",
     "Anti-Pattern Tokens": "default"
    },
    {
@@ -122,7 +122,7 @@
     "doc_category": "cv-serif-accent-plain-left",
     "Style Key": "cv-restrained",
     "Palette Key": "lib-atlassian-ink",
-    "Typeface Key": "safe-serif-georgia",
+    "Typeface Key": "safe-serif-times",
     "Anti-Pattern Tokens": "default"
    },
    {
@@ -136,7 +136,7 @@
     "doc_category": "cv-serif-mono-split",
     "Style Key": "cv-sans-accent-plain-centered",
     "Palette Key": "lib-carbon-mono",
-    "Typeface Key": "safe-serif-georgia",
+    "Typeface Key": "safe-serif-times",
     "Anti-Pattern Tokens": "default"
    },
    {

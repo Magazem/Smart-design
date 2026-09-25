@@ -339,13 +339,55 @@ def modal_variant(exemplars: list, feature: str):
 STYLE_TABLE_RULES_HEADER_TOTAL = {"invoice", "quote", "report", "whitepaper", "proposal"}
 
 
-def propose_style(family: str, arch: str, exemplars: list, identity: list) -> dict:
+#: agreement-file variant names -> the coded-table feature names items carry
+VARIANT_ALIASES = {"rules_boxes": "rules boxes", "cover_page": "cover", "totals_position": "totals",
+                   "table_rules": "table rules"}
+_DROP_GATE = re.compile(r"dropped from filling.*?does not fail the gate:\s*([a-z_, ]+?)\.?\s*$", re.I)
+_DROP_UNUSABLE = re.compile(r"\):\s*([a-z_, ]+?)\.\s*Not gating, not usable for filling", re.I)
+
+
+def dropped_variants(family: str, spec: dict | None = None) -> set:
+    """Variant features the family's agreement file(s) mark as dropped from filling (A_f < 0.80 -> the
+    family default is used instead, section 7) or as unusable (no shared coded sample), plus any the spec
+    lists under `dropped_variants`. Names are returned as the coded-table feature names."""
+    names = set((spec or {}).get("dropped_variants", []))
+    for path in sorted(HERE.glob(f"{family}-agreement*.md")):
+        for line in path.read_text(encoding="utf-8").splitlines():
+            for pat in (_DROP_GATE, _DROP_UNUSABLE):
+                m = pat.search(line)
+                if m:
+                    names |= {n.strip() for n in m.group(1).split(",") if n.strip()}
+    return {VARIANT_ALIASES.get(n, n.replace("_", " ")) for n in names}
+
+
+def family_default_style(family: str):
+    """The doc-style row of the family's doctype default (section 8: 'the family default'): the base
+    doctype of this family flagged `Family Default = y`, else its first; via its Reasoning Key."""
+    with (SKILL_DATA / "doctypes.csv").open(encoding="utf-8", newline="") as f:
+        docs = [r for r in csv.DictReader(f) if r["Family"] == family and r.get("Brand Scope", "generic") == "generic"]
+    docs.sort(key=lambda r: r.get("Family Default", "") != "y")
+    reasoning = {r["doc_category"]: r for r in _lib_rows("doc-reasoning")}
+    styles = {r["style_key"]: r for r in _lib_rows("doc-styles")}
+    for d in docs:
+        row = styles.get(reasoning.get(d["Reasoning Key"], {}).get("Style Key", ""))
+        if row:
+            return row
+    return None
+
+
+def propose_style(family: str, arch: str, exemplars: list, identity: list,
+                  dropped: frozenset = frozenset(), default_style: dict | None = None) -> dict:
     """Section 8 'Style' mapping, mechanically: rules/boxes, colour use and header treatment ->
-    doc-styles columns; the checklist lines that carry columns/photo/boxes."""
+    doc-styles columns; the checklist lines that carry columns/photo/boxes. A variant the agreement
+    gate DROPPED (`dropped`) is not read from the corpus: the family default's value is used and the
+    reason is recorded in `notes` (section 7, last sentence)."""
     feats = dict(zip(identity, arch.split("|")))
+    notes, checklist = [], []
     rb = modal_variant(exemplars, "rules boxes") or modal_variant(exemplars, "rules")
-    checklist = []
-    if rb == "none":
+    if "rules boxes" in dropped and default_style:
+        table_rules = default_style["Table Rules"]
+        notes.append(f"rules/boxes dropped by the gate -> family default Table Rules `{table_rules}`")
+    elif rb == "none":
         table_rules = "none"
     elif rb == "boxes":
         table_rules = "hairline"
@@ -359,10 +401,13 @@ def propose_style(family: str, arch: str, exemplars: list, identity: list) -> di
     rule_brand = "1" if header == "ruled" else "0"
     if feats.get("columns", "1") == "1":
         checklist.append("Keep single column")
-    if modal_variant(exemplars, "photo") == "no":
+    if "photo" in dropped:
+        notes.append("photo dropped by the gate -> no photo line (family default)")
+    elif modal_variant(exemplars, "photo") == "no":
         checklist.append("Omit photo")
     return {"Table Rules": table_rules, "Table Fills": "none", "Emphasis Mechanism": emphasis,
-            "Field Style": "none", "Rule Brand pt": rule_brand, "Checklist": checklist, "modal rules/boxes": rb}
+            "Field Style": "none", "Rule Brand pt": rule_brand, "Checklist": checklist,
+            "modal rules/boxes": rb, "notes": notes}
 
 
 def reuse_candidates(proposal: dict, styles: list) -> list:
@@ -401,21 +446,98 @@ def _hex_hsl(hexv: str):
     return hue * 60, s, l
 
 
+def _lum(hexv: str) -> float:
+    h = hexv.lstrip("#")
+    chans = []
+    for i in (0, 2, 4):
+        c = int(h[i:i + 2], 16) / 255
+        chans.append(c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4)
+    return 0.2126 * chans[0] + 0.7152 * chans[1] + 0.0722 * chans[2]
+
+
+def contrast(a: str, b: str) -> float:
+    la, lb = _lum(a), _lum(b)
+    hi, lo = max(la, lb), min(la, lb)
+    return (hi + 0.05) / (lo + 0.05)
+
+
+_HEX = re.compile(r"^#[0-9a-fA-F]{6}$")
+A7_BLUES = {"#4472c4", "#4f81bd", "#156082", "#0563c1"}       # section 5 rule A7: Office default blues
+
+
 def palette_class(row: dict) -> str:
     """Section 4 colour-use class from a palette row's own hexes: chromatic = HSL S>=0.20 and
     0.12<=L<=0.90 over Primary, Secondary, Accent, Rule Brand; hues >=30 degrees apart count apart;
-    0 -> mono, 1 -> one-accent, >=2 -> multi; `fill-blocks` needs a non-empty Fill-Only Roles."""
+    0 -> mono, 1 -> one-accent, >=2 -> multi. (`fill-blocks` is a page-area property of a document, not
+    a hue count: a palette SERVES a fill-blocks archetype when its Fill-Only Roles are non-empty, see
+    palette_serves.)"""
+    return _palette_hues(row)[0]
+
+
+def _palette_hues(row: dict):
     hues = []
     for role in ("Primary", "Secondary", "Accent", "Rule Brand"):
         v = row.get(role, "")
-        if not re.match(r"^#[0-9a-fA-F]{6}$", v or ""):
+        if not _HEX.match(v or ""):
             continue
         h, s, l = _hex_hsl(v)
         if s >= 0.20 and 0.12 <= l <= 0.90 and all(min(abs(h - o), 360 - abs(h - o)) >= 30 for o in hues):
             hues.append(h)
-    if row.get("Fill-Only Roles"):
-        return "fill-blocks"
-    return "mono" if not hues else "one-accent" if len(hues) == 1 else "multi"
+    return ("mono" if not hues else "one-accent" if len(hues) == 1 else "multi"), hues
+
+
+def palette_serves(colour: str, row: dict) -> bool:
+    if colour == "fill-blocks":
+        return bool(row.get("Fill-Only Roles"))
+    return palette_class(row) == colour
+
+
+def palette_evidence_rank() -> dict:
+    """{palette_key: rank} from every provenance row: 0 authority fetched, 1 authority search-corroborated
+    (or any other Fetch), 2 ranked, 3 convention, 4 no provenance. FETCHED authority outranks
+    search-corroborated authority: the class order authority > ranked > convention (section 8) is read as
+    evidence strength, and a legacy backfill row that is only search-corroborated is weaker than a
+    fetched design-system token page (fill engine rule R1, research/82a-clarifications-6.md)."""
+    best = {}
+    files = list(PROV.glob("*.csv")) + [SKILL_DATA / "provenance.csv"]
+    for path in files:
+        if not path.is_file():
+            continue
+        with path.open(encoding="utf-8-sig", newline="") as f:
+            for r in csv.DictReader(f):
+                if r.get("Table") != "palettes":
+                    continue
+                cls, fetch = r.get("Evidence Class", ""), r.get("Fetch", "")
+                rank = (0 if fetch == "fetched" else 1) if cls == "authority" else 2 if cls == "ranked" else 3
+                best[r["Row Key"]] = min(best.get(r["Row Key"], 4), rank)
+    return best
+
+
+def propose_palette(colour: str, palettes: list, evidence: dict, modal_hue: float | None = None) -> list:
+    """Section 8 'Palette' candidates for an archetype's colour use, in order: (1) evidence strength,
+    (2) accent hue bin (8 x 45 degrees) equal to the archetype's modal accent bin, when per-item hues
+    exist (`modal_hue`), (3) Foreground/Background >= 4.5:1 and, for a one-accent palette, accent >= 4.5:1
+    on Background (headline-only 3:1 is not available from the evidence), (4) not an A7 blue, (5) key.
+    Returns [(key, evidence rank)]; no hex is invented."""
+    seen, rows = set(), []
+    for r in palettes:
+        if r["palette_key"] in seen or r.get("Brand Scope", "generic") != "generic":
+            continue
+        seen.add(r["palette_key"])
+        if not palette_serves(colour, r) or not (_HEX.match(r.get("Foreground", "")) and _HEX.match(r.get("Background", ""))):
+            continue
+        fg_ok = contrast(r["Foreground"], r["Background"]) >= 4.5
+        acc = r.get("Accent", "")
+        acc_ok = True
+        if colour == "one-accent":
+            acc_ok = bool(_HEX.match(acc)) and contrast(acc, r["Background"]) >= 4.5
+        a7 = acc.lower() in A7_BLUES
+        hue_bin_miss = 0
+        if modal_hue is not None and _HEX.match(acc):
+            hue_bin_miss = int(int(_hex_hsl(acc)[0] // 45) != int(modal_hue // 45))
+        rows.append((evidence.get(r["palette_key"], 4), hue_bin_miss, not (fg_ok and acc_ok), a7, r["palette_key"]))
+    rows.sort()
+    return [(k, ev) for ev, _b, bad, _a7, k in rows if not bad]
 
 
 def google_popularity() -> dict:
@@ -431,27 +553,102 @@ def google_popularity() -> dict:
     return out
 
 
-def propose_typeface(arch: str, identity: list, typefaces: list, pop: dict) -> list:
-    """Section 8 'Typeface' candidates: rows whose Category Contrast heading class matches the
-    archetype's heading class, ordered by lowest Google Fonts popularity of the Heading Family,
-    then installable/editable licence, then key. (Safe-stack rows for a corpus that uses
-    OS/Office-bundled fonts need per-item declared fonts, which the coded tables do not carry:
-    that branch stays a decision.)"""
+def scale_media() -> dict:
+    """{scale_key: {Medium, ...}} over the base and library type-scales."""
+    out = {}
+    for r in _lib_rows("type-scales"):
+        out.setdefault(r["scale_key"], set()).add(r["Medium"])
+    return out
+
+
+def family_medium(family: str) -> str:
+    """Section 8: deck=projection, infographic=screen, else print."""
+    return {"deck": "projection", "infographic": "screen"}.get(family, "print")
+
+
+def propose_typeface(arch: str, identity: list, typefaces: list, pop: dict, modal_body: str | None = None,
+                     medium: str = "print", media: dict | None = None) -> tuple:
+    """Section 8 'Typeface': candidates are rows whose Category Contrast (heading-body) equals the
+    archetype's heading class and its modal body class; ordered by lowest Google Fonts popularity of the
+    Heading Family (a row with none sorts last), then installable/editable licence, then key. Then:
+      * MEDIUM RULE: the row's Scale Key must have the family's medium, else the next candidate;
+      * PAIRING FALLBACK (rule R2): if no row matches heading AND body, keep the IDENTITY feature and
+        relax the VARIANT one -- candidates by heading class alone (section 4: variants never split
+        archetypes; a default-typeface fallback would make different archetypes resolve identically).
+    (The safe-stack branch -- modal declared font OS/Office-bundled -- needs per-item declared fonts the
+    coded tables do not carry; safe rows compete as ordinary candidates.)
+    Returns ([keys, best first, max 3], [notes])."""
     heading = dict(zip(identity, arch.split("|"))).get("heading", "")
-    out = []
-    for r in typefaces:
+    media = media or {}
+    notes = []
+
+    def rank(rows):
+        keyed = []
+        for r in rows:
+            lic = 0 if r.get("Embedding Licence") in ("installable", "editable") else 1
+            keyed.append((pop.get(r["Heading Family"].lower(), 10 ** 6), lic, r["typeface_key"], r))
+        keyed.sort(key=lambda x: x[:3])
+        return keyed
+
+    def usable(keyed):
+        ok, seen_keys = [], set()
+        for _p, _l, key, r in keyed:
+            if key in seen_keys:
+                continue
+            seen_keys.add(key)
+            if media and medium not in media.get(r.get("Scale Key", ""), {medium}):
+                if ok:      # a rejection only matters for a row ranked above the chosen one
+                    continue
+                notes.append(f"`{key}` rejected: Scale Key `{r.get('Scale Key', '')}` is medium "
+                             f"{sorted(media.get(r.get('Scale Key', ''), []))}, not {medium} (medium rule)")
+                continue
+            if key not in ok:
+                ok.append(key)
+        return ok
+
+    generic = [r for r in typefaces if r.get("Brand Scope", "generic") == "generic"]
+
+    def classes(r):
         cc = r.get("Category Contrast", "")
-        head_class = cc.split("-")[0] if cc not in ("superfamily", "") else ""
-        if r["typeface_key"].startswith("safe-") or head_class != heading or r.get("Brand Scope", "generic") != "generic":
-            continue
-        rank = pop.get(r["Heading Family"].lower(), 10 ** 6)
-        lic = 0 if r.get("Embedding Licence") in ("installable", "editable") else 1
-        out.append((rank, lic, r["typeface_key"]))
-    ordered = []
-    for _, _, k in sorted(out):
-        if k not in ordered:
-            ordered.append(k)
-    return ordered[:3]
+        return tuple(cc.split("-")) if cc.count("-") == 1 else (None, None)
+
+    strict = [r for r in generic if classes(r)[0] == heading and (modal_body is None or classes(r)[1] == modal_body)]
+    found = usable(rank(strict))
+    if not found and modal_body is not None:
+        relaxed = [r for r in generic if classes(r)[0] == heading]
+        found = usable(rank(relaxed))
+        if found:
+            notes.append(f"no row pairs a {heading} heading with a {modal_body} body: body variant relaxed, "
+                         f"heading class kept (rule R2)")
+    return found[:3], notes
+
+
+class Library:
+    """The library tables the section-8 proposals read, loaded once."""
+
+    def __init__(self):
+        self.styles = _lib_rows("doc-styles")
+        self.typefaces = _lib_rows("typefaces")
+        self.palettes = _lib_rows("palettes")
+        self.pop = google_popularity()
+        self.media = scale_media()
+        self.evidence = palette_evidence_rank()
+
+
+def section8_proposal(family: str, arch: str, exemplars: list, identity: list, lib: "Library",
+                      dropped: frozenset, default_style: dict | None) -> dict:
+    """Everything section 8 derives by rule for one archetype: style (gate-dropped variants read from the
+    family default), reuse candidates, palette candidates (evidence strength -> hue bin -> contrast -> A7
+    -> key), typeface candidates (class, popularity, medium rule, pairing fallback) and the notes each
+    rule left."""
+    feats = dict(zip(identity, arch.split("|")))
+    style = propose_style(family, arch, exemplars, identity, dropped, default_style)
+    modal_body = None if "body" in dropped else modal_variant(exemplars, "body")
+    typefaces, tnotes = propose_typeface(arch, identity, lib.typefaces, lib.pop, modal_body,
+                                         family_medium(family), lib.media)
+    palettes = propose_palette(feats.get("colour", ""), lib.palettes, lib.evidence)
+    return {"style": style, "reuse": reuse_candidates(style, lib.styles), "palettes": palettes,
+            "typefaces": typefaces, "modal_body": modal_body, "notes": style["notes"] + tnotes}
 
 
 # ================================================================================== building (9)
@@ -580,8 +777,8 @@ def decisions_log(family: str, spec: dict, items: list, changes: list, table: di
     order, beyond = rank_step1(table, corpora, cap=spec.get("step1_cap", 9))
     designs = spec["designs"]
     spec_order = [d["archetype"] for d in designs if d["archetype"] in order]
-    styles, typefaces, palettes = _lib_rows("doc-styles"), _lib_rows("typefaces"), _lib_rows("palettes")
-    pop = google_popularity()
+    lib, dropped = Library(), frozenset(dropped_variants(family, spec))
+    default_style = family_default_style(family)
     out = [f"# {family} -- fill decisions log (generated by fill_family.py; do not hand-edit)", "",
            f"Evidence: {', '.join(c['file'] for c in corpora)}; recodes: {', '.join(spec.get('recodes', [])) or 'none'} "
            f"({len(changes)} code overrides applied); identity features: {'|'.join(identity)}.", "",
@@ -607,15 +804,18 @@ def decisions_log(family: str, spec: dict, items: list, changes: list, table: di
         if not a:
             continue
         exemplars = table[a]["ex"]
-        prop = propose_style(family, a, exemplars, identity)
-        reuse = reuse_candidates(prop, styles)
+        prop = section8_proposal(family, a, exemplars, identity, lib, dropped, default_style)
+        st = prop["style"]
         rr = next((r for r in spec["reasoning"]["rows"] if r["doc_category"] == d["Reasoning Key"]), None)
-        out.append(f"- `{d['design_key']}` ({a}): style proposal {prop['Table Rules']}/{prop['Table Fills']}/"
-                   f"{prop['Emphasis Mechanism']}/rule-brand {prop['Rule Brand pt']}pt; reuse candidates: "
-                   f"{', '.join(reuse[:4]) or 'none (new row)'}; typeface candidates by class+popularity: "
-                   f"{', '.join(propose_typeface(a, identity, typefaces, pop)) or 'none'}; "
+        pal = ", ".join(f"{k}" for k, _ev in prop["palettes"][:3]) or "none"
+        out.append(f"- `{d['design_key']}` ({a}): style proposal {st['Table Rules']}/{st['Table Fills']}/"
+                   f"{st['Emphasis Mechanism']}/rule-brand {st['Rule Brand pt']}pt; reuse candidates: "
+                   f"{', '.join(prop['reuse'][:4]) or 'none (new row)'}; palette candidates: {pal}; "
+                   f"typeface candidates: {', '.join(prop['typefaces']) or 'none'}; "
                    f"decided: style `{rr['Style Key'] if rr else '?'}`, palette `{rr['Palette Key'] if rr else '?'}`, "
                    f"typeface `{rr['Typeface Key'] if rr else '?'}`")
+        for note in prop["notes"]:
+            out.append(f"  - {note}")
     out.append("")
     return "\n".join(out)
 
@@ -734,19 +934,26 @@ def dry_run(family: str) -> int:
     for c in corpora:
         c.setdefault("n", len(c["items"]))
     table = combined_table(items, corpora, identity)
+    used_identity = identity
     cap = (spec or {}).get("step1_cap", 9)
     order, dropped = rank_step1(table, corpora, cap=cap)
-    styles, typefaces = _lib_rows("doc-styles"), _lib_rows("typefaces")
-    pop = google_popularity()
+    lib = Library()
+    dropped_v = frozenset(dropped_variants(family, spec))
+    default_style = family_default_style(family)
+    if dropped_v:
+        print(f"  variants dropped by the gate (family default used): {', '.join(sorted(dropped_v))}")
     print(f"\n[{family}] proposed step-1 ranking (K>=2, >=1 admissible exemplar; cap {cap}):")
     for n, a in enumerate(order, 1):
         r = table[a]
         shares = " ".join(f"{c['id']}:{r['k'][c['id']]}/{c['n']}" for c in corpora if r["k"][c["id"]])
-        prop = propose_style(family, a, r["ex"], identity)
+        prop = section8_proposal(family, a, r["ex"], used_identity, lib, dropped_v, default_style)
+        st = prop["style"]
         print(f"  {n:>2}. {a:<40} combined {r['combined']:.4f}  K={r['K']} adm={r['adm']}  {shares}")
-        print(f"      style {prop['Table Rules']}/{prop['Emphasis Mechanism']}/brand {prop['Rule Brand pt']}pt "
-              f"reuse={','.join(reuse_candidates(prop, styles)[:3]) or 'new'}  "
-              f"typeface={','.join(propose_typeface(a, identity, typefaces, pop)) or '-'}")
+        print(f"      style {st['Table Rules']}/{st['Emphasis Mechanism']}/brand {st['Rule Brand pt']}pt "
+              f"reuse={','.join(prop['reuse'][:3]) or 'new'}  palette={','.join(k for k, _e in prop['palettes'][:2]) or '-'}  "
+              f"typeface={','.join(prop['typefaces']) or '-'}")
+        for note in prop["notes"]:
+            print(f"        note: {note}")
     if not order:
         print("  (no archetype reaches K>=2 with an admissible exemplar; singletons/L3/convention per section 6 "
               "steps 2-4 are decisions)")

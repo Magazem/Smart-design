@@ -344,3 +344,18 @@ and the floor of 5.
   `safe-serif-georgia` safe stack), palette `Primary #161616 / Foreground #161616` (the
   `lib-carbon-mono` authority palette, monochrome as coded), and the new doc-style's Checklist
   verbatim.
+
+
+## Correction -- corrected 2026-09-25: print scale
+
+The three serif-heading cv reasoning rows first shipped with `safe-serif-georgia`
+(`cv-serif-plain-centered`, `cv-serif-accent-plain-left`, `cv-serif-mono-split`). Rank 1's typeface
+paragraph above reads "tie ... -> key alphabetical: `safe-serif-georgia`", but section 8 also requires
+that the chosen typeface's Scale Key "must have that Medium" (print for cv), and
+`safe-serif-georgia`'s Scale Key is `report-screen` (medium `screen`; it also carries only a `body`
+row). The medium rule comes before the tie-break, so the print-scaled serif+serif row is chosen:
+**`safe-serif-times`** (Scale Key `report-print`, medium print). Diff (research/library/doc-reasoning/
+cv.csv, three lines, `Typeface Key` only): `safe-serif-georgia` -> `safe-serif-times` for those three
+rows; nothing else in the cv outputs changes (styles, palettes, designs, provenance are byte-identical).
+`fill_family.py --family cv` now derives the same typeface from the rules (`propose_typeface`, medium
+rule) and `test_fill_family.py` asserts it. Found while filling `proposal` (proposal-fill.md section 5).

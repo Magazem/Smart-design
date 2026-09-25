@@ -1,4 +1,4 @@
-# Whitepaper family: evidence sweep (corroboration only) + 82b A5 twin check (whitepaper ← report)
+# Whitepaper family: evidence sweep, A1 pool with the GitHub whitepaper items (pooled N = 10) + 82b A5 twin check (whitepaper ← report)
 
 Coder: Design Researcher 2. Retrieved **2026-09-25**. I count; I do not judge (research/82 §1).
 
@@ -13,9 +13,10 @@ Items file (C11 + C24 `pages`): `research/designs-evidence/whitepaper-items.csv`
 
 ## W.0 Result in one paragraph
 
-Every reachable source yields **4 on-topic codeable whitepaper items**. That is below the A1 pool floor of 10, so **whitepaper has no corpus**:
-- the items are coded below as **corroboration only**;
-- no k/N or share is computed.
+My non-GitHub sweep yields 4 on-topic codeable items (W.1). Two of them (saboyle, mlouhivu) are also among the 8 GitHub whitepaper templates coded by Design Researcher (`whitepaper-items-github.csv`). **After dedup by repo/url the A1 pool has N = 10** on-topic codeable items (W.8), which meets the floor. Under 82a C27 / 82b A1 it is therefore a **coded corpus**: one pool, counted once in §6.
+- My contribution to the pool: **WPL:001** (LibreOffice) and **WPO:001** (Overleaf).
+- The 2 duplicates count once, under the GitHub worker's ids (WP:001 saboyle, WP:003 mlouhivu). My codes for them (W.3, `WPG-dup(...)`) are an independent coding, blind to theirs, and are not counted.
+- I did not read the GitHub worker's codes. The pooled k/N and frequency table must be computed by the orchestrator from both files.
 
 The **A5 twin check passes** (W.5): whitepaper and report share Style, Palette and Page Format keys. Whitepaper may borrow up to 3 report designs once report ships, with the typeface refilled per §8.
 
@@ -34,7 +35,7 @@ The **A5 twin check passes** (W.5): whitepaper and report share Style, Palette a
 | **GitHub repositories named in 82b §1c** (raw fetch, no search) | saboyle/latex-template-whitepaper-basic (★37 per 82b); mlouhivu/prace-latex-whitepaper (★4) | 2 | 2 (both are whitepaper templates by README) | 2 (example PDFs published at source: `out/whitepaper.pdf`, `example.pdf`) |
 | GitHub `whitepaper+latex` beyond those two | needs the search API | — | not walked | GitHub worker's scope (disclosed). 82b §1c: the remainder are real project whitepapers (specimens, off-topic) |
 
-Pool size (A1): **4 codeable on-topic items from 3 sources** (LibreOffice, Overleaf, GitHub). That is **< 10**, so no pool: corroboration only (§2, 82b A1).
+My sweep alone: **4 codeable on-topic items from 3 sources** (LibreOffice, Overleaf, GitHub), which is < 10. Pooled with the GitHub worker's 8 items after dedup: **N = 10** (W.8).
 
 ## W.2 On-topic decisions
 
@@ -59,7 +60,7 @@ Admissibility:
 - **C-rules:** whitepaper has no family fail constraint in §5.
 - **Codes:** 4 of 4 admissible.
 
-## W.4 Descriptive tally (presence only; no pool, no share, no rank)
+## W.4 Descriptive tally of my coded items (presence only; the pooled frequency is computed by the orchestrator, W.8)
 - `1|sans|mono|ruled`: WPL:001
 - `1|serif|mono|plain-left`: WPO:001
 - `1|sans|mono|plain-centered`: WPG-dup(saboyle)
@@ -100,7 +101,25 @@ The typeface differs. Per 82b A5, a borrowed design keeps report's archetype and
 The W.4 codes are presence notes only; they never reorder borrowed designs.
 
 ## W.6 Second-coder ids
-WPL:001, WPO:001, WPG-dup(saboyle), WPG-dup(mlouhivu) (`whitepaper-items.csv`; `pages` = 1 for all: page 1 carries both the cover-read and body features, except WPO:001, where only page 1 has content). Family-wide sample = all 4 (`max(min(10, 4), ceil(1.0)) = 4`).
+The family-wide sample (C10) draws from the pooled ids: the GitHub worker's 8 (`whitepaper-items-github.csv`) plus **WPL:001, WPO:001** (`whitepaper-items.csv`, with a C24 `pages` column). The duplicates are not listed twice. Sample size for N = 10: `max(min(10, 10), ceil(2.5)) = 10`, i.e. all 10 items.
+
+**Id clash:** the GitHub file uses `WP:NNN`. My items were therefore renamed to `WPL:` (LibreOffice) and `WPO:` (Overleaf) so the two files can be merged without collisions.
 
 ## W.7 Shortfall (honesty rule)
-Whitepaper's own evidence ranks nothing (4 items against a floor of 10). The family ships at most **3 borrowed report designs + L4 convention**, with the shortfall stated in the designs table and release notes.
+The pooled corpus (N = 10) ranks only archetypes with K ≥ 2 in the orchestrator's merge. Whitepaper then ships its own ranked archetypes first (§6 steps 1-3). Up to **3 borrowed report designs** (A5, W.5) follow, then L4. Any remaining gap to 8-10 is stated in the designs table and release notes.
+
+## W.8 A1 pool with the GitHub whitepaper items (dedup, 82a C27)
+
+| Source | Items (on-topic, codeable) | ids |
+|---|---|---|
+| GitHub (Design Researcher; `whitepaper-items-github.csv`) | 8 | WP:001 saboyle, WP:002 lungetech, WP:003 mlouhivu, WP:005 Iki-Software, WP:006 orelyx, WP:012 dominiek/moonfish, WP:013 browric2/Metrasens, WP:017 taryune |
+| LibreOffice (this file) | 1 | WPL:001 |
+| Overleaf (this file) | 1 | WPO:001 |
+| GitHub, found via the 82b-named repos (this file) | 2 | duplicates of WP:001 and WP:003; dropped (C27: first by corpus order; both are GitHub-sourced, so the GitHub worker's entry is kept) |
+
+Script dedup by normalised repo URL: 8 GitHub + 4 mine, 2 duplicates → **N = 10 unique**.
+
+- Ranking Metric: `prevalence:pool(github+libreoffice+overleaf):k/10`.
+- Native metrics (stars, downloads) are recorded but not used (A1).
+- Skew: 8 of 10 are LaTeX/GitHub developer templates; 1 is an Overleaf academic template; 1 is a LibreOffice conference sheet. There is no office-suite business whitepaper template.
+- WPO:001 carries `unknown` for rules/boxes and density (no running-text page); these are variants, so the identity is unaffected.
