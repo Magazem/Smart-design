@@ -205,14 +205,49 @@ def split_row(line):
     """Split a markdown table row on "|", honoring markdown's own escape convention: a
     backslash-escaped pipe (`\\|`) inside a cell is literal text, not a column separator (seen
     in flyer-second-coder.md's MSF:012 row, which escapes pipes inside a quoted schedule
-    string). Escaped pipes are unescaped back to a plain "|" in the returned cell text."""
+    string). Escaped pipes are unescaped back to a plain "|" in the returned cell text.
+
+    Also skips over literal (unescaped) pipes that fall inside a double-quoted span within a
+    cell (seen in report-recode-82ag.md's MSR:009 row: a quoted footer credit line
+    `"HENRY ROSS | FEDERAL GOVERNMENT | SEPTEMBER 9, 2023"` with un-escaped pipes — splitting
+    on those shifts every later column and silently corrupts the real `colour` value). A `"`
+    toggles quote state unless itself escaped; this only changes behavior for rows with an
+    even number of real quote characters (the normal case for a paired quoted phrase) — an
+    unbalanced-quote row falls back to splitting every pipe, same as before this."""
     line = line.strip()
     if line.startswith("|"):
         line = line[1:]
     if line.endswith("|"):
         line = line[:-1]
-    parts = re.split(r"(?<!\\)\|", line)
-    return [p.strip().replace("\\|", "|") for p in parts]
+    if line.count('"') % 2 != 0:
+        # unbalanced quotes: quote-aware splitting would misbehave, fall back to plain split
+        parts = re.split(r"(?<!\\)\|", line)
+        return [p.strip().replace("\\|", "|") for p in parts]
+    parts = []
+    buf = []
+    in_quotes = False
+    i = 0
+    n = len(line)
+    while i < n:
+        ch = line[i]
+        if ch == "\\" and i + 1 < n and line[i + 1] in ('|', '"'):
+            buf.append(line[i + 1])
+            i += 2
+            continue
+        if ch == '"':
+            in_quotes = not in_quotes
+            buf.append(ch)
+            i += 1
+            continue
+        if ch == "|" and not in_quotes:
+            parts.append("".join(buf))
+            buf = []
+            i += 1
+            continue
+        buf.append(ch)
+        i += 1
+    parts.append("".join(buf))
+    return [p.strip() for p in parts]
 
 
 def is_separator_row(cells):
@@ -274,7 +309,13 @@ def clean_feature_cell(raw):
     glyphs)` -> `display`; `standard (~30 words on content slide)` -> `standard`; `sans —
     also carries an emoji` -> `sans`). Enum values themselves only ever use a plain hyphen
     (`one-accent`, `full-bleed-image`, `2-sidebar`, ...), never a parenthesis or an em/en
-    dash, so splitting on those is safe and does not touch the value itself."""
+    dash, so splitting on those is safe and does not touch the value itself.
+
+    Also strips an after-comma note some coders appended in place of (or alongside) a
+    parenthetical, e.g. `one-accent, BORDERLINE` -> `one-accent` (research/82a-gate-failures.md
+    §0/§9: form FMA:004 colour). This is applied the same way on every value cell, whichever
+    coder or file it comes from (first coder, second coder, or an --override/--recode file) —
+    they all funnel through this one function."""
     cell = raw.strip()
     cell = re.sub(r"^`|`$", "", cell)
     cell = cell.strip()
@@ -287,6 +328,7 @@ def clean_feature_cell(raw):
     cell = re.split(r"\s*\(", cell, maxsplit=1)[0]
     cell = re.split(r"\s+[–—]\s+", cell, maxsplit=1)[0]
     cell = re.split(r"\s+--\s+", cell, maxsplit=1)[0]
+    cell = re.split(r"\s*,", cell, maxsplit=1)[0]
     cell = cell.strip()
     # a value immediately followed by its own opening "**" (e.g. "multi **(disclosed low-
     # confidence...)**") only has that trailing marker exposed once the parenthetical above is

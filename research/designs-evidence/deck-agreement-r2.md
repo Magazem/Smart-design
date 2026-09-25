@@ -132,8 +132,24 @@ deck ships no ranked archetypes** under this view — the exposure to 82a-deck's
 examples appears to have propped up `heading` agreement in the full sample specifically on the
 items the second coder could anchor on.
 
-**Net statement:** deck round 2's gate outcome is exposure-sensitive. The disclosed, more
-conservative reading (excluding the 6 worked-example ids) is the one that should govern: deck
-does not clear the round-2 gate on 2 of its 4 recoded identity features, and — combined with the
-`≥2 failing identity features -> no ranked archetypes` rule — **deck ships no ranked archetypes**
-pending a further recode/re-sampling that avoids the worked-example anchoring.
+**Net statement (corrected 2026-09-25 per 82a-clarifications-7):** the original version of this
+statement (superseded text kept below) was wrong — it read the sensitivity run (excluding the 6
+worked-example ids) as the one that governs. `research/82a-deck.md` §6 step 2 is explicit that "both numbers are
+published, and the gate uses the full sample"; `research/82a-clarifications-7.md` rules on this
+exact question and confirms the full run binds, not the sensitivity run. Under the full run:
+
+- the full run binds (n=27, not the n=21 sensitivity re-run);
+- `colour` at 0.70 is a second failure (round 1 also failed at 0.67); dropped from filling (family default used instead), per §7's last sentence — does not fail the gate: colour.
+- `heading` at 0.81 passes (the sensitivity reading of 0.76 is published as a caveat on its
+  stability, but per §6 step 2 it does not decide the gate);
+- `title_layout` (0.93) and `admissible` (0.89) also pass;
+- one identity feature failing (not "two or more") does not trigger the `≥2 failing identity
+  features -> no ranked archetypes` rule, so deck identity is `background | heading | title
+  layout` and **ranked archetypes ship**.
+
+(Superseded reasoning, kept for the record: "deck round 2's gate outcome is exposure-sensitive.
+The disclosed, more conservative reading (excluding the 6 worked-example ids) is the one that
+should govern: deck does not clear the round-2 gate on 2 of its 4 recoded identity features, and
+— combined with the `≥2 failing identity features -> no ranked archetypes` rule — deck ships no
+ranked archetypes pending a further recode/re-sampling that avoids the worked-example anchoring."
+This contradicted 82a-deck §6 step 2's own binding rule and is corrected above.)
