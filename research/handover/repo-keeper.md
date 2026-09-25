@@ -11,8 +11,7 @@
   Finish with `git worktree remove --force ../sd-verify`. Push only if green.
 - If a requested split leaves an intermediate commit red, squash it (unpushed only, `git reset --soft`)
   and check that the tree hash equals the verified one. Precedent: 0856059, approved by the Orchestrator.
-- `ORCHESTRATOR-STATE.md` often carries the Orchestrator's own pending lines. Committing them is expected.
-- CRLF->LF warnings are harmless; git normalises the files.
+- `ORCHESTRATOR-STATE.md` often carries the Orchestrator's pending lines (commit them). CRLF warnings are harmless.
 - A push once reported "cannot lock ref" but had actually landed. Always confirm with fetch.
 
 ## Tool quirks
