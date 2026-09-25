@@ -19,3 +19,6 @@ skill/document-design-intelligence/data/brand/active.json
 
 # Local tool settings
 .claude/
+
+# Implementer R7 scratch
+research/.old/
