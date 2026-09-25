@@ -230,3 +230,4 @@ This file is the live checklist. It is updated and committed after every milesto
 - 2026-09-24 Repo Keeper: quote GitHub (+1) + report and deck r2 second coders.
 - 2026-09-25 Repo Keeper (resume after limit): proposal fill (6 designs) + invoice r2 second coder + whitepaper corpus + brochure/flyer/form/memo agreements + agreement.py; verified in clean worktree, one known fill_family dry-run test excluded.
 - 2026-09-25 R7 accepted; engine fixes + cv/proposal re-run queued before any further fill; gates: letter/cover-letter PASS; deck r2, poster, invoice r2 (admissible only), brochure, flyer, memo, form FAIL → DR2 drafting research/82a-gate-failures.md
+- whitepaper gate PASS (fill queued after R7); infographic r1 FAIL (columns/colour 0.70) → DR2 drafting recode rule; all teammates context-reset 2026-09-25 with handover notes in research/handover/
