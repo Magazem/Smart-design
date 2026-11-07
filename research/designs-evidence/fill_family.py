@@ -367,6 +367,7 @@ STYLE_TABLE_RULES_HEADER_TOTAL = {"invoice", "quote", "report", "whitepaper", "p
 
 #: agreement-file variant names -> the coded-table feature names items carry
 VARIANT_ALIASES = {"rules_boxes": "rules boxes", "cover_page": "cover", "totals_position": "totals",
+                   "letterhead_position": "letterhead",
                    "table_rules": "table rules"}
 _DROP_GATE = re.compile(r"dropped from filling.*?does not fail the gate:\s*([a-z_, ]+?)\.?\s*$", re.I)
 _DROP_UNUSABLE = re.compile(r"\):\s*([a-z_, ]+?)\.\s*Not gating, not usable for filling", re.I)
@@ -378,11 +379,18 @@ def dropped_variants(family: str, spec: dict | None = None) -> set:
     lists under `dropped_variants`. Names are returned as the coded-table feature names."""
     names = set((spec or {}).get("dropped_variants", []))
     for path in sorted(HERE.glob(f"{family}-agreement*.md")):
-        for line in path.read_text(encoding="utf-8").splitlines():
+        text = path.read_text(encoding="utf-8")
+        for line in text.splitlines():
             for pat in (_DROP_GATE, _DROP_UNUSABLE):
                 m = pat.search(line)
                 if m:
                     names |= {n.strip() for n in m.group(1).split(",") if n.strip()}
+        # paragraph form: "... are dropped from filling ... does not fail the gate: `a` (0.63 ...) and `b` (0.74 ...)."
+        for para in re.split(r"\n\s*\n", text):
+            flat = " ".join(para.split())
+            m = re.search(r"dropped from filling.*?does not fail the gate:(.*?)\.(?:\s|$)", flat, re.I)
+            if m:
+                names |= set(re.findall(r"`([a-z_]+)`", m.group(1)))
     return {VARIANT_ALIASES.get(n, n.replace("_", " ")) for n in names}
 
 
@@ -450,21 +458,41 @@ _PHOTO_ALLOW = re.compile(r"\bphoto\b[^;]*\b(permitted|allowed|included|required
                           r"(photo|headshot)", re.I)
 
 
+#: words that name ANOTHER family's document (R7-8: family-specific tokens): a style row whose Keywords / Best For /
+#: Checklist carry one is not reusable by a different family. `Not For` is not read (it lists what the row excludes).
+OTHER_FAMILY_WORDS = {
+    "cv": r"\bcvs?\b|r[e\u00e9]sum[e\u00e9]s?", "cover-letter": r"cover letters?", "invoice": r"\binvoices?\b",
+    "quote": r"\bquot(?:e|es|ation)s?\b", "deck": r"\bslides?\b|\bdecks?\b", "poster": r"\bposters?\b",
+    "brochure": r"\bbrochures?\b", "flyer": r"\bflyers?\b", "memo": r"\bmemos?\b",
+    "report": r"\breports?\b", "proposal": r"\bproposals?\b", "whitepaper": r"\bwhite ?papers?\b",
+    "infographic": r"\binfographics?\b", "form": r"\bforms?\b", "one-pager": r"\bone-pagers?\b",
+    "letter": r"\bletterheads?\b|\bletters?\b"}
+
+#: families whose documents are close enough that one may reuse the other's rows (structural twins)
+RELATED_FAMILIES = [{"letter", "cover-letter"}, {"report", "whitepaper", "proposal"}, {"invoice", "quote"},
+                    {"brochure", "flyer", "poster"}]
+
+
+def names_another_family(text: str, family: str) -> bool:
+    near = set().union(*[g for g in RELATED_FAMILIES if family in g], {family})
+    return any(re.search(rx, text, re.I) for fam, rx in OTHER_FAMILY_WORDS.items() if fam not in near)
+
+
 def photo_contradiction(checklist: str, photo: str | None) -> bool:
-    """R7-5 / section 8: a design coded photo=yes contradicts a checklist that omits it, photo=no
-    contradicts one that permits/requires it."""
+    """R7-5 / section 8: a design coded photo=yes contradicts a checklist that omits it; photo=no contradicts
+    one that permits/requires it; a family whose evidence codes no photo (None) gets no row that permits one."""
     if photo == "yes":
         return bool(_PHOTO_OMIT.search(checklist))
-    if photo == "no":
-        return bool(_PHOTO_ALLOW.search(checklist))
-    return False
+    return bool(_PHOTO_ALLOW.search(checklist))
 
 
-def reuse_candidates(proposal: dict, styles: list, family: str = "") -> list:
+def reuse_candidates(proposal: dict, styles: list, family: str = "", own: frozenset = frozenset()) -> list:
     """Existing doc-styles the mapping may reuse (section 8): Table Rules, Fills, Emphasis, Field Style and
-    (Rule Brand>0) equal, and no checklist line contradicts the design: column count, photo (R7-5), or a
-    region/standard token (R7-8). Several matches: rows prefixed with the family being filled first (R7-5:
-    `<family>-`, not a hard-coded prefix), then key in byte order."""
+    (Rule Brand>0) equal, and no checklist line contradicts the design: column count, photo (R7-5), an
+    audience/region/standard token or another family's document name (R7-8, R7 of 82a-clarifications-6).
+    The family's OWN doctype styles (`own`) are exempt from the other-family check. Several matches: rows
+    prefixed with the family being filled first (R7-5: `<family>-`, not a hard-coded prefix), then key in
+    byte order."""
     out, seen = [], set()
     for r in styles:
         if r["style_key"] in seen:
@@ -480,7 +508,8 @@ def reuse_candidates(proposal: dict, styles: list, family: str = "") -> list:
             continue
         if photo_contradiction(r["Checklist"], proposal.get("photo")):
             continue
-        if FAMILY_SPECIFIC.search(r["Checklist"] + " " + r.get("Keywords", "") + " " + r.get("Best For", "")):
+        text = r["Checklist"] + " " + r.get("Keywords", "") + " " + r.get("Best For", "")
+        if FAMILY_SPECIFIC.search(text) or (family and r["style_key"] not in own and names_another_family(text, family)):
             continue
         out.append(r["style_key"])
     prefix = f"{family}-" if family else "\x00"
@@ -706,13 +735,25 @@ def propose_typeface(arch: str, identity: list, typefaces: list, pop: dict, moda
     return found[:3], notes
 
 
+def own_doctype_styles(family: str) -> set:
+    """Style keys the family's generic doctypes already use (via their Reasoning Keys): the family's own rows."""
+    reasoning = {r["doc_category"]: r for r in _lib_rows("doc-reasoning")}
+    return {reasoning[k]["Style Key"] for k in protected_reasoning_keys(family) if k in reasoning}
+
+
 class Library:
-    """The library tables the section-8 proposals read, loaded once. When `family` is given, the rows that
-    family's PREVIOUS fill wrote are hidden (a re-run must not reuse its own earlier output)."""
+    """The library tables the section-8 proposals read, loaded once: the base rows minus every doc-style row a
+    family fill wrote (so a re-run never reuses its own earlier output and fill order does not matter)."""
 
     def __init__(self, family: str = ""):
-        own = own_output_keys(family, "doc-styles", "style_key") if family else set()
-        self.styles = [r for r in _lib_rows("doc-styles") if r["style_key"] not in own]
+        # rows any family FILL wrote (research/library/doc-styles/*.csv) are not "existing" library rows: hiding all
+        # of them makes a family's picks independent of the order in which families were filled
+        written = set()
+        for path in (LIB / "doc-styles").glob("*.csv"):
+            with path.open(encoding="utf-8-sig", newline="") as f:
+                written |= {r["style_key"] for r in csv.DictReader(f)}
+        self.styles = [r for r in _lib_rows("doc-styles") if r["style_key"] not in written]
+        self.own_styles = frozenset(own_doctype_styles(family)) if family else frozenset()
         self.typefaces = _lib_rows("typefaces")
         self.palettes = _lib_rows("palettes")
         self.pop = google_popularity()
@@ -736,7 +777,7 @@ def section8_proposal(family: str, arch: str, exemplars: list, identity: list, l
                                          family_medium(family), lib.media, modal_font,
                                          font_evaluable or any("font" in e.feats for e in exemplars))
     palettes = propose_palette(feats.get("colour", ""), lib.palettes, lib.evidence)
-    return {"style": style, "reuse": reuse_candidates(style, lib.styles, family), "palettes": palettes,
+    return {"style": style, "reuse": reuse_candidates(style, lib.styles, family, lib.own_styles), "palettes": palettes,
             "typefaces": typefaces, "modal_body": modal_body, "modal_font": modal_font,
             "notes": style["notes"] + tnotes0 + tnotes}
 
@@ -970,6 +1011,11 @@ def resolve_family(family: str, spec: dict) -> dict:
                    for s in spec.get("doc_styles", [])}
     violations, props, rows, styles_out, blanked_log = [], {}, [], {}, []
     defaults_row = default_reasoning_row(family)
+    # bias terms, Doc Conditions, Severity and default Anti-Pattern Tokens are copied from the family default's
+    # reasoning row (section 8); a spec may still state them
+    rdef = spec["reasoning"].get("defaults") or {c: (defaults_row or {}).get(c, "") for c in (
+        "Style Bias Terms", "Palette Bias Terms", "Typeface Bias Terms", "Doc Conditions", "Severity")}
+    tok_default = spec["reasoning"].get("anti_tokens", {}).get("default") or (defaults_row or {}).get("Anti-Pattern Tokens", "")
 
     def check(label, value, expected, holder):
         if value != expected and not _override_ok(holder.get("override", "")):
@@ -987,7 +1033,7 @@ def resolve_family(family: str, spec: dict) -> dict:
         props[d["design_key"]] = prop
         row = spec_rows.get(rk, {})
         # ---- style: reuse an existing row when the mapping matches one, else the authored new row
-        if prop["reuse"]:
+        if prop["reuse"] and not (d.get("style_row") and _override_ok(d.get("override", ""))):
             style_key = prop["reuse"][0]
             if d.get("style_row"):
                 check(f"{d['design_key']} style_row", d["style_row"], style_key, d)
@@ -1025,9 +1071,9 @@ def resolve_family(family: str, spec: dict) -> dict:
             violations.append(f"{rk}: typeface `{tf}` Scale Key `{trow.get('Scale Key')}` is not medium "
                               f"{family_medium(family)} (medium rule, no override)")
         feats = dict(zip(identity, arch.split("|")))
-        bias, blanked = blank_bias(spec["reasoning"]["defaults"], feats, tf)
+        bias, blanked = blank_bias(rdef, feats, tf)
         blanked_log += [(rk,) + b for b in blanked]
-        toks = spec["reasoning"]["anti_tokens"]["default"].split(";")
+        toks = tok_default.split(";")
         if prop["style"].get("photo") == "yes" and "photo" in toks:
             toks.remove("photo")
         if feats.get("columns", "1") != "1" and "multi-column" in toks:
@@ -1042,11 +1088,11 @@ def resolve_family(family: str, spec: dict) -> dict:
         d = s_["design"]
         if not s_["archetype"] and d["Reasoning Key"] not in seeds and d["Reasoning Key"] in spec_rows:
             r = spec_rows[d["Reasoning Key"]]
-            bias = spec["reasoning"]["defaults"]
+            bias = rdef
             rows.append({"doc_category": r["doc_category"], "Style Key": r["Style Key"], "Palette Key": r["Palette Key"],
                          "Typeface Key": r["Typeface Key"], "Style Bias Terms": bias["Style Bias Terms"],
                          "Palette Bias Terms": bias["Palette Bias Terms"], "Typeface Bias Terms": bias["Typeface Bias Terms"],
-                         "Doc Conditions": bias["Doc Conditions"], "Anti-Pattern Tokens": spec["reasoning"]["anti_tokens"]["default"],
+                         "Doc Conditions": bias["Doc Conditions"], "Anti-Pattern Tokens": tok_default,
                          "Severity": bias["Severity"], "Design Key": r["doc_category"], "_arch": None, "_design": d["design_key"]})
             if r["Style Key"] in spec_styles:
                 styles_out[r["Style Key"]] = spec_styles[r["Style Key"]]

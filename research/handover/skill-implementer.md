@@ -39,10 +39,14 @@ New family files go into LIBRARY_INPUTS_ENABLED / PROVENANCE_INPUTS_ENABLED in l
 family come out of provenance/seed-designs.csv (duplicate keys fail the gate).
 
 ## Status
-- R7 done (task 01a0da67): cv 10 designs (was 12), proposal 6 (ranks unchanged). See the "Re-run 2026-09-25"
-  sections of cv-fill.md (section 9) and proposal-fill.md. cv-dach-tabular PENDING (F6 render check not run).
-- Open for the orchestrator: (1) unmatched default cv-academic counted inside the cap of 10 (alt: exempt -> 11);
-  (2) cv-serif-accent-plain-left now reuses cv-academic-plain ("no page limit; list publications");
-  (3) draft R2 pairing fallback still used by proposal, unratified.
-- Next: 01a0da64 letter + cover-letter fills (write fill-specs, `own_archetype`/`style_row` as needed, then
-  `--check` must show 0 violations before `--write`). quote<-invoice, whitepaper<-report twins: borrowing never run.
+- R7 + ratified 82a-clarifications-6 (R6 cap as fixed point, R7 audience tokens, R2 ratified) applied: cv 10 designs,
+  proposal 6. letter 10 designs, cover-letter 9 designs (task 01a0da64 done; letter/cover-letter fill.md + logs written,
+  load-base allow-lists + seed-designs.csv rows for letter-formal / cover-letter-professional handled).
+- Reuse rules added this session: `OTHER_FAMILY_WORDS` (+ `RELATED_FAMILIES`, family's own doctype styles exempt), photo
+  None rejects "photo permitted" rows, `Library` hides EVERY fill-written doc-style row (order independence), design
+  `override` on a `style_row` (R4, header placement) lets an authored row win. `dropped_variants` also parses
+  paragraph-form agreement text.
+- Spec generation for a new family: copy the seed design rows from base designs.csv, `archetype` for merged seeds, new
+  designs named `<family>-<heading>-<colour>-<header>` with `style_row` only where the engine finds no reuse (or R4 override).
+- Next queued by the orchestrator: whitepaper (01a0da6e, A5 borrow plan), then deck (identity background|heading|title
+  layout, colour dropped, 82a-clarifications-7: engine IDENTITY_SLOTS/`_VALID` may need "background"/"title layout" checks).

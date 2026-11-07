@@ -1,0 +1,269 @@
+{
+ "family": "letter",
+ "corpora": [
+  {
+   "id": "GH",
+   "file": "letter-corpus-github.md",
+   "n": 40,
+   "level": "L1",
+   "source_name": "GH(\"letter template\") stars-desc search",
+   "url": "https://api.github.com/search/repositories?q=%22letter+template%22&sort=stars&order=desc&per_page=100",
+   "metric": "share:GH:k/40 by stars"
+  },
+  {
+   "id": "MSL",
+   "file": "letter-corpus-l2.md",
+   "section": "L.3 Coded table",
+   "n": 17,
+   "level": "L2",
+   "source_name": "Microsoft Create letters (editorial page order)",
+   "url": "https://create.microsoft.com/en-us/templates/letters",
+   "metric": "prevalence:ms-create-letters:k/17"
+  },
+  {
+   "id": "LOL",
+   "file": "letter-corpus-l2.md",
+   "section": "L.4 Coded table",
+   "n": 17,
+   "level": "L2",
+   "source_name": "LibreOffice Extensions Templates q=letter (downloads desc)",
+   "url": "https://extensions.libreoffice.org/en/extensions?Tags%5B%5D=118&q=letter&ord=download_d",
+   "metric": "prevalence:libreoffice-letter:k/17"
+  }
+ ],
+ "identity": [
+  "columns",
+  "heading",
+  "colour",
+  "header"
+ ],
+ "recodes": [
+  "letter-recode-82ag.md"
+ ],
+ "date": "2026-09-25",
+ "doc_styles": [
+  {
+   "style_key": "letter-serif-mono-plain-centered",
+   "Display Name": "Letter, serif centred sender block",
+   "Keywords": "letter, serif, monochrome ink, centred sender block, single column",
+   "Best For": "Single-column letters with a serif face, a centred sender block and monochrome ink",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "Brand Scope": "generic",
+   "Rule Hair pt": "0.5",
+   "Rule Strong pt": "1",
+   "Rule Brand pt": "0",
+   "Corner Radius mm": "0",
+   "Table Rules": "none",
+   "Table Fills": "none",
+   "Emphasis Mechanism": "weight",
+   "Field Style": "none",
+   "Checklist": "Keep single column;Centre the sender block at the top of the page;Ink only: no colour-coded meaning;Emphasize by weight and size, not colour fills"
+  },
+  {
+   "style_key": "letter-sans-mono-split",
+   "Display Name": "Letter, sans split header",
+   "Keywords": "letter, sans, monochrome ink, split header, single column",
+   "Best For": "Single-column letters with a sans face, a split header and monochrome ink",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "Brand Scope": "generic",
+   "Rule Hair pt": "0.5",
+   "Rule Strong pt": "1",
+   "Rule Brand pt": "0",
+   "Corner Radius mm": "0",
+   "Table Rules": "none",
+   "Table Fills": "none",
+   "Emphasis Mechanism": "weight",
+   "Field Style": "none",
+   "Checklist": "Keep single column;Set the sender flush left and the date and reference flush right on the same row;Ink only: no colour-coded meaning;Emphasize by weight and size, not colour fills"
+  },
+  {
+   "style_key": "letter-sans-multi-plain-left",
+   "Display Name": "Letter, sans plain left-aligned sender block, multi",
+   "Keywords": "letter, sans, several accent colours, plain left-aligned sender block, single column",
+   "Best For": "Single-column letters with a sans face, a plain left-aligned sender block and several accent colours",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "Brand Scope": "generic",
+   "Rule Hair pt": "0.5",
+   "Rule Strong pt": "1",
+   "Rule Brand pt": "0",
+   "Corner Radius mm": "0",
+   "Table Rules": "none",
+   "Table Fills": "none",
+   "Emphasis Mechanism": "colour-text",
+   "Field Style": "none",
+   "Checklist": "Keep single column;Set the sender block flush left at the top of the page with no header rule;Use colour on headings only and keep body text in ink;Emphasize by weight and size"
+  },
+  {
+   "style_key": "letter-sans-one-accent-ruled",
+   "Display Name": "Letter, sans ruled letterhead, one-accent",
+   "Keywords": "letter, sans, one restrained accent colour, ruled letterhead, single column",
+   "Best For": "Single-column letters with a sans face, a ruled letterhead and one restrained accent colour",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "Brand Scope": "generic",
+   "Rule Hair pt": "0.5",
+   "Rule Strong pt": "1",
+   "Rule Brand pt": "1",
+   "Corner Radius mm": "0",
+   "Table Rules": "none",
+   "Table Fills": "none",
+   "Emphasis Mechanism": "weight",
+   "Field Style": "none",
+   "Checklist": "Keep single column;Set a full-width rule directly under the sender block;Reserve the accent colour for the sender name and rule, never small print;Emphasize by weight and size, not colour fills"
+  },
+  {
+   "style_key": "letter-serif-mono-ruled",
+   "Display Name": "Letter, serif ruled letterhead",
+   "Keywords": "letter, serif, monochrome ink, ruled letterhead, single column",
+   "Best For": "Single-column letters with a serif face, a ruled letterhead and monochrome ink",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "Brand Scope": "generic",
+   "Rule Hair pt": "0.5",
+   "Rule Strong pt": "1",
+   "Rule Brand pt": "1",
+   "Corner Radius mm": "0",
+   "Table Rules": "none",
+   "Table Fills": "none",
+   "Emphasis Mechanism": "weight",
+   "Field Style": "none",
+   "Checklist": "Keep single column;Set a full-width rule directly under the sender block;Ink only: no colour-coded meaning;Emphasize by weight and size, not colour fills"
+  },
+  {
+   "style_key": "letter-serif-one-accent-plain-centered",
+   "Display Name": "Letter, serif centred sender block, one-accent",
+   "Keywords": "letter, serif, one restrained accent colour, centred sender block, single column",
+   "Best For": "Single-column letters with a serif face, a centred sender block and one restrained accent colour",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "Brand Scope": "generic",
+   "Rule Hair pt": "0.5",
+   "Rule Strong pt": "1",
+   "Rule Brand pt": "0",
+   "Corner Radius mm": "0",
+   "Table Rules": "none",
+   "Table Fills": "none",
+   "Emphasis Mechanism": "weight",
+   "Field Style": "none",
+   "Checklist": "Keep single column;Centre the sender block at the top of the page;Reserve the accent colour for the sender name and rule, never small print;Emphasize by weight and size, not colour fills"
+  }
+ ],
+ "reasoning": {
+  "rows": []
+ },
+ "designs": [
+  {
+   "design_key": "letter-formal",
+   "Display Name": "Letter, formal grid",
+   "Reasoning Key": "letter-formal",
+   "Keywords": "formal letter, letterhead, correspondence, single column",
+   "Best For": "formal business correspondence, letterhead-based letters",
+   "Not For": "forms, marketing, slide decks",
+   "archetype": "1|serif|mono|plain-left",
+   "l3": []
+  },
+  {
+   "design_key": "letter-sans-mono-plain-left",
+   "Display Name": "Letter, sans plain left-aligned sender block",
+   "Reasoning Key": "letter-sans-mono-plain-left",
+   "Keywords": "letter, sans, monochrome ink, plain left-aligned sender block, single column",
+   "Best For": "Single-column letters with a sans face, a plain left-aligned sender block and monochrome ink",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "archetype": "1|sans|mono|plain-left",
+   "l3": [
+    {
+     "source_name": "DIN 5008 letter geometry via Sematre/typst-letter-pro src/lib.typ (page format of German-language letters, 82a C23)",
+     "url": "https://raw.githubusercontent.com/Sematre/typst-letter-pro/main/src/lib.typ"
+    }
+   ]
+  },
+  {
+   "design_key": "letter-serif-one-accent-plain-left",
+   "Display Name": "Letter, serif plain left-aligned sender block, one-accent",
+   "Reasoning Key": "letter-serif-one-accent-plain-left",
+   "Keywords": "letter, serif, one restrained accent colour, plain left-aligned sender block, single column",
+   "Best For": "Single-column letters with a serif face, a plain left-aligned sender block and one restrained accent colour",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "archetype": "1|serif|one-accent|plain-left",
+   "l3": []
+  },
+  {
+   "design_key": "letter-sans-one-accent-plain-left",
+   "Display Name": "Letter, sans plain left-aligned sender block, one-accent",
+   "Reasoning Key": "letter-sans-one-accent-plain-left",
+   "Keywords": "letter, sans, one restrained accent colour, plain left-aligned sender block, single column",
+   "Best For": "Single-column letters with a sans face, a plain left-aligned sender block and one restrained accent colour",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "archetype": "1|sans|one-accent|plain-left",
+   "l3": []
+  },
+  {
+   "design_key": "letter-serif-mono-plain-centered",
+   "Display Name": "Letter, serif centred sender block",
+   "Reasoning Key": "letter-serif-mono-plain-centered",
+   "Keywords": "letter, serif, monochrome ink, centred sender block, single column",
+   "Best For": "Single-column letters with a serif face, a centred sender block and monochrome ink",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "archetype": "1|serif|mono|plain-centered",
+   "l3": [],
+   "style_row": "letter-serif-mono-plain-centered",
+   "override": "82a-clarifications-6.md R4"
+  },
+  {
+   "design_key": "letter-sans-mono-split",
+   "Display Name": "Letter, sans split header",
+   "Reasoning Key": "letter-sans-mono-split",
+   "Keywords": "letter, sans, monochrome ink, split header, single column",
+   "Best For": "Single-column letters with a sans face, a split header and monochrome ink",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "archetype": "1|sans|mono|split",
+   "l3": [],
+   "style_row": "letter-sans-mono-split",
+   "override": "82a-clarifications-6.md R4"
+  },
+  {
+   "design_key": "letter-sans-multi-plain-left",
+   "Display Name": "Letter, sans plain left-aligned sender block, multi",
+   "Reasoning Key": "letter-sans-multi-plain-left",
+   "Keywords": "letter, sans, several accent colours, plain left-aligned sender block, single column",
+   "Best For": "Single-column letters with a sans face, a plain left-aligned sender block and several accent colours",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "archetype": "1|sans|multi|plain-left",
+   "l3": [],
+   "style_row": "letter-sans-multi-plain-left"
+  },
+  {
+   "design_key": "letter-sans-one-accent-ruled",
+   "Display Name": "Letter, sans ruled letterhead, one-accent",
+   "Reasoning Key": "letter-sans-one-accent-ruled",
+   "Keywords": "letter, sans, one restrained accent colour, ruled letterhead, single column",
+   "Best For": "Single-column letters with a sans face, a ruled letterhead and one restrained accent colour",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "archetype": "1|sans|one-accent|ruled",
+   "l3": [],
+   "style_row": "letter-sans-one-accent-ruled"
+  },
+  {
+   "design_key": "letter-serif-mono-ruled",
+   "Display Name": "Letter, serif ruled letterhead",
+   "Reasoning Key": "letter-serif-mono-ruled",
+   "Keywords": "letter, serif, monochrome ink, ruled letterhead, single column",
+   "Best For": "Single-column letters with a serif face, a ruled letterhead and monochrome ink",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "archetype": "1|serif|mono|ruled",
+   "l3": [],
+   "style_row": "letter-serif-mono-ruled"
+  },
+  {
+   "design_key": "letter-serif-one-accent-plain-centered",
+   "Display Name": "Letter, serif centred sender block, one-accent",
+   "Reasoning Key": "letter-serif-one-accent-plain-centered",
+   "Keywords": "letter, serif, one restrained accent colour, centred sender block, single column",
+   "Best For": "Single-column letters with a serif face, a centred sender block and one restrained accent colour",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "archetype": "1|serif|one-accent|plain-centered",
+   "l3": [],
+   "style_row": "letter-serif-one-accent-plain-centered",
+   "override": "82a-clarifications-6.md R4"
+  }
+ ],
+ "fill_rule_metric": "fill-rule:research/82§8",
+ "fill_rule_value": "n/a (fill-rule, not a ranking)"
+}

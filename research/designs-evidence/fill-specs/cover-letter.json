@@ -1,0 +1,259 @@
+{
+ "family": "cover-letter",
+ "corpora": [
+  {
+   "id": "GH",
+   "file": "cover-letter-corpus-github.md",
+   "n": 40,
+   "level": "L1",
+   "source_name": "GH(\"cover letter template\") stars-desc search",
+   "url": "https://api.github.com/search/repositories?q=%22cover+letter+template%22&sort=stars&order=desc&per_page=100",
+   "metric": "share:GH:k/40 by stars"
+  },
+  {
+   "id": "MSC",
+   "file": "cover-letter-corpus-l2.md",
+   "section": "CL.3 Coded table",
+   "n": 15,
+   "level": "L2",
+   "source_name": "Microsoft Create cover letters (editorial page order)",
+   "url": "https://create.microsoft.com/en-us/templates/cover-letters",
+   "metric": "prevalence:ms-create-cover-letters:k/15"
+  }
+ ],
+ "identity": [
+  "columns",
+  "heading",
+  "colour",
+  "header"
+ ],
+ "recodes": [
+  "cover-letter-recode-82ag.md"
+ ],
+ "date": "2026-09-25",
+ "doc_styles": [
+  {
+   "style_key": "cover-letter-sans-one-accent-plain-left",
+   "Display Name": "Cover letter, sans plain left-aligned sender block, one-accent",
+   "Keywords": "cover letter, sans, one restrained accent colour, plain left-aligned sender block, single column, ats-safe",
+   "Best For": "Single-column cover letters with a sans face, a plain left-aligned sender block and one restrained accent colour",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "Brand Scope": "generic",
+   "Rule Hair pt": "0.5",
+   "Rule Strong pt": "1",
+   "Rule Brand pt": "0",
+   "Corner Radius mm": "0",
+   "Table Rules": "hairline",
+   "Table Fills": "none",
+   "Emphasis Mechanism": "weight",
+   "Field Style": "none",
+   "Checklist": "Keep single column;Omit photo;Set the sender block flush left at the top of the page with no header rule;Reserve the accent colour for the sender name and rule, never small print;Emphasize by weight and size, not colour fills;Remove text boxes and icon bars"
+  },
+  {
+   "style_key": "cover-letter-sans-one-accent-ruled",
+   "Display Name": "Cover letter, sans ruled letterhead, one-accent",
+   "Keywords": "cover letter, sans, one restrained accent colour, ruled letterhead, single column, ats-safe",
+   "Best For": "Single-column cover letters with a sans face, a ruled letterhead and one restrained accent colour",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "Brand Scope": "generic",
+   "Rule Hair pt": "0.5",
+   "Rule Strong pt": "1",
+   "Rule Brand pt": "1",
+   "Corner Radius mm": "0",
+   "Table Rules": "hairline",
+   "Table Fills": "none",
+   "Emphasis Mechanism": "weight",
+   "Field Style": "none",
+   "Checklist": "Keep single column;Omit photo;Set a full-width rule directly under the sender block;Reserve the accent colour for the sender name and rule, never small print;Emphasize by weight and size, not colour fills;Remove text boxes and icon bars"
+  },
+  {
+   "style_key": "cover-letter-serif-mono-ruled",
+   "Display Name": "Cover letter, serif ruled letterhead",
+   "Keywords": "cover letter, serif, monochrome ink, ruled letterhead, single column, ats-safe",
+   "Best For": "Single-column cover letters with a serif face, a ruled letterhead and monochrome ink",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "Brand Scope": "generic",
+   "Rule Hair pt": "0.5",
+   "Rule Strong pt": "1",
+   "Rule Brand pt": "1",
+   "Corner Radius mm": "0",
+   "Table Rules": "hairline",
+   "Table Fills": "none",
+   "Emphasis Mechanism": "weight",
+   "Field Style": "none",
+   "Checklist": "Keep single column;Omit photo;Set a full-width rule directly under the sender block;Ink only: no colour-coded meaning;Emphasize by weight and size, not colour fills;Remove text boxes and icon bars"
+  },
+  {
+   "style_key": "cover-letter-serif-one-accent-plain-left",
+   "Display Name": "Cover letter, serif plain left-aligned sender block, one-accent",
+   "Keywords": "cover letter, serif, one restrained accent colour, plain left-aligned sender block, single column, ats-safe",
+   "Best For": "Single-column cover letters with a serif face, a plain left-aligned sender block and one restrained accent colour",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "Brand Scope": "generic",
+   "Rule Hair pt": "0.5",
+   "Rule Strong pt": "1",
+   "Rule Brand pt": "0",
+   "Corner Radius mm": "0",
+   "Table Rules": "hairline",
+   "Table Fills": "none",
+   "Emphasis Mechanism": "weight",
+   "Field Style": "none",
+   "Checklist": "Keep single column;Omit photo;Set the sender block flush left at the top of the page with no header rule;Reserve the accent colour for the sender name and rule, never small print;Emphasize by weight and size, not colour fills;Remove text boxes and icon bars"
+  },
+  {
+   "style_key": "cover-letter-sans-fill-blocks-band",
+   "Display Name": "Cover letter, sans colour-band header, fill-blocks",
+   "Keywords": "cover letter, sans, filled colour blocks, colour-band header, single column, ats-safe",
+   "Best For": "Single-column cover letters with a sans face, a colour-band header and filled colour blocks",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "Brand Scope": "generic",
+   "Rule Hair pt": "0.5",
+   "Rule Strong pt": "1",
+   "Rule Brand pt": "0",
+   "Corner Radius mm": "0",
+   "Table Rules": "none",
+   "Table Fills": "none",
+   "Emphasis Mechanism": "fill",
+   "Field Style": "none",
+   "Checklist": "Keep single column;Omit photo;Set a solid colour band across the head of the page carrying the sender block;Confine filled colour to header blocks and keep the body on white;Use the fill for the header block only;Remove text boxes and icon bars"
+  },
+  {
+   "style_key": "cover-letter-serif-mono-plain-centered",
+   "Display Name": "Cover letter, serif centred sender block",
+   "Keywords": "cover letter, serif, monochrome ink, centred sender block, single column, ats-safe",
+   "Best For": "Single-column cover letters with a serif face, a centred sender block and monochrome ink",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "Brand Scope": "generic",
+   "Rule Hair pt": "0.5",
+   "Rule Strong pt": "1",
+   "Rule Brand pt": "0",
+   "Corner Radius mm": "0",
+   "Table Rules": "hairline",
+   "Table Fills": "none",
+   "Emphasis Mechanism": "weight",
+   "Field Style": "none",
+   "Checklist": "Keep single column;Omit photo;Centre the sender block at the top of the page;Ink only: no colour-coded meaning;Emphasize by weight and size, not colour fills;Remove text boxes and icon bars"
+  },
+  {
+   "style_key": "cover-letter-sans-mono-ruled",
+   "Display Name": "Cover letter, sans ruled letterhead",
+   "Keywords": "cover letter, sans, monochrome ink, ruled letterhead, single column, ats-safe",
+   "Best For": "Single-column cover letters with a sans face, a ruled letterhead and monochrome ink",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "Brand Scope": "generic",
+   "Rule Hair pt": "0.5",
+   "Rule Strong pt": "1",
+   "Rule Brand pt": "1",
+   "Corner Radius mm": "0",
+   "Table Rules": "hairline",
+   "Table Fills": "none",
+   "Emphasis Mechanism": "weight",
+   "Field Style": "none",
+   "Checklist": "Keep single column;Set a full-width rule directly under the sender block;Ink only: no colour-coded meaning;Emphasize by weight and size, not colour fills;Remove text boxes and icon bars"
+  }
+ ],
+ "reasoning": {
+  "rows": []
+ },
+ "designs": [
+  {
+   "design_key": "cover-letter-professional",
+   "Display Name": "Cover letter, restrained",
+   "Reasoning Key": "cover-letter-professional",
+   "Keywords": "cover letter, professional, formal salutation, single column, restrained",
+   "Best For": "professional cover letters bound to ats-strict, application letters",
+   "Not For": "marketing letters, decorative correspondence",
+   "archetype": "1|sans|mono|plain-left",
+   "l3": []
+  },
+  {
+   "design_key": "cover-letter-sans-one-accent-plain-left",
+   "Display Name": "Cover letter, sans plain left-aligned sender block, one-accent",
+   "Reasoning Key": "cover-letter-sans-one-accent-plain-left",
+   "Keywords": "cover letter, sans, one restrained accent colour, plain left-aligned sender block, single column, ats-safe",
+   "Best For": "Single-column cover letters with a sans face, a plain left-aligned sender block and one restrained accent colour",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "archetype": "1|sans|one-accent|plain-left",
+   "l3": [],
+   "style_row": "cover-letter-sans-one-accent-plain-left"
+  },
+  {
+   "design_key": "cover-letter-sans-one-accent-ruled",
+   "Display Name": "Cover letter, sans ruled letterhead, one-accent",
+   "Reasoning Key": "cover-letter-sans-one-accent-ruled",
+   "Keywords": "cover letter, sans, one restrained accent colour, ruled letterhead, single column, ats-safe",
+   "Best For": "Single-column cover letters with a sans face, a ruled letterhead and one restrained accent colour",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "archetype": "1|sans|one-accent|ruled",
+   "l3": [],
+   "style_row": "cover-letter-sans-one-accent-ruled"
+  },
+  {
+   "design_key": "cover-letter-serif-mono-ruled",
+   "Display Name": "Cover letter, serif ruled letterhead",
+   "Reasoning Key": "cover-letter-serif-mono-ruled",
+   "Keywords": "cover letter, serif, monochrome ink, ruled letterhead, single column, ats-safe",
+   "Best For": "Single-column cover letters with a serif face, a ruled letterhead and monochrome ink",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "archetype": "1|serif|mono|ruled",
+   "l3": [],
+   "style_row": "cover-letter-serif-mono-ruled"
+  },
+  {
+   "design_key": "cover-letter-serif-mono-plain-left",
+   "Display Name": "Cover letter, serif plain left-aligned sender block",
+   "Reasoning Key": "cover-letter-serif-mono-plain-left",
+   "Keywords": "cover letter, serif, monochrome ink, plain left-aligned sender block, single column, ats-safe",
+   "Best For": "Single-column cover letters with a serif face, a plain left-aligned sender block and monochrome ink",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "archetype": "1|serif|mono|plain-left",
+   "l3": []
+  },
+  {
+   "design_key": "cover-letter-serif-one-accent-plain-left",
+   "Display Name": "Cover letter, serif plain left-aligned sender block, one-accent",
+   "Reasoning Key": "cover-letter-serif-one-accent-plain-left",
+   "Keywords": "cover letter, serif, one restrained accent colour, plain left-aligned sender block, single column, ats-safe",
+   "Best For": "Single-column cover letters with a serif face, a plain left-aligned sender block and one restrained accent colour",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "archetype": "1|serif|one-accent|plain-left",
+   "l3": [],
+   "style_row": "cover-letter-serif-one-accent-plain-left"
+  },
+  {
+   "design_key": "cover-letter-sans-fill-blocks-band",
+   "Display Name": "Cover letter, sans colour-band header, fill-blocks",
+   "Reasoning Key": "cover-letter-sans-fill-blocks-band",
+   "Keywords": "cover letter, sans, filled colour blocks, colour-band header, single column, ats-safe",
+   "Best For": "Single-column cover letters with a sans face, a colour-band header and filled colour blocks",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "archetype": "1|sans|fill-blocks|band",
+   "l3": [],
+   "style_row": "cover-letter-sans-fill-blocks-band"
+  },
+  {
+   "design_key": "cover-letter-serif-mono-plain-centered",
+   "Display Name": "Cover letter, serif centred sender block",
+   "Reasoning Key": "cover-letter-serif-mono-plain-centered",
+   "Keywords": "cover letter, serif, monochrome ink, centred sender block, single column, ats-safe",
+   "Best For": "Single-column cover letters with a serif face, a centred sender block and monochrome ink",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "archetype": "1|serif|mono|plain-centered",
+   "l3": [],
+   "style_row": "cover-letter-serif-mono-plain-centered"
+  },
+  {
+   "design_key": "cover-letter-sans-mono-ruled",
+   "Display Name": "Cover letter, sans ruled letterhead",
+   "Reasoning Key": "cover-letter-sans-mono-ruled",
+   "Keywords": "cover letter, sans, monochrome ink, ruled letterhead, single column, ats-safe",
+   "Best For": "Single-column cover letters with a sans face, a ruled letterhead and monochrome ink",
+   "Not For": "marketing collateral, multi-column layouts, forms",
+   "archetype": "1|sans|mono|ruled",
+   "l3": [],
+   "style_row": "cover-letter-sans-mono-ruled"
+  }
+ ],
+ "fill_rule_metric": "fill-rule:research/82§8",
+ "fill_rule_value": "n/a (fill-rule, not a ranking)"
+}

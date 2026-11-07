@@ -18,6 +18,11 @@
 - I first-coded: cv GitHub+NPM (+ header recode r2/r2a), deck LO/MS, brochure, flyer, memo/form (earlier), poster (MS + GitHub + A1 pool), report (ARC L3 + GitHub), cover-letter GH, letter GH, proposal GH, whitepaper GH, quote GH, memo GH additions. I must NOT second-code any of these.
 - I second-coded infographic only (never opened infographic-corpus-iib.md or research/91). I have seen no infographic first-coder codes. I saw only the CV header recode of my own.
 
+## 2026-09-25 late: colour/admissibility recode r2 (C42, C46)
+- Done, fresh reading (no agreement/second-coder files opened): `brochure-recode-r2.md` (11 items: fill-blocks 6, one-accent 2, multi 1, mono 2) and `flyer-recode-r2.md` (20 items: colour fill-blocks 4, one-accent 10, multi 2, mono 4; admissible yes 6 / no 14).
+- Method: 20x20 grid + hand-set photo rects + local-std text drop; fill blocks = 9 px opening then 20 px erosion seed (PIL/numpy only, no scipy); contrast via lib color.contrast_ratio on brightest/darkest core pixels. Scratch in `%TEMP%\cr2\` (an.py, comp.py, ct.py, rects.json), not in repo.
+- I have now seen brochure + flyer previews under the r2 rules; I must not second-code those families. Borderlines listed in each file's Disclosure.
+
 ## Half-done / caveats
 - None open on the board. Known weak spots: poster A5/A3 borderlines (PM:003, pasquino), letter/cover-letter header notes, report `fb` running pages, proposal cover=no items coded from one page.
 - Not reconstructed: NISO Z39.18 / APA 7 authority fetches (blocked, Incapsula/404); no `authority:` rows exist for report/whitepaper.

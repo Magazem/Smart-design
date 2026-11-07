@@ -381,7 +381,7 @@ class TestR7Rules(unittest.TestCase):
         self.assertTrue(any("medium rule" in v for v in bad), bad)
 
     # R7-5 ----------------------------------------------------------------------------------------
-    def _style(self, key, checklist, table="hairline", brand="0", kw="cv"):
+    def _style(self, key, checklist, table="hairline", brand="0", kw="plain"):
         return {"style_key": key, "Table Rules": table, "Table Fills": "none", "Emphasis Mechanism": "weight",
                 "Field Style": "none", "Rule Brand pt": brand, "Checklist": checklist, "Keywords": kw, "Best For": ""}
 
@@ -401,8 +401,8 @@ class TestR7Rules(unittest.TestCase):
         plain = self._style("cv-plain", "Keep single column")
         self.assertEqual(ff.reuse_candidates(self._proposal("yes"), [omit, allow, plain], "cv"), ["cv-allow", "cv-plain"])
         self.assertEqual(ff.reuse_candidates(self._proposal("no"), [omit, allow, plain], "cv"), ["cv-omit", "cv-plain"])
-        self.assertEqual(ff.reuse_candidates(self._proposal(None), [omit, allow, plain], "cv"),
-                         ["cv-allow", "cv-omit", "cv-plain"])
+        # a family whose evidence codes no photo gets no row that permits one
+        self.assertEqual(ff.reuse_candidates(self._proposal(None), [omit, allow, plain], "cv"), ["cv-omit", "cv-plain"])
 
     def test_R7_5_the_typeface_proposal_honours_the_body_class(self):
         keys, notes = ff.propose_typeface("1|serif|mono|plain-centered", self.ident, self.lib.typefaces, self.lib.pop,
@@ -541,7 +541,86 @@ class TestR7Rules(unittest.TestCase):
         own = ff.own_output_keys("cv", "doc-styles", "style_key")
         self.assertIn("cv-serif-plain-centered", own)
         self.assertFalse(own & {r["style_key"] for r in self.lib.styles})
-        self.assertTrue(own & {r["style_key"] for r in ff.Library().styles})
+        self.assertTrue(own & {r["style_key"] for r in ff._lib_rows("doc-styles")})       # still in the base library
+
+
+class TestLetterFamilies(unittest.TestCase):
+    """letter and cover-letter fills (82a C23, C31; R4 header-placement override)."""
+
+    @staticmethod
+    def rows(sub, fam):
+        import csv
+        with (RES / sub / f"{fam}.csv").open(encoding="utf-8", newline="") as f:
+            return list(csv.DictReader(f))
+
+    def test_other_family_words_block_cross_family_reuse_but_not_twins_or_own_rows(self):
+        cv_row = {"style_key": "cv-x", "Table Rules": "none", "Table Fills": "none", "Emphasis Mechanism": "weight",
+                  "Field Style": "none", "Rule Brand pt": "0", "Checklist": "Keep single column", "Keywords": "cv, resume",
+                  "Best For": ""}
+        prop = {"Table Rules": "none", "Table Fills": "none", "Emphasis Mechanism": "weight", "Field Style": "none",
+                "Rule Brand pt": "0", "Checklist": ["Keep single column"], "photo": None}
+        self.assertEqual(ff.reuse_candidates(prop, [cv_row], "letter"), [])
+        self.assertEqual(ff.reuse_candidates(prop, [cv_row], "cv"), ["cv-x"])
+        letter_row = dict(cv_row, style_key="letter-x", Keywords="formal letter, letterhead")
+        self.assertEqual(ff.reuse_candidates(prop, [letter_row], "cover-letter"), ["letter-x"])   # twins
+        self.assertEqual(ff.reuse_candidates(prop, [letter_row], "cv"), [])
+        self.assertEqual(ff.reuse_candidates(prop, [letter_row], "cv", frozenset({"letter-x"})), ["letter-x"])  # own row
+        notfor = dict(cv_row, style_key="q", Keywords="plain", **{"Not For": "slide decks, resumes"})
+        self.assertEqual(ff.reuse_candidates(prop, [notfor], "letter"), ["q"])        # `Not For` is not read
+
+    def test_library_hides_every_fill_written_style_row(self):
+        lib = ff.Library("letter")
+        written = set()
+        for fam in ("cv", "proposal", "letter", "cover-letter"):
+            written |= {r["style_key"] for r in self.rows("library/doc-styles", fam)}
+        self.assertFalse(written & {r["style_key"] for r in lib.styles})
+        self.assertIn("letter-formal-grid", {r["style_key"] for r in lib.styles})
+
+    def test_letter_and_cover_letter_have_no_violations_and_ship_at_most_ten(self):
+        for fam, n in (("letter", 10), ("cover-letter", 9)):
+            res = ff.resolve_family(fam, ff.load_spec(fam))
+            self.assertEqual(res["violations"], [], fam)
+            self.assertEqual(len(res["plan"]["shipped"]), n)
+            self.assertLessEqual(len(res["plan"]["shipped"]), ff.CAP)
+
+    def test_seeded_defaults_merge_into_their_archetype(self):
+        for fam, seed, arch in (("letter", "letter-formal", "1|serif|mono|plain-left"),
+                                ("cover-letter", "cover-letter-professional", "1|sans|mono|plain-left")):
+            plan = ff.resolve_family(fam, ff.load_spec(fam))["plan"]
+            hit = next(s for s in plan["shipped"] if s["design"]["design_key"] == seed)
+            self.assertEqual((hit["archetype"], hit["class"]), (arch, "ranked"))
+
+    def test_C23_din_5008_is_an_authority_row_on_the_rank_one_letter_design_only(self):
+        prov = [r for r in self.rows("provenance", "letter") if "DIN 5008" in r["Source Name"]]
+        self.assertEqual([(r["Row Key"], r["Evidence Class"]) for r in prov], [("letter-sans-mono-plain-left", "authority")])
+        designs = {r["design_key"]: r for r in self.rows("designs", "letter")}
+        self.assertEqual(designs["letter-sans-mono-plain-left"]["Rank"], "1")
+        self.assertEqual(designs["letter-sans-mono-plain-left"]["Evidence Class"], "ranked")
+        self.assertFalse([r for r in self.rows("provenance", "cover-letter") if "DIN" in r["Source Name"]])
+
+    def test_dropped_variants_are_read_from_the_agreement_files(self):
+        self.assertEqual(ff.dropped_variants("letter"), {"rules boxes", "letterhead"})
+        self.assertIn("density", ff.dropped_variants("cover-letter"))
+
+    def test_R4_override_authors_a_header_placement_row_and_is_counted(self):
+        spec = ff.load_spec("letter")
+        d = next(d for d in spec["designs"] if d["design_key"] == "letter-serif-mono-plain-centered")
+        self.assertEqual(d["override"], "82a-clarifications-6.md R4")
+        res = ff.resolve_family("letter", spec)
+        self.assertEqual(res["overrides"], sum(1 for x in spec["designs"] if x.get("override")))
+        self.assertGreaterEqual(res["overrides"], 1)
+        self.assertIn("letter-serif-mono-plain-centered", res["styles"])
+        self.assertIn("Centre", res["styles"]["letter-serif-mono-plain-centered"]["Checklist"])
+        spec2 = ff.load_spec("letter")
+        next(x for x in spec2["designs"] if x["design_key"] == "letter-serif-mono-plain-centered").pop("override")
+        bad = ff.resolve_family("letter", spec2)["violations"]
+        self.assertTrue(any("style_row" in v for v in bad), bad)
+
+    def test_cover_letter_anti_tokens_keep_the_ats_set(self):
+        for r in self.rows("library/doc-reasoning", "cover-letter"):
+            self.assertIn("multi-column", r["Anti-Pattern Tokens"])
+            self.assertEqual(r["Severity"], "fail")
+            self.assertEqual(r["Doc Conditions"], "if_ats_target=constraint:ats-strict")
 
 
 class TestCvPrintScaleCorrection(unittest.TestCase):
